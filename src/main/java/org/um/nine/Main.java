@@ -1,32 +1,15 @@
 package org.um.nine;
 
-import com.jme3.app.SimpleApplication;
-import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.shape.Box;
-import com.jme3.system.AppSettings;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import org.um.nine.config.GuiceConfiguration;
+import org.um.nine.services.GameService;
 
-public class Main extends SimpleApplication {
+public class Main  {
+    public static final Injector injector = Guice.createInjector(new GuiceConfiguration());
+
     public static void main(String[] args) {
-        Main app = new Main();
-
-        AppSettings settings = new AppSettings(true);
-        settings.setTitle("COVID-21 The Game");
-        app.setSettings(settings);
-
-        app.start();
-    }
-
-    @Override
-    public void simpleInitApp() {
-        Box b = new Box(1, 1, 1);
-        Geometry geom = new Geometry("Box", b);
-
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", ColorRGBA.Blue);
-        geom.setMaterial(mat);
-
-        rootNode.attachChild(geom);
+        GameService gameService = injector.getInstance(GameService.class);
+        gameService.init();
     }
 }
