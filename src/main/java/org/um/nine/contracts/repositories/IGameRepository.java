@@ -11,4 +11,5 @@ public interface IGameRepository {
     AppSettings getSettings();
     boolean isStarted();
     void setStarted(boolean started);
+
 }

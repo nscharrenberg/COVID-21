@@ -1,14 +1,19 @@
 package org.um.nine.screens;
 
+import com.google.inject.Inject;
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import org.um.nine.Game;
+import org.um.nine.Main;
+import org.um.nine.contracts.repositories.ISettingRepository;
 
 public class MainMenuState extends BaseAppState {
     private Container window;
+
+    private final ISettingRepository settingRepository = Main.injector.getInstance(ISettingRepository.class);
 
     public float getStandardScale() {
         int height = getApplication().getCamera().getHeight();
@@ -76,8 +81,7 @@ public class MainMenuState extends BaseAppState {
     }
 
     protected void play() {
-        getStateManager().attach(new SettingsState());
-        setEnabled(false);
+        settingRepository.save();
     }
 
     protected void goToSettings() {
