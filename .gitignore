@@ -338,3 +338,5 @@ buildNumber.properties
 !/jme3-vr/src/main/resources/**/*.so.dbg
 !/jme3-vr/src/main/resources/**/*.dll
 !/jme3-vr/src/main/resources/**/*.pdb
+lwjgl64.dll
+OpenAL64.dll
