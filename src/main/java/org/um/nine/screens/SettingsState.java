@@ -6,6 +6,9 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import org.um.nine.Game;
+import org.um.nine.Main;
+import org.um.nine.domain.RESOLUTION;
+import org.um.nine.domain.SAMPLING;
 
 public class SettingsState extends BaseAppState {
     private Container window;
@@ -13,10 +16,6 @@ public class SettingsState extends BaseAppState {
     public float getStandardScale() {
         int height = getApplication().getCamera().getHeight();
         return height / 720f;
-    }
-
-    protected void showError(String title, String error) {
-        getState(OptionPanelState.class).show(title, error);
     }
 
     @Override
@@ -28,7 +27,12 @@ public class SettingsState extends BaseAppState {
         title.setFont(application.getAssetManager().loadFont("fonts/covid2.fnt"));
         title.setInsets(new Insets3f(10, 10, 0, 10));
 
-        mainMenuButton();
+        fullscreenInput();
+        gammaCorrectionInput();
+        vsyncInput();
+        resolutionInput();
+        sampleInput();
+        settingsButton();
 
         int height = application.getCamera().getHeight();
         Vector3f pref = window.getPreferredSize().clone();
@@ -40,7 +44,6 @@ public class SettingsState extends BaseAppState {
 
         window.setLocalTranslation(100 * standardScale, y, 0);
         window.setLocalScale(1.5f * standardScale);
-
     }
 
     @Override
@@ -60,15 +63,88 @@ public class SettingsState extends BaseAppState {
         window.removeFromParent();
     }
 
-    private void mainMenuButton() {
-        Button settings = window.addChild(new Button("Back to Main Menu"));
-        settings.addClickCommands(button -> goToMainMenu());
-        settings.setInsets(new Insets3f(10, 10, 10, 10));
+    private void settingsButton() {
+        Button menuButton = window.addChild(new Button("Back to Main Menu"));
+        menuButton.addClickCommands(button -> goToMainMenu());
+        menuButton.setInsets(new Insets3f(10, 10, 10, 10));
     }
 
-    protected void goToMainMenu() {
-        getStateManager().attach(new MainMenuState());
+    private void save() {
+        getApplication().getContext().restart();
+    }
 
+    private void goToMainMenu() {
+        save();
+        getStateManager().attach(new MainMenuState());
         setEnabled(false);
+    }
+
+    private void fullscreenInput() {
+        Checkbox item = window.addChild(new Checkbox("Enable Fullscreen"), 0, 0);
+        item.getModel().setChecked(getApplication().getContext().getSettings().isFullscreen());
+        item.addClickCommands(button -> {
+            getApplication().getContext().getSettings().setFullscreen(!getApplication().getContext().getSettings().isFullscreen());
+            item.getModel().setChecked(getApplication().getContext().getSettings().isFullscreen());
+        });
+        item.setInsets(new Insets3f(10, 10, 0, 10));
+    }
+
+    private void gammaCorrectionInput() {
+        Checkbox item = window.addChild(new Checkbox("Enable Gamma Correction"), 0, 1);
+        item.getModel().setChecked(getApplication().getContext().getSettings().isGammaCorrection());
+        item.addClickCommands(button -> {
+            getApplication().getContext().getSettings().setGammaCorrection(!getApplication().getContext().getSettings().isGammaCorrection());
+            item.getModel().setChecked(getApplication().getContext().getSettings().isGammaCorrection());
+        });
+        item.setInsets(new Insets3f(10, 10, 0, 10));
+    }
+
+    private void vsyncInput() {
+        Checkbox item = window.addChild(new Checkbox("Enable VSync"), 0, 2);
+        item.getModel().setChecked(getApplication().getContext().getSettings().isVSync());
+        item.addClickCommands(button -> {
+            getApplication().getContext().getSettings().setVSync(!getApplication().getContext().getSettings().isVSync());
+            item.getModel().setChecked(getApplication().getContext().getSettings().isVSync());
+        });
+        item.setInsets(new Insets3f(10, 10, 0, 10));
+    }
+
+    private void resolutionInput() {
+        ListBox<RESOLUTION> item = window.addChild(new ListBox<>(), 1, 0);
+        // TODO: Just Iterate over the enum instead of manually doing it.
+        item.getModel().add(RESOLUTION.RES_4K.getId(), RESOLUTION.RES_4K);
+        item.getModel().add(RESOLUTION.RES_3K.getId(), RESOLUTION.RES_3K);
+        item.getModel().add(RESOLUTION.RES_2K.getId(), RESOLUTION.RES_2K);
+        item.getModel().add(RESOLUTION.RES_1080.getId(), RESOLUTION.RES_1080);
+        item.getModel().add(RESOLUTION.RES_1360.getId(), RESOLUTION.RES_1360);
+        item.getModel().add(RESOLUTION.RES_720.getId(), RESOLUTION.RES_720);
+        item.getModel().add(RESOLUTION.RES_480.getId(), RESOLUTION.RES_480);
+
+        RESOLUTION selected = RESOLUTION.findByResolution(getApplication().getContext().getSettings().getWidth(), getApplication().getContext().getSettings().getHeight());
+        item.getSelectionModel().setSelection(selected != null ? selected.getId() : RESOLUTION.RES_1080.getId());
+        item.addClickCommands(listBox -> {
+            getApplication().getContext().getSettings().setHeight(item.getSelectedItem().getHeight());
+            getApplication().getContext().getSettings().setWidth(item.getSelectedItem().getWidth());
+        });
+        item.setInsets(new Insets3f(10, 10, 0, 10));
+    }
+
+    private void sampleInput() {
+        ListBox<SAMPLING> item = window.addChild(new ListBox<>(), 1, 1);
+        // TODO: Just Iterate over the enum instead of manually doing it.
+        item.getModel().add(SAMPLING.DISABLED.getId(), SAMPLING.DISABLED);
+        item.getModel().add(SAMPLING.X2.getId(), SAMPLING.X2);
+        item.getModel().add(SAMPLING.X4.getId(), SAMPLING.X4);
+        item.getModel().add(SAMPLING.X6.getId(), SAMPLING.X6);
+        item.getModel().add(SAMPLING.X8.getId(), SAMPLING.X8);
+        item.getModel().add(SAMPLING.X16.getId(), SAMPLING.X16);
+        item.getModel().add(SAMPLING.X32.getId(), SAMPLING.X32);
+
+        SAMPLING selected = SAMPLING.findByValue(getApplication().getContext().getSettings().getSamples());
+        item.getSelectionModel().setSelection(selected != null ? selected.getId() : SAMPLING.X4.getId());
+        item.addClickCommands(listBox -> {
+            getApplication().getContext().getSettings().setSamples(item.getSelectedItem().getValue());
+        });
+        item.setInsets(new Insets3f(10, 10, 0, 10));
     }
 }

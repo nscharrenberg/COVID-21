@@ -1,19 +1,16 @@
 package org.um.nine.screens;
 
-import com.google.inject.Inject;
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import org.um.nine.Game;
+import org.um.nine.Info;
 import org.um.nine.Main;
-import org.um.nine.contracts.repositories.ISettingRepository;
 
 public class MainMenuState extends BaseAppState {
     private Container window;
-
-    private final ISettingRepository settingRepository = Main.injector.getInstance(ISettingRepository.class);
 
     public float getStandardScale() {
         int height = getApplication().getCamera().getHeight();
@@ -24,7 +21,7 @@ public class MainMenuState extends BaseAppState {
     protected void initialize(Application application) {
         window = new Container();
 
-        Label title = window.addChild(new Label("COVID-21"));
+        Label title = window.addChild(new Label(Info.APP_TITLE));
         title.setFontSize(32);
         title.setFont(application.getAssetManager().loadFont("fonts/covid2.fnt"));
         title.setInsets(new Insets3f(10, 10, 0, 10));
@@ -64,7 +61,9 @@ public class MainMenuState extends BaseAppState {
 
     private void playButton() {
         Button menuButton = window.addChild(new Button("Play"));
-        menuButton.addClickCommands(button -> play());
+        menuButton.addClickCommands(button -> {
+
+        });
         menuButton.setInsets(new Insets3f(10, 10, 0, 10));
     }
 
@@ -78,10 +77,6 @@ public class MainMenuState extends BaseAppState {
         Button menuButton = window.addChild(new Button("Quit Game"));
         menuButton.addClickCommands(button -> application.stop());
         menuButton.setInsets(new Insets3f(10, 10, 10, 10));
-    }
-
-    protected void play() {
-        settingRepository.save();
     }
 
     protected void goToSettings() {
