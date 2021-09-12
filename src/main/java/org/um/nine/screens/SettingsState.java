@@ -22,7 +22,7 @@ public class SettingsState extends BaseAppState {
     protected void initialize(Application application) {
         window = new Container();
 
-        Label title = window.addChild(new Label("Settings"));
+        Label title = window.addChild(new Label("Settings"), 0, 0);
         title.setFontSize(32);
         title.setFont(application.getAssetManager().loadFont("fonts/covid2.fnt"));
         title.setInsets(new Insets3f(10, 10, 0, 10));
@@ -80,37 +80,39 @@ public class SettingsState extends BaseAppState {
     }
 
     private void fullscreenInput() {
-        Checkbox item = window.addChild(new Checkbox("Enable Fullscreen"), 0, 0);
+        Checkbox item = window.addChild(new Checkbox("Enable Fullscreen"), 1, 0);
         item.getModel().setChecked(getApplication().getContext().getSettings().isFullscreen());
         item.addClickCommands(button -> {
             getApplication().getContext().getSettings().setFullscreen(!getApplication().getContext().getSettings().isFullscreen());
             item.getModel().setChecked(getApplication().getContext().getSettings().isFullscreen());
         });
-        item.setInsets(new Insets3f(10, 10, 0, 10));
+        item.setInsets(new Insets3f(0, 10, 0, 10));
     }
 
     private void gammaCorrectionInput() {
-        Checkbox item = window.addChild(new Checkbox("Enable Gamma Correction"), 0, 1);
+        Checkbox item = window.addChild(new Checkbox("Enable Gamma Correction"), 1, 1);
         item.getModel().setChecked(getApplication().getContext().getSettings().isGammaCorrection());
         item.addClickCommands(button -> {
             getApplication().getContext().getSettings().setGammaCorrection(!getApplication().getContext().getSettings().isGammaCorrection());
             item.getModel().setChecked(getApplication().getContext().getSettings().isGammaCorrection());
         });
-        item.setInsets(new Insets3f(10, 10, 0, 10));
+        item.setInsets(new Insets3f(0, 10, 0, 10));
     }
 
     private void vsyncInput() {
-        Checkbox item = window.addChild(new Checkbox("Enable VSync"), 0, 2);
+        Checkbox item = window.addChild(new Checkbox("Enable VSync"), 1, 2);
         item.getModel().setChecked(getApplication().getContext().getSettings().isVSync());
         item.addClickCommands(button -> {
             getApplication().getContext().getSettings().setVSync(!getApplication().getContext().getSettings().isVSync());
             item.getModel().setChecked(getApplication().getContext().getSettings().isVSync());
         });
-        item.setInsets(new Insets3f(10, 10, 0, 10));
+        item.setInsets(new Insets3f(0, 10, 0, 10));
     }
 
     private void resolutionInput() {
-        ListBox<RESOLUTION> item = window.addChild(new ListBox<>(), 1, 0);
+        Container subPanel = window.addChild(new Container(), 2, 0);
+        subPanel.addChild(new Label("Resolution"));
+        ListBox<RESOLUTION> item = subPanel.addChild(new ListBox<>());
         // TODO: Just Iterate over the enum instead of manually doing it.
         item.getModel().add(RESOLUTION.RES_4K.getId(), RESOLUTION.RES_4K);
         item.getModel().add(RESOLUTION.RES_3K.getId(), RESOLUTION.RES_3K);
@@ -126,11 +128,13 @@ public class SettingsState extends BaseAppState {
             getApplication().getContext().getSettings().setHeight(item.getSelectedItem().getHeight());
             getApplication().getContext().getSettings().setWidth(item.getSelectedItem().getWidth());
         });
-        item.setInsets(new Insets3f(10, 10, 0, 10));
+        subPanel.setInsets(new Insets3f(10, 10, 0, 10));
     }
 
     private void sampleInput() {
-        ListBox<SAMPLING> item = window.addChild(new ListBox<>(), 1, 1);
+        Container subPanel = window.addChild(new Container(), 2, 1);
+        subPanel.addChild(new Label("Anti-Alias"));
+        ListBox<SAMPLING> item = subPanel.addChild(new ListBox<>());
         // TODO: Just Iterate over the enum instead of manually doing it.
         item.getModel().add(SAMPLING.DISABLED.getId(), SAMPLING.DISABLED);
         item.getModel().add(SAMPLING.X2.getId(), SAMPLING.X2);
@@ -138,13 +142,12 @@ public class SettingsState extends BaseAppState {
         item.getModel().add(SAMPLING.X6.getId(), SAMPLING.X6);
         item.getModel().add(SAMPLING.X8.getId(), SAMPLING.X8);
         item.getModel().add(SAMPLING.X16.getId(), SAMPLING.X16);
-        item.getModel().add(SAMPLING.X32.getId(), SAMPLING.X32);
 
         SAMPLING selected = SAMPLING.findByValue(getApplication().getContext().getSettings().getSamples());
         item.getSelectionModel().setSelection(selected != null ? selected.getId() : SAMPLING.X4.getId());
         item.addClickCommands(listBox -> {
             getApplication().getContext().getSettings().setSamples(item.getSelectedItem().getValue());
         });
-        item.setInsets(new Insets3f(10, 10, 0, 10));
+        subPanel.setInsets(new Insets3f(10, 10, 0, 10));
     }
 }

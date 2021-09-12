@@ -8,8 +8,7 @@ public enum SAMPLING {
     X4(2, "4x", 4),
     X6(3, "6x", 6),
     X8(4, "8x", 8),
-    X16(5, "16x", 16),
-    X32(6, "32x", 32);
+    X16(5, "16x", 16);
 
     private int id;
     private String name;
@@ -37,5 +36,10 @@ public enum SAMPLING {
 
     public int getId() {
         return id;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
     }
 }

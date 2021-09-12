@@ -48,7 +48,7 @@ public class GameRepository implements IGameRepository {
         // Allow for touch screen devices
         settings.setEmulateMouse(true);
 
-//        app.setShowSettings(false);
+        app.setShowSettings(false);
         app.setSettings(settings);
 
         app.start();
