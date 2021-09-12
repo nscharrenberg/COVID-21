@@ -12,7 +12,6 @@ import com.simsilica.lemur.style.BaseStyles;
 import org.um.nine.Game;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.IGameRepository;
-import org.um.nine.domain.Player;
 import org.um.nine.domain.RESOLUTION;
 import org.um.nine.screens.MainMenuState;
 
@@ -22,14 +21,10 @@ public class GameRepository implements IGameRepository {
     private final Game app;
     private boolean isStarted = false;
     private Geometry backgroundGeom;
-    private HashMap<String, Player> players = new HashMap<>();
 
     public GameRepository() {
         this.app = new Game();
         app.getStateManager().attach(new MainMenuState());
-
-        players.put("PlayerOne", new Player("Player One"));
-        players.put("PlayerTwo", new Player("Player Two"));
     }
 
     @Override
@@ -111,10 +106,5 @@ public class GameRepository implements IGameRepository {
         backgroundGeom.setMaterial(backgroundMaterial);
         backgroundGeom.setLocalTranslation(-(width / 2), -(height/ 2), 0);
         app.getRootNode().attachChild(backgroundGeom);
-    }
-
-    @Override
-    public HashMap<String, Player> getPlayers() {
-        return players;
     }
 }
