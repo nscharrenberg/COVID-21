@@ -1,10 +1,15 @@
 package org.um.nine.repositories.local;
 
+import com.jme3.light.AmbientLight;
+import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
 import com.jme3.system.AppSettings;
 import com.simsilica.lemur.GuiGlobals;
@@ -55,11 +60,11 @@ public class GameRepository implements IGameRepository {
         app.getFlyByCamera().setEnabled(false);
         setBackgroundScreen();
         initLemur();
+        addAmbientLight();
     }
 
     @Override
     public void update() {
-
     }
 
     private void initLemur() {
@@ -90,12 +95,44 @@ public class GameRepository implements IGameRepository {
 
     @Override
     public void start() {
+        // First Clear the screen
         app.getRootNode().detachAllChildren();
+
+        app.getFlyByCamera().setRotationSpeed(10);
+        app.getFlyByCamera().setMoveSpeed(100);
+        app.getFlyByCamera().setZoomSpeed(100);
+        app.getCamera().setFrustumFar(1600);
+        app.getCamera().setLocation(new Vector3f(0, 0,1500));
+
+        addAmbientLight();
+
+        // Initiate Game Graphics
+        initiateGame();
+    }
+
+    private void addAmbientLight() {
+        AmbientLight al = new AmbientLight();
+        al.setColor(ColorRGBA.White.mult(3.5f));
+        app.getRootNode().addLight(al);
+    }
+
+    /**
+     * Loads in the main game objects such as the board, cards, pawns, etc...
+     */
+    private void initiateGame() {
+        Box world = new Box(1000, 500, 5);
+        Geometry geom = new Geometry("World", world);
+        Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
+        mat.setTexture("DiffuseMap", app.getAssetManager().loadTexture("images/map.jpg"));
+        mat.setTexture("NormalMap", app.getAssetManager().loadTexture("images/map_normal.png"));
+        geom.setMaterial(mat);
+        app.getRootNode().attachChild(geom);
     }
 
     private void setBackgroundScreen() {
-        Material backgroundMaterial = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        backgroundMaterial.setTexture("ColorMap", app.getAssetManager().loadTexture("images/map.jpg"));
+        Material backgroundMaterial = new Material(app.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
+        backgroundMaterial.setTexture("DiffuseMap", app.getAssetManager().loadTexture("images/map.jpg"));
+        backgroundMaterial.setTexture("NormalMap", app.getAssetManager().loadTexture("images/map_normal.png"));
         float w = app.getContext().getSettings().getWidth();
         float h = app.getContext().getSettings().getHeight();
         float ratio = w/h;
