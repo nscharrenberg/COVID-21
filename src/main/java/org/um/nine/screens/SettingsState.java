@@ -5,10 +5,16 @@ import com.jme3.app.state.BaseAppState;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
+import com.simsilica.lemur.Button;
+import com.simsilica.lemur.Checkbox;
+import com.simsilica.lemur.Container;
+import com.simsilica.lemur.Label;
+import org.checkerframework.checker.index.qual.IndexFor;
 import org.um.nine.Game;
-import org.um.nine.Main;
-import org.um.nine.domain.RESOLUTION;
+import org.um.nine.domain.Resolution;
 import org.um.nine.domain.SAMPLING;
+
+import java.awt.*;
 
 public class SettingsState extends BaseAppState {
     private Container window;
@@ -112,18 +118,26 @@ public class SettingsState extends BaseAppState {
     private void resolutionInput() {
         Container subPanel = window.addChild(new Container(), 2, 0);
         subPanel.addChild(new Label("Resolution"));
-        ListBox<RESOLUTION> item = subPanel.addChild(new ListBox<>());
-        // TODO: Just Iterate over the enum instead of manually doing it.
-        item.getModel().add(RESOLUTION.RES_4K.getId(), RESOLUTION.RES_4K);
-        item.getModel().add(RESOLUTION.RES_3K.getId(), RESOLUTION.RES_3K);
-        item.getModel().add(RESOLUTION.RES_2K.getId(), RESOLUTION.RES_2K);
-        item.getModel().add(RESOLUTION.RES_1080.getId(), RESOLUTION.RES_1080);
-        item.getModel().add(RESOLUTION.RES_1360.getId(), RESOLUTION.RES_1360);
-        item.getModel().add(RESOLUTION.RES_720.getId(), RESOLUTION.RES_720);
-        item.getModel().add(RESOLUTION.RES_480.getId(), RESOLUTION.RES_480);
+        ListBox<Resolution> item = subPanel.addChild(new ListBox<>());
 
-        RESOLUTION selected = RESOLUTION.findByResolution(getApplication().getContext().getSettings().getWidth(), getApplication().getContext().getSettings().getHeight());
-        item.getSelectionModel().setSelection(selected != null ? selected.getId() : RESOLUTION.RES_1080.getId());
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+
+        int index = 0;
+        for(DisplayMode mode : gd.getDisplayModes()) {
+            Resolution res = new Resolution(index, mode.getWidth(), mode.getHeight());
+            item.getModel().add(index, res);
+            index++;
+
+            if (mode.getHeight() == getApplication().getContext().getSettings().getHeight() &&
+                    mode.getWidth() == getApplication().getContext().getSettings().getWidth()) {
+                item.getSelectionModel().setSelection(res.getId());
+            }
+        }
+
+        if (item.getSelectedItem() == null) {
+            item.getSelectionModel().setSelection(0);
+        }
+
         item.addClickCommands(listBox -> {
             getApplication().getContext().getSettings().setHeight(item.getSelectedItem().getHeight());
             getApplication().getContext().getSettings().setWidth(item.getSelectedItem().getWidth());

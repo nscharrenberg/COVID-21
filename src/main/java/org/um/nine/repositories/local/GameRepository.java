@@ -12,10 +12,9 @@ import com.simsilica.lemur.style.BaseStyles;
 import org.um.nine.Game;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.IGameRepository;
-import org.um.nine.domain.RESOLUTION;
 import org.um.nine.screens.MainMenuState;
 
-import java.util.HashMap;
+import java.awt.*;
 
 public class GameRepository implements IGameRepository {
     private final Game app;
@@ -33,12 +32,14 @@ public class GameRepository implements IGameRepository {
         settings.setTitle(Info.APP_TITLE);
         settings.setFrameRate(60);
 
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+
         // Set the splash screen image
         settings.setSettingsDialogImage("images/image.jpg");
-        settings.setResolution(RESOLUTION.RES_1080.getWidth(), RESOLUTION.RES_1080.getHeight());
+        settings.setResolution(gd.getDisplayMode().getWidth(), gd.getDisplayMode().getHeight());
         settings.setSamples(16);
         settings.setVSync(false);
-        settings.setFullscreen(false);
+        settings.setFullscreen(true);
 
         // Allow for touch screen devices
         settings.setEmulateMouse(true);
