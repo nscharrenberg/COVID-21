@@ -139,9 +139,9 @@ public class SettingsState extends BaseAppState {
         }
 
         item.addClickCommands(listBox -> {
-            getApplication().getContext().getSettings().setHeight(item.getSelectedItem().getHeight());
-            getApplication().getContext().getSettings().setWidth(item.getSelectedItem().getWidth());
+            getApplication().getContext().getSettings().setResolution(item.getSelectedItem().getHeight(), item.getSelectedItem().getHeight());
         });
+
         subPanel.setInsets(new Insets3f(10, 10, 0, 10));
     }
 

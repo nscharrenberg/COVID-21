@@ -14,7 +14,6 @@ public class Game extends SimpleApplication {
 
     @Override
     public void simpleUpdate(float tpf) {
-        super.simpleUpdate(tpf);
         gameRepository.update();
     }
 }

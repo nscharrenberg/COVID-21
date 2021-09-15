@@ -8,9 +8,11 @@ import com.simsilica.lemur.*;
 import org.um.nine.Game;
 import org.um.nine.Info;
 import org.um.nine.Main;
+import org.um.nine.contracts.repositories.IGameRepository;
 
 public class MainMenuState extends BaseAppState {
     private Container window;
+    private IGameRepository gameRepository = Main.injector.getInstance(IGameRepository.class);
 
     public float getStandardScale() {
         int height = getApplication().getCamera().getHeight();
@@ -62,7 +64,8 @@ public class MainMenuState extends BaseAppState {
     private void playButton() {
         Button menuButton = window.addChild(new Button("Play"));
         menuButton.addClickCommands(button -> {
-
+            gameRepository.start();
+            setEnabled(false);
         });
         menuButton.setInsets(new Insets3f(10, 10, 0, 10));
     }

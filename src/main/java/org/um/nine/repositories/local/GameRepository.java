@@ -38,7 +38,7 @@ public class GameRepository implements IGameRepository {
         settings.setSettingsDialogImage("images/image.jpg");
         settings.setResolution(gd.getDisplayMode().getWidth(), gd.getDisplayMode().getHeight());
         settings.setSamples(16);
-        settings.setVSync(false);
+        settings.setVSync(true);
         settings.setFullscreen(true);
 
         // Allow for touch screen devices
@@ -86,6 +86,11 @@ public class GameRepository implements IGameRepository {
     @Override
     public void setStarted(boolean started) {
         isStarted = started;
+    }
+
+    @Override
+    public void start() {
+        app.getRootNode().detachAllChildren();
     }
 
     private void setBackgroundScreen() {
