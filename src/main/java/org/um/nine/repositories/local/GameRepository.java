@@ -38,7 +38,7 @@ public class GameRepository implements IGameRepository {
         settings.setResolution(RESOLUTION.RES_1080.getWidth(), RESOLUTION.RES_1080.getHeight());
         settings.setSamples(16);
         settings.setVSync(false);
-        settings.setFullscreen(true);
+        settings.setFullscreen(false);
 
         // Allow for touch screen devices
         settings.setEmulateMouse(true);
