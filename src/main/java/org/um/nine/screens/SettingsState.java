@@ -9,15 +9,18 @@ import com.simsilica.lemur.Button;
 import com.simsilica.lemur.Checkbox;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.Label;
-import org.checkerframework.checker.index.qual.IndexFor;
 import org.um.nine.Game;
 import org.um.nine.domain.Resolution;
 import org.um.nine.domain.SAMPLING;
 
+import javax.inject.Inject;
 import java.awt.*;
 
 public class SettingsState extends BaseAppState {
     private Container window;
+
+    @Inject
+    private MainMenuState mainMenuState;
 
     public float getStandardScale() {
         int height = getApplication().getCamera().getHeight();
@@ -81,7 +84,8 @@ public class SettingsState extends BaseAppState {
 
     private void goToMainMenu() {
         save();
-        getStateManager().attach(new MainMenuState());
+        getStateManager().attach(mainMenuState);
+        mainMenuState.setEnabled(true);
         setEnabled(false);
     }
 
@@ -139,9 +143,9 @@ public class SettingsState extends BaseAppState {
         }
 
         item.addClickCommands(listBox -> {
-            getApplication().getContext().getSettings().setHeight(item.getSelectedItem().getHeight());
-            getApplication().getContext().getSettings().setWidth(item.getSelectedItem().getWidth());
+            getApplication().getContext().getSettings().setResolution(item.getSelectedItem().getHeight(), item.getSelectedItem().getHeight());
         });
+
         subPanel.setInsets(new Insets3f(10, 10, 0, 10));
     }
 
