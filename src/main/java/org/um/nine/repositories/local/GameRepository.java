@@ -1,5 +1,11 @@
 package org.um.nine.repositories.local;
 
+import com.jme3.input.KeyInput;
+import com.jme3.input.MouseInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.AnalogListener;
+import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
@@ -25,6 +31,9 @@ public class GameRepository implements IGameRepository {
     private final Game app;
     private boolean isStarted = false;
     private Geometry backgroundGeom;
+    private boolean isPaused = true;
+    private Geometry map = null;
+    private int speed = 200;
 
     public GameRepository() {
         this.app = new Game();
@@ -101,10 +110,10 @@ public class GameRepository implements IGameRepository {
         app.getFlyByCamera().setRotationSpeed(10);
         app.getFlyByCamera().setMoveSpeed(100);
         app.getFlyByCamera().setZoomSpeed(100);
-        app.getCamera().setFrustumFar(1600);
+        app.getCamera().setFrustumFar(3000);
         app.getCamera().setLocation(new Vector3f(0, 0,1500));
 
-        addAmbientLight();
+        inputHandling();
 
         // Initiate Game Graphics
         initiateGame();
@@ -120,13 +129,13 @@ public class GameRepository implements IGameRepository {
      * Loads in the main game objects such as the board, cards, pawns, etc...
      */
     private void initiateGame() {
-        Box world = new Box(1000, 500, 5);
-        Geometry geom = new Geometry("World", world);
+        Box worldBox = new Box(1000, 500, 5);
+        map = new Geometry("World", worldBox);
         Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
         mat.setTexture("DiffuseMap", app.getAssetManager().loadTexture("images/map.jpg"));
         mat.setTexture("NormalMap", app.getAssetManager().loadTexture("images/map_normal.png"));
-        geom.setMaterial(mat);
-        app.getRootNode().attachChild(geom);
+        map.setMaterial(mat);
+        app.getRootNode().attachChild(map);
     }
 
     private void setBackgroundScreen() {
@@ -150,4 +159,63 @@ public class GameRepository implements IGameRepository {
         backgroundGeom.setLocalTranslation(-(width / 2), -(height/ 2), 0);
         app.getRootNode().attachChild(backgroundGeom);
     }
+
+    private void inputHandling() {
+        app.getInputManager().addMapping("Pause", new KeyTrigger(KeyInput.KEY_P));
+        app.getInputManager().addMapping("Left", new KeyTrigger(KeyInput.KEY_A));
+        app.getInputManager().addMapping("Right", new KeyTrigger(KeyInput.KEY_D));
+        app.getInputManager().addMapping("Up", new KeyTrigger(KeyInput.KEY_W));
+        app.getInputManager().addMapping("Down", new KeyTrigger(KeyInput.KEY_S));
+        app.getInputManager().addMapping("ZoomIn", new KeyTrigger(KeyInput.KEY_MINUS));
+        app.getInputManager().addMapping("ZoomOut", new KeyTrigger(KeyInput.KEY_EQUALS));
+
+        app.getInputManager().addListener(actionListener, "Pause");
+        app.getInputManager().addListener(analogListener, "Left", "Right", "Up", "Down", "ZoomIn", "ZoomOut");
+    }
+
+    private final ActionListener actionListener = new ActionListener() {
+        @Override
+        public void onAction(String name, boolean keyPressed, float tpf) {
+            if (name.equals("Pause") && !keyPressed) {
+                isPaused = !isPaused;
+            }
+        }
+    };
+
+    // TODO: Make a formula for smooth and easy navigation speed through the map
+    // TODO: Make bounds so you don't go out of the map, or clip through the map or out of rendering distance.
+    private final AnalogListener analogListener = new AnalogListener() {
+        @Override
+        public void onAnalog(String name, float value, float tpf) {
+            if (map != null) {
+                if (name.equals("Right")) {
+                    Vector3f m = map.getLocalTranslation();
+                    map.setLocalTranslation(m.x - value * speed, m.y, m.z);
+                }
+                if (name.equals("Left")) {
+                    Vector3f m = map.getLocalTranslation();
+                    map.setLocalTranslation(m.x + value * speed, m.y, m.z);
+                }
+                if (name.equals("Up")) {
+                    Vector3f m = map.getLocalTranslation();
+                    map.setLocalTranslation(m.x, m.y - value * speed, m.z);
+                }
+
+                if (name.equals("Down")) {
+                    Vector3f m = map.getLocalTranslation();
+                    map.setLocalTranslation(m.x, m.y + value * speed, m.z);
+                }
+
+                if (name.equals("ZoomIn")) {
+                    Vector3f m = map.getLocalTranslation();
+                    map.setLocalTranslation(m.x, m.y, m.z - value * speed);
+                }
+
+                if (name.equals("ZoomOut")) {
+                    Vector3f m = map.getLocalTranslation();
+                    map.setLocalTranslation(m.x, m.y, m.z + value * speed);
+                }
+            }
+        }
+    };
 }
