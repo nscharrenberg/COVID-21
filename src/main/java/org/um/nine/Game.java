@@ -1,9 +1,9 @@
 package org.um.nine;
 
+import com.google.inject.Inject;
 import com.jme3.app.SimpleApplication;
 import org.um.nine.contracts.repositories.IGameRepository;
 
-import javax.inject.Inject;
 
 public class Game extends SimpleApplication {
     private IGameRepository gameRepository;

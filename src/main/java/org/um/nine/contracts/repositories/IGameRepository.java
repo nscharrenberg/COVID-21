@@ -1,5 +1,6 @@
 package org.um.nine.contracts.repositories;
 
+import com.jme3.scene.Geometry;
 import com.jme3.system.AppSettings;
 import org.um.nine.Game;
 
@@ -15,4 +16,7 @@ public interface IGameRepository {
     void setStarted(boolean started);
     void start();
     void setApp(Game app);
+    Geometry getMap();
+    int getSpeed();
+    void setSpeed(int speed);
 }
