@@ -10,9 +10,16 @@ import org.um.nine.Info;
 import org.um.nine.Main;
 import org.um.nine.contracts.repositories.IGameRepository;
 
+import javax.inject.Inject;
+
 public class MainMenuState extends BaseAppState {
     private Container window;
-    private IGameRepository gameRepository = Main.injector.getInstance(IGameRepository.class);
+
+    @Inject
+    private SettingsState settingsState;
+
+    @Inject
+    private IGameRepository gameRepository;
 
     public float getStandardScale() {
         int height = getApplication().getCamera().getHeight();
@@ -83,7 +90,7 @@ public class MainMenuState extends BaseAppState {
     }
 
     protected void goToSettings() {
-        getStateManager().attach(new SettingsState());
+        getStateManager().attach(settingsState);
         setEnabled(false);
     }
 }

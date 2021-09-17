@@ -22,23 +22,23 @@ import com.simsilica.lemur.GuiGlobals;
 import com.simsilica.lemur.style.BaseStyles;
 import org.um.nine.Game;
 import org.um.nine.Info;
+import org.um.nine.Main;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.screens.MainMenuState;
 
+import javax.inject.Inject;
 import java.awt.*;
 
 public class GameRepository implements IGameRepository {
-    private final Game app;
+    private Game app;
     private boolean isStarted = false;
     private Geometry backgroundGeom;
     private boolean isPaused = true;
     private Geometry map = null;
     private int speed = 200;
 
-    public GameRepository() {
-        this.app = new Game();
-        app.getStateManager().attach(new MainMenuState());
-    }
+    @Inject
+    private MainMenuState mainMenu;
 
     @Override
     public void init() {
@@ -62,6 +62,14 @@ public class GameRepository implements IGameRepository {
         app.setSettings(settings);
 
         app.start();
+
+        app.getStateManager().attach(mainMenu);
+    }
+
+    @Inject
+    @Override
+    public void setApp(Game app) {
+        this.app = app;
     }
 
     @Override

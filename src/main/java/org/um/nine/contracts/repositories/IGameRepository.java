@@ -14,4 +14,5 @@ public interface IGameRepository {
     boolean isStarted();
     void setStarted(boolean started);
     void start();
+    void setApp(Game app);
 }

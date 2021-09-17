@@ -14,10 +14,14 @@ import org.um.nine.Game;
 import org.um.nine.domain.Resolution;
 import org.um.nine.domain.SAMPLING;
 
+import javax.inject.Inject;
 import java.awt.*;
 
 public class SettingsState extends BaseAppState {
     private Container window;
+
+    @Inject
+    private MainMenuState mainMenuState;
 
     public float getStandardScale() {
         int height = getApplication().getCamera().getHeight();
@@ -81,7 +85,7 @@ public class SettingsState extends BaseAppState {
 
     private void goToMainMenu() {
         save();
-        getStateManager().attach(new MainMenuState());
+        getStateManager().attach(mainMenuState);
         setEnabled(false);
     }
 
