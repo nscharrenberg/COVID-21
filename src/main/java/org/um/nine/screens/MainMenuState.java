@@ -91,6 +91,7 @@ public class MainMenuState extends BaseAppState {
 
     protected void goToSettings() {
         getStateManager().attach(settingsState);
+        settingsState.setEnabled(true);
         setEnabled(false);
     }
 }
