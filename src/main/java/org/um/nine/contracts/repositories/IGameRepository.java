@@ -16,7 +16,6 @@ public interface IGameRepository {
     void setStarted(boolean started);
     void start();
     void setApp(Game app);
-    Geometry getMap();
     int getSpeed();
     void setSpeed(int speed);
 }

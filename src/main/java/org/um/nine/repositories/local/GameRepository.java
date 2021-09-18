@@ -8,13 +8,13 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
 import com.jme3.system.AppSettings;
 import com.simsilica.lemur.GuiGlobals;
 import com.simsilica.lemur.style.BaseStyles;
 import org.um.nine.Game;
 import org.um.nine.Info;
+import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.screens.MainMenuState;
 import org.um.nine.utils.managers.InputManager;
@@ -25,8 +25,10 @@ public class GameRepository implements IGameRepository {
     private Game app;
     private boolean isStarted = false;
     private Geometry backgroundGeom;
-    private Geometry map = null;
     private int speed = 200;
+
+    @Inject
+    private IBoardRepository boardRepository;
 
     @Inject
     private InputManager inputManager;
@@ -118,26 +120,13 @@ public class GameRepository implements IGameRepository {
         inputManager.init();
 
         // Initiate Game Graphics
-        initiateGame();
+        boardRepository.startGame();
     }
 
     private void addAmbientLight() {
         AmbientLight al = new AmbientLight();
         al.setColor(ColorRGBA.White.mult(3.5f));
         app.getRootNode().addLight(al);
-    }
-
-    /**
-     * Loads in the main game objects such as the board, cards, pawns, etc...
-     */
-    private void initiateGame() {
-        Box worldBox = new Box(1000, 500, 5);
-        map = new Geometry("World", worldBox);
-        Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
-        mat.setTexture("DiffuseMap", app.getAssetManager().loadTexture("images/map.jpg"));
-        mat.setTexture("NormalMap", app.getAssetManager().loadTexture("images/map_normal.png"));
-        map.setMaterial(mat);
-        app.getRootNode().attachChild(map);
     }
 
     private void setBackgroundScreen() {
@@ -160,11 +149,6 @@ public class GameRepository implements IGameRepository {
         backgroundGeom.setMaterial(backgroundMaterial);
         backgroundGeom.setLocalTranslation(-(width / 2), -(height/ 2), 0);
         app.getRootNode().attachChild(backgroundGeom);
-    }
-
-    @Override
-    public Geometry getMap() {
-        return map;
     }
 
     @Override
