@@ -12,10 +12,10 @@ import java.util.List;
 public class City {
     private String name;
     private ColorRGBA color;
-    private List<Disease> cubes;
-    private List<Player> pawns;
+    private List<Disease> cubes = new ArrayList<>();
+    private List<Player> pawns = new ArrayList<>();
     private ResearchStation researchStation;
-    private List<City> neighbors;
+    private List<City> neighbors = new ArrayList<>();
     private Vector3f location;
 
     public City(String name, ColorRGBA color, Vector3f location) {
