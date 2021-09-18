@@ -1,6 +1,10 @@
 package org.um.nine.domain;
 
+import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.shape.Cylinder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +16,12 @@ public class City {
     private List<Player> pawns;
     private ResearchStation researchStation;
     private List<City> neighbors;
+    private Vector3f location;
 
-    public City(String name, ColorRGBA color) {
+    public City(String name, ColorRGBA color, Vector3f location) {
         this.name = name;
         this.color = color;
+        this.location = location;
     }
 
     public String getName() {
@@ -94,5 +100,13 @@ public class City {
 
     public void setNeighbors(List<City> neighbors) {
         this.neighbors = neighbors;
+    }
+
+    public Vector3f getLocation() {
+        return location;
+    }
+
+    public void setLocation(Vector3f location) {
+        this.location = location;
     }
 }

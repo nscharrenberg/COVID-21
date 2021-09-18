@@ -5,6 +5,8 @@ import com.jme3.light.AmbientLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.post.FilterPostProcessor;
+import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
@@ -25,6 +27,8 @@ public class GameRepository implements IGameRepository {
     private Game app;
     private boolean isStarted = false;
     private Geometry backgroundGeom;
+    private FilterPostProcessor fpp;
+    private BloomFilter bloomFilter;
     private int speed = 200;
 
     @Inject
@@ -60,6 +64,8 @@ public class GameRepository implements IGameRepository {
         app.start();
 
         app.getStateManager().attach(mainMenu);
+
+        refreshFpp();
     }
 
     @Inject
@@ -159,5 +165,22 @@ public class GameRepository implements IGameRepository {
     @Override
     public void setSpeed(int speed) {
         this.speed = speed;
+    }
+
+    @Override
+    public FilterPostProcessor getFpp() {
+        return fpp;
+    }
+
+    @Override
+    public BloomFilter getBloomFilter() {
+        return bloomFilter;
+    }
+
+    public void refreshFpp() {
+        this.fpp = new FilterPostProcessor(app.getAssetManager());
+        this.bloomFilter = new BloomFilter(BloomFilter.GlowMode.Objects);
+        this.fpp.addFilter(bloomFilter);
+        this.app.getViewPort().addProcessor(this.fpp);
     }
 }
