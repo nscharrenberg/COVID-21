@@ -51,10 +51,11 @@ public class CityCardReader {
     }
 
     public static void main(String[] args) throws Exception {
+        //TODO add yellow cities to JSON file!!!!
         test a = new test();
         City[] c = a.cityTest();
         for (int i = 0; i < c.length; i++){
-            System.out.println(c[i].getName());
+            System.out.println(c[i].getName() + ": " + c[i].getColor().toString());
         }
     }
 }
