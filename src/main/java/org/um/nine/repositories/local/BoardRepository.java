@@ -12,6 +12,8 @@ import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.domain.City;
 
+import java.util.Map;
+
 public class BoardRepository implements IBoardRepository {
     private Geometry board;
 
@@ -48,11 +50,12 @@ public class BoardRepository implements IBoardRepository {
     }
 
     private void renderCities() {
-        cityRepository.getCities().forEach(city -> {
+        cityRepository.getCities().forEach((key, city) -> {
             city.getNeighbors().forEach(neighbor -> renderEdge(city, neighbor));
 
             renderCity(city);
         });
+
     }
 
     private void renderCity(City city) {
