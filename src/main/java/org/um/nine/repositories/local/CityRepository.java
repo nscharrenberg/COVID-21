@@ -6,6 +6,7 @@ import org.um.nine.Info;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.domain.City;
 import org.um.nine.domain.ResearchStation;
+import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
 import org.um.nine.exceptions.ResearchStationLimitException;
 
 import java.util.ArrayList;
@@ -26,7 +27,11 @@ public class CityRepository implements ICityRepository {
     }
 
     @Override
-    public void addResearchStation(City city) throws ResearchStationLimitException {
+    public void addResearchStation(City city) throws ResearchStationLimitException, CityAlreadyHasResearchStationException {
+        if (city.getResearchStation() != null) {
+            throw new CityAlreadyHasResearchStationException();
+        }
+
         if ((researchStations.size() + 1) > Info.RESEARCH_STATION_THRESHOLD) {
             throw new ResearchStationLimitException();
         }
