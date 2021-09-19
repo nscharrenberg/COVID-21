@@ -8,4 +8,5 @@ import java.util.List;
 public interface ICardRepository {
     List<PlayerCard> getPlayerDeck();
     List<EpidemicCard> getEpidemicDeck();
+    void reset();
 }

@@ -9,28 +9,19 @@ import org.um.nine.domain.ResearchStation;
 import org.um.nine.exceptions.ResearchStationLimitException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class CityRepository implements ICityRepository {
-    private List<City> cities;
+    private HashMap<String, City> cities;
     private List<ResearchStation> researchStations;
 
     public CityRepository() {
-        this.researchStations = new ArrayList<>();
-        this.cities = new ArrayList<>();
-
-        // TODO: Utilize a JSON file to import all the cities and it's locations.
-
-        City atlanta = new City("Atlanta", ColorRGBA.Blue, new Vector3f(-480, 182, 1));
-        City chicago = new City("Chicago", ColorRGBA.Blue, new Vector3f(-500, 240, 1));
-        atlanta.addNeighbour(chicago);
-
-        this.cities.add(atlanta);
-        this.cities.add(chicago);
+        reset();
     }
 
     @Override
-    public List<City> getCities() {
+    public HashMap<String, City> getCities() {
         return cities;
     }
 
@@ -41,5 +32,19 @@ public class CityRepository implements ICityRepository {
         }
 
         this.researchStations.add(new ResearchStation(city));
+    }
+
+    public void reset() {
+        this.researchStations = new ArrayList<>();
+        this.cities = new HashMap<>();
+
+        // TODO: Utilize a JSON file to import all the cities and it's locations.
+
+        City atlanta = new City("Atlanta", ColorRGBA.Blue, new Vector3f(-480, 182, 1));
+        City chicago = new City("Chicago", ColorRGBA.Blue, new Vector3f(-500, 240, 1));
+        atlanta.addNeighbour(chicago);
+
+        this.cities.put(atlanta.getName(), atlanta);
+        this.cities.put(chicago.getName(), chicago);
     }
 }

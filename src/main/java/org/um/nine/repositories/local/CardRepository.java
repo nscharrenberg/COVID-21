@@ -12,8 +12,7 @@ public class CardRepository implements ICardRepository {
     private List<EpidemicCard> epidemicDeck;
 
     public CardRepository() {
-        this.playerDeck = new ArrayList<>();
-        this.epidemicDeck = new ArrayList<>();
+        reset();
     }
 
     @Override
@@ -24,5 +23,10 @@ public class CardRepository implements ICardRepository {
     @Override
     public List<EpidemicCard> getEpidemicDeck() {
         return epidemicDeck;
+    }
+
+    public void reset() {
+        this.playerDeck = new ArrayList<>();
+        this.epidemicDeck = new ArrayList<>();
     }
 }
