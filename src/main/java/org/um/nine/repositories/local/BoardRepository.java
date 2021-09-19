@@ -26,7 +26,7 @@ public class BoardRepository implements IBoardRepository {
     @Override
     public void startGame() {
         renderBoard();
-        renderCities();
+        cityRepository.renderCities();
     }
 
     @Override
@@ -47,38 +47,5 @@ public class BoardRepository implements IBoardRepository {
         mat.setTexture("NormalMap", gameRepository.getApp().getAssetManager().loadTexture("images/map_normal.png"));
         board.setMaterial(mat);
         gameRepository.getApp().getRootNode().attachChild(board);
-    }
-
-    private void renderCities() {
-        cityRepository.getCities().forEach((key, city) -> {
-            city.getNeighbors().forEach(neighbor -> renderEdge(city, neighbor));
-
-            renderCity(city);
-        });
-
-    }
-
-    private void renderCity(City city) {
-        Cylinder plateShape = new Cylinder(5, 10, 12.5f, 2, true);
-        Geometry plate = new Geometry(city.getName(), plateShape);
-        Material mat = new Material(gameRepository.getApp().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", city.getColor());
-        mat.setColor("GlowColor", city.getColor());
-        gameRepository.refreshFpp();
-        plate.setMaterial(mat);
-        plate.setLocalTranslation(city.getLocation());
-        gameRepository.getApp().getRootNode().attachChild(plate);
-    }
-
-    private void renderEdge(City city1, City city2) {
-        Line lineShape = new Line(city1.getLocation(), city2.getLocation());
-        Geometry plate = new Geometry(city1.getName() + "->" + city2.getName(), lineShape);
-        Material mat = new Material(gameRepository.getApp().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", ColorRGBA.White);
-        mat.setColor("GlowColor", ColorRGBA.White);
-        mat.getAdditionalRenderState().setLineWidth(1);
-        mat.getAdditionalRenderState().setWireframe(true);
-        plate.setMaterial(mat);
-        gameRepository.getApp().getRootNode().attachChild(plate);
     }
 }

@@ -10,4 +10,6 @@ public interface ICityRepository {
     HashMap<String, City> getCities();
     void addResearchStation(City city) throws ResearchStationLimitException, CityAlreadyHasResearchStationException;
     void reset();
+    void renderResearchStations();
+    void renderCities();
 }
