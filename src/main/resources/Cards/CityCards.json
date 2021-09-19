@@ -1,0 +1,24 @@
+{
+  "Cities": [
+    {
+      "name": "San Francisco",
+      "color": "Blue",
+      "position": [1,2,3],
+      "neighbours": []
+    },
+    {
+      "name": "Chicago",
+      "color": "Blue",
+      "position": [1,2,3],
+      "neighbours": []
+    },
+    {
+      "name": "Atlanta",
+      "color": "Blue",
+      "position": [1,2,3],
+      "neighbours": []
+    }
+  ]
+}
+
+
