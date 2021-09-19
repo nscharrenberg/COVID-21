@@ -24,8 +24,8 @@ public class BoardRepository implements IBoardRepository {
 
         // TODO: Utilize a JSON file to import all the cities and it's locations.
 
-        City atlanta = new City("Atlanta", ColorRGBA.Blue, new Vector3f(-480, 192, 1));
-        City chicago = new City("Chicago", ColorRGBA.Blue, new Vector3f(-500, 250, 1));
+        City atlanta = new City("Atlanta", ColorRGBA.Blue, new Vector3f(-480, 182, 1));
+        City chicago = new City("Chicago", ColorRGBA.Blue, new Vector3f(-500, 240, 1));
         atlanta.addNeighbour(chicago);
 
         this.cities.add(atlanta);
@@ -92,6 +92,5 @@ public class BoardRepository implements IBoardRepository {
         mat.getAdditionalRenderState().setWireframe(true);
         plate.setMaterial(mat);
         gameRepository.getApp().getRootNode().attachChild(plate);
-
     }
 }
