@@ -6,6 +6,8 @@ import org.um.nine.contracts.repositories.IGameRepository;
 
 
 public class Game extends SimpleApplication {
+
+    @Inject
     private IGameRepository gameRepository;
 
     @Override
@@ -16,10 +18,5 @@ public class Game extends SimpleApplication {
     @Override
     public void simpleUpdate(float tpf) {
         gameRepository.update();
-    }
-
-    @Inject
-    public void setGameRepository(IGameRepository gameRepository) {
-        this.gameRepository = gameRepository;
     }
 }
