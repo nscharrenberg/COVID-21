@@ -5,6 +5,8 @@ public class ResearchStation {
 
     public ResearchStation(City location) {
         this.location = location;
+
+        location.setResearchStation(this);
     }
 
     public City getLocation() {
