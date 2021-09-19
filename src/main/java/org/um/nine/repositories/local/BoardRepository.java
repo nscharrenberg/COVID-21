@@ -3,38 +3,23 @@ package org.um.nine.repositories.local;
 import com.google.inject.Inject;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Line;
 import org.um.nine.contracts.repositories.IBoardRepository;
+import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.domain.City;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class BoardRepository implements IBoardRepository {
     private Geometry board;
-    private List<City> cities;
-
-    public BoardRepository() {
-        this.cities = new ArrayList<>();
-
-        // TODO: Utilize a JSON file to import all the cities and it's locations.
-
-        City atlanta = new City("Atlanta", ColorRGBA.Blue, new Vector3f(-480, 182, 1));
-        City chicago = new City("Chicago", ColorRGBA.Blue, new Vector3f(-500, 240, 1));
-        atlanta.addNeighbour(chicago);
-
-        this.cities.add(atlanta);
-        this.cities.add(chicago);
-    }
 
     @Inject
     private IGameRepository gameRepository;
 
+    @Inject
+    private ICityRepository cityRepository;
 
     @Override
     public void startGame() {
@@ -63,7 +48,7 @@ public class BoardRepository implements IBoardRepository {
     }
 
     private void renderCities() {
-        this.cities.forEach(city -> {
+        cityRepository.getCities().forEach(city -> {
             city.getNeighbors().forEach(neighbor -> renderEdge(city, neighbor));
 
             renderCity(city);
