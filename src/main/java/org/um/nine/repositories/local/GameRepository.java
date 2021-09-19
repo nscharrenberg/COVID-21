@@ -5,16 +5,18 @@ import com.jme3.light.AmbientLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.post.FilterPostProcessor;
+import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
 import com.jme3.system.AppSettings;
 import com.simsilica.lemur.GuiGlobals;
 import com.simsilica.lemur.style.BaseStyles;
 import org.um.nine.Game;
 import org.um.nine.Info;
+import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.screens.MainMenuState;
 import org.um.nine.utils.managers.InputManager;
@@ -25,8 +27,12 @@ public class GameRepository implements IGameRepository {
     private Game app;
     private boolean isStarted = false;
     private Geometry backgroundGeom;
-    private Geometry map = null;
+    private FilterPostProcessor fpp;
+    private BloomFilter bloomFilter;
     private int speed = 200;
+
+    @Inject
+    private IBoardRepository boardRepository;
 
     @Inject
     private InputManager inputManager;
@@ -58,6 +64,8 @@ public class GameRepository implements IGameRepository {
         app.start();
 
         app.getStateManager().attach(mainMenu);
+
+        refreshFpp();
     }
 
     @Inject
@@ -106,38 +114,23 @@ public class GameRepository implements IGameRepository {
 
     @Override
     public void start() {
+        app.getFlyByCamera().setEnabled(true);
         // First Clear the screen
         app.getRootNode().detachAllChildren();
 
-        app.getFlyByCamera().setRotationSpeed(10);
-        app.getFlyByCamera().setMoveSpeed(100);
-        app.getFlyByCamera().setZoomSpeed(100);
         app.getCamera().setFrustumFar(3000);
         app.getCamera().setLocation(new Vector3f(0, 0,1500));
 
         inputManager.init();
 
         // Initiate Game Graphics
-        initiateGame();
+        boardRepository.startGame();
     }
 
     private void addAmbientLight() {
         AmbientLight al = new AmbientLight();
         al.setColor(ColorRGBA.White.mult(3.5f));
         app.getRootNode().addLight(al);
-    }
-
-    /**
-     * Loads in the main game objects such as the board, cards, pawns, etc...
-     */
-    private void initiateGame() {
-        Box worldBox = new Box(1000, 500, 5);
-        map = new Geometry("World", worldBox);
-        Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
-        mat.setTexture("DiffuseMap", app.getAssetManager().loadTexture("images/map.jpg"));
-        mat.setTexture("NormalMap", app.getAssetManager().loadTexture("images/map_normal.png"));
-        map.setMaterial(mat);
-        app.getRootNode().attachChild(map);
     }
 
     private void setBackgroundScreen() {
@@ -163,11 +156,6 @@ public class GameRepository implements IGameRepository {
     }
 
     @Override
-    public Geometry getMap() {
-        return map;
-    }
-
-    @Override
     public int getSpeed() {
         return speed;
     }
@@ -175,5 +163,22 @@ public class GameRepository implements IGameRepository {
     @Override
     public void setSpeed(int speed) {
         this.speed = speed;
+    }
+
+    @Override
+    public FilterPostProcessor getFpp() {
+        return fpp;
+    }
+
+    @Override
+    public BloomFilter getBloomFilter() {
+        return bloomFilter;
+    }
+
+    public void refreshFpp() {
+        this.fpp = new FilterPostProcessor(app.getAssetManager());
+        this.bloomFilter = new BloomFilter(BloomFilter.GlowMode.Objects);
+        this.fpp.addFilter(bloomFilter);
+        this.app.getViewPort().addProcessor(this.fpp);
     }
 }

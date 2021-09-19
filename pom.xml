@@ -45,6 +45,11 @@
             <version>${jme3_v}</version>
         </dependency>
         <dependency>
+            <groupId>${jme3_g}</groupId>
+            <artifactId>jme3-effects</artifactId>
+            <version>${jme3_v}</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
             <version>5.0.1</version>
