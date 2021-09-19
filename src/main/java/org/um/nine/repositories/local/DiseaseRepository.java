@@ -1,7 +1,6 @@
 package org.um.nine.repositories.local;
 
 import com.jme3.math.ColorRGBA;
-import org.checkerframework.checker.units.qual.A;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.domain.Cure;
 import org.um.nine.domain.Disease;
@@ -27,16 +26,39 @@ public class DiseaseRepository implements IDiseaseRepository {
         reset();
     }
 
+    @Override
     public List<InfectionRateMarker> getInfectionRate() {
         return infectionRate;
     }
 
+    @Override
     public List<Marker> getOutbreakMarker() {
         return outbreakMarker;
     }
 
+    @Override
     public HashMap<String, Cure> getCures() {
         return cures;
+    }
+
+    @Override
+    public List<Disease> getBlackCubes() {
+        return blackCubes;
+    }
+
+    @Override
+    public List<Disease> getYellowCubes() {
+        return yellowCubes;
+    }
+
+    @Override
+    public List<Disease> getBlueCubes() {
+        return blueCubes;
+    }
+
+    @Override
+    public List<Disease> getRedCubes() {
+        return redCubes;
     }
 
     private void initMarkers() {
@@ -71,6 +93,7 @@ public class DiseaseRepository implements IDiseaseRepository {
         }
     }
 
+    @Override
     public void reset() {
         this.infectionRate = new ArrayList<>();
         this.outbreakMarker = new ArrayList<>();
