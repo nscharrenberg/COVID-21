@@ -11,23 +11,9 @@ import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.domain.City;
-import org.um.nine.domain.InfectionRateMarker;
-import org.um.nine.domain.Marker;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class BoardRepository implements IBoardRepository {
     private Geometry board;
-    private List<InfectionRateMarker> infectionRate;
-    private List<Marker> outbreakMarker;
-
-    public BoardRepository() {
-        this.infectionRate = new ArrayList<>();
-        this.outbreakMarker = new ArrayList<>();
-
-        initMarkers();
-    }
 
     @Inject
     private IGameRepository gameRepository;
@@ -91,21 +77,5 @@ public class BoardRepository implements IBoardRepository {
         mat.getAdditionalRenderState().setWireframe(true);
         plate.setMaterial(mat);
         gameRepository.getApp().getRootNode().attachChild(plate);
-    }
-
-    private void initMarkers() {
-        this.infectionRate.add(new InfectionRateMarker(0, 2, true));
-        this.infectionRate.add(new InfectionRateMarker(1, 2));
-        this.infectionRate.add(new InfectionRateMarker(2, 2));
-        this.infectionRate.add(new InfectionRateMarker(3, 3));
-        this.infectionRate.add(new InfectionRateMarker(4, 3));
-        this.infectionRate.add(new InfectionRateMarker(5, 4));
-        this.infectionRate.add(new InfectionRateMarker(6, 4));
-
-        this.outbreakMarker.add(new Marker(0, true));
-
-        for (int i = 1; i <= 8; i++) {
-            this.outbreakMarker.add(new Marker(i));
-        }
     }
 }
