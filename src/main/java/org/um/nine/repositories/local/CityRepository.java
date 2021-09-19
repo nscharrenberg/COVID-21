@@ -2,10 +2,12 @@ package org.um.nine.repositories.local;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import org.lwjgl.Sys;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.domain.City;
 import org.um.nine.domain.ResearchStation;
+import org.um.nine.domain.cards.CityCardReader;
 import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
 import org.um.nine.exceptions.ResearchStationLimitException;
 
@@ -43,13 +45,19 @@ public class CityRepository implements ICityRepository {
         this.researchStations = new ArrayList<>();
         this.cities = new HashMap<>();
 
-        // TODO: Utilize a JSON file to import all the cities and it's locations.
+        City[] cityArray = {};
+        CityCardReader ccr = new CityCardReader();
+        try{
+            cityArray = ccr.cityReader();
+        } catch(Exception e){
+            System.err.println("Error during card reading");
+            System.out.close();
+        }
 
-        City atlanta = new City("Atlanta", ColorRGBA.Blue, new Vector3f(-480, 182, 1));
-        City chicago = new City("Chicago", ColorRGBA.Blue, new Vector3f(-500, 240, 1));
-        atlanta.addNeighbour(chicago);
+        for(City city : cityArray){
+            this.cities.put(city.getName(),city);
+        }
 
-        this.cities.put(atlanta.getName(), atlanta);
-        this.cities.put(chicago.getName(), chicago);
+        //ToDo Add neighbours to the city
     }
 }
