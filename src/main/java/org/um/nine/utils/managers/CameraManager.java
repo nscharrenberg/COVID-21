@@ -17,7 +17,6 @@ public class CameraManager {
         Vector3f vel = initialLeftVec.mult(value * gameRepository.getApp().getFlyByCamera().getMoveSpeed());
         Vector3f pos = gameRepository.getApp().getCamera().getLocation().clone();
 
-//        if (pos.getX() > boardRepository.getBoard().getLocalTranslation().getX() - boardRepository.getBoard().)
         pos.addLocal(vel);
 
         gameRepository.getApp().getCamera().setLocation(pos);
