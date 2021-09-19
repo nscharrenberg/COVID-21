@@ -13,18 +13,30 @@ public class CameraManager {
     private IBoardRepository boardRepository;
 
     public void localTranslateX(float value) {
-        Vector3f m = boardRepository.getBoard().getLocalTranslation();
-        boardRepository.getBoard().setLocalTranslation(m.x + value * gameRepository.getSpeed(), m.y, m.z);
+        Vector3f initialLeftVec = gameRepository.getApp().getCamera().getLeft().clone();
+        Vector3f vel = initialLeftVec.mult(value * gameRepository.getApp().getFlyByCamera().getMoveSpeed());
+        Vector3f pos = gameRepository.getApp().getCamera().getLocation().clone();
+
+//        if (pos.getX() > boardRepository.getBoard().getLocalTranslation().getX() - boardRepository.getBoard().)
+        pos.addLocal(vel);
+
+        gameRepository.getApp().getCamera().setLocation(pos);
     }
 
     public void localTranslateY(float value) {
-        Vector3f m = boardRepository.getBoard().getLocalTranslation();
-        boardRepository.getBoard().setLocalTranslation(m.x, m.y + value * gameRepository.getSpeed(), m.z);
+        Vector3f initialUpVec = gameRepository.getApp().getCamera().getUp().clone();
+        Vector3f vel = initialUpVec.mult(value * gameRepository.getApp().getFlyByCamera().getMoveSpeed());
+        Vector3f pos = gameRepository.getApp().getCamera().getLocation().clone();
+        pos.addLocal(vel);
+
+        gameRepository.getApp().getCamera().setLocation(pos);
     }
 
     public void localTranslateZ(float value) {
-        Vector3f m = boardRepository.getBoard().getLocalTranslation();
-        boardRepository.getBoard().setLocalTranslation(m.x, m.y, m.z + value * gameRepository.getSpeed());
+        float newFov = gameRepository.getApp().getCamera().getFov() + value * 0.1F * gameRepository.getApp().getFlyByCamera().getZoomSpeed();
+        if (newFov > 0.0F) {
+            gameRepository.getApp().getCamera().setFov(newFov);
+        }
     }
 
     public void localTranslation(float x, float y, float z) {

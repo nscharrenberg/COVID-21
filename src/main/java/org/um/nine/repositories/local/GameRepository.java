@@ -114,12 +114,10 @@ public class GameRepository implements IGameRepository {
 
     @Override
     public void start() {
+        app.getFlyByCamera().setEnabled(true);
         // First Clear the screen
         app.getRootNode().detachAllChildren();
 
-        app.getFlyByCamera().setRotationSpeed(10);
-        app.getFlyByCamera().setMoveSpeed(100);
-        app.getFlyByCamera().setZoomSpeed(100);
         app.getCamera().setFrustumFar(3000);
         app.getCamera().setLocation(new Vector3f(0, 0,1500));
 

@@ -2,17 +2,19 @@ package org.um.nine.utils.managers;
 
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.MouseAxisTrigger;
+import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.input.controls.Trigger;
 
 import java.util.Arrays;
 
 public enum Input {
-    UP("Up", new KeyTrigger(KeyInput.KEY_W)),
-    DOWN("Down", new KeyTrigger(KeyInput.KEY_S)),
-    RIGHT("Right", new KeyTrigger(KeyInput.KEY_D)),
-    LEFT("Left", new KeyTrigger(KeyInput.KEY_A)),
-    ZOOM_IN("ZoomIn", new KeyTrigger(KeyInput.KEY_EQUALS)),
-    ZOOM_OUT("ZoomOut", new KeyTrigger(KeyInput.KEY_MINUS)),
+    UP("FLYCAM_Rise", new KeyTrigger(KeyInput.KEY_W)),
+    DOWN("FLYCAM_Lower", new KeyTrigger(KeyInput.KEY_S)),
+    RIGHT("FLYCAM_StrafeRight", new KeyTrigger(KeyInput.KEY_D)),
+    LEFT("FLYCAM_StrafeLeft", new KeyTrigger(KeyInput.KEY_A)),
+    ZOOM_IN("FLYCAM_ZoomIn", new KeyTrigger(KeyInput.KEY_MINUS), new MouseAxisTrigger(2, true)),
+    ZOOM_OUT("FLYCAM_ZoomOut", new KeyTrigger(KeyInput.KEY_EQUALS), new MouseAxisTrigger(2, false)),
     PAUSE("Pause", new KeyTrigger(KeyInput.KEY_P));
 
     Input(String name, Trigger... triggers) {
