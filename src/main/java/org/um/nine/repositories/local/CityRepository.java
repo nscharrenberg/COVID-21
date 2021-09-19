@@ -3,10 +3,18 @@ package org.um.nine.repositories.local;
 import com.google.inject.Inject;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Triangle;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.post.filters.CartoonEdgeFilter;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Cylinder;
+import com.jme3.scene.shape.Dome;
 import com.jme3.scene.shape.Line;
+import com.jme3.util.BufferUtils;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.ICityRepository;
@@ -27,10 +35,6 @@ public class CityRepository implements ICityRepository {
     @Inject
     private IGameRepository gameRepository;
 
-    public CityRepository() {
-        reset();
-    }
-
     @Override
     public HashMap<String, City> getCities() {
         return cities;
@@ -47,6 +51,8 @@ public class CityRepository implements ICityRepository {
         }
 
         this.researchStations.add(new ResearchStation(city));
+
+        renderResearchStation(city);
     }
 
     @Override
@@ -62,11 +68,52 @@ public class CityRepository implements ICityRepository {
 
         this.cities.put(atlanta.getName(), atlanta);
         this.cities.put(chicago.getName(), chicago);
+
+        renderCities();
+
+        try {
+            addResearchStation(atlanta);
+        } catch (ResearchStationLimitException e) {
+            e.printStackTrace();
+        } catch (CityAlreadyHasResearchStationException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
-    public void renderResearchStations() {
+    public void renderResearchStation(City city) {
+        Mesh mesh = new Mesh();
+        float size = 10;
+        float offsetX = 2.5f;
+        float offsetY = 5;
 
+        Vector3f[] vertices = new Vector3f[5];
+        vertices[0] = new Vector3f(city.getLocation().getX() + offsetX, city.getLocation().getY() + offsetY, size);
+        vertices[1] = new Vector3f(city.getLocation().getX() + size + offsetX,city.getLocation().getY() + offsetY,size);
+        vertices[2] = new Vector3f(city.getLocation().getX() + offsetX,city.getLocation().getY() + size + offsetY,size);
+        vertices[3] = new Vector3f(city.getLocation().getX() + size + offsetX, city.getLocation().getY() + size + offsetY,size);
+        vertices[4] = new Vector3f(city.getLocation().getX() + (size/2) + offsetX, city.getLocation().getY() + (size + (size/2)) + offsetY,size);
+
+        Vector2f[] texCoord = new Vector2f[4];
+        texCoord[0] = new Vector2f(0,0);
+        texCoord[1] = new Vector2f(1,0);
+        texCoord[2] = new Vector2f(0,1);
+        texCoord[3] = new Vector2f(1,1);
+
+        int [] indexes = { 2,0,1, 1,3,2, 2,3,4 };
+
+        mesh.setBuffer(VertexBuffer.Type.Position, 3, BufferUtils.createFloatBuffer(vertices));
+        mesh.setBuffer(VertexBuffer.Type.TexCoord, 2, BufferUtils.createFloatBuffer(texCoord));
+        mesh.setBuffer(VertexBuffer.Type.Index,    3, BufferUtils.createIntBuffer(indexes));
+        mesh.updateBound();
+
+        Geometry geo = new Geometry("House", mesh);
+        Material mat = new Material(gameRepository.getApp().getAssetManager(),
+                "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setColor("Color", ColorRGBA.White);
+        gameRepository.refreshFpp();
+        geo.setMaterial(mat);
+        gameRepository.getApp().getRootNode().attachChild(geo);
     }
 
     @Override
@@ -76,7 +123,6 @@ public class CityRepository implements ICityRepository {
 
             renderCity(city);
         });
-
     }
 
     private void renderCity(City city) {
