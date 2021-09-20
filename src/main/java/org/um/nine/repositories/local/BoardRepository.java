@@ -7,6 +7,7 @@ import com.jme3.scene.shape.Box;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
+import org.um.nine.contracts.repositories.IPlayerRepository;
 
 public class BoardRepository implements IBoardRepository {
     private Geometry board;
@@ -17,10 +18,14 @@ public class BoardRepository implements IBoardRepository {
     @Inject
     private ICityRepository cityRepository;
 
+    @Inject
+    private IPlayerRepository playerRepository;
+
     @Override
     public void startGame() {
         renderBoard();
         cityRepository.reset();
+        playerRepository.reset();
     }
 
     @Override
@@ -29,7 +34,6 @@ public class BoardRepository implements IBoardRepository {
             gameRepository.getApp().getRootNode().detachAllChildren();
             renderBoard();
         }
-
         return this.board;
     }
 
