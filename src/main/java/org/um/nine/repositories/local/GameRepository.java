@@ -125,7 +125,7 @@ public class GameRepository implements IGameRepository {
         // Initiate Game Graphics
         boardRepository.startGame();
 
-        refreshFpp();
+//        refreshFpp();
     }
 
     private void addAmbientLight() {
