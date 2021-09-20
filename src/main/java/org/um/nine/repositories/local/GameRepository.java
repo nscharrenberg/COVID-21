@@ -1,20 +1,14 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
-import com.jme3.export.binary.BinaryExporter;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.BloomFilter;
-import com.jme3.post.filters.CartoonEdgeFilter;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import com.jme3.system.AppSettings;
@@ -28,15 +22,12 @@ import org.um.nine.screens.MainMenuState;
 import org.um.nine.utils.managers.InputManager;
 
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
 
 public class GameRepository implements IGameRepository {
     private Game app;
     private boolean isStarted = false;
     private Geometry backgroundGeom;
     private FilterPostProcessor fpp;
-    private BloomFilter bloomFilter;
     private int speed = 200;
 
     @Inject
@@ -73,7 +64,7 @@ public class GameRepository implements IGameRepository {
 
         app.getStateManager().attach(mainMenu);
 
-//        refreshFpp();
+        refreshFpp();
     }
 
     @Inject
@@ -185,15 +176,14 @@ public class GameRepository implements IGameRepository {
         return fpp;
     }
 
-    @Override
-    public BloomFilter getBloomFilter() {
-        return bloomFilter;
-    }
-
     public void refreshFpp() {
         this.fpp = new FilterPostProcessor(app.getAssetManager());
-        this.bloomFilter = new BloomFilter(BloomFilter.GlowMode.Objects);
-        this.fpp.addFilter(bloomFilter);
+//        BasicSSAO ssao = new BasicSSAO(0.15f, 5.5f, 0.5f, 0.025f);
+//        ssao.setUseDetailPass(true);
+//        ssao.setUseDistanceFalloff(true);
+//        ssao.setFalloffStartDistance(50f);
+//        ssao.setFalloffRate(4.0f);
+//        this.fpp.addFilter(ssao);
         this.app.getViewPort().addProcessor(this.fpp);
     }
 }
