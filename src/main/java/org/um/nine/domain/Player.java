@@ -17,6 +17,7 @@ public class Player {
     public Player(String name, City city, boolean isBot) {
         this(name,isBot);
         this.location = city;
+        this.location.addPawn(this);
     }
 
     public Player(String name) {

@@ -15,6 +15,7 @@ import com.jme3.util.BufferUtils;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
+import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.ResearchStation;
@@ -28,8 +29,12 @@ import java.util.List;
 public class CityRepository implements ICityRepository {
     private HashMap<String, City> cities;
     private List<ResearchStation> researchStations;
+
     @Inject
     private IGameRepository gameRepository;
+
+    @Inject
+    private IPlayerRepository playerRepository;
 
     @Override
     public HashMap<String, City> getCities() {
@@ -74,6 +79,8 @@ public class CityRepository implements ICityRepository {
         } catch (CityAlreadyHasResearchStationException e) {
             e.printStackTrace();
         }
+
+        playerRepository.reset();
     }
 
     @Override
@@ -131,8 +138,6 @@ public class CityRepository implements ICityRepository {
         plate.setLocalTranslation(city.getLocation());
         gameRepository.getApp().getRootNode().attachChild(plate);
     }
-
-
 
     private void renderEdge(City city1, City city2) {
         Line lineShape = new Line(city1.getLocation(), city2.getLocation());

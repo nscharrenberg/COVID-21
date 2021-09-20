@@ -9,16 +9,19 @@ import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.Player;
+import org.um.nine.domain.roles.QuarantineSpecialistRole;
 import org.um.nine.exceptions.PlayerLimitException;
 
 import java.util.HashMap;
 
 public class PlayerRepository implements IPlayerRepository {
+    private HashMap<String, Player> players;
+
     @Inject
     private ICityRepository cityRepository;
+
     @Inject
     private IGameRepository gameRepository;
-    private HashMap<String, Player> players;
 
     public HashMap<String, Player> getPlayers() {
         return players;
@@ -33,7 +36,9 @@ public class PlayerRepository implements IPlayerRepository {
     public void reset() {
         this.players = new HashMap<>();
         try {
-            addPlayer(new Player("example",cityRepository.getCities().get("Atlanta"),false));
+            Player player = new Player("example", cityRepository.getCities().get("Atlanta"),false);
+            player.setRole(new QuarantineSpecialistRole());
+            addPlayer(player);
         } catch (PlayerLimitException e) {
             e.printStackTrace();
         }

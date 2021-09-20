@@ -66,7 +66,7 @@ public class GameRepository implements IGameRepository {
 
         app.getStateManager().attach(mainMenu);
 
-        refreshFpp();
+//        refreshFpp();
     }
 
     @Inject
@@ -177,9 +177,9 @@ public class GameRepository implements IGameRepository {
     }
 
     public void refreshFpp() {
-        this.fpp = new FilterPostProcessor(app.getAssetManager());
-        this.bloomFilter = new BloomFilter(BloomFilter.GlowMode.Objects);
-        this.fpp.addFilter(bloomFilter);
-        this.app.getViewPort().addProcessor(this.fpp);
+//        this.fpp = new FilterPostProcessor(app.getAssetManager());
+//        this.bloomFilter = new BloomFilter(BloomFilter.GlowMode.Objects);
+//        this.fpp.addFilter(bloomFilter);
+//        this.app.getViewPort().addProcessor(this.fpp);
     }
 }

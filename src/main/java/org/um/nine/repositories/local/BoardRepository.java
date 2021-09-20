@@ -25,7 +25,6 @@ public class BoardRepository implements IBoardRepository {
     public void startGame() {
         renderBoard();
         cityRepository.reset();
-        playerRepository.reset();
     }
 
     @Override
