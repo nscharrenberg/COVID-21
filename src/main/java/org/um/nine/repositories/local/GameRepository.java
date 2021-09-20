@@ -126,6 +126,8 @@ public class GameRepository implements IGameRepository {
 
         // Initiate Game Graphics
         boardRepository.startGame();
+
+        refreshFpp();
     }
 
     private void addAmbientLight() {
@@ -177,9 +179,9 @@ public class GameRepository implements IGameRepository {
     }
 
     public void refreshFpp() {
-//        this.fpp = new FilterPostProcessor(app.getAssetManager());
-//        this.bloomFilter = new BloomFilter(BloomFilter.GlowMode.Objects);
-//        this.fpp.addFilter(bloomFilter);
-//        this.app.getViewPort().addProcessor(this.fpp);
+        this.fpp = new FilterPostProcessor(app.getAssetManager());
+        this.bloomFilter = new BloomFilter(BloomFilter.GlowMode.Objects);
+        this.fpp.addFilter(bloomFilter);
+        this.app.getViewPort().addProcessor(this.fpp);
     }
 }

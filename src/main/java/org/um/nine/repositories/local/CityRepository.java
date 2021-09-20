@@ -114,7 +114,6 @@ public class CityRepository implements ICityRepository {
         Material mat = new Material(gameRepository.getApp().getAssetManager(),
                 "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.White);
-        gameRepository.refreshFpp();
         geo.setMaterial(mat);
         gameRepository.getApp().getRootNode().attachChild(geo);
     }
@@ -133,7 +132,6 @@ public class CityRepository implements ICityRepository {
         Material mat = new Material(gameRepository.getApp().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", city.getColor());
         mat.setColor("GlowColor", city.getColor());
-        gameRepository.refreshFpp();
         plate.setMaterial(mat);
         plate.setLocalTranslation(city.getLocation());
         gameRepository.getApp().getRootNode().attachChild(plate);
