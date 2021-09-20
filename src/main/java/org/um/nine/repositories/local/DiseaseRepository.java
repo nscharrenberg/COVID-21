@@ -107,4 +107,8 @@ public class DiseaseRepository implements IDiseaseRepository {
         initCures();
         initCubes();
     }
+
+    private void renderCures() {
+
+    }
 }

@@ -7,6 +7,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Dome;
@@ -83,8 +84,25 @@ public class CityRepository implements ICityRepository {
         playerRepository.reset();
     }
 
-    @Override
+
     public void renderResearchStation(City city) {
+        float offsetX = -20;
+        float offsetY = 5;
+
+        Spatial model = gameRepository.getApp().getAssetManager().loadModel("models/research_station.j3o");
+        model.setLocalScale(1);
+        model.setLocalTranslation(new Vector3f(city.getLocation().getX() + offsetX, city.getLocation().getY() + offsetY, city.getLocation().getZ() + 5));
+        model.rotate(45, 75, 0);
+        Material mat = new Material(gameRepository.getApp().getAssetManager(),
+                "Common/MatDefs/Light/Lighting.j3md");
+        mat.setBoolean("UseMaterialColors",true);
+        mat.setColor("Diffuse", ColorRGBA.White ); // with Lighting.j3md
+        mat.setColor("Ambient", ColorRGBA.White ); // with Lighting.j3md
+        model.setMaterial(mat);
+        gameRepository.getApp().getRootNode().attachChild(model);
+    }
+
+    public void renderResearchStationOld(City city) {
         Mesh mesh = new Mesh();
         float size = 10;
         float offsetX = 2.5f;

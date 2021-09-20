@@ -1,15 +1,20 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
+import com.jme3.export.binary.BinaryExporter;
 import com.jme3.light.AmbientLight;
+import com.jme3.light.DirectionalLight;
+import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.CartoonEdgeFilter;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import com.jme3.system.AppSettings;
@@ -23,6 +28,8 @@ import org.um.nine.screens.MainMenuState;
 import org.um.nine.utils.managers.InputManager;
 
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 
 public class GameRepository implements IGameRepository {
     private Game app;
@@ -54,7 +61,7 @@ public class GameRepository implements IGameRepository {
         settings.setResolution(gd.getDisplayMode().getWidth(), gd.getDisplayMode().getHeight());
         settings.setSamples(16);
         settings.setVSync(true);
-        settings.setFullscreen(true);
+        settings.setFullscreen(false);
 
         // Allow for touch screen devices
         settings.setEmulateMouse(true);
@@ -132,8 +139,13 @@ public class GameRepository implements IGameRepository {
 
     private void addAmbientLight() {
         AmbientLight al = new AmbientLight();
-        al.setColor(ColorRGBA.White.mult(3.5f));
+        al.setColor(ColorRGBA.White.mult(.35f));
         app.getRootNode().addLight(al);
+
+        DirectionalLight sun = new DirectionalLight();
+        sun.setColor(ColorRGBA.White);
+        sun.setDirection(new Vector3f(-0.5f, -0.5f, -0.5f).normalizeLocal());
+        app.getRootNode().addLight(sun);
     }
 
     private void setBackgroundScreen() {
