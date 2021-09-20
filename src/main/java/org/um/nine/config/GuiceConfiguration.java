@@ -12,5 +12,6 @@ public class GuiceConfiguration extends AbstractModule {
         bind(ICityRepository.class).to(CityRepository.class);
         bind(ICardRepository.class).to(CardRepository.class);
         bind(IPlayerRepository.class).to(PlayerRepository.class);
+        bind(IDiseaseRepository.class).to(DiseaseRepository.class);
     }
 }

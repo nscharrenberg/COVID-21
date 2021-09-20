@@ -1,19 +1,19 @@
 package org.um.nine.domain;
 
 public class ResearchStation {
-    private City location;
+    private City city;
 
     public ResearchStation(City location) {
-        this.location = location;
+        this.city = location;
 
         location.setResearchStation(this);
     }
 
-    public City getLocation() {
-        return location;
+    public City getCity() {
+        return city;
     }
 
-    public void setLocation(City location) {
-        this.location = location;
+    public void setCity(City city) {
+        this.city = city;
     }
 }

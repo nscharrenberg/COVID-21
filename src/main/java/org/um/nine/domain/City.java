@@ -54,9 +54,8 @@ public class City {
             this.cubes = new ArrayList<>();
         }
 
-        // TODO: Check if the disease threshold is reached, and start an outbreak.
-
         this.cubes.add(cube);
+        cube.setCity(this);
     }
 
     public void setCubes(List<Disease> cubes) {

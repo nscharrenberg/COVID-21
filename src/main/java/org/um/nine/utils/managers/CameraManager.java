@@ -41,7 +41,7 @@ public class CameraManager {
 
     public void localTranslateZ(float value) {
         float newFov = gameRepository.getApp().getCamera().getFov() + value * 0.1F * gameRepository.getApp().getFlyByCamera().getZoomSpeed();
-        if (abs(50 - newFov) > 20) return;
+        if (abs(40 - newFov) > 20) return;
         if (newFov > 0.0F) {
             gameRepository.getApp().getCamera().setFov(newFov);
         }
