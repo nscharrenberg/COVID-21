@@ -10,6 +10,7 @@ import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
+import org.um.nine.domain.Player;
 import org.um.nine.domain.ResearchStation;
 import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
 import org.um.nine.exceptions.DiseaseAlreadyInCity;
@@ -55,7 +56,7 @@ public class CityRepository implements ICityRepository {
         this.researchStations.add(new ResearchStation(city));
 
         if (city.getResearchStation() != null) {
-            renderManager.renderResearchStation(city.getResearchStation());
+            renderManager.renderResearchStation(city.getResearchStation(), new Vector3f(-20, 5, 0));
         }
     }
 
@@ -65,13 +66,20 @@ public class CityRepository implements ICityRepository {
             throw new DiseaseAlreadyInCity();
         }
 
-        if ((city.getCubes().size() + 1) >= Info.OUTBREAK_THRESHOLD) {
+        if ((city.getCubes().size() + 1) > Info.OUTBREAK_THRESHOLD) {
             throw new OutbreakException();
         }
 
         city.addCube(cube);
 
-        renderManager.renderDisease(cube);
+        renderManager.renderDisease(cube, city.getCubePosition(cube));
+    }
+
+    @Override
+    public void addPawn(City city, Player player) {
+        city.addPawn(player);
+
+        renderManager.renderPlayer(player, city.getPawnPosition(player));
     }
 
     @Override
@@ -101,6 +109,7 @@ public class CityRepository implements ICityRepository {
         try {
             addDiseaseCube(atlanta, diseaseRepository.getYellowCubes().get(0));
             addDiseaseCube(atlanta, diseaseRepository.getRedCubes().get(0));
+            addDiseaseCube(atlanta, diseaseRepository.getBlueCubes().get(1));
         } catch (OutbreakException e) {
             e.printStackTrace();
         } catch (DiseaseAlreadyInCity e) {

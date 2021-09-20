@@ -18,13 +18,13 @@ public class RenderManager {
     @Inject
     private IGameRepository gameRepository;
 
-    public void renderPlayer(Player player) {
-        float offsetX = 20;
-        float offsetY = 10;
+    public void renderPlayer(Player player, Vector3f offset) {
+        float offsetX = offset.getX();
+        float offsetY = offset.getY();
 
         Spatial model = gameRepository.getApp().getAssetManager().loadModel("models/pawn.j3o");
         model.rotate(45, 0, 0);
-        model.setLocalTranslation(new Vector3f(player.getCity().getLocation().getX() + offsetX, player.getCity().getLocation().getY() + offsetY, player.getCity().getLocation().getZ() + 1));
+        model.setLocalTranslation(new Vector3f(player.getCity().getLocation().getX() + offsetX, player.getCity().getLocation().getY() + offsetY, player.getCity().getLocation().getZ() + 1 + offset.getZ()));
         model.setLocalScale(.75f);
         Material mat = new Material(gameRepository.getApp().getAssetManager(),
                 "Common/MatDefs/Light/Lighting.j3md");
@@ -35,13 +35,13 @@ public class RenderManager {
         gameRepository.getApp().getRootNode().attachChild(model);
     }
 
-    public void renderResearchStation(ResearchStation researchStation) {
-        float offsetX = -20;
-        float offsetY = 5;
+    public void renderResearchStation(ResearchStation researchStation, Vector3f offset) {
+        float offsetX = offset.getX();
+        float offsetY = offset.getY();
 
         Spatial model = gameRepository.getApp().getAssetManager().loadModel("models/research_station.j3o");
         model.setLocalScale(1);
-        model.setLocalTranslation(new Vector3f(researchStation.getCity().getLocation().getX() + offsetX, researchStation.getCity().getLocation().getY() + offsetY, researchStation.getCity().getLocation().getZ() + 5));
+        model.setLocalTranslation(new Vector3f(researchStation.getCity().getLocation().getX() + offsetX, researchStation.getCity().getLocation().getY() + offsetY, researchStation.getCity().getLocation().getZ() + 5 + offset.getZ()));
         model.rotate(45, 75, 0);
         Material mat = new Material(gameRepository.getApp().getAssetManager(),
                 "Common/MatDefs/Light/Lighting.j3md");
@@ -75,13 +75,10 @@ public class RenderManager {
         gameRepository.getApp().getRootNode().attachChild(plate);
     }
 
-    public void renderDisease(Disease disease) {
-        float offsetX = -15;
-        float offsetY = -15;
-
+    public void renderDisease(Disease disease, Vector3f offset) {
         Spatial model = gameRepository.getApp().getAssetManager().loadModel("models/cube.j3o");
         model.rotate(45, 0, 0);
-        model.setLocalTranslation(new Vector3f(disease.getCity().getLocation().getX() + offsetX, disease.getCity().getLocation().getY() + offsetY, disease.getCity().getLocation().getZ() + 1));
+        model.setLocalTranslation(new Vector3f(disease.getCity().getLocation().getX() + offset.getX(), disease.getCity().getLocation().getY() + offset.getY(), disease.getCity().getLocation().getZ() + 1 + offset.getZ()));
         model.setLocalScale(1.25f);
         Material mat = new Material(gameRepository.getApp().getAssetManager(),
                 "Common/MatDefs/Light/Lighting.j3md");
