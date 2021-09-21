@@ -7,6 +7,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Line;
+import org.lwjgl.Sys;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
@@ -80,5 +81,6 @@ public class BoardRepository implements IBoardRepository {
         mat.getAdditionalRenderState().setWireframe(true);
         plate.setMaterial(mat);
         gameRepository.getApp().getRootNode().attachChild(plate);
+        System.out.println("Rendered!");
     }
 }
