@@ -102,23 +102,19 @@ public class InputManager {
             float dist = results.getCollision(i).getDistance();
             Vector3f pt = results.getCollision(i).getContactPoint();
             String target = results.getCollision(i).getGeometry().getName();
-            System.out.println("Selection #" + i + ": " + target + " at " + pt + ", " + dist + " WU away.");
         }
 
         Geometry target = results.getClosestCollision().getGeometry();
 
-        System.out.println("Cities Size: " + this.cityRepository.getCities().size());
-        this.cityRepository.getCities().entrySet().forEach(entry -> {
-            String key = entry.getKey();
-            City city = entry.getValue();
+        this.cityRepository.getCities().forEach((key, city) -> {
 
             if (target.getName().equals(key)) {
-                System.out.println(key + "selected");
+                boardRepository.setSelectedCity(cityRepository.getCities().get(key));
                 return;
             }
 
             if (city.getResearchStation() != null && target.getName().equals(city.getResearchStation().toString())) {
-                System.out.println(key + "selected");
+                boardRepository.setSelectedCity(cityRepository.getCities().get(key));
                 return;
             }
 
@@ -132,7 +128,7 @@ public class InputManager {
             });
 
             if (found.get()) {
-                System.out.println(key + "selected");
+                boardRepository.setSelectedCity(cityRepository.getCities().get(key));
                 return;
             }
 
@@ -144,7 +140,7 @@ public class InputManager {
             });
 
             if (found.get()) {
-                System.out.println(key + "selected");
+                boardRepository.setSelectedCity(cityRepository.getCities().get(key));
                 return;
             }
         });
