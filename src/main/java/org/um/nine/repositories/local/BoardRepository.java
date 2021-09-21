@@ -65,7 +65,6 @@ public class BoardRepository implements IBoardRepository {
         Material mat = new Material(gameRepository.getApp().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", city.getColor());
         mat.setColor("GlowColor", city.getColor());
-        gameRepository.refreshFpp();
         plate.setMaterial(mat);
         plate.setLocalTranslation(city.getLocation());
         gameRepository.getApp().getRootNode().attachChild(plate);
@@ -81,6 +80,5 @@ public class BoardRepository implements IBoardRepository {
         mat.getAdditionalRenderState().setWireframe(true);
         plate.setMaterial(mat);
         gameRepository.getApp().getRootNode().attachChild(plate);
-        System.out.println("Rendered!");
     }
 }
