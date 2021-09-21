@@ -10,15 +10,16 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Line;
+import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
-import org.um.nine.domain.City;
-import org.um.nine.domain.Disease;
-import org.um.nine.domain.Player;
-import org.um.nine.domain.ResearchStation;
+import org.um.nine.domain.*;
 
 public class RenderManager {
     @Inject
     private IGameRepository gameRepository;
+
+    @Inject
+    private IBoardRepository boardRepository;
 
     public void renderPlayer(Player player, Vector3f offset) {
         float offsetX = offset.getX();
@@ -113,5 +114,30 @@ public class RenderManager {
         textBT.setLocalTranslation(position);
         textBT.setName(name);
         gameRepository.getApp().getRootNode().attachChild(textBT);
+    }
+
+    public void renderCureMarker(Cure cure, Vector3f offset) {
+        renderCureMarker(cure, offset, false);
+    }
+
+    public void renderCureMarker(Cure cure, Vector3f offset, boolean flip) {
+        Spatial model = gameRepository.getApp().getAssetManager().loadModel("models/cure_marker.j3o");
+        model.setName(cure.toString());
+
+        if (flip) {
+            model.rotate(45, 0, 0);
+        } else {
+            model.rotate(45, 135, 0);
+        }
+
+        model.setLocalTranslation(new Vector3f(0 + offset.getX(), -450 + offset.getY(), 20 + offset.getZ()));
+        model.setLocalScale(3f);
+        Material mat = new Material(gameRepository.getApp().getAssetManager(),
+                "Common/MatDefs/Light/Lighting.j3md");
+        mat.setBoolean("UseMaterialColors",true);
+        mat.setColor("Diffuse", cure.getColor() );
+        mat.setColor("Ambient", cure.getColor() );
+        model.setMaterial(mat);
+        gameRepository.getApp().getRootNode().attachChild(model);
     }
 }
