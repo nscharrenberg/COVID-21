@@ -3,211 +3,25 @@
     {
       "name": "San Francisco",
       "color": "Blue",
-      "position": [1,2,3],
-      "neighbours": []
+      "position": [-650,200,1],
+      "neighbours": ["Chicago"]
     },
     {
       "name": "Chicago",
       "color": "Blue",
-      "position": [1,2,3],
+      "position": [-480, 182, 1],
       "neighbours": []
     },
     {
       "name": "Atlanta",
       "color": "Blue",
-      "position": [1,2,3],
+      "position": [-500, 240, 1],
       "neighbours": []
     },
     {
       "name": "Montreal",
       "color": "Blue",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Washington",
-      "color": "Blue",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "New York",
-      "color": "Blue",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Madrid",
-      "color": "Blue",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "London",
-      "color": "Blue",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Paris",
-      "color": "Blue",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Atlanta",
-      "color": "Blue",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Essen",
-      "color": "Blue",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Milan",
-      "color": "Blue",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Algiers",
-      "color": "Black",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Cairo",
-      "color": "Black",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Istanbul",
-      "color": "Black",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Moscow",
-      "color": "Black",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Baghdad",
-      "color": "Black",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Riyadh",
-      "color": "Black",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Tehran",
-      "color": "Black",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Karachi",
-      "color": "Black",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Mumbai",
-      "color": "Black",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Delhi",
-      "color": "Black",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Chennai",
-      "color": "Black",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Kolkata",
-      "color": "Black",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Bangkok",
-      "color": "Red",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Jakarta",
-      "color": "Red",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Hong Kong",
-      "color": "Red",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Ho chi minh city",
-      "color": "Red",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Beijing",
-      "color": "Red",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Shanghai",
-      "color": "Red",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Taipei",
-      "color": "Red",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Manila",
-      "color": "Red",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Seoul",
-      "color": "Red",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Tokyo",
-      "color": "Red",
-      "position": [1,2,3],
-      "neighbours": []
-    },
-    {
-      "name": "Osaka",
-      "color": "Red",
-      "position": [1,2,3],
+      "position": [-400,260,1],
       "neighbours": []
     }
   ]

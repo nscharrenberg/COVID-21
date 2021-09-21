@@ -10,6 +10,7 @@ import org.um.nine.utils.test;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.LinkedList;
 
 public class CityCardReader {
     public City[] cityReader() throws Exception {
@@ -46,6 +47,21 @@ public class CityCardReader {
             if(JAPositions.size() != 3) throw new Exception("Positions are not formatted correctly");
             Vector3f pos = new Vector3f(JAPositions.get(0).getAsFloat(),JAPositions.get(1).getAsFloat(),JAPositions.get(2).getAsFloat());
             cities[i] = new City(name,color,pos);
+        }
+        for(int i = 0; i < JACities.size();i++){
+            LinkedList<City> neighbours = new LinkedList<>();
+            LinkedList<String> cityNames = new LinkedList<>();
+            JsonElement JElCity = JACities.get(i);
+            JsonObject JOCity = JElCity.getAsJsonObject();
+            JsonArray JANeighbours = JOCity.getAsJsonArray("neighbours");
+            for(int j = 0; j < JANeighbours.size();j++){
+                cityNames.add(JANeighbours.get(j).getAsString());
+            }
+            for(int j = 0; j < cities.length;j++){
+                if(cityNames.contains(cities[j].getName())){
+                    cities[i].addNeighbour(cities[j]);
+                }
+            }
         }
         return cities;
     }
