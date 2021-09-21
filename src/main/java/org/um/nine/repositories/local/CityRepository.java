@@ -38,6 +38,11 @@ public class CityRepository implements ICityRepository {
     @Inject
     private IDiseaseRepository diseaseRepository;
 
+    public CityRepository() {
+        this.researchStations = new ArrayList<>();
+        this.cities = new HashMap<>();
+    }
+
     @Override
     public HashMap<String, City> getCities() {
         return cities;

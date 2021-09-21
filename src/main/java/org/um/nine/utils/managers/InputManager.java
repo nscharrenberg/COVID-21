@@ -2,14 +2,19 @@ package org.um.nine.utils.managers;
 
 import com.google.inject.Inject;
 import com.jme3.app.SimpleApplication;
-import com.jme3.input.FlyByCamera;
+import com.jme3.collision.CollisionResult;
+import com.jme3.collision.CollisionResults;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.math.Ray;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.Camera;
+import com.jme3.scene.Geometry;
 import org.um.nine.contracts.repositories.IBoardRepository;
+import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
+import org.um.nine.domain.City;
 
 
 public class InputManager {
@@ -21,6 +26,9 @@ public class InputManager {
 
     @Inject
     private CameraManager cameraManager;
+
+    @Inject
+    private ICityRepository cityRepository;
 
     public void init() {
         gameRepository.getApp().getInputManager().deleteMapping(SimpleApplication.INPUT_MAPPING_MEMORY);
@@ -77,10 +85,37 @@ public class InputManager {
             case "RClick" -> System.out.println("Right Click");
             case "CClick" -> System.out.println("Center Click");
         }
-        Vector3f positionOfMouseOnClick = gameRepository.getApp().getCamera().getWorldCoordinates(
-                gameRepository.getApp().getInputManager().getCursorPosition(),0);
 
-        System.out.println("Mouse clicked on : "+ positionOfMouseOnClick);
+        CollisionResults results = new CollisionResults();
+        // Convert screen click to 3d position
+        Vector2f click2d = gameRepository.getApp().getInputManager().getCursorPosition();
+        Vector3f click3d = gameRepository.getApp().getCamera().getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 0f).clone();
+        Vector3f dir = gameRepository.getApp().getCamera().getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 1f).subtractLocal(click3d).normalizeLocal();
+        // Aim the ray from the clicked spot forwards.
+        Ray ray = new Ray(click3d, dir);
+        // Collect intersections between ray and all nodes in results list.
+        gameRepository.getApp().getRootNode().collideWith(ray, results);
+        // (Print the results so we see what is going on:)
+        for (int i = 0; i < results.size(); i++) {
+            // (For each "hit", we know distance, impact point, geometry.)
+            float dist = results.getCollision(i).getDistance();
+            Vector3f pt = results.getCollision(i).getContactPoint();
+            String target = results.getCollision(i).getGeometry().getName();
+            System.out.println("Selection #" + i + ": " + target + " at " + pt + ", " + dist + " WU away.");
+        }
+
+        Geometry target = results.getClosestCollision().getGeometry();
+
+        System.out.println("Cities Size: " + this.cityRepository.getCities().size());
+        this.cityRepository.getCities().entrySet().forEach(entry -> {
+            String key = entry.getKey();
+            City city = entry.getValue();
+
+            if (target.getName().equals(key)) {
+                System.out.println(key + "selected");
+                return;
+            }
+        });
     };
 
 
