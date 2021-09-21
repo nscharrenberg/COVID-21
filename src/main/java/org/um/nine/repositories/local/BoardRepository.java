@@ -1,8 +1,6 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
-import com.jme3.font.BitmapFont;
-import com.jme3.font.BitmapText;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
