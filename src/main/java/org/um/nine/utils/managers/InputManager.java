@@ -2,7 +2,6 @@ package org.um.nine.utils.managers;
 
 import com.google.inject.Inject;
 import com.jme3.app.SimpleApplication;
-import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
@@ -15,6 +14,8 @@ import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.domain.City;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class InputManager {
@@ -112,6 +113,37 @@ public class InputManager {
             City city = entry.getValue();
 
             if (target.getName().equals(key)) {
+                System.out.println(key + "selected");
+                return;
+            }
+
+            if (city.getResearchStation() != null && target.getName().equals(city.getResearchStation().toString())) {
+                System.out.println(key + "selected");
+                return;
+            }
+
+            AtomicBoolean found = new AtomicBoolean(false);
+
+            city.getCubes().forEach(c -> {
+                if (target.getName().equals(c.toString())) {
+                    found.set(true);
+                    return;
+                }
+            });
+
+            if (found.get()) {
+                System.out.println(key + "selected");
+                return;
+            }
+
+            city.getPawns().forEach(p -> {
+                if (target.getName().equals(p.toString())) {
+                    found.set(true);
+                    return;
+                }
+            });
+
+            if (found.get()) {
                 System.out.println(key + "selected");
                 return;
             }

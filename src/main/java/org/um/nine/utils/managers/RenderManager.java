@@ -23,6 +23,7 @@ public class RenderManager {
         float offsetY = offset.getY();
 
         Spatial model = gameRepository.getApp().getAssetManager().loadModel("models/pawn.j3o");
+        model.setName(player.toString());
         model.rotate(45, 0, 0);
         model.setLocalTranslation(new Vector3f(player.getCity().getLocation().getX() + offsetX, player.getCity().getLocation().getY() + offsetY, player.getCity().getLocation().getZ() + 1 + offset.getZ()));
         model.setLocalScale(.75f);
@@ -40,6 +41,7 @@ public class RenderManager {
         float offsetY = offset.getY();
 
         Spatial model = gameRepository.getApp().getAssetManager().loadModel("models/research_station.j3o");
+        model.setName(researchStation.toString());
         model.setLocalScale(1);
         model.setLocalTranslation(new Vector3f(researchStation.getCity().getLocation().getX() + offsetX, researchStation.getCity().getLocation().getY() + offsetY, researchStation.getCity().getLocation().getZ() + 5 + offset.getZ()));
         model.rotate(45, 75, 0);
@@ -77,6 +79,7 @@ public class RenderManager {
 
     public void renderDisease(Disease disease, Vector3f offset) {
         Spatial model = gameRepository.getApp().getAssetManager().loadModel("models/cube.j3o");
+        model.setName(disease.toString());
         model.rotate(45, 0, 0);
         model.setLocalTranslation(new Vector3f(disease.getCity().getLocation().getX() + offset.getX(), disease.getCity().getLocation().getY() + offset.getY(), disease.getCity().getLocation().getZ() + 1 + offset.getZ()));
         model.setLocalScale(1.25f);
