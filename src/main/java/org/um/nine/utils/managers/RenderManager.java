@@ -1,6 +1,8 @@
 package org.um.nine.utils.managers;
 
 import com.google.inject.Inject;
+import com.jme3.font.BitmapFont;
+import com.jme3.font.BitmapText;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -90,5 +92,26 @@ public class RenderManager {
         mat.setColor("Ambient", disease.getColor() );
         model.setMaterial(mat);
         gameRepository.getApp().getRootNode().attachChild(model);
+    }
+
+    public void renderText(String text, Vector3f position, ColorRGBA color, String name) {
+        BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
+        renderText(text, position, color, name, myFont.getCharSet().getRenderedSize(), myFont);
+    }
+
+    public void renderText(String text, Vector3f position, ColorRGBA color, String name, float size, BitmapFont font) {
+        BitmapText found = (BitmapText) gameRepository.getApp().getRootNode().getChild(name);
+        if (found != null) {
+            found.setText(text);
+            return;
+        }
+
+        BitmapText textBT = new BitmapText(font);
+        textBT.setSize(size);
+        textBT.setColor(color);
+        textBT.setText(text);
+        textBT.setLocalTranslation(position);
+        textBT.setName(name);
+        gameRepository.getApp().getRootNode().attachChild(textBT);
     }
 }

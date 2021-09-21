@@ -6,7 +6,6 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
@@ -27,7 +26,6 @@ public class GameRepository implements IGameRepository {
     private Game app;
     private boolean isStarted = false;
     private Geometry backgroundGeom;
-    private FilterPostProcessor fpp;
     private int speed = 200;
 
     @Inject
@@ -63,8 +61,6 @@ public class GameRepository implements IGameRepository {
         app.start();
 
         app.getStateManager().attach(mainMenu);
-
-        refreshFpp();
     }
 
     @Inject
@@ -124,8 +120,6 @@ public class GameRepository implements IGameRepository {
 
         // Initiate Game Graphics
         boardRepository.startGame();
-
-//        refreshFpp();
     }
 
     private void addAmbientLight() {
@@ -169,21 +163,5 @@ public class GameRepository implements IGameRepository {
     @Override
     public void setSpeed(int speed) {
         this.speed = speed;
-    }
-
-    @Override
-    public FilterPostProcessor getFpp() {
-        return fpp;
-    }
-
-    public void refreshFpp() {
-        this.fpp = new FilterPostProcessor(app.getAssetManager());
-//        BasicSSAO ssao = new BasicSSAO(0.15f, 5.5f, 0.5f, 0.025f);
-//        ssao.setUseDetailPass(true);
-//        ssao.setUseDistanceFalloff(true);
-//        ssao.setFalloffStartDistance(50f);
-//        ssao.setFalloffRate(4.0f);
-//        this.fpp.addFilter(ssao);
-        this.app.getViewPort().addProcessor(this.fpp);
     }
 }

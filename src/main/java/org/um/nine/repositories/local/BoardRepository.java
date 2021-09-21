@@ -5,14 +5,15 @@ import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.City;
+import org.um.nine.utils.managers.RenderManager;
 
 public class BoardRepository implements IBoardRepository {
     private Geometry board;
@@ -26,6 +27,9 @@ public class BoardRepository implements IBoardRepository {
 
     @Inject
     private IPlayerRepository playerRepository;
+
+    @Inject
+    private RenderManager renderManager;
 
     @Override
     public void startGame() {
@@ -63,19 +67,6 @@ public class BoardRepository implements IBoardRepository {
 
         String textName = "selected-city-text";
 
-        BitmapText found = (BitmapText) gameRepository.getApp().getRootNode().getChild(textName);
-        if (found != null) {
-            found.setText(selectedCity != null ? selectedCity.getName() : "Nothing Selected");
-            return;
-        }
-
-        BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
-        BitmapText text = new BitmapText(myFont);
-        text.setSize(myFont.getCharSet().getRenderedSize());
-        text.setColor(ColorRGBA.Cyan);
-        text.setText(selectedCity != null ? selectedCity.getName() : "Nothing Selected");
-        text.setLocalTranslation(1, 1, 50);
-        text.setName(textName);
-        gameRepository.getApp().getRootNode().attachChild(text);
+        renderManager.renderText(selectedCity != null ? selectedCity.getName() : "Nothing Selected", new Vector3f(0, 0, 5), ColorRGBA.White, textName);
     }
 }
