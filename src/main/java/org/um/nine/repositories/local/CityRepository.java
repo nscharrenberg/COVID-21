@@ -107,37 +107,6 @@ public class CityRepository implements ICityRepository {
             this.cities.put(city.getName(),city);
         }
 
-        this.cities.put(atlanta.getName(), atlanta);
-        this.cities.put(chicago.getName(), chicago);
 
-        renderCities();
-
-        try {
-            addResearchStation(atlanta);
-        } catch (ResearchStationLimitException e) {
-            e.printStackTrace();
-        } catch (CityAlreadyHasResearchStationException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            addDiseaseCube(atlanta, diseaseRepository.getYellowCubes().get(0));
-            addDiseaseCube(atlanta, diseaseRepository.getRedCubes().get(0));
-            addDiseaseCube(atlanta, diseaseRepository.getBlueCubes().get(1));
-        } catch (OutbreakException e) {
-            e.printStackTrace();
-        } catch (DiseaseAlreadyInCity e) {
-            e.printStackTrace();
-        }
-
-        playerRepository.reset();
-    }
-
-    @Override
-    public void renderCities() {
-        getCities().forEach((key, city) -> {
-            city.getNeighbors().forEach(neighbor -> renderManager.renderEdge(city, neighbor));
-            renderManager.renderCity(city);
-        });
     }
 }

@@ -12,7 +12,7 @@ import java.io.Reader;
 import java.util.LinkedList;
 
 public class CityCardReader {
-    public City[] cityReader() throws Exception {
+    public City[] cityReader() {
         JsonParser parser = new JsonParser();
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream("Cards/CityCards.json");
         Reader reader = new InputStreamReader(inputStream);
@@ -25,30 +25,43 @@ public class CityCardReader {
             JsonObject JOCity = JElCity.getAsJsonObject();
             String name = JOCity.getAsJsonPrimitive("name").getAsString();
             String colorName = JOCity.getAsJsonPrimitive("color").getAsString();
-            ColorRGBA color;
-            switch (colorName){
-                case "Blue":
-                    color = ColorRGBA.Blue;
-                    break;
-                case "Black":
-                    color = ColorRGBA.Black;
-                    break;
-                case "Red":
-                    color = ColorRGBA.Red;
-                    break;
-                case "Yellow":
-                    color = ColorRGBA.Yellow;
-                    break;
-                default:
-                    throw new ColorNotFoundException();
+            ColorRGBA color = ColorRGBA.Orange;
+            try {
+                switch (colorName) {
+                    case "Blue":
+                        color = ColorRGBA.Blue;
+                        break;
+                    case "Black":
+                        color = ColorRGBA.Black;
+                        break;
+                    case "Red":
+                        color = ColorRGBA.Red;
+                        break;
+                    case "Yellow":
+                        color = ColorRGBA.Yellow;
+                        break;
+                    default:
+                        throw new ColorNotFoundException();
+                }
             }
+            catch(ColorNotFoundException e){
+                System.err.println("Color not found in City: " + name);
+                System.err.close();
+            }
+            int population = JOCity.getAsJsonPrimitive("population").getAsInt();
             JsonArray JAPositions = JOCity.getAsJsonArray("position");
-            if(JAPositions.size() != 3) throw new Exception("Positions are not formatted correctly");
-            Vector3f pos = new Vector3f(JAPositions.get(0).getAsFloat(),JAPositions.get(1).getAsFloat(),JAPositions.get(2).getAsFloat());
+            Vector3f pos = new Vector3f(0,0,0);
+            try{
+                pos = new Vector3f(JAPositions.get(0).getAsFloat(),JAPositions.get(1).getAsFloat(),JAPositions.get(2).getAsFloat());
+            }
+            catch(Exception e){
+                System.err.println("Positions are not formatted correctly");
+                System.err.close();
+            }
             cities[i] = new City(name,color,pos);
+            cities[i].setPopulation(population);
         }
         for(int i = 0; i < JACities.size();i++){
-            LinkedList<City> neighbours = new LinkedList<>();
             LinkedList<String> cityNames = new LinkedList<>();
             JsonElement JElCity = JACities.get(i);
             JsonObject JOCity = JElCity.getAsJsonObject();
