@@ -6,13 +6,19 @@ import com.jme3.font.BitmapText;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Line;
+import com.jme3.scene.shape.Quad;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.domain.*;
+import org.um.nine.domain.cards.CityCard;
+import org.um.nine.domain.cards.EpidemicCard;
+import org.um.nine.domain.cards.EventCard;
+
 
 public class RenderManager {
     @Inject
@@ -112,6 +118,7 @@ public class RenderManager {
         textBT.setColor(color);
         textBT.setText(text);
         textBT.setLocalTranslation(position);
+        textBT.setQueueBucket(RenderQueue.Bucket.Transparent);
         textBT.setName(name);
         gameRepository.getApp().getRootNode().attachChild(textBT);
     }
@@ -140,4 +147,37 @@ public class RenderManager {
         model.setMaterial(mat);
         gameRepository.getApp().getRootNode().attachChild(model);
     }
+
+    public void renderCard (Card card) {
+        Quad quad = new Quad(250,150);
+        Geometry colored_plate = new Geometry(card.getName(),quad);
+        Material mat = new Material(gameRepository.getApp().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        if (card instanceof CityCard){
+            mat.setColor("Color",((CityCard) card).getCity().getColor());
+        } else if (card instanceof EventCard){
+            mat.setColor("Color", ColorRGBA.Yellow);
+        } else if (card instanceof EpidemicCard){
+            mat.setColor("Color", ColorRGBA.Green);
+        }
+        mat.getAdditionalRenderState().setLineWidth(15);
+        mat.getAdditionalRenderState().setWireframe(false);
+        colored_plate.setLocalTranslation(new Vector3f(-500,350,1));
+        colored_plate.setMaterial(mat);
+        gameRepository.getApp().getRootNode().attachChild(colored_plate);
+
+
+
+        quad = new Quad(210,130);
+        Geometry white_plate = new Geometry("white plate", quad);
+        Material mat2 = new Material(gameRepository.getApp().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        mat2.setColor("Color", ColorRGBA.White);
+        white_plate.setMaterial(mat2);
+        white_plate.setLocalTranslation(colored_plate.getLocalTranslation().add(20,10,1));
+        gameRepository.getApp().getRootNode().attachChild(white_plate);
+
+        BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
+        renderText("here is the text",colored_plate.getLocalTranslation().add(0,65,1.1f),ColorRGBA.Blue,"card.getName()",20,myFont);
+
+    }
+
 }

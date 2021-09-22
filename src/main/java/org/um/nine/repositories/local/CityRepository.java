@@ -12,6 +12,7 @@ import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.ResearchStation;
+import org.um.nine.domain.cards.CityCard;
 import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
 import org.um.nine.exceptions.DiseaseAlreadyInCity;
 import org.um.nine.exceptions.OutbreakException;
@@ -130,5 +131,8 @@ public class CityRepository implements ICityRepository {
             city.getNeighbors().forEach(neighbor -> renderManager.renderEdge(city, neighbor));
             renderManager.renderCity(city);
         });
+
+        //TODO: remove this test
+        renderManager.renderCard(new CityCard(new City("Atlanta",ColorRGBA.Red,new Vector3f())));
     }
 }
