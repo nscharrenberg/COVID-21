@@ -66,7 +66,6 @@ public class RenderManager {
         plate.setMaterial(mat);
         plate.setLocalTranslation(city.getLocation());
         gameRepository.getApp().getRootNode().attachChild(plate);
-        System.out.println("citystuff");
     }
 
     public void renderEdge(City from, City to) {
