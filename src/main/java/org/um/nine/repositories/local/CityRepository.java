@@ -3,6 +3,7 @@ package org.um.nine.repositories.local;
 import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import org.lwjgl.Sys;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
