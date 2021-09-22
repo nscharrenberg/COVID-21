@@ -2,7 +2,7 @@ package org.um.nine.domain;
 
 public class InfectionRateMarker extends Marker {
     private int count;
-
+    private int[] draws = {2,2,2,3,3,4,4}; //how many cards you draw based on marker position
     public InfectionRateMarker(int id, int count) {
         super(id);
         this.count = count;
@@ -19,5 +19,15 @@ public class InfectionRateMarker extends Marker {
 
     public void setCount(int count) {
         this.count = count;
+    }
+
+    public int[] getDraws(){
+        return draws;
+    }
+    public int getCurrentDraw(){
+        return draws[count];
+    }
+    public int getDraw(int pos){
+        return draws[pos];
     }
 }

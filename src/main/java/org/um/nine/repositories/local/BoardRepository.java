@@ -10,6 +10,7 @@ import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.City;
+import org.um.nine.domain.InfectionRateMarker;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.roles.GenericRole;
 import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
@@ -18,6 +19,7 @@ import org.um.nine.exceptions.ResearchStationLimitException;
 
 public class BoardRepository implements IBoardRepository {
     private Geometry board;
+    private InfectionRateMarker infectionRateMarker;
 
     @Inject
     private IGameRepository gameRepository;
@@ -45,15 +47,16 @@ public class BoardRepository implements IBoardRepository {
             e.printStackTrace();
         }
         //Initialise outbreak and Infection markers
-
-        //Initialise Medicine pieces
+        infectionRateMarker = new InfectionRateMarker(1,0,true);
+        //Initialise cure pieces
 
         //Set up infection stack
+
         //Set initial infection:
-        //draw 3 x 3
-        //draw 3 x 2
-        //draw 3 x 1
-        //and place on infection pile
+        //draw 3 cards, 3 infection
+        //draw 3 cards, 2 infection
+        //draw 3 cards, 1 infection
+        //and place cards on infection pile
 
         //Add players and give random roles
         int humans = 3; //Todo: get game info from setup menu
@@ -77,7 +80,8 @@ public class BoardRepository implements IBoardRepository {
         } catch (PlayerLimitException e) {
             e.printStackTrace();
         }
-        //Draw 2 citys per person, count max population
+        //Draw 2 cities per person, count max population
+
         //get difficulty, shuffle rest of cards + epidemic cards
     }
 
