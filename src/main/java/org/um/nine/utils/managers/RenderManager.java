@@ -14,6 +14,8 @@ import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.domain.*;
 
+import java.sql.SQLOutput;
+
 public class RenderManager {
     @Inject
     private IGameRepository gameRepository;
@@ -66,9 +68,12 @@ public class RenderManager {
         plate.setMaterial(mat);
         plate.setLocalTranslation(city.getLocation());
         gameRepository.getApp().getRootNode().attachChild(plate);
+        System.out.println("citystuff");
     }
 
     public void renderEdge(City from, City to) {
+        if(to.getLocation() == null) System.out.println("NULL!");
+        if(from.getLocation() == null) System.out.println("NULL!");
         Line lineShape = new Line(from.getLocation(), to.getLocation());
         Geometry plate = new Geometry(from.getName() + "->" + to.getName(), lineShape);
         Material mat = new Material(gameRepository.getApp().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");

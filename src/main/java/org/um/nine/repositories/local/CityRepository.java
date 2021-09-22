@@ -3,7 +3,6 @@ package org.um.nine.repositories.local;
 import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import org.lwjgl.Sys;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
@@ -43,6 +42,7 @@ public class CityRepository implements ICityRepository {
     public CityRepository() {
         this.researchStations = new ArrayList<>();
         this.cities = new HashMap<>();
+        reset();
     }
 
     @Override
@@ -96,17 +96,44 @@ public class CityRepository implements ICityRepository {
 
         City[] cityArray = {};
         CityCardReader ccr = new CityCardReader();
-        try{
+        try {
             cityArray = ccr.cityReader();
-        } catch(Exception e){
+        } catch (Exception e) {
             System.err.println("Error during card reading");
             System.out.close();
         }
 
-        for(City city : cityArray){
-            this.cities.put(city.getName(),city);
+        for (City city : cityArray) {
+            this.cities.put(city.getName(), city);
         }
 
+        try {
+            addResearchStation(cities.get("Atlanta"));
+        } catch (ResearchStationLimitException e) {
+            e.printStackTrace();
+        } catch (CityAlreadyHasResearchStationException e) {
+            e.printStackTrace();
+        }
 
+        try {
+            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getYellowCubes().get(0));
+            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getRedCubes().get(0));
+            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getBlueCubes().get(1));
+        } catch (OutbreakException e) {
+            e.printStackTrace();
+        } catch (DiseaseAlreadyInCity e) {
+            e.printStackTrace();
+        }
+
+        playerRepository.reset();
+        renderCities();
+    }
+
+    @Override
+    public void renderCities() {
+        getCities().forEach((key, city) -> {
+            city.getNeighbors().forEach(neighbor -> renderManager.renderEdge(city, neighbor));
+            renderManager.renderCity(city);
+        });
     }
 }
