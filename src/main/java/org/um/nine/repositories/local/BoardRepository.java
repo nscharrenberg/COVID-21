@@ -13,6 +13,7 @@ import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Cure;
+import org.um.nine.domain.Marker;
 import org.um.nine.utils.managers.RenderManager;
 
 public class BoardRepository implements IBoardRepository {
@@ -40,6 +41,7 @@ public class BoardRepository implements IBoardRepository {
         renderManager.renderCureMarker(new Cure(ColorRGBA.Yellow), new Vector3f(50, 0, 0));
         renderManager.renderCureMarker(new Cure(ColorRGBA.Cyan), new Vector3f(0, 0, 0));
         renderManager.renderCureMarker(new Cure(ColorRGBA.Magenta), new Vector3f(-50, 0, 0));
+        renderManager.renderOutbreakStar(new Marker(0), new Vector3f(0, 0, 0));
     }
 
     @Override

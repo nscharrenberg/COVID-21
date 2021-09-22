@@ -5,11 +5,16 @@ import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Line;
+import com.jme3.util.BufferUtils;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.domain.*;
@@ -139,5 +144,17 @@ public class RenderManager {
         mat.setColor("Ambient", cure.getColor() );
         model.setMaterial(mat);
         gameRepository.getApp().getRootNode().attachChild(model);
+    }
+
+    public void renderOutbreakStar(Marker status, Vector3f offset) {
+        Box box = new Box(15, 15, 1);
+        Geometry star = new Geometry(status.toString(), box);
+        Material mat = new Material(gameRepository.getApp().getAssetManager(),
+                "Common/MatDefs/Light/Lighting.j3md");
+        mat.setBoolean("UseMaterialColors",true);
+        mat.setColor("Diffuse", ColorRGBA.White );
+        mat.setColor("Ambient", ColorRGBA.White );
+        star.setMaterial(mat);
+        gameRepository.getApp().getRootNode().attachChild(star);
     }
 }
