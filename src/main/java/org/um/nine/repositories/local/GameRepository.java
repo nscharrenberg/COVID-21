@@ -124,7 +124,7 @@ public class GameRepository implements IGameRepository {
 
     private void addAmbientLight() {
         AmbientLight al = new AmbientLight();
-        al.setColor(ColorRGBA.White.mult(.35f));
+        al.setColor(ColorRGBA.White.mult(.25f));
         app.getRootNode().addLight(al);
 
         DirectionalLight sun = new DirectionalLight();
@@ -152,6 +152,10 @@ public class GameRepository implements IGameRepository {
         backgroundGeom.setCullHint(Spatial.CullHint.Never);
         backgroundGeom.setMaterial(backgroundMaterial);
         backgroundGeom.setLocalTranslation(-(width / 2), -(height/ 2), 0);
+
+        AmbientLight al = new AmbientLight();
+        al.setColor(ColorRGBA.White.mult(3f));
+        backgroundGeom.addLight(al);
         app.getRootNode().attachChild(backgroundGeom);
     }
 

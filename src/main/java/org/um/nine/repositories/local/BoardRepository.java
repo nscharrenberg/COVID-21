@@ -1,6 +1,7 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
+import com.jme3.light.AmbientLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -57,6 +58,10 @@ public class BoardRepository implements IBoardRepository {
         mat.setTexture("DiffuseMap", gameRepository.getApp().getAssetManager().loadTexture("images/map.jpg"));
         mat.setTexture("NormalMap", gameRepository.getApp().getAssetManager().loadTexture("images/map_normal.png"));
         board.setMaterial(mat);
+
+        AmbientLight al = new AmbientLight();
+        al.setColor(ColorRGBA.White.mult(3f));
+        board.addLight(al);
         gameRepository.getApp().getRootNode().attachChild(board);
     }
 
