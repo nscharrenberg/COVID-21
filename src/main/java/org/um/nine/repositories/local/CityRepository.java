@@ -121,7 +121,7 @@ public class CityRepository implements ICityRepository {
             e.printStackTrace();
         }
 
-        playerRepository.reset();
+        //playerRepository.reset();
     }
 
     @Override
@@ -131,4 +131,5 @@ public class CityRepository implements ICityRepository {
             renderManager.renderCity(city);
         });
     }
+
 }

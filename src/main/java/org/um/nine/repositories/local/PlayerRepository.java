@@ -40,6 +40,7 @@ public class PlayerRepository implements IPlayerRepository {
         return players;
     }
     public void addPlayer(Player player) throws PlayerLimitException {
+        if(this.players==null) this.players=new HashMap<>();
         if (this.players.size() + 1 > Info.PLAYER_THRESHOLD) {
             throw new PlayerLimitException();
         }
