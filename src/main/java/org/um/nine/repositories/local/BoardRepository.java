@@ -36,10 +36,10 @@ public class BoardRepository implements IBoardRepository {
         renderBoard();
         cityRepository.reset();
 
-        renderManager.renderCureMarker(new Cure(ColorRGBA.Red), new Vector3f(200, 0, 0), true);
-        renderManager.renderCureMarker(new Cure(ColorRGBA.Yellow), new Vector3f(100, 0, 0));
+        renderManager.renderCureMarker(new Cure(ColorRGBA.Red), new Vector3f(100, 0, 0), true);
+        renderManager.renderCureMarker(new Cure(ColorRGBA.Yellow), new Vector3f(50, 0, 0));
         renderManager.renderCureMarker(new Cure(ColorRGBA.Cyan), new Vector3f(0, 0, 0));
-        renderManager.renderCureMarker(new Cure(ColorRGBA.Magenta), new Vector3f(-100, 0, 0));
+        renderManager.renderCureMarker(new Cure(ColorRGBA.Magenta), new Vector3f(-50, 0, 0));
     }
 
     @Override
