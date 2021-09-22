@@ -108,6 +108,8 @@ public class CityRepository implements ICityRepository {
             this.cities.put(city.getName(), city);
         }
 
+        renderCities();
+
         try {
             addResearchStation(cities.get("Atlanta"));
         } catch (ResearchStationLimitException e) {
@@ -127,7 +129,6 @@ public class CityRepository implements ICityRepository {
         }
 
         playerRepository.reset();
-        renderCities();
     }
 
     @Override
