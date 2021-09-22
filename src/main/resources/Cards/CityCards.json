@@ -4,6 +4,7 @@
       "name": "San Francisco",
       "color": "Blue",
       "position": [-650,200,1],
+      "population": 874961,
       "neighbours": [
         "Chicago",
         "Mexico City",
@@ -15,6 +16,7 @@
       "name": "Atlanta",
       "color": "Blue",
       "position": [-480, 182, 1],
+      "population": 488800,
       "neighbours": [
         "Chicago",
         "Mexico City",
@@ -26,6 +28,7 @@
       "name": "Chicago",
       "color": "Blue",
       "position": [-500, 240, 1],
+      "population": 2710000,
       "neighbours": [
         "San Francisco",
         "Calgary",
@@ -37,6 +40,7 @@
       "name": "Montreal",
       "color": "Blue",
       "position": [-400,260,1],
+      "population": 1780000,
       "neighbours": [
         "Chicago",
         "Washington",
@@ -48,6 +52,7 @@
       "name": "Washington",
       "color": "Blue",
       "position": [-440,230,1],
+      "population": 692683,
       "neighbours": [
         "Atlanta",
         "Montreal"
@@ -57,8 +62,9 @@
       "name": "Calgary",
       "color": "Blue",
       "position": [-600,300,1],
+      "population": 1336000,
       "neighbours": [
-        "Jukutsk",
+        "Jakutsk",
         "San Francisco",
         "Chicago"
       ]
@@ -67,6 +73,7 @@
       "name": "Madrid",
       "color": "Blue",
       "position": [-20,230,1],
+      "population": 3223000,
       "neighbours": [
         "Montreal",
         "London",
@@ -79,6 +86,7 @@
       "name": "London",
       "color": "Blue",
       "position": [-10,300,1],
+      "population": 8982000,
       "neighbours": [
         "Tasiusaq",
         "Oslo",
@@ -90,6 +98,7 @@
       "name": "Tasiusaq",
       "color": "Blue",
       "position": [-250,350,1],
+      "population": 53,
       "neighbours": [
         "Montreal",
         "London"
@@ -99,6 +108,7 @@
       "name": "Oslo",
       "color": "Blue",
       "position": [60,340,1],
+      "population": 634293,
       "neighbours": [
         "London",
         "Kiev",
@@ -109,6 +119,7 @@
       "name": "Kiev",
       "color": "Blue",
       "position": [140,275,1],
+      "population": 2884000,
       "neighbours": [
         "Oslo",
         "Moscow",
@@ -120,6 +131,7 @@
       "name": "Milan",
       "color": "Blue",
       "position": [50,250,1],
+      "population": 1352000,
       "neighbours": [
         "Madrid",
         "London",
@@ -132,6 +144,7 @@
       "name": "Algiers",
       "color": "Black",
       "position": [25,200,1],
+      "population": 3916000,
       "neighbours": [
         "Madrid",
         "Milan",
@@ -143,6 +156,7 @@
       "name": "Cairo",
       "color": "Black",
       "position": [150,175,1],
+      "population": 9540000,
       "neighbours": [
         "Algiers",
         "Istanbul",
@@ -155,6 +169,7 @@
       "name": "Istanbul",
       "color": "Black",
       "position": [150,225,1],
+      "population": 15460000,
       "neighbours": [
         "Algiers",
         "Kiev",
@@ -167,6 +182,7 @@
       "name": "Moscow",
       "color": "Black",
       "position": [200,300,1],
+      "population": 11920000,
       "neighbours": [
         "Kiev",
         "Tolyatti",
@@ -177,6 +193,7 @@
       "name": "Baghdad",
       "color": "Black",
       "position": [225,200,1],
+      "population": 7665000,
       "neighbours": [
         "Cairo",
         "Istanbul",
@@ -189,6 +206,7 @@
       "name": "Riyadh",
       "color": "Black",
       "position": [250,150,1],
+      "population": 7677000,
       "neighbours": [
         "Cairo",
         "Baghdad",
@@ -199,6 +217,7 @@
       "name": "Tehran",
       "color": "Black",
       "position": [300,190,1],
+      "population": 8694000,
       "neighbours": [
         "Riyadh",
         "Baghdad",
@@ -210,6 +229,7 @@
       "name": "Karachi",
       "color": "Black",
       "position": [400,125,1],
+      "population": 11910000,
       "neighbours": [
         "Tehran",
         "Astana",
@@ -221,6 +241,7 @@
       "name": "Sri Lanka",
       "color": "Black",
       "position": [450,50,1],
+      "population": 21800000,
       "neighbours": [
         "Karachi",
         "Calcutta"
@@ -230,6 +251,7 @@
       "name": "Calcutta",
       "color": "Black",
       "position": [475,125,1],
+      "population": 14850000,
       "neighbours": [
         "Karachi",
         "Sri Lanka",
@@ -242,6 +264,7 @@
       "name": "Tolyatti",
       "color": "Black",
       "position": [300,280,1],
+      "population": 719363,
       "neighbours": [
         "Moscow",
         "Baghdad",
@@ -253,6 +276,7 @@
       "name": "Astana",
       "color": "Black",
       "position": [400,275,1],
+      "population": 1002000,
       "neighbours": [
         "Tolyatti",
         "Haixi",
@@ -265,6 +289,7 @@
       "name": "Bangkok",
       "color": "Red",
       "position": [575,100,1],
+      "population": 10539000,
       "neighbours": [
         "Calcutta",
         "Haixi",
@@ -277,6 +302,7 @@
       "name": "Jakarta",
       "color": "Red",
       "position": [590,-20,1],
+      "population": 10560000,
       "neighbours": [
         "Bangkok",
         "Manila",
@@ -287,6 +313,7 @@
       "name": "Hong Kong",
       "color": "Red",
       "position": [625,125,1],
+      "population": 7507000,
       "neighbours": [
         "Bangkok",
         "Beijing",
@@ -297,18 +324,20 @@
       "name": "Krasnoyarsk",
       "color": "Red",
       "position": [500,300,1],
+      "population": 1007000,
       "neighbours": [
         "Astana",
         "Haixi",
-        "Jukutsk"
+        "Jakutsk"
       ]
     },
     {
       "name": "Beijing",
       "color": "Red",
       "position": [650,200,1],
+      "population": 21540000,
       "neighbours": [
-        "Jukutsk",
+        "Jakutsk",
         "Tokyo",
         "Taipei",
         "Hong Kong"
@@ -318,6 +347,7 @@
       "name": "Haixi",
       "color": "Red",
       "position": [500,200,1],
+      "population": 515200,
       "neighbours": [
         "Astana",
         "Krasnoyarsk",
@@ -329,6 +359,7 @@
       "name": "Taipei",
       "color": "Red",
       "position": [675,125,1],
+      "population": 2646000,
       "neighbours": [
         "Hong Kong",
         "Beijing",
@@ -340,6 +371,7 @@
       "name": "Manila",
       "color": "Red",
       "position": [675,75,1],
+      "population": 1780000,
       "neighbours": [
         "Bangkok",
         "Taipei",
@@ -352,6 +384,7 @@
       "name": "Sydney",
       "color": "Red",
       "position": [825,-190,1],
+      "population": 5312000,
       "neighbours": [
         "Manila",
         "Perth"
@@ -361,17 +394,19 @@
       "name": "Tokyo",
       "color": "Red",
       "position": [770,200,1],
+      "population": 13960000,
       "neighbours": [
         "Beijing",
-        "Jukutsk",
+        "Jakutsk",
         "San Francisco",
         "Taipei"
       ]
     },
     {
-      "name": "Jukutsk",
+      "name": "Jakutsk",
       "color": "Red",
       "position": [725,350,1],
+      "population": 282419,
       "neighbours": [
         "Krasnoyarsk",
         "Beijing",
@@ -383,6 +418,7 @@
       "name": "Perth",
       "color": "Red",
       "position": [650,-160,1],
+      "population": 1985000,
       "neighbours": [
         "Sydney",
         "Jakarta"
@@ -392,6 +428,7 @@
       "name": "Santiago de Chile",
       "color": "Yellow",
       "position": [-375,-150,1],
+      "population": 5614000,
       "neighbours": [
         "Bogota",
         "Manaus",
@@ -403,6 +440,7 @@
       "name": "Mexico City",
       "color": "Yellow",
       "position": [-565,125,1],
+      "population": 8855000,
       "neighbours": [
         "Manila",
         "San Francisco",
@@ -415,6 +453,7 @@
       "name": "Santo Domingo",
       "color": "Yellow",
       "position": [-400,110,1],
+      "population": 2987000,
       "neighbours": [
         "Mexico City",
         "Atlanta",
@@ -425,6 +464,7 @@
       "name": "Bogota",
       "color": "Yellow",
       "position": [-400,25,1],
+      "population": 7181000,
       "neighbours": [
         "Mexico City",
         "Santo Domingo",
@@ -436,6 +476,7 @@
       "name": "Comodoro Rivadavia",
       "color": "Yellow",
       "position": [-375,-250,1],
+      "population": 177038,
       "neighbours": [
         "Santiago de Chile",
         "Sao Paolo"
@@ -445,6 +486,7 @@
       "name": "Sao Paolo",
       "color": "Yellow",
       "position": [-250,-110,1],
+      "population": 12330000,
       "neighbours": [
         "Santiago de Chile",
         "Comodoro Rivadavia",
@@ -455,6 +497,7 @@
       "name": "Lagos",
       "color": "Yellow",
       "position": [10,35,1],
+      "population": 14370000,
       "neighbours": [
         "Fortaleza",
         "Luanda",
@@ -465,6 +508,7 @@
       "name": "Luanda",
       "color": "Yellow",
       "position": [75,-50,1],
+      "population": 2572000,
       "neighbours": [
         "Lagos",
         "Khartoum",
@@ -475,6 +519,7 @@
       "name": "Johannesburg",
       "color": "Yellow",
       "position": [150,-150,1],
+      "population": 957441,
       "neighbours": [
         "Luanda",
         "Khartoum"
@@ -484,6 +529,7 @@
       "name": "Khartoum",
       "color": "Yellow",
       "position": [150,100,1],
+      "population": 639598,
       "neighbours": [
         "Lagos",
         "Luanda",
@@ -495,6 +541,7 @@
       "name": "Fortaleza",
       "color": "Yellow",
       "position": [-225,-25,1],
+      "population": 2687000,
       "neighbours": [
         "Manaus",
         "Sao Paolo",
@@ -506,6 +553,7 @@
       "name": "Manaus",
       "color": "Yellow",
       "position": [-300,-15,1],
+      "population": 2020000,
       "neighbours": [
         "Bogota",
         "Santiago de Chile",

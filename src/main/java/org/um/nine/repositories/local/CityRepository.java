@@ -58,6 +58,6 @@ public class CityRepository implements ICityRepository {
             this.cities.put(city.getName(),city);
         }
 
-        //ToDo Add neighbours to the city
+
     }
 }

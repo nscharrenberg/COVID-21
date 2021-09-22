@@ -14,6 +14,7 @@ import com.jme3.scene.shape.Quad;
 import com.jme3.system.AppSettings;
 import com.simsilica.lemur.GuiGlobals;
 import com.simsilica.lemur.style.BaseStyles;
+import org.junit.Test;
 import org.um.nine.Game;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.IBoardRepository;
@@ -53,7 +54,7 @@ public class GameRepository implements IGameRepository {
         settings.setResolution(gd.getDisplayMode().getWidth(), gd.getDisplayMode().getHeight());
         settings.setSamples(16);
         settings.setVSync(true);
-        settings.setFullscreen(true);
+        settings.setFullscreen(false);
 
         // Allow for touch screen devices
         settings.setEmulateMouse(true);
