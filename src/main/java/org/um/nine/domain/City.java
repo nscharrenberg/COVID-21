@@ -141,4 +141,13 @@ public class City {
 
         return new Vector3f(5 + offsetX, 25 - offsetY, 0);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("city-");
+        sb.append(name);
+
+        return sb.toString();
+    }
 }
