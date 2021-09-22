@@ -1,4 +1,4 @@
-package org.um.nine.domain.cards;
+package org.um.nine.utils.cardmanaging;
 
 import com.google.gson.*;
 import com.jme3.math.ColorRGBA;

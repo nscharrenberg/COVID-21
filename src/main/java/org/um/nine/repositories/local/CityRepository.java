@@ -1,9 +1,7 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import org.lwjgl.Sys;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
@@ -13,7 +11,7 @@ import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.ResearchStation;
-import org.um.nine.domain.cards.CityCardReader;
+import org.um.nine.utils.cardmanaging.CityCardReader;
 import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
 import org.um.nine.exceptions.DiseaseAlreadyInCity;
 import org.um.nine.exceptions.OutbreakException;
