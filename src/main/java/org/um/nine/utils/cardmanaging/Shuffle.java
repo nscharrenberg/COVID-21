@@ -2,7 +2,6 @@ package org.um.nine.utils.cardmanaging;
 import org.um.nine.domain.Card;
 import org.um.nine.domain.cards.EpidemicCard;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Stack;
 
