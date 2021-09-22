@@ -5,7 +5,6 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import org.um.nine.domain.City;
 import org.um.nine.exceptions.ColorNotFoundException;
-import org.um.nine.utils.test;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -66,12 +65,4 @@ public class CityCardReader {
         return cities;
     }
 
-    public static void main(String[] args) throws Exception {
-        //TODO add yellow cities to JSON file!!!!
-        CityCardReader a = new CityCardReader();
-        City[] c = a.cityReader();
-        for (int i = 0; i < c.length; i++){
-            System.out.println(c[i].getName() + ": " + c[i].getColor().toString());
-        }
-    }
 }
