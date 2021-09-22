@@ -4,289 +4,513 @@
       "name": "San Francisco",
       "color": "Blue",
       "position": [-650,200,1],
-      "neighbours": ["Chicago"]
-    },
-    {
-      "name": "Chicago",
-      "color": "Blue",
-      "position": [-480, 182, 1],
-      "neighbours": []
+      "neighbours": [
+        "Chicago",
+        "Mexico City",
+        "Calgary",
+        "Tokyo"
+      ]
     },
     {
       "name": "Atlanta",
       "color": "Blue",
+      "position": [-480, 182, 1],
+      "neighbours": [
+        "Chicago",
+        "Mexico City",
+        "Washington",
+        "Santo Domingo"
+      ]
+    },
+    {
+      "name": "Chicago",
+      "color": "Blue",
       "position": [-500, 240, 1],
-      "neighbours": []
+      "neighbours": [
+        "San Francisco",
+        "Calgary",
+        "Atlanta",
+        "Montreal"
+      ]
     },
     {
       "name": "Montreal",
       "color": "Blue",
       "position": [-400,260,1],
-      "neighbours": []
+      "neighbours": [
+        "Chicago",
+        "Washington",
+        "Tasiusaq",
+        "Madrid"
+      ]
     } ,
     {
       "name": "Washington",
       "color": "Blue",
       "position": [-440,230,1],
-      "neighbours": []
+      "neighbours": [
+        "Atlanta",
+        "Montreal"
+      ]
     },
     {
       "name": "Calgary",
       "color": "Blue",
       "position": [-600,300,1],
-      "neighbours": []
+      "neighbours": [
+        "Jukutsk",
+        "San Francisco",
+        "Chicago"
+      ]
     },
     {
       "name": "Madrid",
       "color": "Blue",
       "position": [-20,230,1],
-      "neighbours": []
+      "neighbours": [
+        "Montreal",
+        "London",
+        "Milan",
+        "Algiers",
+        "Fortaleza"
+      ]
     },
     {
       "name": "London",
       "color": "Blue",
       "position": [-10,300,1],
-      "neighbours": []
+      "neighbours": [
+        "Tasiusaq",
+        "Oslo",
+        "Milan",
+        "Madrid"
+      ]
     },
     {
       "name": "Tasiusaq",
       "color": "Blue",
       "position": [-250,350,1],
-      "neighbours": []
+      "neighbours": [
+        "Montreal",
+        "London"
+      ]
     },
     {
       "name": "Oslo",
       "color": "Blue",
       "position": [60,340,1],
-      "neighbours": []
+      "neighbours": [
+        "London",
+        "Kiev",
+        "Milan"
+      ]
     },
     {
       "name": "Kiev",
       "color": "Blue",
       "position": [140,275,1],
-      "neighbours": []
+      "neighbours": [
+        "Oslo",
+        "Moscow",
+        "Istanbul",
+        "Milan"
+      ]
     },
     {
       "name": "Milan",
       "color": "Blue",
       "position": [50,250,1],
-      "neighbours": []
+      "neighbours": [
+        "Madrid",
+        "London",
+        "Oslo",
+        "Kiev",
+        "Algiers"
+      ]
     },
     {
       "name": "Algiers",
       "color": "Black",
       "position": [25,200,1],
-      "neighbours": []
+      "neighbours": [
+        "Madrid",
+        "Milan",
+        "Istanbul",
+        "Cairo"
+      ]
     },
     {
       "name": "Cairo",
       "color": "Black",
       "position": [150,175,1],
-      "neighbours": []
+      "neighbours": [
+        "Algiers",
+        "Istanbul",
+        "Baghdad",
+        "Riyadh",
+        "Khartoum"
+      ]
     },
     {
       "name": "Istanbul",
       "color": "Black",
       "position": [150,225,1],
-      "neighbours": []
+      "neighbours": [
+        "Algiers",
+        "Kiev",
+        "Moscow",
+        "Baghdad",
+        "Cairo"
+      ]
     },
     {
       "name": "Moscow",
       "color": "Black",
       "position": [200,300,1],
-      "neighbours": []
+      "neighbours": [
+        "Kiev",
+        "Tolyatti",
+        "Istanbul"
+      ]
     },
     {
       "name": "Baghdad",
       "color": "Black",
       "position": [225,200,1],
-      "neighbours": []
+      "neighbours": [
+        "Cairo",
+        "Istanbul",
+        "Tolyatti",
+        "Tehran",
+        "Riyadh"
+      ]
     },
     {
       "name": "Riyadh",
       "color": "Black",
       "position": [250,150,1],
-      "neighbours": []
+      "neighbours": [
+        "Cairo",
+        "Baghdad",
+        "Tehran"
+      ]
     },
     {
       "name": "Tehran",
       "color": "Black",
       "position": [300,190,1],
-      "neighbours": []
+      "neighbours": [
+        "Riyadh",
+        "Baghdad",
+        "Tolyatti",
+        "Karachi"
+      ]
     },
     {
       "name": "Karachi",
       "color": "Black",
       "position": [400,125,1],
-      "neighbours": []
+      "neighbours": [
+        "Tehran",
+        "Astana",
+        "Calcutta",
+        "Sri Lanka"
+      ]
     },
     {
       "name": "Sri Lanka",
       "color": "Black",
       "position": [450,50,1],
-      "neighbours": []
+      "neighbours": [
+        "Karachi",
+        "Calcutta"
+      ]
     },
     {
       "name": "Calcutta",
       "color": "Black",
       "position": [475,125,1],
-      "neighbours": []
+      "neighbours": [
+        "Karachi",
+        "Sri Lanka",
+        "Astana",
+        "Haixi",
+        "Bangkok"
+      ]
     },
     {
       "name": "Tolyatti",
       "color": "Black",
       "position": [300,280,1],
-      "neighbours": []
+      "neighbours": [
+        "Moscow",
+        "Baghdad",
+        "Tehran",
+        "Astana"
+      ]
     },
     {
       "name": "Astana",
       "color": "Black",
       "position": [400,275,1],
-      "neighbours": []
+      "neighbours": [
+        "Tolyatti",
+        "Haixi",
+        "Calcutta",
+        "Karachi",
+        "Krasnoyarsk"
+      ]
     },
     {
       "name": "Bangkok",
       "color": "Red",
       "position": [575,100,1],
-      "neighbours": []
+      "neighbours": [
+        "Calcutta",
+        "Haixi",
+        "Hong Kong",
+        "Jakarta",
+        "Manila"
+      ]
     },
     {
       "name": "Jakarta",
       "color": "Red",
       "position": [590,-20,1],
-      "neighbours": []
+      "neighbours": [
+        "Bangkok",
+        "Manila",
+        "Perth"
+      ]
     },
     {
       "name": "Hong Kong",
       "color": "Red",
       "position": [625,125,1],
-      "neighbours": []
+      "neighbours": [
+        "Bangkok",
+        "Beijing",
+        "Taipei"
+      ]
     },
     {
       "name": "Krasnoyarsk",
       "color": "Red",
       "position": [500,300,1],
-      "neighbours": []
+      "neighbours": [
+        "Astana",
+        "Haixi",
+        "Jukutsk"
+      ]
     },
     {
       "name": "Beijing",
       "color": "Red",
       "position": [650,200,1],
-      "neighbours": []
+      "neighbours": [
+        "Jukutsk",
+        "Tokyo",
+        "Taipei",
+        "Hong Kong"
+      ]
     },
     {
       "name": "Haixi",
       "color": "Red",
       "position": [500,200,1],
-      "neighbours": []
+      "neighbours": [
+        "Astana",
+        "Krasnoyarsk",
+        "Calcutta",
+        "Bangkok"
+      ]
     },
     {
       "name": "Taipei",
       "color": "Red",
       "position": [675,125,1],
-      "neighbours": []
+      "neighbours": [
+        "Hong Kong",
+        "Beijing",
+        "Tokyo",
+        "Manila"
+      ]
     },
     {
       "name": "Manila",
       "color": "Red",
       "position": [675,75,1],
-      "neighbours": []
+      "neighbours": [
+        "Bangkok",
+        "Taipei",
+        "Mexico City",
+        "Jakarta",
+        "Sydney"
+      ]
     },
     {
       "name": "Sydney",
       "color": "Red",
       "position": [825,-190,1],
-      "neighbours": []
+      "neighbours": [
+        "Manila",
+        "Perth"
+      ]
     },
     {
       "name": "Tokyo",
       "color": "Red",
       "position": [770,200,1],
-      "neighbours": []
+      "neighbours": [
+        "Beijing",
+        "Jukutsk",
+        "San Francisco",
+        "Taipei"
+      ]
     },
     {
       "name": "Jukutsk",
       "color": "Red",
       "position": [725,350,1],
-      "neighbours": []
+      "neighbours": [
+        "Krasnoyarsk",
+        "Beijing",
+        "Tokyo",
+        "Calgary"
+      ]
     },
     {
       "name": "Perth",
       "color": "Red",
       "position": [650,-160,1],
-      "neighbours": []
+      "neighbours": [
+        "Sydney",
+        "Jakarta"
+      ]
     },
     {
       "name": "Santiago de Chile",
       "color": "Yellow",
       "position": [-375,-150,1],
-      "neighbours": []
+      "neighbours": [
+        "Bogota",
+        "Manaus",
+        "Sao Paolo",
+        "Comodoro Rivadavia"
+      ]
     },
     {
       "name": "Mexico City",
       "color": "Yellow",
       "position": [-565,125,1],
-      "neighbours": []
+      "neighbours": [
+        "Manila",
+        "San Francisco",
+        "Atlanta",
+        "Santo Doming",
+        "Bogota"
+      ]
     },
     {
       "name": "Santo Domingo",
       "color": "Yellow",
       "position": [-400,110,1],
-      "neighbours": []
+      "neighbours": [
+        "Mexico City",
+        "Atlanta",
+        "Bogota"
+      ]
     },
     {
       "name": "Bogota",
       "color": "Yellow",
       "position": [-400,25,1],
-      "neighbours": []
+      "neighbours": [
+        "Mexico City",
+        "Santo Domingo",
+        "Manaus",
+        "Santiago de Chile"
+      ]
     },
     {
       "name": "Comodoro Rivadavia",
       "color": "Yellow",
       "position": [-375,-250,1],
-      "neighbours": []
+      "neighbours": [
+        "Santiago de Chile",
+        "Sao Paolo"
+      ]
     },
     {
       "name": "Sao Paolo",
       "color": "Yellow",
       "position": [-250,-110,1],
-      "neighbours": []
+      "neighbours": [
+        "Santiago de Chile",
+        "Comodoro Rivadavia",
+        "Fortaleza"
+      ]
     },
     {
       "name": "Lagos",
       "color": "Yellow",
       "position": [10,35,1],
-      "neighbours": []
+      "neighbours": [
+        "Fortaleza",
+        "Luanda",
+        "Khartoum"
+      ]
     },
     {
       "name": "Luanda",
       "color": "Yellow",
       "position": [75,-50,1],
-      "neighbours": []
+      "neighbours": [
+        "Lagos",
+        "Khartoum",
+        "Johannesburg"
+      ]
     },
     {
       "name": "Johannesburg",
       "color": "Yellow",
       "position": [150,-150,1],
-      "neighbours": []
+      "neighbours": [
+        "Luanda",
+        "Khartoum"
+      ]
     },
     {
       "name": "Khartoum",
       "color": "Yellow",
       "position": [150,100,1],
-      "neighbours": []
+      "neighbours": [
+        "Lagos",
+        "Luanda",
+        "Johannesburg",
+        "Cairo"
+      ]
     },
     {
       "name": "Fortaleza",
       "color": "Yellow",
       "position": [-225,-25,1],
-      "neighbours": []
+      "neighbours": [
+        "Manaus",
+        "Sao Paolo",
+        "Madrid",
+        "Lagos"
+      ]
     },
     {
       "name": "Manaus",
       "color": "Yellow",
       "position": [-300,-15,1],
-      "neighbours": []
+      "neighbours": [
+        "Bogota",
+        "Santiago de Chile",
+        "Fortaleza"
+      ]
     }
   ]
 }
