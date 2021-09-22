@@ -2,11 +2,10 @@ package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
 import com.jme3.light.AmbientLight;
+import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
@@ -27,8 +26,6 @@ public class GameRepository implements IGameRepository {
     private Game app;
     private boolean isStarted = false;
     private Geometry backgroundGeom;
-    private FilterPostProcessor fpp;
-    private BloomFilter bloomFilter;
     private int speed = 200;
 
     @Inject
@@ -53,7 +50,7 @@ public class GameRepository implements IGameRepository {
         settings.setResolution(gd.getDisplayMode().getWidth(), gd.getDisplayMode().getHeight());
         settings.setSamples(16);
         settings.setVSync(true);
-        settings.setFullscreen(true);
+        settings.setFullscreen(false);
 
         // Allow for touch screen devices
         settings.setEmulateMouse(true);
@@ -64,8 +61,6 @@ public class GameRepository implements IGameRepository {
         app.start();
 
         app.getStateManager().attach(mainMenu);
-
-        refreshFpp();
     }
 
     @Inject
@@ -129,8 +124,13 @@ public class GameRepository implements IGameRepository {
 
     private void addAmbientLight() {
         AmbientLight al = new AmbientLight();
-        al.setColor(ColorRGBA.White.mult(3.5f));
+        al.setColor(ColorRGBA.White.mult(.25f));
         app.getRootNode().addLight(al);
+
+        DirectionalLight sun = new DirectionalLight();
+        sun.setColor(ColorRGBA.White);
+        sun.setDirection(new Vector3f(-0.5f, -0.5f, -0.5f).normalizeLocal());
+        app.getRootNode().addLight(sun);
     }
 
     private void setBackgroundScreen() {
@@ -152,6 +152,10 @@ public class GameRepository implements IGameRepository {
         backgroundGeom.setCullHint(Spatial.CullHint.Never);
         backgroundGeom.setMaterial(backgroundMaterial);
         backgroundGeom.setLocalTranslation(-(width / 2), -(height/ 2), 0);
+
+        AmbientLight al = new AmbientLight();
+        al.setColor(ColorRGBA.White.mult(3f));
+        backgroundGeom.addLight(al);
         app.getRootNode().attachChild(backgroundGeom);
     }
 
@@ -163,22 +167,5 @@ public class GameRepository implements IGameRepository {
     @Override
     public void setSpeed(int speed) {
         this.speed = speed;
-    }
-
-    @Override
-    public FilterPostProcessor getFpp() {
-        return fpp;
-    }
-
-    @Override
-    public BloomFilter getBloomFilter() {
-        return bloomFilter;
-    }
-
-    public void refreshFpp() {
-        this.fpp = new FilterPostProcessor(app.getAssetManager());
-        this.bloomFilter = new BloomFilter(BloomFilter.GlowMode.Objects);
-        this.fpp.addFilter(bloomFilter);
-        this.app.getViewPort().addProcessor(this.fpp);
     }
 }

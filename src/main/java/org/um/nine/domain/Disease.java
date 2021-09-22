@@ -25,4 +25,17 @@ public class Disease {
     public void setCity(City city) {
         this.city = city;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("disease-");
+        sb.append(city.getName());
+        sb.append("-");
+        sb.append(this.getColor().toString());
+        sb.append("-");
+        sb.append(city.getCubes().indexOf(this));
+
+        return sb.toString();
+    }
 }

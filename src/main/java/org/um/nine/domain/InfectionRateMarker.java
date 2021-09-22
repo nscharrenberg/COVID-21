@@ -20,4 +20,15 @@ public class InfectionRateMarker extends Marker {
     public void setCount(int count) {
         this.count = count;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("infection-rate-marker-");
+        sb.append(count);
+        sb.append("-");
+        sb.append(this.getId());
+
+        return sb.toString();
+    }
 }

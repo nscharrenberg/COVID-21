@@ -5,6 +5,8 @@ import com.jme3.math.Vector3f;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 
+import static java.lang.Math.abs;
+
 public class CameraManager {
     @Inject
     private IGameRepository gameRepository;
@@ -19,6 +21,9 @@ public class CameraManager {
 
         pos.addLocal(vel);
 
+        float zoom = 70 - gameRepository.getApp().getCamera().getFov() ;
+        if (abs(pos.x) > 45 * zoom) return;
+
         gameRepository.getApp().getCamera().setLocation(pos);
     }
 
@@ -28,11 +33,15 @@ public class CameraManager {
         Vector3f pos = gameRepository.getApp().getCamera().getLocation().clone();
         pos.addLocal(vel);
 
+        float zoom = 70 - gameRepository.getApp().getCamera().getFov() ;
+        if (abs(pos.y) > 21 * zoom) return;
+
         gameRepository.getApp().getCamera().setLocation(pos);
     }
 
     public void localTranslateZ(float value) {
         float newFov = gameRepository.getApp().getCamera().getFov() + value * 0.1F * gameRepository.getApp().getFlyByCamera().getZoomSpeed();
+        if (abs(40 - newFov) > 20) return;
         if (newFov > 0.0F) {
             gameRepository.getApp().getCamera().setFov(newFov);
         }

@@ -1,21 +1,23 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
+import com.jme3.light.AmbientLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.Cylinder;
-import com.jme3.scene.shape.Line;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
+import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.City;
-
-import java.util.Map;
+import org.um.nine.domain.Cure;
+import org.um.nine.utils.managers.RenderManager;
 
 public class BoardRepository implements IBoardRepository {
     private Geometry board;
+    private City selectedCity;
 
     @Inject
     private IGameRepository gameRepository;
@@ -23,10 +25,21 @@ public class BoardRepository implements IBoardRepository {
     @Inject
     private ICityRepository cityRepository;
 
+    @Inject
+    private IPlayerRepository playerRepository;
+
+    @Inject
+    private RenderManager renderManager;
+
     @Override
     public void startGame() {
         renderBoard();
-        renderCities();
+        cityRepository.reset();
+
+        renderManager.renderCureMarker(new Cure(ColorRGBA.Red), new Vector3f(200, 0, 0), true);
+        renderManager.renderCureMarker(new Cure(ColorRGBA.Yellow), new Vector3f(100, 0, 0));
+        renderManager.renderCureMarker(new Cure(ColorRGBA.Cyan), new Vector3f(0, 0, 0));
+        renderManager.renderCureMarker(new Cure(ColorRGBA.Magenta), new Vector3f(-100, 0, 0));
     }
 
     @Override
@@ -35,7 +48,6 @@ public class BoardRepository implements IBoardRepository {
             gameRepository.getApp().getRootNode().detachAllChildren();
             renderBoard();
         }
-
         return this.board;
     }
 
@@ -46,39 +58,24 @@ public class BoardRepository implements IBoardRepository {
         mat.setTexture("DiffuseMap", gameRepository.getApp().getAssetManager().loadTexture("images/map.jpg"));
         mat.setTexture("NormalMap", gameRepository.getApp().getAssetManager().loadTexture("images/map_normal.png"));
         board.setMaterial(mat);
+
+        AmbientLight al = new AmbientLight();
+        al.setColor(ColorRGBA.White.mult(3f));
+        board.addLight(al);
         gameRepository.getApp().getRootNode().attachChild(board);
     }
 
-    private void renderCities() {
-        cityRepository.getCities().forEach((key, city) -> {
-            city.getNeighbors().forEach(neighbor -> renderEdge(city, neighbor));
-
-            renderCity(city);
-        });
-
+    @Override
+    public City getSelectedCity() {
+        return selectedCity;
     }
 
-    private void renderCity(City city) {
-        Cylinder plateShape = new Cylinder(5, 10, 12.5f, 2, true);
-        Geometry plate = new Geometry(city.getName(), plateShape);
-        Material mat = new Material(gameRepository.getApp().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", city.getColor());
-        mat.setColor("GlowColor", city.getColor());
-        gameRepository.refreshFpp();
-        plate.setMaterial(mat);
-        plate.setLocalTranslation(city.getLocation());
-        gameRepository.getApp().getRootNode().attachChild(plate);
-    }
+    @Override
+    public void setSelectedCity(City selectedCity) {
+        this.selectedCity = selectedCity;
 
-    private void renderEdge(City city1, City city2) {
-        Line lineShape = new Line(city1.getLocation(), city2.getLocation());
-        Geometry plate = new Geometry(city1.getName() + "->" + city2.getName(), lineShape);
-        Material mat = new Material(gameRepository.getApp().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", ColorRGBA.White);
-        mat.setColor("GlowColor", ColorRGBA.White);
-        mat.getAdditionalRenderState().setLineWidth(1);
-        mat.getAdditionalRenderState().setWireframe(true);
-        plate.setMaterial(mat);
-        gameRepository.getApp().getRootNode().attachChild(plate);
+        String textName = "selected-city-text";
+
+        renderManager.renderText(selectedCity != null ? selectedCity.getName() : "Nothing Selected", new Vector3f(0, 0, 5), ColorRGBA.White, textName);
     }
 }

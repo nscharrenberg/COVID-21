@@ -26,4 +26,13 @@ public class Cure {
     public void setDiscovered(boolean discovered) {
         isDiscovered = discovered;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("cure-");
+        sb.append(color.toString());
+
+        return sb.toString();
+    }
 }

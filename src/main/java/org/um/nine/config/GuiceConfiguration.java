@@ -1,21 +1,24 @@
 package org.um.nine.config;
 
 import com.google.inject.AbstractModule;
-import org.um.nine.contracts.repositories.IBoardRepository;
-import org.um.nine.contracts.repositories.ICardRepository;
-import org.um.nine.contracts.repositories.ICityRepository;
-import org.um.nine.contracts.repositories.IGameRepository;
-import org.um.nine.repositories.local.BoardRepository;
-import org.um.nine.repositories.local.CardRepository;
-import org.um.nine.repositories.local.CityRepository;
-import org.um.nine.repositories.local.GameRepository;
+import org.um.nine.contracts.repositories.*;
+import org.um.nine.repositories.local.*;
 
 public class GuiceConfiguration extends AbstractModule {
+    private final IGameRepository gameRepository = new GameRepository();
+    private final IBoardRepository boardRepository = new BoardRepository();
+    private final ICityRepository cityRepository = new CityRepository();
+    private final ICardRepository cardRepository = new CardRepository();
+    private final IPlayerRepository playerRepository = new PlayerRepository();
+    private final IDiseaseRepository diseaseRepository = new DiseaseRepository();
+
     @Override
     protected void configure() {
-        bind(IGameRepository.class).to(GameRepository.class);
-        bind(IBoardRepository.class).to(BoardRepository.class);
-        bind(ICityRepository.class).to(CityRepository.class);
-        bind(ICardRepository.class).to(CardRepository.class);
+        bind(IGameRepository.class).toInstance(gameRepository);
+        bind(IBoardRepository.class).toInstance(boardRepository);
+        bind(ICityRepository.class).toInstance(cityRepository);
+        bind(ICardRepository.class).toInstance(cardRepository);
+        bind(IPlayerRepository.class).toInstance(playerRepository);
+        bind(IDiseaseRepository.class).toInstance(diseaseRepository);
     }
 }

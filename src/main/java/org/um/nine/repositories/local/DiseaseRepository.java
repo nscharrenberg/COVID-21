@@ -1,11 +1,13 @@
 package org.um.nine.repositories.local;
 
+import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.domain.Cure;
 import org.um.nine.domain.Disease;
 import org.um.nine.domain.InfectionRateMarker;
 import org.um.nine.domain.Marker;
+import org.um.nine.utils.managers.RenderManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +23,9 @@ public class DiseaseRepository implements IDiseaseRepository {
     private List<Disease> yellowCubes;
     private List<Disease> blueCubes;
     private List<Disease> redCubes;
+
+    @Inject
+    private RenderManager renderManager;
 
     public DiseaseRepository() {
         reset();
@@ -106,5 +111,9 @@ public class DiseaseRepository implements IDiseaseRepository {
         initMarkers();
         initCures();
         initCubes();
+    }
+
+    private void renderCures() {
+
     }
 }
