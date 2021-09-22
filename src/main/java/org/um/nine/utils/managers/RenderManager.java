@@ -14,8 +14,6 @@ import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.domain.*;
 
-import java.sql.SQLOutput;
-
 public class RenderManager {
     @Inject
     private IGameRepository gameRepository;

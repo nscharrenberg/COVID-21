@@ -35,7 +35,7 @@ public class CityRepository implements ICityRepository {
     private IPlayerRepository playerRepository;
 
     @Inject
-    private RenderManager renderManager;
+    private RenderManager renderManager = new RenderManager();
 
     @Inject
     private IDiseaseRepository diseaseRepository;
@@ -43,7 +43,6 @@ public class CityRepository implements ICityRepository {
     public CityRepository() {
         this.researchStations = new ArrayList<>();
         this.cities = new HashMap<>();
-        reset();
     }
 
     @Override
