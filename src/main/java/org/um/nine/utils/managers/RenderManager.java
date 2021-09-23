@@ -69,8 +69,6 @@ public class RenderManager {
     }
 
     public void renderEdge(City from, City to) {
-        if(to.getLocation() == null) System.out.println("NULL!");
-        if(from.getLocation() == null) System.out.println("NULL!");
         Line lineShape = new Line(from.getLocation(), to.getLocation());
         Geometry plate = new Geometry(from.getName() + "->" + to.getName(), lineShape);
         Material mat = new Material(gameRepository.getApp().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");

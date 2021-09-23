@@ -1,5 +1,6 @@
 package test.utils.cardmanaging;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.um.nine.domain.City;
 import org.um.nine.utils.cardmanaging.CityCardReader;
@@ -13,7 +14,7 @@ public class CityReaderTest{
         String[] names = {"San Francisco","Atlanta","Chicago"};
         int counter = 0;
         for(City city: cities){
-            assert(city.getName().equals(names[counter]));
+            Assertions.assertEquals(city.getName(),names[counter]);
             counter++;
         }
     }
@@ -23,8 +24,8 @@ public class CityReaderTest{
         CityCardReader c = new CityCardReader();
         City[] cities = c.cityReader("Cards/testCities.json");
         City SF = cities[0];
-        assert(SF.getNeighbors().get(0).getName().equals("Atlanta"));
-        assert(SF.getNeighbors().get(1).getName().equals("Chicago"));
+        Assertions.assertEquals(SF.getNeighbors().get(0).getName(),"Atlanta");
+        Assertions.assertEquals(SF.getNeighbors().get(1).getName(),"Chicago");
     }
 
     @Test
@@ -32,11 +33,11 @@ public class CityReaderTest{
         CityCardReader c = new CityCardReader();
         City[] cities = c.cityReader("Cards/testCities.json");
         //San Francisco
-        assert(cities[0].getPopulation() == 874961);
+        Assertions.assertEquals(cities[0].getPopulation(),874961);
         //Atlanta
-        assert(cities[1].getPopulation() == 488800);
+        Assertions.assertEquals(cities[1].getPopulation(),488800);
         //Chicago
-        assert(cities[2].getPopulation() == 2710000);
+        Assertions.assertEquals(cities[2].getPopulation(),2710000);
     }
 
 }

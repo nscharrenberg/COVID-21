@@ -12,9 +12,9 @@ import java.io.Reader;
 import java.util.LinkedList;
 
 public class CityCardReader {
-    public City[] cityReader() {
+    public City[] cityReader(String path) {
         JsonParser parser = new JsonParser();
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("Cards/CityCards.json");
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path);
         Reader reader = new InputStreamReader(inputStream);
         JsonElement JElRoot = parser.parse(reader);
         JsonObject JORoot = JElRoot.getAsJsonObject();

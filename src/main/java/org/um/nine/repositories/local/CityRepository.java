@@ -33,7 +33,7 @@ public class CityRepository implements ICityRepository {
     private IPlayerRepository playerRepository;
 
     @Inject
-    private RenderManager renderManager = new RenderManager();
+    private RenderManager renderManager;
 
     @Inject
     private IDiseaseRepository diseaseRepository;
@@ -95,7 +95,7 @@ public class CityRepository implements ICityRepository {
         City[] cityArray = {};
         CityCardReader ccr = new CityCardReader();
         try {
-            cityArray = ccr.cityReader();
+            cityArray = ccr.cityReader("Cards/CityCards.json");
         } catch (Exception e) {
             System.err.println("Error during card reading");
             System.out.close();
@@ -136,47 +136,3 @@ public class CityRepository implements ICityRepository {
         });
     }
 }
-
-/*
-public class CardReaderTest{
-
-    @Test
-    void CityNameReadingTest(){
-        CityCardReader c = new CityCardReader();
-        City[] cities = c.cityReader();
-        String[] names = {"San Francisco","Atlanta","Chicago"};
-        int counter = 0;
-        for(City city: cities){
-            assert(city.getName().equals(names[counter]));
-            counter++;
-        }
-    }
-
-    @Test
-    void CityNeighboursReadingTest(){
-        CityCardReader c = new CityCardReader();
-        City[] cities = c.cityReader();
-        City SF = cities[0];
-        boolean passed = true;
-        for(City city: SF.getNeighbors()){
-            if(!city.getName().equals("Atlanta") ||!city.getName().equals("Chicago")){
-                passed = false;
-            }
-        }
-        assert(passed);
-    }
-
-    @Test
-    void CityPopulationTest(){
-        CityCardReader c = new CityCardReader();
-        City[] cities = c.cityReader();
-        //San Francisco
-        assert(cities[0].getPopulation() == 874961);
-        //Atlanta
-        assert(cities[1].getPopulation() == 488800);
-        //Chicago
-        assert(cities[2].getPopulation() == 2710000);
-    }
-
-}
- */
