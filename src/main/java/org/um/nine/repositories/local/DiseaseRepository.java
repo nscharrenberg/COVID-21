@@ -115,5 +115,14 @@ public class DiseaseRepository implements IDiseaseRepository {
     public void treat(Player pawn, City city, Disease disease) {
         city.getCubes().remove(disease);
         disease.setCity(null);
+
+        if (cures.get(disease.getColor().toString()).isDiscovered()) {
+            city.getCubes().forEach(cube -> {
+                if (cube.getColor().equals(disease.getColor())) {
+                    city.getCubes().remove(cube);
+                    cube.setCity(null);
+                }
+            });
+        }
     }
 }
