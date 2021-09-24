@@ -1,6 +1,7 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.ICityRepository;
@@ -116,9 +117,9 @@ public class CityRepository implements ICityRepository {
         }
 
         try {
-            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getYellowCubes().get(0));
-            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getRedCubes().get(0));
-            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getBlueCubes().get(1));
+            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getCubes().get(ColorRGBA.Yellow).get(0));
+            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getCubes().get(ColorRGBA.Red).get(0));
+            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getCubes().get(ColorRGBA.Blue).get(1));
         } catch (OutbreakException e) {
             e.printStackTrace();
         } catch (DiseaseAlreadyInCity e) {

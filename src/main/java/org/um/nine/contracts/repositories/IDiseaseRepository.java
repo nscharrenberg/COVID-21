@@ -1,9 +1,8 @@
 package org.um.nine.contracts.repositories;
 
-import org.um.nine.domain.Cure;
-import org.um.nine.domain.Disease;
-import org.um.nine.domain.InfectionRateMarker;
-import org.um.nine.domain.Marker;
+import com.jme3.math.ColorRGBA;
+import org.um.nine.domain.*;
+import org.um.nine.exceptions.NoCubesLeftException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,8 +12,6 @@ public interface IDiseaseRepository {
     List<InfectionRateMarker> getInfectionRate();
     List<Marker> getOutbreakMarker();
     HashMap<String, Cure> getCures();
-    List<Disease> getBlackCubes();
-    List<Disease> getYellowCubes();
-    List<Disease> getBlueCubes();
-    List<Disease> getRedCubes();
+    HashMap<ColorRGBA, List<Disease>> getCubes();
+    void addCube(ColorRGBA color, City city) throws NoCubesLeftException;
 }

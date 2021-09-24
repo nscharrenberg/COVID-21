@@ -7,12 +7,10 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import org.um.nine.contracts.repositories.IBoardRepository;
-import org.um.nine.contracts.repositories.ICityRepository;
-import org.um.nine.contracts.repositories.IGameRepository;
-import org.um.nine.contracts.repositories.IPlayerRepository;
+import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Cure;
+import org.um.nine.exceptions.NoCubesLeftException;
 import org.um.nine.utils.managers.RenderManager;
 
 public class BoardRepository implements IBoardRepository {
@@ -27,6 +25,9 @@ public class BoardRepository implements IBoardRepository {
 
     @Inject
     private IPlayerRepository playerRepository;
+
+    @Inject
+    private IDiseaseRepository diseaseRepository;
 
     @Inject
     private RenderManager renderManager;

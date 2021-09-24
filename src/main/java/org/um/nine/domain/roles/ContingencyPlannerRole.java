@@ -1,6 +1,8 @@
 package org.um.nine.domain.roles;
 
+import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
+import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.domain.Role;
 
 public class ContingencyPlannerRole extends Role {

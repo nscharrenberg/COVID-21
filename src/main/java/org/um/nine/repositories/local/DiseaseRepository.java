@@ -2,11 +2,10 @@ package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
+import org.checkerframework.checker.units.qual.A;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
-import org.um.nine.domain.Cure;
-import org.um.nine.domain.Disease;
-import org.um.nine.domain.InfectionRateMarker;
-import org.um.nine.domain.Marker;
+import org.um.nine.domain.*;
+import org.um.nine.exceptions.NoCubesLeftException;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.ArrayList;
@@ -19,10 +18,7 @@ public class DiseaseRepository implements IDiseaseRepository {
     private HashMap<String, Cure> cures;
 
     // TODO: We could also use 1 array for all instead of 4.
-    private List<Disease> blackCubes;
-    private List<Disease> yellowCubes;
-    private List<Disease> blueCubes;
-    private List<Disease> redCubes;
+    private HashMap<ColorRGBA, List<Disease>> cubes;
 
     @Inject
     private RenderManager renderManager;
@@ -47,23 +43,8 @@ public class DiseaseRepository implements IDiseaseRepository {
     }
 
     @Override
-    public List<Disease> getBlackCubes() {
-        return blackCubes;
-    }
-
-    @Override
-    public List<Disease> getYellowCubes() {
-        return yellowCubes;
-    }
-
-    @Override
-    public List<Disease> getBlueCubes() {
-        return blueCubes;
-    }
-
-    @Override
-    public List<Disease> getRedCubes() {
-        return redCubes;
+    public HashMap<ColorRGBA, List<Disease>> getCubes() {
+        return cubes;
     }
 
     private void initMarkers() {
@@ -91,10 +72,10 @@ public class DiseaseRepository implements IDiseaseRepository {
 
     private void initCubes() {
         for (int i = 0; i < 24; i++) {
-            this.redCubes.add(new Disease(ColorRGBA.Red));
-            this.blackCubes.add(new Disease(ColorRGBA.Black));
-            this.yellowCubes.add(new Disease(ColorRGBA.Yellow));
-            this.blueCubes.add(new Disease(ColorRGBA.Blue));
+            this.cubes.get(ColorRGBA.Red).add(new Disease(ColorRGBA.Red));
+            this.cubes.get(ColorRGBA.Black).add(new Disease(ColorRGBA.Black));
+            this.cubes.get(ColorRGBA.Blue).add(new Disease(ColorRGBA.Blue));
+            this.cubes.get(ColorRGBA.Yellow).add(new Disease(ColorRGBA.Yellow));
         }
     }
 
@@ -103,17 +84,30 @@ public class DiseaseRepository implements IDiseaseRepository {
         this.infectionRate = new ArrayList<>();
         this.outbreakMarker = new ArrayList<>();
         this.cures = new HashMap<>();
-        this.redCubes = new ArrayList<>();
-        this.yellowCubes = new ArrayList<>();
-        this.blueCubes = new ArrayList<>();
-        this.blackCubes = new ArrayList<>();
+        this.cubes = new HashMap<>();
+        this.cubes.put(ColorRGBA.Red, new ArrayList<>());
+        this.cubes.put(ColorRGBA.Yellow, new ArrayList<>());
+        this.cubes.put(ColorRGBA.Blue, new ArrayList<>());
+        this.cubes.put(ColorRGBA.Black, new ArrayList<>());
 
         initMarkers();
         initCures();
         initCubes();
     }
 
-    private void renderCures() {
+    @Override
+    public void addCube(ColorRGBA color, City city) throws NoCubesLeftException {
+        Disease found = this.cubes.get(color).stream().filter(v -> v.getCity() == null).findFirst().orElse(null);
 
+        if (found == null) {
+            throw new NoCubesLeftException(color);
+        }
+
+        found.setCity(city);
+        city.addCube(found);
+
+        renderManager.renderDisease(found, city.getCubePosition(found));
+
+        System.out.println("added cube");
     }
 }

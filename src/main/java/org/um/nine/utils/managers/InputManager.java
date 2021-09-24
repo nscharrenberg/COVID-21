@@ -2,6 +2,7 @@ package org.um.nine.utils.managers;
 
 import com.google.inject.Inject;
 import com.jme3.app.SimpleApplication;
+import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
@@ -104,7 +105,13 @@ public class InputManager {
             String target = results.getCollision(i).getGeometry().getName();
         }
 
-        Geometry target = results.getClosestCollision().getGeometry();
+        CollisionResult collisionResult = results.getClosestCollision();
+
+        if (collisionResult == null) {
+            return;
+        }
+
+        Geometry target = collisionResult.getGeometry();
 
         this.cityRepository.getCities().forEach((key, city) -> {
 
