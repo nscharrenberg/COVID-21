@@ -33,6 +33,9 @@ public class BoardRepository implements IBoardRepository {
     private IPlayerRepository playerRepository;
 
     @Inject
+    private DiseaseRepository diseaseRepository;
+
+    @Inject
     private RenderManager renderManager;
 
     @Inject
@@ -43,42 +46,47 @@ public class BoardRepository implements IBoardRepository {
         renderBoard();
         cityRepository.reset();
 
-        renderManager.renderCureMarker(new Cure(ColorRGBA.Red), new Vector3f(100, 0, 0), true);
-        renderManager.renderCureMarker(new Cure(ColorRGBA.Yellow), new Vector3f(50, 0, 0));
-        renderManager.renderCureMarker(new Cure(ColorRGBA.Cyan), new Vector3f(0, 0, 0));
-        renderManager.renderCureMarker(new Cure(ColorRGBA.Magenta), new Vector3f(-50, 0, 0));
+        diseaseRepository.reset();
+
+        renderCureSection();
         renderOutbreakSection();
         renderInfectionSection();
 
         gameRepository.getApp().getStateManager().attach(optionHudState);
     }
 
-    // TODO: Properly add them to a list so we can keep track of outbreak markers and their states.
+    private void renderCureSection() {
+        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Red.toString()), new Vector3f(100, 0, 0), true);
+        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Yellow.toString()), new Vector3f(50, 0, 0));
+        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Blue.toString()), new Vector3f(0, 0, 0));
+        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Black.toString()), new Vector3f(-50, 0, 0));
+    }
+
     private void renderOutbreakSection() {
         BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
         renderManager.renderText("Outbreaks",new Vector3f(-975, -175, 2),ColorRGBA.White,"outbreaks-title-label",20,myFont);
-        renderManager.renderOutbreakStar(new OutbreakMarker(0, ColorRGBA.White, true), new Vector3f(0, 0, 0));
-        renderManager.renderOutbreakStar(new OutbreakMarker(1, ColorRGBA.fromRGBA255(255, 235, 238, 1)), new Vector3f(30, -30, 0));
-        renderManager.renderOutbreakStar(new OutbreakMarker(2, ColorRGBA.fromRGBA255(255, 205, 210, 1)), new Vector3f(0, -60, 0));
-        renderManager.renderOutbreakStar(new OutbreakMarker(3, ColorRGBA.fromRGBA255(239, 154, 154, 1)), new Vector3f(30, -90, 0));
-        renderManager.renderOutbreakStar(new OutbreakMarker(4, ColorRGBA.fromRGBA255(229, 115, 115, 1)), new Vector3f(0, -120, 0));
-        renderManager.renderOutbreakStar(new OutbreakMarker(5, ColorRGBA.fromRGBA255(229, 57, 53, 1)), new Vector3f(30, -150, 0));
-        renderManager.renderOutbreakStar(new OutbreakMarker(6, ColorRGBA.fromRGBA255(211, 47, 47, 1)), new Vector3f(0, -180, 0));
-        renderManager.renderOutbreakStar(new OutbreakMarker(7, ColorRGBA.fromRGBA255(198, 40, 40, 1)), new Vector3f(30, -210, 0));
-        renderManager.renderOutbreakStar(new OutbreakMarker(8, ColorRGBA.fromRGBA255(183, 28, 28, 1)), new Vector3f(0, -240, 0));
+        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(0), new Vector3f(0, 0, 0));
+        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(1), new Vector3f(30, -30, 0));
+        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(2), new Vector3f(0, -60, 0));
+        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(3), new Vector3f(30, -90, 0));
+        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(4), new Vector3f(0, -120, 0));
+        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(5), new Vector3f(30, -150, 0));
+        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(6), new Vector3f(0, -180, 0));
+        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(7), new Vector3f(30, -210, 0));
+        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(8), new Vector3f(0, -240, 0));
     }
 
     // TODO: Properly add them to a list so we can keep track of infection rate markers and their states.
     private void renderInfectionSection() {
         BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
         renderManager.renderText("Infection Rate",new Vector3f(-975, -75, 2),ColorRGBA.White,"infections-title-label",20,myFont);
-        renderManager.renderInfectionRateStar(new InfectionRateMarker(0, 2, true), new Vector3f(0, 0, 0));
-        renderManager.renderInfectionRateStar(new InfectionRateMarker(1, 2), new Vector3f(30, 0, 0));
-        renderManager.renderInfectionRateStar(new InfectionRateMarker(2, 2), new Vector3f(60, 0, 0));
-        renderManager.renderInfectionRateStar(new InfectionRateMarker(3, 3), new Vector3f(90, 0, 0));
-        renderManager.renderInfectionRateStar(new InfectionRateMarker(4, 3), new Vector3f(120, 0, 0));
-        renderManager.renderInfectionRateStar(new InfectionRateMarker(5, 4), new Vector3f(150, 0, 0));
-        renderManager.renderInfectionRateStar(new InfectionRateMarker(6, 4), new Vector3f(180, 0, 0));
+        renderManager.renderInfectionRateStar(diseaseRepository.getInfectionRate().get(0), new Vector3f(0, 0, 0));
+        renderManager.renderInfectionRateStar(diseaseRepository.getInfectionRate().get(1), new Vector3f(30, 0, 0));
+        renderManager.renderInfectionRateStar(diseaseRepository.getInfectionRate().get(2), new Vector3f(60, 0, 0));
+        renderManager.renderInfectionRateStar(diseaseRepository.getInfectionRate().get(3), new Vector3f(90, 0, 0));
+        renderManager.renderInfectionRateStar(diseaseRepository.getInfectionRate().get(4), new Vector3f(120, 0, 0));
+        renderManager.renderInfectionRateStar(diseaseRepository.getInfectionRate().get(5), new Vector3f(150, 0, 0));
+        renderManager.renderInfectionRateStar(diseaseRepository.getInfectionRate().get(6), new Vector3f(180, 0, 0));
     }
 
     @Override
