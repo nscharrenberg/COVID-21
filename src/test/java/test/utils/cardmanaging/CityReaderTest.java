@@ -5,25 +5,25 @@ import org.junit.jupiter.api.Test;
 import org.um.nine.domain.City;
 import org.um.nine.utils.cardmanaging.CityCardReader;
 
+import java.util.HashMap;
+
 public class CityReaderTest{
 
     @Test
     void CityNameReadingTest(){
         CityCardReader c = new CityCardReader();
-        City[] cities = c.cityReader("Cards/testCities.json");
+        HashMap<String, City> cities = c.cityReader("Cards/testCities.json");
         String[] names = {"San Francisco","Atlanta","Chicago"};
-        int counter = 0;
-        for(City city: cities){
-            Assertions.assertEquals(city.getName(),names[counter]);
-            counter++;
+        for(String city: names){
+            Assertions.assertEquals(city,cities.get(city).getName());
         }
     }
 
     @Test
     void CityNeighboursReadingTest(){
         CityCardReader c = new CityCardReader();
-        City[] cities = c.cityReader("Cards/testCities.json");
-        City SF = cities[0];
+        HashMap<String, City> cities = c.cityReader("Cards/testCities.json");
+        City SF = cities.get("San Francisco");
         Assertions.assertEquals(SF.getNeighbors().get(0).getName(),"Atlanta");
         Assertions.assertEquals(SF.getNeighbors().get(1).getName(),"Chicago");
     }
@@ -31,13 +31,14 @@ public class CityReaderTest{
     @Test
     void CityPopulationTest(){
         CityCardReader c = new CityCardReader();
-        City[] cities = c.cityReader("Cards/testCities.json");
+        HashMap<String, City> cities = c.cityReader("Cards/testCities.json");
+        City[] city = {cities.get("San Francisco"),cities.get("Atlanta"),cities.get("Chicago")};
         //San Francisco
-        Assertions.assertEquals(cities[0].getPopulation(),874961);
+        Assertions.assertEquals(city[0].getPopulation(),874961);
         //Atlanta
-        Assertions.assertEquals(cities[1].getPopulation(),488800);
+        Assertions.assertEquals(city[1].getPopulation(),488800);
         //Chicago
-        Assertions.assertEquals(cities[2].getPopulation(),2710000);
+        Assertions.assertEquals(city[2].getPopulation(),2710000);
     }
 
 }

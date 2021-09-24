@@ -92,17 +92,11 @@ public class CityRepository implements ICityRepository {
         this.researchStations = new ArrayList<>();
         this.cities = new HashMap<>();
 
-        City[] cityArray = {};
         CityCardReader ccr = new CityCardReader();
         try {
-            cityArray = ccr.cityReader("Cards/CityCards.json");
+            this.cities = ccr.cityReader("Cards/CityCards.json");
         } catch (Exception e) {
-            System.err.println("Error during card reading");
-            System.out.close();
-        }
-
-        for (City city : cityArray) {
-            this.cities.put(city.getName(), city);
+            e.printStackTrace();
         }
 
         renderCities();
