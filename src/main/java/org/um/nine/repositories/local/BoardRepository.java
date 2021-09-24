@@ -47,6 +47,7 @@ public class BoardRepository implements IBoardRepository {
         renderInfectionSection();
     }
 
+    // TODO: Properly add them to a list so we can keep track of outbreak markers and their states.
     private void renderOutbreakSection() {
         BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
         renderManager.renderText("Outbreaks",new Vector3f(-975, -175, 2),ColorRGBA.White,"outbreaks-title-label",20,myFont);
@@ -61,6 +62,7 @@ public class BoardRepository implements IBoardRepository {
         renderManager.renderOutbreakStar(new OutbreakMarker(8, ColorRGBA.fromRGBA255(183, 28, 28, 1)), new Vector3f(0, -240, 0));
     }
 
+    // TODO: Properly add them to a list so we can keep track of infection rate markers and their states.
     private void renderInfectionSection() {
         BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
         renderManager.renderText("Infection Rate",new Vector3f(-975, -75, 2),ColorRGBA.White,"infections-title-label",20,myFont);
