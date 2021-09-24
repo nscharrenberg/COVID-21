@@ -1,0 +1,36 @@
+{
+  "Cities": [
+    {
+      "name": "San Francisco",
+      "color": "Blue",
+      "position": [-650,200,1],
+      "population": 874961,
+      "neighbours": [
+        "Chicago",
+        "Atlanta"
+      ]
+    },
+    {
+      "name": "Atlanta",
+      "color": "Blue",
+      "position": [-480, 182, 1],
+      "population": 488800,
+      "neighbours": [
+        "Chicago",
+        "San Francisco"
+      ]
+    },
+    {
+      "name": "Chicago",
+      "color": "Blue",
+      "position": [-500, 240, 1],
+      "population": 2710000,
+      "neighbours": [
+        "San Francisco",
+        "Atlanta"
+      ]
+    }
+  ]
+}
+
+
