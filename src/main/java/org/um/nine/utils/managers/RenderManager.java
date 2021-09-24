@@ -4,9 +4,7 @@ import com.google.inject.Inject;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -153,16 +151,56 @@ public class RenderManager {
         gameRepository.getApp().getRootNode().attachChild(model);
     }
 
-    public void renderOutbreakStar(Marker status, Vector3f offset) {
-        Box box = new Box(15, 15, 1);
-        Geometry star = new Geometry(status.toString(), box);
+    public void renderOutbreakStar(OutbreakMarker status, Vector3f offset) {
         Material mat = new Material(gameRepository.getApp().getAssetManager(),
                 "Common/MatDefs/Light/Lighting.j3md");
         mat.setBoolean("UseMaterialColors",true);
-        mat.setColor("Diffuse", ColorRGBA.White );
-        mat.setColor("Ambient", ColorRGBA.White );
+        mat.setColor("Diffuse", status.getColor() );
+        mat.setColor("Ambient", status.getColor() );
+        String name = status.toString();
+        Box box = new Box(15, 15, 1);
+        Geometry star = new Geometry(name, box);
+        star.setLocalTranslation(-950 + offset.getX(), -225 + offset.getY(), 2 + offset.getZ());
         star.setMaterial(mat);
         gameRepository.getApp().getRootNode().attachChild(star);
+
+        BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
+        renderText(String.valueOf(status.getId()),star.getLocalTranslation().add(-5,7.5f,1), ColorRGBA.Black,name + "-label",20,myFont);
+
+        renderOutbreakMarker(status);
+    }
+
+    public void renderOutbreakMarker(OutbreakMarker status) {
+        if (!status.isCurrent()) {
+            return;
+        }
+
+        Geometry basicMarker = (Geometry) gameRepository.getApp().getRootNode().getChild(status.toString());
+        String outbreakMarkerName = "outbreak-marker";
+        Spatial foundOutbreakMarker = gameRepository.getApp().getRootNode().getChild(outbreakMarkerName);
+
+        Vector3f location = basicMarker.getLocalTranslation().add(-20, 10, 0);
+
+        if (foundOutbreakMarker != null) {
+            foundOutbreakMarker.setLocalTranslation(location);
+            return;
+        }
+
+        Material mat = new Material(gameRepository.getApp().getAssetManager(),
+                "Common/MatDefs/Light/Lighting.j3md");
+        mat.setBoolean("UseMaterialColors",true);
+        mat.setColor("Diffuse", ColorRGBA.Green );
+        mat.setColor("Ambient", ColorRGBA.Green );
+
+        Spatial model = gameRepository.getApp().getAssetManager().loadModel("models/outbreak_marker.j3o");
+        model.setName(outbreakMarkerName);
+        Quaternion rotate = new Quaternion();
+        rotate.fromAngleAxis( FastMath.PI / 2 , new Vector3f(1,0,0) );
+        model.rotate(rotate);
+        model.setLocalTranslation(location);
+        model.setLocalScale(2f);
+        model.setMaterial(mat);
+        gameRepository.getApp().getRootNode().attachChild(model);
     }
 
     public void renderCard (Card card) {
@@ -194,7 +232,6 @@ public class RenderManager {
 
         BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
         renderText("here is the text",colored_plate.getLocalTranslation().add(0,65,1.1f),ColorRGBA.Blue,"card.getName()",20,myFont);
-
     }
 
 }
