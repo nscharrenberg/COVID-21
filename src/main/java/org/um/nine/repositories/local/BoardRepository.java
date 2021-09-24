@@ -14,6 +14,7 @@ import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Cure;
+import org.um.nine.domain.InfectionRateMarker;
 import org.um.nine.domain.OutbreakMarker;
 import org.um.nine.utils.managers.RenderManager;
 
@@ -43,6 +44,7 @@ public class BoardRepository implements IBoardRepository {
         renderManager.renderCureMarker(new Cure(ColorRGBA.Cyan), new Vector3f(0, 0, 0));
         renderManager.renderCureMarker(new Cure(ColorRGBA.Magenta), new Vector3f(-50, 0, 0));
         renderOutbreakSection();
+        renderInfectionSection();
     }
 
     private void renderOutbreakSection() {
@@ -57,6 +59,18 @@ public class BoardRepository implements IBoardRepository {
         renderManager.renderOutbreakStar(new OutbreakMarker(6, ColorRGBA.fromRGBA255(211, 47, 47, 1)), new Vector3f(0, -180, 0));
         renderManager.renderOutbreakStar(new OutbreakMarker(7, ColorRGBA.fromRGBA255(198, 40, 40, 1)), new Vector3f(30, -210, 0));
         renderManager.renderOutbreakStar(new OutbreakMarker(8, ColorRGBA.fromRGBA255(183, 28, 28, 1)), new Vector3f(0, -240, 0));
+    }
+
+    private void renderInfectionSection() {
+        BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
+        renderManager.renderText("Infection Rate",new Vector3f(-975, -75, 2),ColorRGBA.White,"infections-title-label",20,myFont);
+        renderManager.renderInfectionRateStar(new InfectionRateMarker(0, 2, true), new Vector3f(0, 0, 0));
+        renderManager.renderInfectionRateStar(new InfectionRateMarker(1, 2), new Vector3f(30, 0, 0));
+        renderManager.renderInfectionRateStar(new InfectionRateMarker(2, 2), new Vector3f(60, 0, 0));
+        renderManager.renderInfectionRateStar(new InfectionRateMarker(3, 3), new Vector3f(90, 0, 0));
+        renderManager.renderInfectionRateStar(new InfectionRateMarker(4, 3), new Vector3f(120, 0, 0));
+        renderManager.renderInfectionRateStar(new InfectionRateMarker(5, 4), new Vector3f(150, 0, 0));
+        renderManager.renderInfectionRateStar(new InfectionRateMarker(6, 4), new Vector3f(180, 0, 0));
     }
 
     @Override

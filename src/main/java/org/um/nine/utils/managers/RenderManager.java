@@ -69,9 +69,10 @@ public class RenderManager {
     public void renderCity(City city) {
         Cylinder plateShape = new Cylinder(5, 10, 12.5f, 2, true);
         Geometry plate = new Geometry(city.getName(), plateShape);
-        Material mat = new Material(gameRepository.getApp().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", city.getColor());
-        mat.setColor("GlowColor", city.getColor());
+        Material mat = new Material(gameRepository.getApp().getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
+        mat.setBoolean("UseMaterialColors",true);
+        mat.setColor("Diffuse", city.getColor() );
+        mat.setColor("Ambient", city.getColor() );
         plate.setMaterial(mat);
         plate.setLocalTranslation(city.getLocation());
         gameRepository.getApp().getRootNode().attachChild(plate);
@@ -220,8 +221,6 @@ public class RenderManager {
         colored_plate.setMaterial(mat);
         gameRepository.getApp().getRootNode().attachChild(colored_plate);
 
-
-
         quad = new Quad(210,130);
         Geometry white_plate = new Geometry("white plate", quad);
         Material mat2 = new Material(gameRepository.getApp().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
@@ -232,6 +231,56 @@ public class RenderManager {
 
         BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
         renderText("here is the text",colored_plate.getLocalTranslation().add(0,65,1.1f),ColorRGBA.Blue,"card.getName()",20,myFont);
+    }
+
+    public void renderInfectionRateStar(InfectionRateMarker marker, Vector3f offset) {
+        Cylinder plateShape = new Cylinder(5, 10, 12.5f, 2, true);
+        Geometry plate = new Geometry(marker.toString(), plateShape);
+        Material mat = new Material(gameRepository.getApp().getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
+        mat.setBoolean("UseMaterialColors",true);
+        mat.setColor("Diffuse", ColorRGBA.fromRGBA255(0, 100, 0, 1));
+        mat.setColor("Ambient", ColorRGBA.fromRGBA255(0, 100, 0, 1));
+        plate.setMaterial(mat);
+        plate.setLocalTranslation(-950 + offset.getX(), -125 + offset.getY(), 2 + offset.getZ());
+        gameRepository.getApp().getRootNode().attachChild(plate);
+
+        BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
+        renderText(String.valueOf(marker.getCount()),plate.getLocalTranslation().add(-5,-15,1.1f),ColorRGBA.White,marker.toString() + "-label",20,myFont);
+
+        renderInfectionMarker(marker);
+    }
+
+    public void renderInfectionMarker(InfectionRateMarker status) {
+        if (!status.isCurrent()) {
+            return;
+        }
+
+        Geometry basicMarker = (Geometry) gameRepository.getApp().getRootNode().getChild(status.toString());
+        String infectionRateMarker = "infection-rate-marker";
+        Spatial foundInfectionRate = gameRepository.getApp().getRootNode().getChild(infectionRateMarker);
+
+        Vector3f location = basicMarker.getLocalTranslation().add(0, 0, 0);
+
+        if (foundInfectionRate != null) {
+            foundInfectionRate.setLocalTranslation(location);
+            return;
+        }
+
+        Material mat = new Material(gameRepository.getApp().getAssetManager(),
+                "Common/MatDefs/Light/Lighting.j3md");
+        mat.setBoolean("UseMaterialColors",true);
+        mat.setColor("Diffuse", ColorRGBA.Green );
+        mat.setColor("Ambient", ColorRGBA.Green );
+
+        Spatial model = gameRepository.getApp().getAssetManager().loadModel("models/infection_rate_marker.j3o");
+        model.setName(infectionRateMarker);
+        Quaternion rotate = new Quaternion();
+        rotate.fromAngleAxis( FastMath.PI / 2 , new Vector3f(1,0,0) );
+        model.rotate(rotate);
+        model.setLocalTranslation(location);
+        model.setLocalScale(1.5f);
+        model.setMaterial(mat);
+        gameRepository.getApp().getRootNode().attachChild(model);
     }
 
 }
