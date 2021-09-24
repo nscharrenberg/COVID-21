@@ -16,6 +16,7 @@ import org.um.nine.domain.City;
 import org.um.nine.domain.Cure;
 import org.um.nine.domain.InfectionRateMarker;
 import org.um.nine.domain.OutbreakMarker;
+import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
 
 public class BoardRepository implements IBoardRepository {
@@ -34,6 +35,9 @@ public class BoardRepository implements IBoardRepository {
     @Inject
     private RenderManager renderManager;
 
+    @Inject
+    private OptionHudState optionHudState;
+
     @Override
     public void startGame() {
         renderBoard();
@@ -45,6 +49,8 @@ public class BoardRepository implements IBoardRepository {
         renderManager.renderCureMarker(new Cure(ColorRGBA.Magenta), new Vector3f(-50, 0, 0));
         renderOutbreakSection();
         renderInfectionSection();
+
+        gameRepository.getApp().getStateManager().attach(optionHudState);
     }
 
     // TODO: Properly add them to a list so we can keep track of outbreak markers and their states.
