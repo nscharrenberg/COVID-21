@@ -13,9 +13,6 @@ import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.City;
-import org.um.nine.domain.Cure;
-import org.um.nine.domain.InfectionRateMarker;
-import org.um.nine.domain.OutbreakMarker;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
 

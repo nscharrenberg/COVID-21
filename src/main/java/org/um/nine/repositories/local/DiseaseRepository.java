@@ -2,9 +2,11 @@ package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
-import org.um.nine.domain.*;
+import org.um.nine.domain.Cure;
+import org.um.nine.domain.Disease;
+import org.um.nine.domain.InfectionRateMarker;
+import org.um.nine.domain.OutbreakMarker;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.ArrayList;
