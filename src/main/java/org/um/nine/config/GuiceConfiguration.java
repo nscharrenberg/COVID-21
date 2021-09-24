@@ -3,6 +3,7 @@ package org.um.nine.config;
 import com.google.inject.AbstractModule;
 import org.um.nine.contracts.repositories.*;
 import org.um.nine.repositories.local.*;
+import org.um.nine.utils.managers.RenderManager;
 
 public class GuiceConfiguration extends AbstractModule {
     private final IGameRepository gameRepository = new GameRepository();
@@ -11,6 +12,7 @@ public class GuiceConfiguration extends AbstractModule {
     private final ICardRepository cardRepository = new CardRepository();
     private final IPlayerRepository playerRepository = new PlayerRepository();
     private final IDiseaseRepository diseaseRepository = new DiseaseRepository();
+    private final RenderManager renderManager = new RenderManager();
 
     @Override
     protected void configure() {
@@ -20,5 +22,6 @@ public class GuiceConfiguration extends AbstractModule {
         bind(ICardRepository.class).toInstance(cardRepository);
         bind(IPlayerRepository.class).toInstance(playerRepository);
         bind(IDiseaseRepository.class).toInstance(diseaseRepository);
+        bind(RenderManager.class).toInstance(renderManager);
     }
 }
