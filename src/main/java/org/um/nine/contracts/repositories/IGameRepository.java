@@ -1,6 +1,5 @@
 package org.um.nine.contracts.repositories;
 
-import com.jme3.post.FilterPostProcessor;
 import com.jme3.system.AppSettings;
 import org.um.nine.Game;
 
@@ -16,6 +15,4 @@ public interface IGameRepository {
     void setApp(Game app);
     int getSpeed();
     void setSpeed(int speed);
-    FilterPostProcessor getFpp();
-    void refreshFpp();
 }

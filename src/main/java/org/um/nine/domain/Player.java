@@ -56,4 +56,17 @@ public class Player {
     public void setCity(City location) {
         this.location = location;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("player-");
+        sb.append(getCity().getName());
+        sb.append("-");
+        sb.append(getName());
+        sb.append("-");
+        sb.append(role.getName());
+
+        return sb.toString();
+    }
 }

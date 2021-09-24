@@ -1,6 +1,8 @@
 package org.um.nine.utils.managers;
 
 import com.google.inject.Inject;
+import com.jme3.font.BitmapFont;
+import com.jme3.font.BitmapText;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -8,21 +10,23 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Line;
+import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
-import org.um.nine.domain.City;
-import org.um.nine.domain.Disease;
-import org.um.nine.domain.Player;
-import org.um.nine.domain.ResearchStation;
+import org.um.nine.domain.*;
 
 public class RenderManager {
     @Inject
     private IGameRepository gameRepository;
+
+    @Inject
+    private IBoardRepository boardRepository;
 
     public void renderPlayer(Player player, Vector3f offset) {
         float offsetX = offset.getX();
         float offsetY = offset.getY();
 
         Spatial model = gameRepository.getApp().getAssetManager().loadModel("models/pawn.j3o");
+        model.setName(player.toString());
         model.rotate(45, 0, 0);
         model.setLocalTranslation(new Vector3f(player.getCity().getLocation().getX() + offsetX, player.getCity().getLocation().getY() + offsetY, player.getCity().getLocation().getZ() + 1 + offset.getZ()));
         model.setLocalScale(.75f);
@@ -40,6 +44,7 @@ public class RenderManager {
         float offsetY = offset.getY();
 
         Spatial model = gameRepository.getApp().getAssetManager().loadModel("models/research_station.j3o");
+        model.setName(researchStation.toString());
         model.setLocalScale(1);
         model.setLocalTranslation(new Vector3f(researchStation.getCity().getLocation().getX() + offsetX, researchStation.getCity().getLocation().getY() + offsetY, researchStation.getCity().getLocation().getZ() + 5 + offset.getZ()));
         model.rotate(45, 75, 0);
@@ -77,6 +82,7 @@ public class RenderManager {
 
     public void renderDisease(Disease disease, Vector3f offset) {
         Spatial model = gameRepository.getApp().getAssetManager().loadModel("models/cube.j3o");
+        model.setName(disease.toString());
         model.rotate(45, 0, 0);
         model.setLocalTranslation(new Vector3f(disease.getCity().getLocation().getX() + offset.getX(), disease.getCity().getLocation().getY() + offset.getY(), disease.getCity().getLocation().getZ() + 1 + offset.getZ()));
         model.setLocalScale(1.25f);
@@ -85,6 +91,52 @@ public class RenderManager {
         mat.setBoolean("UseMaterialColors",true);
         mat.setColor("Diffuse", disease.getColor() );
         mat.setColor("Ambient", disease.getColor() );
+        model.setMaterial(mat);
+        gameRepository.getApp().getRootNode().attachChild(model);
+    }
+
+    public void renderText(String text, Vector3f position, ColorRGBA color, String name) {
+        BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
+        renderText(text, position, color, name, myFont.getCharSet().getRenderedSize(), myFont);
+    }
+
+    public void renderText(String text, Vector3f position, ColorRGBA color, String name, float size, BitmapFont font) {
+        BitmapText found = (BitmapText) gameRepository.getApp().getRootNode().getChild(name);
+        if (found != null) {
+            found.setText(text);
+            return;
+        }
+
+        BitmapText textBT = new BitmapText(font);
+        textBT.setSize(size);
+        textBT.setColor(color);
+        textBT.setText(text);
+        textBT.setLocalTranslation(position);
+        textBT.setName(name);
+        gameRepository.getApp().getRootNode().attachChild(textBT);
+    }
+
+    public void renderCureMarker(Cure cure, Vector3f offset) {
+        renderCureMarker(cure, offset, false);
+    }
+
+    public void renderCureMarker(Cure cure, Vector3f offset, boolean flip) {
+        Spatial model = gameRepository.getApp().getAssetManager().loadModel("models/cure_marker.j3o");
+        model.setName(cure.toString());
+
+        if (flip) {
+            model.rotate(45, 0, 0);
+        } else {
+            model.rotate(45, 135, 0);
+        }
+
+        model.setLocalTranslation(new Vector3f(0 + offset.getX(), -450 + offset.getY(), 20 + offset.getZ()));
+        model.setLocalScale(3f);
+        Material mat = new Material(gameRepository.getApp().getAssetManager(),
+                "Common/MatDefs/Light/Lighting.j3md");
+        mat.setBoolean("UseMaterialColors",true);
+        mat.setColor("Diffuse", cure.getColor() );
+        mat.setColor("Ambient", cure.getColor() );
         model.setMaterial(mat);
         gameRepository.getApp().getRootNode().attachChild(model);
     }

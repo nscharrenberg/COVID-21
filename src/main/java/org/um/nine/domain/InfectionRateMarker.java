@@ -30,4 +30,15 @@ public class InfectionRateMarker extends Marker {
     public int getDraw(int pos){
         return draws[pos];
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("infection-rate-marker-");
+        sb.append(count);
+        sb.append("-");
+        sb.append(this.getId());
+
+        return sb.toString();
+    }
 }

@@ -2,7 +2,6 @@ package org.um.nine.utils.managers;
 
 import com.google.inject.Inject;
 import com.jme3.app.SimpleApplication;
-import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
@@ -15,6 +14,8 @@ import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.domain.City;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class InputManager {
@@ -101,18 +102,45 @@ public class InputManager {
             float dist = results.getCollision(i).getDistance();
             Vector3f pt = results.getCollision(i).getContactPoint();
             String target = results.getCollision(i).getGeometry().getName();
-            System.out.println("Selection #" + i + ": " + target + " at " + pt + ", " + dist + " WU away.");
         }
 
         Geometry target = results.getClosestCollision().getGeometry();
 
-        System.out.println("Cities Size: " + this.cityRepository.getCities().size());
-        this.cityRepository.getCities().entrySet().forEach(entry -> {
-            String key = entry.getKey();
-            City city = entry.getValue();
+        this.cityRepository.getCities().forEach((key, city) -> {
 
             if (target.getName().equals(key)) {
-                System.out.println(key + "selected");
+                boardRepository.setSelectedCity(cityRepository.getCities().get(key));
+                return;
+            }
+
+            if (city.getResearchStation() != null && target.getName().equals(city.getResearchStation().toString())) {
+                boardRepository.setSelectedCity(cityRepository.getCities().get(key));
+                return;
+            }
+
+            AtomicBoolean found = new AtomicBoolean(false);
+
+            city.getCubes().forEach(c -> {
+                if (target.getName().equals(c.toString())) {
+                    found.set(true);
+                    return;
+                }
+            });
+
+            if (found.get()) {
+                boardRepository.setSelectedCity(cityRepository.getCities().get(key));
+                return;
+            }
+
+            city.getPawns().forEach(p -> {
+                if (target.getName().equals(p.toString())) {
+                    found.set(true);
+                    return;
+                }
+            });
+
+            if (found.get()) {
+                boardRepository.setSelectedCity(cityRepository.getCities().get(key));
                 return;
             }
         });

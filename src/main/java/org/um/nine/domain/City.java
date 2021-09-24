@@ -14,11 +14,20 @@ public class City {
     private ResearchStation researchStation;
     private List<City> neighbors = new ArrayList<>();
     private Vector3f location;
+    private int population;
 
     public City(String name, ColorRGBA color, Vector3f location) {
         this.name = name;
         this.color = color;
         this.location = location;
+    }
+
+    public int getPopulation(){
+        return population;
+    }
+
+    public void setPopulation(int amount){
+        population = amount;
     }
 
     public String getName() {
@@ -140,5 +149,14 @@ public class City {
         }
 
         return new Vector3f(5 + offsetX, 25 - offsetY, 0);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("city-");
+        sb.append(name);
+
+        return sb.toString();
     }
 }
