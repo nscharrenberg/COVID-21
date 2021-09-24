@@ -13,5 +13,6 @@ public interface IDiseaseRepository {
     List<Marker> getOutbreakMarker();
     HashMap<String, Cure> getCures();
     HashMap<ColorRGBA, List<Disease>> getCubes();
-    void addCube(ColorRGBA color, City city) throws NoCubesLeftException;
+    void infect(ColorRGBA color, City city) throws NoCubesLeftException;
+    void treat(Player pawn, City city, Disease disease);
 }

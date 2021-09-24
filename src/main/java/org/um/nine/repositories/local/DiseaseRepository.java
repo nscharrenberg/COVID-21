@@ -96,7 +96,7 @@ public class DiseaseRepository implements IDiseaseRepository {
     }
 
     @Override
-    public void addCube(ColorRGBA color, City city) throws NoCubesLeftException {
+    public void infect(ColorRGBA color, City city) throws NoCubesLeftException {
         Disease found = this.cubes.get(color).stream().filter(v -> v.getCity() == null).findFirst().orElse(null);
 
         if (found == null) {
@@ -109,5 +109,11 @@ public class DiseaseRepository implements IDiseaseRepository {
         renderManager.renderDisease(found, city.getCubePosition(found));
 
         System.out.println("added cube");
+    }
+
+    @Override
+    public void treat(Player pawn, City city, Disease disease) {
+        city.getCubes().remove(disease);
+        disease.setCity(null);
     }
 }
