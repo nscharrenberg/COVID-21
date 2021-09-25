@@ -1,9 +1,10 @@
 package org.um.nine.domain.roles;
 
-import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
-import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.domain.Role;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ContingencyPlannerRole extends Role {
     public ContingencyPlannerRole() {
@@ -11,15 +12,28 @@ public class ContingencyPlannerRole extends Role {
     }
 
     @Override
-    public void actions(String key) {
-        // TODO For the price of one action you may take any card from the discard pile
-        // (only 1 discarded card can be held in deck), the card doesn't count towards
-        // the limit of 7 cards. after using the action card delete from game and then
-        // you can pick another card from discard pile.
+    public RoleAction actions(int key) {
+        if (key == 1) {
+            return RoleAction.TAKE_ANY_DISCARED_EVENT;
+        }
+
+        return null;
     }
 
     @Override
-    public void events() {
-        throw new UnsupportedOperationException("This Role does not have an event");
+    public RoleEvent events(int key) {
+        if (key == 1) {
+            return RoleEvent.USE_STORED_EVENT_CARD;
+        }
+
+        return null;
+    }
+
+    @Override
+    public List<RoleEvent> events() {
+        ArrayList<RoleEvent> events = new ArrayList<>();
+        events.add(RoleEvent.USE_STORED_EVENT_CARD);
+
+        return events;
     }
 }

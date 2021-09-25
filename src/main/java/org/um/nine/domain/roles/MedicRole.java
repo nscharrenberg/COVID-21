@@ -3,6 +3,9 @@ package org.um.nine.domain.roles;
 import com.jme3.math.ColorRGBA;
 import org.um.nine.domain.Role;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MedicRole extends Role {
 
     public MedicRole() {
@@ -10,20 +13,27 @@ public class MedicRole extends Role {
     }
 
     @Override
-    public void actions(String key) {
-        throw new UnsupportedOperationException("This Role does not have an action");
-
+    public RoleAction actions(int key) {
+        return null;
     }
 
     @Override
-    public void events() {
-        /*
-         * TODO Clear all disease blocks of the same color from a city with clear
-         * disease action when no cure is yet discovered if a cure is discoverd clear
-         * all disease blocks in the city of that color upon moving in the city,
-         * clearing blocks then costs no action.
-         */
+    public RoleEvent events(int key) {
+        if (key == 1) {
+            return RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR;
+        } else if (key == 2) {
+            return RoleEvent.AUTO_REMOVE_CUBES_OF_CURED_DISEASE;
+        }
 
+        return null;
     }
 
+    @Override
+    public List<RoleEvent> events() {
+        ArrayList<RoleEvent> events = new ArrayList<>();
+        events.add(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR);
+        events.add(RoleEvent.AUTO_REMOVE_CUBES_OF_CURED_DISEASE);
+
+        return events;
+    }
 }

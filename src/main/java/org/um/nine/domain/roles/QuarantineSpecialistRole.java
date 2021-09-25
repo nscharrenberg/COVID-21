@@ -1,27 +1,33 @@
 package org.um.nine.domain.roles;
 
-import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
-import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.domain.Role;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class QuarantineSpecialistRole extends Role {
     static ColorRGBA darkGreen = new ColorRGBA(56f, 119f, 0f, 100f);
-
-    @Inject
-    private IDiseaseRepository diseaseRepository;
 
     public QuarantineSpecialistRole() {
         super("Quarantine Specialist", darkGreen);
     }
 
     @Override
-    public void actions(String key) {
-        throw new UnsupportedOperationException("This Role does not have an action");
+    public RoleAction actions(int key) {
+        return null;
     }
 
     @Override
-    public void events() {
-        // TODO: Do not allow disease cubes to be placed
+    public RoleEvent events(int key) {
+        return RoleEvent.PREVENT_DISEASE_OR_OUTBREAK;
+    }
+
+    @Override
+    public List<RoleEvent> events() {
+        ArrayList<RoleEvent> events = new ArrayList<>();
+        events.add(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK);
+
+        return events;
     }
 }

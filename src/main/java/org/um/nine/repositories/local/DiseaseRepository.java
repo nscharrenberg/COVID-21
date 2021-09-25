@@ -4,7 +4,9 @@ import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.domain.*;
+import org.um.nine.domain.roles.RoleEvent;
 import org.um.nine.exceptions.NoCubesLeftException;
+import org.um.nine.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
 import org.um.nine.exceptions.OutbreakException;
 import org.um.nine.utils.managers.RenderManager;
 
@@ -100,7 +102,22 @@ public class DiseaseRepository implements IDiseaseRepository {
     }
 
     @Override
-    public void infect(ColorRGBA color, City city) throws NoCubesLeftException, OutbreakException {
+    public void infect(ColorRGBA color, City city) throws NoCubesLeftException, OutbreakException, NoDiseaseOrOutbreakPossibleDueToEvent {
+        // TODO: Move these checks to own RoleRepository or something
+        for (Player player : city.getPawns() ) {
+            if(player.getRole().events().contains(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK)) {
+                throw new NoDiseaseOrOutbreakPossibleDueToEvent(city);
+            }
+        }
+
+        for (City neighbor : city.getNeighbors()) {
+            for (Player player : neighbor.getPawns() ) {
+                if(player.getRole().events().contains(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK)) {
+                    throw new NoDiseaseOrOutbreakPossibleDueToEvent(neighbor);
+                }
+            }
+        }
+
         Disease found = this.cubes.get(color).stream().filter(v -> v.getCity() == null).findFirst().orElse(null);
 
         if (found == null) {
