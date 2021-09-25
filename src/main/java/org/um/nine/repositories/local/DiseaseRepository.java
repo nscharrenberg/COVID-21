@@ -6,7 +6,7 @@ import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.domain.Cure;
 import org.um.nine.domain.Disease;
 import org.um.nine.domain.InfectionRateMarker;
-import org.um.nine.domain.Marker;
+import org.um.nine.domain.OutbreakMarker;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.List;
 
 public class DiseaseRepository implements IDiseaseRepository {
     private List<InfectionRateMarker> infectionRate;
-    private List<Marker> outbreakMarker;
+    private List<OutbreakMarker> outbreakMarker;
     private HashMap<String, Cure> cures;
 
     // TODO: We could also use 1 array for all instead of 4.
@@ -37,7 +37,7 @@ public class DiseaseRepository implements IDiseaseRepository {
     }
 
     @Override
-    public List<Marker> getOutbreakMarker() {
+    public List<OutbreakMarker> getOutbreakMarker() {
         return outbreakMarker;
     }
 
@@ -75,11 +75,15 @@ public class DiseaseRepository implements IDiseaseRepository {
         this.infectionRate.add(new InfectionRateMarker(5, 4));
         this.infectionRate.add(new InfectionRateMarker(6, 4));
 
-        this.outbreakMarker.add(new Marker(0, true));
-
-        for (int i = 1; i <= 8; i++) {
-            this.outbreakMarker.add(new Marker(i));
-        }
+        this.outbreakMarker.add(new OutbreakMarker(0, ColorRGBA.White, true));
+        this.outbreakMarker.add(new OutbreakMarker(1, ColorRGBA.fromRGBA255(255, 235, 238, 1)));
+        this.outbreakMarker.add(new OutbreakMarker(2, ColorRGBA.fromRGBA255(255, 205, 210, 1)));
+        this.outbreakMarker.add(new OutbreakMarker(3, ColorRGBA.fromRGBA255(239, 154, 154, 1)));
+        this.outbreakMarker.add(new OutbreakMarker(4, ColorRGBA.fromRGBA255(229, 115, 115, 1)));
+        this.outbreakMarker.add(new OutbreakMarker(5, ColorRGBA.fromRGBA255(229, 57, 53, 1)));
+        this.outbreakMarker.add(new OutbreakMarker(6, ColorRGBA.fromRGBA255(211, 47, 47, 1)));
+        this.outbreakMarker.add(new OutbreakMarker(7, ColorRGBA.fromRGBA255(198, 40, 40, 1)));
+        this.outbreakMarker.add(new OutbreakMarker(8, ColorRGBA.fromRGBA255(183, 28, 28, 1)));
     }
 
     private void initCures() {
