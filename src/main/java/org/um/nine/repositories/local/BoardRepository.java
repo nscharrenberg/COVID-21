@@ -12,6 +12,7 @@ import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Cure;
 import org.um.nine.exceptions.NoCubesLeftException;
+import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
 
 public class BoardRepository implements IBoardRepository {

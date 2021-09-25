@@ -59,7 +59,7 @@ public class City {
         return cubes;
     }
 
-    public void addCube(Disease cube) {
+    public void addCube(Disease cube) throws OutbreakException {
         if (this.cubes == null) {
             this.cubes = new ArrayList<>();
         }
