@@ -2,7 +2,6 @@ package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
-import org.checkerframework.checker.units.qual.A;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.domain.*;
 import org.um.nine.exceptions.NoCubesLeftException;
@@ -107,8 +106,6 @@ public class DiseaseRepository implements IDiseaseRepository {
         city.addCube(found);
 
         renderManager.renderDisease(found, city.getCubePosition(found));
-
-        System.out.println("added cube");
     }
 
     @Override

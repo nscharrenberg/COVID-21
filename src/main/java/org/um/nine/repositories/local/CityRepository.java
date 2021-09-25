@@ -73,7 +73,7 @@ public class CityRepository implements ICityRepository {
         }
 
         if ((city.getCubes().size() + 1) > Info.OUTBREAK_THRESHOLD) {
-            throw new OutbreakException();
+            throw new OutbreakException(city);
         }
 
         city.addCube(cube);
