@@ -129,7 +129,7 @@ public class GameRepository implements IGameRepository {
 
         DirectionalLight sun = new DirectionalLight();
         sun.setColor(ColorRGBA.White);
-        sun.setDirection(new Vector3f(-0.5f, -0.5f, -0.5f).normalizeLocal());
+        sun.setDirection(new Vector3f(-0.5f, -0.5f, 0).normalizeLocal());
         app.getRootNode().addLight(sun);
     }
 

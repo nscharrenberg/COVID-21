@@ -12,14 +12,18 @@ import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.ResearchStation;
-import org.um.nine.utils.cardmanaging.CityCardReader;
+import org.um.nine.domain.cards.CityCard;
+import org.um.nine.domain.cards.EpidemicCard;
+import org.um.nine.domain.cards.EventCard;
 import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
 import org.um.nine.exceptions.DiseaseAlreadyInCity;
 import org.um.nine.exceptions.OutbreakException;
 import org.um.nine.exceptions.ResearchStationLimitException;
+import org.um.nine.utils.cardmanaging.CityCardReader;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -93,17 +97,11 @@ public class CityRepository implements ICityRepository {
         this.researchStations = new ArrayList<>();
         this.cities = new HashMap<>();
 
-        City[] cityArray = {};
         CityCardReader ccr = new CityCardReader();
         try {
-            cityArray = ccr.cityReader("Cards/CityCards.json");
+            this.cities = ccr.cityReader("Cards/CityCards.json");
         } catch (Exception e) {
-            System.err.println("Error during card reading");
-            System.out.close();
-        }
-
-        for (City city : cityArray) {
-            this.cities.put(city.getName(), city);
+            e.printStackTrace();
         }
 
         renderCities();
@@ -135,5 +133,17 @@ public class CityRepository implements ICityRepository {
             city.getNeighbors().forEach(neighbor -> renderManager.renderEdge(city, neighbor));
             renderManager.renderCity(city);
         });
+
+        //TODO: remove this test
+        renderManager.renderPlayerCards(Arrays.asList(
+                new CityCard(getCities().get("Atlanta")),
+                new EpidemicCard("Plague"),
+                new CityCard(getCities().get("Chicago")),
+                new CityCard(getCities().get("Bangkok")),
+                new EventCard("idk","might be important") {@Override public void event() {}},
+                new CityCard(getCities().get("Mexico City")),
+                new CityCard(getCities().get("Milan"))
+        ));
+
     }
 }

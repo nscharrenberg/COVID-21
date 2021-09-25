@@ -10,7 +10,7 @@ import java.util.List;
 public interface IDiseaseRepository {
     void reset();
     List<InfectionRateMarker> getInfectionRate();
-    List<Marker> getOutbreakMarker();
+    List<OutbreakMarker> getOutbreakMarker();
     HashMap<String, Cure> getCures();
     HashMap<ColorRGBA, List<Disease>> getCubes();
     void infect(ColorRGBA color, City city) throws NoCubesLeftException;
