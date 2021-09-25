@@ -4,16 +4,16 @@ import com.google.inject.Inject;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.material.Material;
-import com.jme3.math.*;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Line;
-import com.jme3.util.BufferUtils;
 import com.jme3.scene.shape.Quad;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
@@ -21,6 +21,10 @@ import org.um.nine.domain.*;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.EpidemicCard;
 import org.um.nine.domain.cards.EventCard;
+import org.um.nine.domain.cards.InfectionCard;
+import org.um.nine.exceptions.CardsLimitExceededException;
+
+import java.util.List;
 
 
 public class RenderManager {
@@ -204,20 +208,27 @@ public class RenderManager {
         gameRepository.getApp().getRootNode().attachChild(model);
     }
 
-    public void renderCard (Card card) {
+    public void renderCard (Card card, int index) {
         Quad quad = new Quad(250,150);
         Geometry colored_plate = new Geometry(card.getName(),quad);
+        String label = "";
         Material mat = new Material(gameRepository.getApp().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         if (card instanceof CityCard){
             mat.setColor("Color",((CityCard) card).getCity().getColor());
+            label = "city card";
         } else if (card instanceof EventCard){
-            mat.setColor("Color", ColorRGBA.Yellow);
+            mat.setColor("Color", ColorRGBA.fromRGBA255(255,171,42,100));
+            label = "event card";
         } else if (card instanceof EpidemicCard){
             mat.setColor("Color", ColorRGBA.Green);
+            label = "epidemic card";
+        } else  if (card instanceof InfectionCard){
+            mat.setColor("Color",ColorRGBA.Yellow);
+            label = "infection card";
         }
         mat.getAdditionalRenderState().setLineWidth(15);
         mat.getAdditionalRenderState().setWireframe(false);
-        colored_plate.setLocalTranslation(new Vector3f(-500,350,1));
+        colored_plate.setLocalTranslation(new Vector3f(-900 + (index*10) + (index*250),550,1));  //offset cards based on index
         colored_plate.setMaterial(mat);
         gameRepository.getApp().getRootNode().attachChild(colored_plate);
 
@@ -230,8 +241,20 @@ public class RenderManager {
         gameRepository.getApp().getRootNode().attachChild(white_plate);
 
         BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
-        renderText("here is the text",colored_plate.getLocalTranslation().add(0,65,1.1f),ColorRGBA.Blue,"card.getName()",20,myFont);
+        renderText(label,colored_plate.getLocalTranslation().add(40,125,1.1f),ColorRGBA.Blue,card +"_label",10,myFont);
+        renderText(card.getName(),colored_plate.getLocalTranslation().add(40,105,1.1f),ColorRGBA.Blue, card + "_description",20,myFont);
     }
+
+    public void renderPlayerCards (List<Card> cards) {
+         try {
+             if (cards.size()> 7) throw new CardsLimitExceededException();
+        } catch (CardsLimitExceededException e) {
+            e.printStackTrace();
+        }
+        for (int i = 0; i< cards.size(); i++)
+            renderCard(cards.get(i),i);
+    }
+
 
     public void renderInfectionRateStar(InfectionRateMarker marker, Vector3f offset) {
         Cylinder plateShape = new Cylinder(5, 10, 12.5f, 2, true);
@@ -245,7 +268,7 @@ public class RenderManager {
         gameRepository.getApp().getRootNode().attachChild(plate);
 
         BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
-        renderText(String.valueOf(marker.getCount()),plate.getLocalTranslation().add(-5,-15,1.1f),ColorRGBA.White,marker.toString() + "-label",20,myFont);
+        renderText(String.valueOf(marker.getCount()),plate.getLocalTranslation().add(-5,-15,1.1f),ColorRGBA.White, marker + "-label",20,myFont);
 
         renderInfectionMarker(marker);
     }
