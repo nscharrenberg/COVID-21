@@ -8,6 +8,7 @@ import org.um.nine.domain.roles.RoleEvent;
 import org.um.nine.exceptions.NoCubesLeftException;
 import org.um.nine.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
 import org.um.nine.exceptions.OutbreakException;
+import org.um.nine.exceptions.UnableToDiscoverCureException;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import java.util.List;
 public class DiseaseRepository implements IDiseaseRepository {
     private List<InfectionRateMarker> infectionRate;
     private List<OutbreakMarker> outbreakMarker;
-    private HashMap<String, Cure> cures;
+    private HashMap<ColorRGBA, Cure> cures;
 
     // TODO: We could also use 1 array for all instead of 4.
     private HashMap<ColorRGBA, List<Disease>> cubes;
@@ -40,7 +41,7 @@ public class DiseaseRepository implements IDiseaseRepository {
     }
 
     @Override
-    public HashMap<String, Cure> getCures() {
+    public HashMap<ColorRGBA, Cure> getCures() {
         return cures;
     }
 
@@ -70,10 +71,10 @@ public class DiseaseRepository implements IDiseaseRepository {
     }
 
     private void initCures() {
-        this.cures.put(ColorRGBA.Red.toString(), new Cure(ColorRGBA.Red));
-        this.cures.put(ColorRGBA.Yellow.toString(), new Cure(ColorRGBA.Yellow));
-        this.cures.put(ColorRGBA.Blue.toString(), new Cure(ColorRGBA.Blue));
-        this.cures.put(ColorRGBA.Black.toString(), new Cure(ColorRGBA.Black));
+        this.cures.put(ColorRGBA.Red, new Cure(ColorRGBA.Red));
+        this.cures.put(ColorRGBA.Yellow, new Cure(ColorRGBA.Yellow));
+        this.cures.put(ColorRGBA.Blue, new Cure(ColorRGBA.Blue));
+        this.cures.put(ColorRGBA.Black, new Cure(ColorRGBA.Black));
     }
 
     private void initCubes() {
@@ -132,10 +133,14 @@ public class DiseaseRepository implements IDiseaseRepository {
 
     @Override
     public void treat(Player pawn, City city, Disease disease) {
+        if (pawn.getRole().events().contains(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR)) {
+            city.getCubes().removeIf(d -> d.getColor().equals(disease.getColor()));
+        }
+
         city.getCubes().remove(disease);
         disease.setCity(null);
 
-        if (cures.get(disease.getColor().toString()).isDiscovered()) {
+        if (cures.get(disease.getColor()).isDiscovered()) {
             city.getCubes().forEach(cube -> {
                 if (cube.getColor().equals(disease.getColor())) {
                     city.getCubes().remove(cube);
@@ -143,5 +148,18 @@ public class DiseaseRepository implements IDiseaseRepository {
                 }
             });
         }
+    }
+
+    @Override
+    public void discoverCure(Player pawn, Cure cure) throws UnableToDiscoverCureException {
+        if (pawn.getRole().events().contains(RoleEvent.DISCOVER_CURE_FOUR_CARDS)) {
+            // TODO: If pawn has 4 cards of same color, then discover cure
+            return;
+        }
+
+        // TODO: if pawn has 5 cards of the same color, then discover cure
+
+        // else unable to discover a cure
+        throw new UnableToDiscoverCureException(cure);
     }
 }
