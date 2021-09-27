@@ -8,13 +8,11 @@ import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
-import org.um.nine.domain.City;
-import org.um.nine.domain.Disease;
-import org.um.nine.domain.Player;
-import org.um.nine.domain.ResearchStation;
+import org.um.nine.domain.*;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.EpidemicCard;
 import org.um.nine.domain.cards.EventCard;
+import org.um.nine.domain.roles.RoleEvent;
 import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
 import org.um.nine.exceptions.DiseaseAlreadyInCity;
 import org.um.nine.exceptions.OutbreakException;
@@ -88,6 +86,19 @@ public class CityRepository implements ICityRepository {
     @Override
     public void addPawn(City city, Player player) {
         city.addPawn(player);
+
+        // f a disease has been cured, he automatically removes all cubes of that color from a city, simply by entering it or being there.
+        if (player.getRole().events().contains(RoleEvent.AUTO_REMOVE_CUBES_OF_CURED_DISEASE)) {
+            city.getCubes().forEach(c -> {
+                Cure found = diseaseRepository.getCures().get(c.getColor());
+
+                if (found != null) {
+                    if (found.isDiscovered()) {
+                        city.getCubes().removeIf(cb -> cb.getColor().equals(found.getColor()));
+                    }
+                }
+            });
+        }
 
         renderManager.renderPlayer(player, city.getPawnPosition(player));
     }
