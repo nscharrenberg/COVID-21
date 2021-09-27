@@ -62,7 +62,9 @@ public class CityRepository implements ICityRepository {
             throw new ResearchStationLimitException();
         }
 
-        // TODO: discard city card
+        if (!player.getRole().actions(RoleAction.BUILD_RESEARCH_STATION)) {
+            //TODO: discard city card
+        }
 
         this.researchStations.add(new ResearchStation(city));
 
