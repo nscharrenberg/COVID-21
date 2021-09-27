@@ -12,6 +12,7 @@ import org.um.nine.domain.*;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.EpidemicCard;
 import org.um.nine.domain.cards.EventCard;
+import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.domain.roles.RoleEvent;
 import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
 import org.um.nine.exceptions.DiseaseAlreadyInCity;
@@ -52,7 +53,7 @@ public class CityRepository implements ICityRepository {
     }
 
     @Override
-    public void addResearchStation(City city) throws ResearchStationLimitException, CityAlreadyHasResearchStationException {
+    public void addResearchStation(City city, Player player) throws ResearchStationLimitException, CityAlreadyHasResearchStationException {
         if (city.getResearchStation() != null) {
             throw new CityAlreadyHasResearchStationException();
         }
@@ -60,6 +61,8 @@ public class CityRepository implements ICityRepository {
         if ((researchStations.size() + 1) > Info.RESEARCH_STATION_THRESHOLD) {
             throw new ResearchStationLimitException();
         }
+
+        // TODO: discard city card
 
         this.researchStations.add(new ResearchStation(city));
 
@@ -88,7 +91,7 @@ public class CityRepository implements ICityRepository {
         city.addPawn(player);
 
         // f a disease has been cured, he automatically removes all cubes of that color from a city, simply by entering it or being there.
-        if (player.getRole().events().contains(RoleEvent.AUTO_REMOVE_CUBES_OF_CURED_DISEASE)) {
+        if (player.getRole().events(RoleEvent.AUTO_REMOVE_CUBES_OF_CURED_DISEASE)) {
             city.getCubes().forEach(c -> {
                 Cure found = diseaseRepository.getCures().get(c.getColor());
 
@@ -117,11 +120,12 @@ public class CityRepository implements ICityRepository {
 
         renderCities();
 
+        // TODO: remove all this stuff.
+        playerRepository.reset();
+
         try {
-            addResearchStation(cities.get("Atlanta"));
-        } catch (ResearchStationLimitException e) {
-            e.printStackTrace();
-        } catch (CityAlreadyHasResearchStationException e) {
+            addResearchStation(cities.get("Atlanta"), playerRepository.getPlayers().get("example"));
+        } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException e) {
             e.printStackTrace();
         }
 
@@ -134,8 +138,6 @@ public class CityRepository implements ICityRepository {
         } catch (DiseaseAlreadyInCity e) {
             e.printStackTrace();
         }
-
-        playerRepository.reset();
     }
 
     @Override

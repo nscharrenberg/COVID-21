@@ -19,13 +19,13 @@ public abstract class Role {
      * Perform a specific action that a user can take.
      * e.g. Build a research station in the city you are in (no discord needed)
      */
-    public abstract RoleAction actions(int key);
+    public abstract boolean actions(RoleAction key);
 
     /**
      * Perform role events that a user has no power over.
      * e.g. Prevent disease cube placements (and outbreaks) in the city you are in and all cities connected to it.
      */
-    public abstract RoleEvent events(int key);
+    public abstract boolean events(RoleEvent key);
 
     public abstract List<RoleEvent> events();
 

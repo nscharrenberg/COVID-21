@@ -14,19 +14,13 @@ public class OperationsExpertRole extends Role {
     }
 
     @Override
-    public RoleAction actions(int key) {
-       if(key == 1) {
-           return RoleAction.BUILD_RESEARCH_STATION;
-       } else if (key == 2) {
-           return RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY;
-       }
-
-       return null;
+    public boolean actions(RoleAction key) {
+        return key.equals(RoleAction.BUILD_RESEARCH_STATION) || key.equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY);
     }
 
     @Override
-    public RoleEvent events(int key) {
-        return null;
+    public boolean events(RoleEvent key) {
+        return false;
     }
 
     @Override

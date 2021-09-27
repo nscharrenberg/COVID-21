@@ -3,6 +3,7 @@ package org.um.nine.utils.managers;
 import com.google.inject.Inject;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
+import com.jme3.light.AmbientLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -79,6 +80,10 @@ public class RenderManager {
         mat.setColor("Ambient", city.getColor() );
         plate.setMaterial(mat);
         plate.setLocalTranslation(city.getLocation());
+
+        AmbientLight al = new AmbientLight();
+        al.setColor(ColorRGBA.White.mult(3f));
+        plate.addLight(al);
         gameRepository.getApp().getRootNode().attachChild(plate);
     }
 

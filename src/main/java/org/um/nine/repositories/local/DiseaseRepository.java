@@ -106,7 +106,7 @@ public class DiseaseRepository implements IDiseaseRepository {
     public void infect(ColorRGBA color, City city) throws NoCubesLeftException, OutbreakException, NoDiseaseOrOutbreakPossibleDueToEvent {
         // Prevents both outbreaks and the placement of disease cubes in the city she is in
         for (Player player : city.getPawns() ) {
-            if(player.getRole().events().contains(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK)) {
+            if(player.getRole().events(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK)) {
                 throw new NoDiseaseOrOutbreakPossibleDueToEvent(city);
             }
         }
@@ -114,7 +114,7 @@ public class DiseaseRepository implements IDiseaseRepository {
         // all cities connected to that city.
         for (City neighbor : city.getNeighbors()) {
             for (Player player : neighbor.getPawns() ) {
-                if(player.getRole().events().contains(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK)) {
+                if(player.getRole().events(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK)) {
                     throw new NoDiseaseOrOutbreakPossibleDueToEvent(neighbor);
                 }
             }
@@ -134,7 +134,7 @@ public class DiseaseRepository implements IDiseaseRepository {
 
     @Override
     public void treat(Player pawn, City city, Disease disease) {
-        if (pawn.getRole().events().contains(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR)) {
+        if (pawn.getRole().events(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR)) {
             city.getCubes().removeIf(d -> d.getColor().equals(disease.getColor()));
         }
 
@@ -153,7 +153,7 @@ public class DiseaseRepository implements IDiseaseRepository {
 
     @Override
     public void discoverCure(Player pawn, Cure cure) throws UnableToDiscoverCureException {
-        if (pawn.getRole().events().contains(RoleEvent.DISCOVER_CURE_FOUR_CARDS)) {
+        if (pawn.getRole().events(RoleEvent.DISCOVER_CURE_FOUR_CARDS)) {
             // TODO: If pawn has 4 cards of same color, then discover cure
             return;
         }

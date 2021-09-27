@@ -12,21 +12,13 @@ public class DispatcherRole extends Role {
     }
 
     @Override
-    public RoleAction actions(int key) {
-        if (key == 1) {
-            return RoleAction.MOVE_ANY_PAWN_TO_CITY_WITH_OTHER_PAWN;
-        }
-
-        return null;
+    public boolean actions(RoleAction key) {
+        return key.equals(RoleAction.MOVE_ANY_PAWN_TO_CITY_WITH_OTHER_PAWN);
     }
 
     @Override
-    public RoleEvent events(int key) {
-        if (key == 1) {
-            return RoleEvent.MOVE_OTHER_PLAYER;
-        }
-
-        return null;
+    public boolean events(RoleEvent key) {
+        return key.equals(RoleEvent.MOVE_OTHER_PLAYER);
     }
 
     @Override

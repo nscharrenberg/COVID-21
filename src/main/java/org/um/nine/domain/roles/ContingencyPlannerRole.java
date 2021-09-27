@@ -12,21 +12,13 @@ public class ContingencyPlannerRole extends Role {
     }
 
     @Override
-    public RoleAction actions(int key) {
-        if (key == 1) {
-            return RoleAction.TAKE_ANY_DISCARED_EVENT;
-        }
-
-        return null;
+    public boolean actions(RoleAction key) {
+        return key.equals(RoleAction.TAKE_ANY_DISCARED_EVENT);
     }
 
     @Override
-    public RoleEvent events(int key) {
-        if (key == 1) {
-            return RoleEvent.USE_STORED_EVENT_CARD;
-        }
-
-        return null;
+    public boolean events(RoleEvent key) {
+        return key.equals(RoleEvent.USE_STORED_EVENT_CARD);
     }
 
     @Override

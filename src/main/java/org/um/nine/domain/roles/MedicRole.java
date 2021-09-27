@@ -13,19 +13,14 @@ public class MedicRole extends Role {
     }
 
     @Override
-    public RoleAction actions(int key) {
-        return null;
+    public boolean actions(RoleAction key) {
+        return false;
     }
 
     @Override
-    public RoleEvent events(int key) {
-        if (key == 1) {
-            return RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR;
-        } else if (key == 2) {
-            return RoleEvent.AUTO_REMOVE_CUBES_OF_CURED_DISEASE;
-        }
-
-        return null;
+    public boolean events(RoleEvent key) {
+        return key.equals(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR)
+                || key.equals(RoleEvent.AUTO_REMOVE_CUBES_OF_CURED_DISEASE);
     }
 
     @Override

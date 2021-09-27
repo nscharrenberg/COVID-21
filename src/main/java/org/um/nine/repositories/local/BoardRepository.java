@@ -52,10 +52,10 @@ public class BoardRepository implements IBoardRepository {
     }
 
     private void renderCureSection() {
-        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Red.toString()), new Vector3f(100, 0, 0), true);
-        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Yellow.toString()), new Vector3f(50, 0, 0));
-        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Blue.toString()), new Vector3f(0, 0, 0));
-        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Black.toString()), new Vector3f(-50, 0, 0));
+        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Red), new Vector3f(100, 0, 0), true);
+        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Yellow), new Vector3f(50, 0, 0));
+        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Blue), new Vector3f(0, 0, 0));
+        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Black), new Vector3f(-50, 0, 0));
     }
 
     private void renderOutbreakSection() {

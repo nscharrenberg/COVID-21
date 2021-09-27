@@ -13,17 +13,13 @@ public class ResearcherRole extends Role {
     }
 
     @Override
-    public RoleAction actions(int key) {
-       if (key == 1) {
-           return RoleAction.GIVE_PLAYER_CITY_CARD;
-       }
-
-       return null;
+    public boolean actions(RoleAction key) {
+        return key.equals(RoleAction.GIVE_PLAYER_CITY_CARD);
     }
 
     @Override
-    public RoleEvent events(int key) {
-        return null;
+    public boolean events(RoleEvent key) {
+        return false;
     }
 
     @Override

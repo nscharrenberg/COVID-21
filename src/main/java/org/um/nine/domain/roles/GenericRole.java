@@ -12,13 +12,13 @@ public class GenericRole extends Role {
     }
 
     @Override
-    public RoleAction actions(int key) {
-        return null;
+    public boolean actions(RoleAction key) {
+        return false;
     }
 
     @Override
-    public RoleEvent events(int key) {
-        return null;
+    public boolean events(RoleEvent key) {
+        return false;
     }
 
     @Override

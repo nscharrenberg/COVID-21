@@ -14,13 +14,13 @@ public class QuarantineSpecialistRole extends Role {
     }
 
     @Override
-    public RoleAction actions(int key) {
-        return null;
+    public boolean actions(RoleAction key) {
+        return false;
     }
 
     @Override
-    public RoleEvent events(int key) {
-        return RoleEvent.PREVENT_DISEASE_OR_OUTBREAK;
+    public boolean events(RoleEvent key) {
+        return key.equals(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK);
     }
 
     @Override

@@ -12,13 +12,13 @@ public class ScientistRole extends Role {
     }
 
     @Override
-    public RoleAction actions(int key) {
-        return null;
+    public boolean actions(RoleAction key) {
+        return false;
     }
 
     @Override
-    public RoleEvent events(int key) {
-        return RoleEvent.DISCOVER_CURE_FOUR_CARDS;
+    public boolean events(RoleEvent key) {
+        return key.equals(RoleEvent.DISCOVER_CURE_FOUR_CARDS);
     }
 
     @Override
