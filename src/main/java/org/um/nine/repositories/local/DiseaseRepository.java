@@ -104,13 +104,14 @@ public class DiseaseRepository implements IDiseaseRepository {
 
     @Override
     public void infect(ColorRGBA color, City city) throws NoCubesLeftException, OutbreakException, NoDiseaseOrOutbreakPossibleDueToEvent {
-        // TODO: Move these checks to own RoleRepository or something
+        // Prevents both outbreaks and the placement of disease cubes in the city she is in
         for (Player player : city.getPawns() ) {
             if(player.getRole().events().contains(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK)) {
                 throw new NoDiseaseOrOutbreakPossibleDueToEvent(city);
             }
         }
 
+        // all cities connected to that city.
         for (City neighbor : city.getNeighbors()) {
             for (Player player : neighbor.getPawns() ) {
                 if(player.getRole().events().contains(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK)) {
