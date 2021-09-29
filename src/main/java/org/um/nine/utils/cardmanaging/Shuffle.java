@@ -1,11 +1,11 @@
 package org.um.nine.utils.cardmanaging;
+
 import org.um.nine.domain.Card;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.EpidemicCard;
 import org.um.nine.domain.cards.InfectionCard;
-import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.cards.events.*;
 
 import java.util.HashMap;
@@ -87,12 +87,22 @@ public class Shuffle {
                 amountCards = 2;
                 break;
         }
+        int k = amountCards* players.size();
+        int max_pop = Integer.MIN_VALUE;
+        Stack<Card> initialDeck = new Stack<>();
+        for (int i = 0; i< k; i++){
+            Card p = deck.pop();
+            if (p instanceof CityCard){
+
+            }
+            initialDeck.push(p);
+        }
+
         for(Player p: players.values()){
             for(int i = 0; i < amountCards; i++){
                 p.addCard(deck.pop());
             }
         }
-
         return difficultyShuffle(difficultyLevel,deck);
     }
 

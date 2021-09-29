@@ -51,16 +51,15 @@ public class BoardRepository implements IBoardRepository {
         renderBoard();
         cityRepository.reset();
         diseaseRepository.reset();
+        playerRepository.reset();
 
         renderCureSection();
         renderOutbreakSection();
         renderInfectionSection();
 
         gameRepository.getApp().getStateManager().attach(optionHudState);
+        cardRepository.buildDecks(cityRepository, playerRepository);
 
-        cardRepository.buildDecks(cityRepository);
-
-        playerRepository.reset();
     }
 
     private void renderCureSection() {
