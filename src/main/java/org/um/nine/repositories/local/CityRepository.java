@@ -29,6 +29,9 @@ public class CityRepository implements ICityRepository {
     private List<ResearchStation> researchStations;
 
     @Inject
+    private IGameRepository gameRepository;
+
+    @Inject
     private IPlayerRepository playerRepository;
 
     @Inject
@@ -94,6 +97,13 @@ public class CityRepository implements ICityRepository {
         renderManager.renderDisease(cube, city.getCubePosition(cube));
     }
 
+    //@Override
+    public void addPawn(City city, Player player) {
+        city.addPawn(player);
+
+        renderManager.renderPlayer(player, city.getPawnPosition(player));
+    }
+
     @Override
     public void reset() {
         this.researchStations = new ArrayList<>();
@@ -133,4 +143,5 @@ public class CityRepository implements ICityRepository {
 
 
     }
+
 }

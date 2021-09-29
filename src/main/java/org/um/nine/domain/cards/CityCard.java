@@ -1,5 +1,6 @@
 package org.um.nine.domain.cards;
 
+import org.um.nine.domain.Card;
 import org.um.nine.domain.City;
 
 public class CityCard extends PlayerCard {
