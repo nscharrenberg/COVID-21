@@ -58,13 +58,25 @@ public class City {
         return cubes;
     }
 
-    public void addCube(Disease cube) {
+    /**
+     * adds a disease cube to a city
+     * @param cube disease cube to be added
+     * @return true if successful, false if outbreak occurs
+     */
+    public boolean addCube(Disease cube) {
         if (this.cubes == null) {
             this.cubes = new ArrayList<>();
+        } else if(this.cubes.size()>=3){
+            //check outbreak
+            int c=0;
+            for (Disease d:this.cubes) {
+                if(d.getColor() == cube.getColor())c++;
+            }
+            if(c>=3) return false;
         }
-
         this.cubes.add(cube);
         cube.setCity(this);
+        return true;
     }
 
     public void setCubes(List<Disease> cubes) {
