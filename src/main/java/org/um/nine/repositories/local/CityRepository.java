@@ -1,13 +1,9 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import org.um.nine.Info;
-import org.um.nine.contracts.repositories.IBoardRepository;
-import org.um.nine.contracts.repositories.ICityRepository;
-import org.um.nine.contracts.repositories.IDiseaseRepository;
-import org.um.nine.contracts.repositories.IPlayerRepository;
+import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
 import org.um.nine.domain.Player;
@@ -118,20 +114,12 @@ public class CityRepository implements ICityRepository {
 
         renderCities();
 
-
         try {
             addResearchStation(cities.get("Atlanta"), null);
         } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException e) {
             e.printStackTrace();
         }
 
-        try {
-            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getCubes().get(ColorRGBA.Yellow).get(0));
-            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getCubes().get(ColorRGBA.Red).get(0));
-            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getCubes().get(ColorRGBA.Blue).get(1));
-        } catch (OutbreakException | DiseaseAlreadyInCity e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

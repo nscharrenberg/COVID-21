@@ -7,11 +7,8 @@ import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
-import org.um.nine.domain.City;
-import org.um.nine.domain.Cure;
-import org.um.nine.domain.Player;
+import org.um.nine.domain.*;
 import org.um.nine.domain.roles.GenericRole;
-import org.um.nine.domain.roles.QuarantineSpecialistRole;
 import org.um.nine.domain.roles.RoleEvent;
 import org.um.nine.exceptions.ExternalMoveNotAcceptedException;
 import org.um.nine.exceptions.InvalidMoveException;
@@ -19,6 +16,9 @@ import org.um.nine.exceptions.PlayerLimitException;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.HashMap;
+import java.util.Objects;
+
+import static org.um.nine.domain.RoundState.*;
 
 public class PlayerRepository implements IPlayerRepository {
     private HashMap<String, Player> players;
@@ -51,23 +51,26 @@ public class PlayerRepository implements IPlayerRepository {
 
     public void reset() {
         this.players = new HashMap<>();
+        //Add players and give random roles
+        City atlanta = cityRepository.getCities().get("Atlanta");
+        int difficulty = 4;//Todo: get game info from setup menu
+        int humans = 3;
+        int bots = 1;
+        int players = humans+bots;
+        GenericRole[] roles = new GenericRole[players]; //keep track of roles? Not sure if needed
+        String[] playerNames = {"Eric", "Noah", "Kai", "Drago"};
+        String[] botNames = {"Cortana", "Jarvis", "Ultron", "Dave"};
         try {
-            City city = cityRepository.getCities().get("Atlanta");
-            Player player = new Player("example", city,false);
-            player.setRole(new QuarantineSpecialistRole());
-            addPlayer(player);
-
-            Player playerTwo = new Player("example2", city, false);
-            playerTwo.setRole(new GenericRole("GenericOne", ColorRGBA.Red));
-            addPlayer(playerTwo);
-
-            Player playerThree = new Player("example3", city, false);
-            playerThree.setRole(new GenericRole("GenericTwo", ColorRGBA.Blue));
-            addPlayer(playerThree);
-
-            Player playerFour = new Player("example4", city, false);
-            playerFour.setRole(new GenericRole("GenericThree", ColorRGBA.Yellow));
-            addPlayer(playerFour);
+            for(int i=0;i<humans;i++){
+                Player player = new Player(playerNames[i], atlanta,false);
+                player.setRole(new GenericRole("GenericBlue", ColorRGBA.Blue)); //Todo: add role assignment
+                addPlayer(player);
+            }
+            for(int i=0;i<bots;i++){
+                Player player = new Player(botNames[i], atlanta,true);
+                player.setRole(new GenericRole("GenericRed", ColorRGBA.Red)); //Todo: add role assignment
+                addPlayer(player);
+            }
         } catch (PlayerLimitException e) {
             e.printStackTrace();
         }
@@ -115,5 +118,39 @@ public class PlayerRepository implements IPlayerRepository {
 
         move(target, city);
     }
+
+
+    int actionsLeft = 4;
+    int drawLeft = 2;
+    int infectionLeft = 2;
+
+    /**
+     * @return null if the turn has ended otherwise the RoundState of the turn
+     */
+    public RoundState nextState(RoundState currentState){
+        if (currentState == null)
+            return ACTION;
+        else if (currentState == ACTION){
+            actionsLeft--;
+            if (actionsLeft == 0) {
+                actionsLeft = 4;
+                return DRAW;
+            } else return ACTION;
+        } else if (currentState == DRAW){
+            drawLeft--;
+            if (drawLeft == 0){
+                drawLeft = 2;
+                return INFECT;
+            } else return DRAW;
+        } else if (currentState == INFECT){
+            infectionLeft--;
+            if (infectionLeft == 0){
+                infectionLeft = Objects.requireNonNull(diseaseRepository.getInfectionRate().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
+                return null;
+            } else return INFECT;
+        }
+        throw new IllegalStateException();
+    }
+
 }
 
