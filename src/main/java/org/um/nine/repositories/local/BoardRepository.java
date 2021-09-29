@@ -59,7 +59,7 @@ public class BoardRepository implements IBoardRepository {
 
         gameRepository.getApp().getStateManager().attach(optionHudState);
 
-        cardRepository.buildDecks(cityRepository);
+        cardRepository.buildDecks(cityRepository, playerRepository);
     }
 
     private void renderCureSection() {

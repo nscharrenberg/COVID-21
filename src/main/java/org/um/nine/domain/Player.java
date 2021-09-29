@@ -1,7 +1,6 @@
 package org.um.nine.domain;
 
 import com.jme3.math.ColorRGBA;
-import org.um.nine.domain.cards.PlayerCard;
 
 import java.util.ArrayList;
 
@@ -10,7 +9,7 @@ public class Player {
     private Role role;
     private City location;
     private boolean isBot;
-    private ArrayList<PlayerCard> hand;
+    private ArrayList<Card> hand;
 
     public Player(String name, boolean isBot) {
         this.name = name;
@@ -32,15 +31,15 @@ public class Player {
         this.hand = new ArrayList<>();
     }
 
-    public ArrayList<PlayerCard> getHandCards(){
+    public ArrayList<Card> getHandCards(){
         return hand;
     }
 
-    public void setHandCards(ArrayList<PlayerCard> cards){
+    public void setHandCards(ArrayList<Card> cards){
         hand = cards;
     }
 
-    public void addCard(PlayerCard card){
+    public void addCard(Card card){
         if(hand.size()<=7){
             hand.add(card);
         }else{
@@ -49,7 +48,7 @@ public class Player {
         }
     }
 
-    public void discard(PlayerCard card){
+    public void discard(Card card){
         hand.remove(card);
     }
 
