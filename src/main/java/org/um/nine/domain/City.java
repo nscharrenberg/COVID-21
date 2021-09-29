@@ -2,6 +2,7 @@ package org.um.nine.domain;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import org.um.nine.exceptions.OutbreakException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +75,7 @@ public class City {
             }
             if(c>=3) return false;
         }
+
         this.cubes.add(cube);
         cube.setCity(this);
         return true;

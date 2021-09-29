@@ -13,19 +13,23 @@ import org.um.nine.exceptions.ColorNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Stack;
 
 public class CityCardReader {
-    public City[] cityReader(String path) {
+    public HashMap<String, City> cityReader(String path) {
         JsonParser parser = new JsonParser();
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path);
         Reader reader = new InputStreamReader(inputStream);
         JsonElement JElRoot = parser.parse(reader);
         JsonObject JORoot = JElRoot.getAsJsonObject();
         JsonArray JACities = JORoot.getAsJsonArray("Cities");
-        City[] cities = new City[JACities.size()];
+        HashMap<String, City> cities = new HashMap<>();
+
         for(int i = 0; i < JACities.size();i++){
+
             JsonElement JElCity = JACities.get(i);
             JsonObject JOCity = JElCity.getAsJsonObject();
             String name = JOCity.getAsJsonPrimitive("name").getAsString();
@@ -63,23 +67,19 @@ public class CityCardReader {
                 System.err.println("Positions are not formatted correctly");
                 System.err.close();
             }
-            cities[i] = new City(name,color,pos);
-            cities[i].setPopulation(population);
-        }
-        for(int i = 0; i < JACities.size();i++){
-            LinkedList<String> cityNames = new LinkedList<>();
-            JsonElement JElCity = JACities.get(i);
-            JsonObject JOCity = JElCity.getAsJsonObject();
+            City city = new City(name,color,pos);
+            city.setPopulation(population);
+
+            cities.put(name, city);
+
             JsonArray JANeighbours = JOCity.getAsJsonArray("neighbours");
             for(int j = 0; j < JANeighbours.size();j++){
-                cityNames.add(JANeighbours.get(j).getAsString());
-            }
-            for(int j = 0; j < cities.length;j++){
-                if(cityNames.contains(cities[j].getName())){
-                    cities[i].addNeighbour(cities[j]);
+                if(cities.get(JANeighbours.get(j).getAsString()) != null){
+                    cities.get(name).addNeighbour(cities.get(JANeighbours.get(j).getAsString()));
                 }
             }
         }
+
         return cities;
     }
 

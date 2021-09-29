@@ -3,18 +3,31 @@ package org.um.nine.domain.roles;
 import com.jme3.math.ColorRGBA;
 import org.um.nine.domain.Role;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class QuarantineSpecialistRole extends Role {
+    static ColorRGBA darkGreen = new ColorRGBA(56f, 119f, 0f, 100f);
+
     public QuarantineSpecialistRole() {
-        super("Quarantine Specialist", ColorRGBA.Green);
+        super("Quarantine Specialist", darkGreen);
     }
 
     @Override
-    public void actions(String key) {
-        throw new UnsupportedOperationException("This Role does not have an action");
+    public boolean actions(RoleAction key) {
+        return false;
     }
 
     @Override
-    public void events() {
-        // TODO: Do not allow disease cubes to be placed
+    public boolean events(RoleEvent key) {
+        return key.equals(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK);
+    }
+
+    @Override
+    public List<RoleEvent> events() {
+        ArrayList<RoleEvent> events = new ArrayList<>();
+        events.add(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK);
+
+        return events;
     }
 }

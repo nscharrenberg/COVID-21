@@ -6,8 +6,8 @@ import org.um.nine.domain.City;
 public class CityCard extends PlayerCard {
     private City city;
 
-    public CityCard(String name, City city) {
-        super(name);
+    public CityCard(City city) {
+        super(city.getName());
         this.city = city;
     }
 
