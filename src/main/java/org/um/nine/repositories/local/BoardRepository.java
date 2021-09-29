@@ -44,11 +44,13 @@ public class BoardRepository implements IBoardRepository {
     @Inject
     private OptionHudState optionHudState;
 
+    @Inject
+    private CardRepository cardRepository;
+
     @Override
     public void startGame() {
         renderBoard();
         cityRepository.reset();
-
         diseaseRepository.reset();
 
         renderCureSection();
@@ -56,6 +58,8 @@ public class BoardRepository implements IBoardRepository {
         renderInfectionSection();
 
         gameRepository.getApp().getStateManager().attach(optionHudState);
+
+        cardRepository.buildDecks(cityRepository);
     }
 
     private void renderCureSection() {

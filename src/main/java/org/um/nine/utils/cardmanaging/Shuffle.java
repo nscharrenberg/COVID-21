@@ -1,7 +1,12 @@
 package org.um.nine.utils.cardmanaging;
 import org.um.nine.domain.Card;
+import org.um.nine.domain.City;
+import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.EpidemicCard;
+import org.um.nine.domain.cards.InfectionCard;
+import org.um.nine.domain.cards.events.*;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Stack;
 
@@ -12,8 +17,8 @@ public class Shuffle {
      * Those get a epidemic card added and then shuffled again.
      * @return a shuffled deck of cards including difficulty*epidemic cards mixed in every quarter
      */
-    public Stack<Card> difficultyShuffle(int difficulty, Stack<Card> deck){
-        deck = shuffle(deck);
+    public static Stack<Card> difficultyShuffle(int difficulty, Stack<Card> deck){
+        deck = shuffle( deck);
         Stack<Card> shuffled = new Stack<>();
 
         Stack<Card>[] split = new Stack[difficulty];
@@ -43,7 +48,7 @@ public class Shuffle {
         return shuffled;
     }
 
-    public Stack<Card> shuffle(Stack<Card> deck){
+    public static Stack<Card> shuffle(Stack<Card> deck){
         LinkedList<Card> list = new LinkedList<>();
         for(int i = 0; i < deck.size(); i++){
             list.add(deck.elementAt(i));
@@ -54,6 +59,25 @@ public class Shuffle {
             newDeck.add(list.remove(index));
         }
         return newDeck;
+    }
+
+
+
+    public static Stack<Card> buildPlayerDeck(int difficultyLevel, HashMap<String,City> cities){
+        Stack<Card> deck = new Stack<>();
+        deck.push(new GovernmentGrandEvent());
+        deck.push(new PrognosisEvent());
+        deck.push(new AirliftEvent());
+        deck.push(new QuietNightEvent());
+        deck.push(new ResilientPopulationEvent());
+        cities.values().stream().map(CityCard::new).forEach(deck::push);
+        return difficultyShuffle(difficultyLevel,deck);
+    }
+
+    public static Stack<Card> buildEpidemicDeck(HashMap<String,City> cities){
+        Stack<Card> deck = new Stack<>();
+        cities.values().stream().map(InfectionCard::new).forEach(deck::push);
+        return shuffle(deck);
     }
 
 }

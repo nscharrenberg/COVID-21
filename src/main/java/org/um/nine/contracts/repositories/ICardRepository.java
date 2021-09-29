@@ -1,12 +1,12 @@
 package org.um.nine.contracts.repositories;
 
-import org.um.nine.domain.cards.EpidemicCard;
-import org.um.nine.domain.cards.PlayerCard;
+import org.um.nine.domain.Card;
+import org.um.nine.domain.cards.InfectionCard;
 
-import java.util.List;
+import java.util.Stack;
 
 public interface ICardRepository {
-    List<PlayerCard> getPlayerDeck();
-    List<EpidemicCard> getEpidemicDeck();
+    Stack<Card> getPlayerDeck();
+    Stack<InfectionCard> getInfectionDeck();
     void reset();
 }
