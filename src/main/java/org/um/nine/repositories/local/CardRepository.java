@@ -2,6 +2,7 @@ package org.um.nine.repositories.local;
 
 import org.um.nine.contracts.repositories.ICardRepository;
 import org.um.nine.contracts.repositories.ICityRepository;
+import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.Card;
 import org.um.nine.domain.cards.InfectionCard;
 import org.um.nine.utils.cardmanaging.Shuffle;
@@ -28,8 +29,8 @@ public class CardRepository implements ICardRepository {
 
     }
 
-    public void buildDecks(ICityRepository cityRepository){
-        this.playerDeck = Shuffle.buildPlayerDeck(4, cityRepository.getCities());
+    public void buildDecks(ICityRepository cityRepository, IPlayerRepository playerRepository){
+        this.playerDeck = Shuffle.buildPlayerDeck(4, cityRepository.getCities(), playerRepository.getPlayers());
         this.infectionDeck = new Stack<>();
         Stack<Card> infection_deck =  Shuffle.buildEpidemicDeck(cityRepository.getCities());
         for (Card d : infection_deck){

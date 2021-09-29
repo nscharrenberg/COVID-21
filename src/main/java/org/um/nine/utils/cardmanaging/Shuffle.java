@@ -1,9 +1,11 @@
 package org.um.nine.utils.cardmanaging;
 import org.um.nine.domain.Card;
 import org.um.nine.domain.City;
+import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.EpidemicCard;
 import org.um.nine.domain.cards.InfectionCard;
+import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.cards.events.*;
 
 import java.util.HashMap;
@@ -63,7 +65,7 @@ public class Shuffle {
 
 
 
-    public static Stack<Card> buildPlayerDeck(int difficultyLevel, HashMap<String,City> cities){
+    public static Stack<Card> buildPlayerDeck(int difficultyLevel, HashMap<String,City> cities, HashMap<String, Player> players){
         Stack<Card> deck = new Stack<>();
         deck.push(new GovernmentGrandEvent());
         deck.push(new PrognosisEvent());
@@ -71,6 +73,26 @@ public class Shuffle {
         deck.push(new QuietNightEvent());
         deck.push(new ResilientPopulationEvent());
         cities.values().stream().map(CityCard::new).forEach(deck::push);
+
+        shuffle(deck);
+        int amountCards = 0;
+        switch (players.values().size()){
+            case 2:
+                amountCards = 4;
+                break;
+            case 3:
+                amountCards = 3;
+                break;
+            case 4:
+                amountCards = 2;
+                break;
+        }
+        for(Player p: players.values()){
+            for(int i = 0; i < amountCards; i++){
+                p.addCard(deck.pop());
+            }
+        }
+
         return difficultyShuffle(difficultyLevel,deck);
     }
 

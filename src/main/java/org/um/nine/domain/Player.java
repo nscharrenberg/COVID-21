@@ -1,15 +1,21 @@
 package org.um.nine.domain;
 
+import com.jme3.math.ColorRGBA;
+
+import java.util.ArrayList;
+
 public class Player {
     private String name;
     private Role role;
     private City location;
     private boolean isBot;
     private boolean itsTurn;
+    private ArrayList<Card> hand;
 
     public Player(String name, boolean isBot) {
         this.name = name;
         this.isBot = isBot;
+        this.hand = new ArrayList<>();
         //TODO : this.location = Atlanta city
     }
 
@@ -17,12 +23,36 @@ public class Player {
         this(name,isBot);
         this.location = city;
         this.location.addPawn(this);
+        this.hand = new ArrayList<>();
     }
 
     public Player(String name) {
         this.name = name;
         this.isBot = false;
+        this.hand = new ArrayList<>();
     }
+
+    public ArrayList<Card> getHandCards(){
+        return hand;
+    }
+
+    public void setHandCards(ArrayList<Card> cards){
+        hand = cards;
+    }
+
+    public void addCard(Card card){
+        if(hand.size()<=7){
+            hand.add(card);
+        }else{
+            //todo add choice for discard
+            discard(card);
+        }
+    }
+
+    public void discard(Card card){
+        hand.remove(card);
+    }
+
 
     public Role getRole() {
         return role;
