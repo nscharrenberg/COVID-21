@@ -4,16 +4,15 @@ import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import org.um.nine.Info;
-import org.um.nine.contracts.repositories.ICityRepository;
-import org.um.nine.contracts.repositories.IDiseaseRepository;
-import org.um.nine.contracts.repositories.IGameRepository;
-import org.um.nine.contracts.repositories.IPlayerRepository;
-import org.um.nine.domain.*;
+import org.um.nine.contracts.repositories.*;
+import org.um.nine.domain.City;
+import org.um.nine.domain.Disease;
+import org.um.nine.domain.Player;
+import org.um.nine.domain.ResearchStation;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.EpidemicCard;
 import org.um.nine.domain.cards.EventCard;
 import org.um.nine.domain.roles.RoleAction;
-import org.um.nine.domain.roles.RoleEvent;
 import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
 import org.um.nine.exceptions.DiseaseAlreadyInCity;
 import org.um.nine.exceptions.OutbreakException;
@@ -31,10 +30,10 @@ public class CityRepository implements ICityRepository {
     private List<ResearchStation> researchStations;
 
     @Inject
-    private IGameRepository gameRepository;
+    private IPlayerRepository playerRepository;
 
     @Inject
-    private IPlayerRepository playerRepository;
+    private IBoardRepository boardRepository;
 
     @Inject
     private RenderManager renderManager;
@@ -62,8 +61,12 @@ public class CityRepository implements ICityRepository {
             throw new ResearchStationLimitException();
         }
 
-        if (!player.getRole().actions(RoleAction.BUILD_RESEARCH_STATION)) {
-            //TODO: discard city card
+        RoleAction action = RoleAction.BUILD_RESEARCH_STATION;
+        if (player.getRole().actions(action) && boardRepository.getSelectedAction().equals(action) && !boardRepository.getUsedActions().contains(action)) {
+            //TODO: add without discarding city card
+        } else {
+            // TODO: Check if player has this city card, if not throw exception
+            // TODO: else add research station and discard city card
         }
 
         this.researchStations.add(new ResearchStation(city));
@@ -86,26 +89,6 @@ public class CityRepository implements ICityRepository {
         city.addCube(cube);
 
         renderManager.renderDisease(cube, city.getCubePosition(cube));
-    }
-
-    @Override
-    public void addPawn(City city, Player player) {
-        city.addPawn(player);
-
-        // f a disease has been cured, he automatically removes all cubes of that color from a city, simply by entering it or being there.
-        if (player.getRole().events(RoleEvent.AUTO_REMOVE_CUBES_OF_CURED_DISEASE)) {
-            city.getCubes().forEach(c -> {
-                Cure found = diseaseRepository.getCures().get(c.getColor());
-
-                if (found != null) {
-                    if (found.isDiscovered()) {
-                        city.getCubes().removeIf(cb -> cb.getColor().equals(found.getColor()));
-                    }
-                }
-            });
-        }
-
-        renderManager.renderPlayer(player, city.getPawnPosition(player));
     }
 
     @Override
@@ -135,9 +118,7 @@ public class CityRepository implements ICityRepository {
             addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getCubes().get(ColorRGBA.Yellow).get(0));
             addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getCubes().get(ColorRGBA.Red).get(0));
             addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getCubes().get(ColorRGBA.Blue).get(1));
-        } catch (OutbreakException e) {
-            e.printStackTrace();
-        } catch (DiseaseAlreadyInCity e) {
+        } catch (OutbreakException | DiseaseAlreadyInCity e) {
             e.printStackTrace();
         }
     }

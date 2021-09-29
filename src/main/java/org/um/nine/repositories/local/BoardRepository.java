@@ -10,14 +10,18 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
-import org.um.nine.domain.Cure;
-import org.um.nine.exceptions.NoCubesLeftException;
+import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BoardRepository implements IBoardRepository {
     private Geometry board;
     private City selectedCity;
+    private RoleAction selectedAction = null;
+    private List<RoleAction> usedActions = new ArrayList<>();
 
     @Inject
     private IGameRepository gameRepository;
@@ -120,5 +124,25 @@ public class BoardRepository implements IBoardRepository {
         String textName = "selected-city-text";
 
         renderManager.renderText(selectedCity != null ? selectedCity.getName() : "Nothing Selected", new Vector3f(0, 0, 5), ColorRGBA.White, textName);
+    }
+
+    @Override
+    public List<RoleAction> getUsedActions() {
+        return usedActions;
+    }
+
+    @Override
+    public void setUsedActions(List<RoleAction> usedActions) {
+        this.usedActions = usedActions;
+    }
+
+    @Override
+    public RoleAction getSelectedAction() {
+        return selectedAction;
+    }
+
+    @Override
+    public void setSelectedAction(RoleAction selectedAction) {
+        this.selectedAction = selectedAction;
     }
 }
