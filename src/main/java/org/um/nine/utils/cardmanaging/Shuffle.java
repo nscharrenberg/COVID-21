@@ -75,32 +75,31 @@ public class Shuffle {
         cities.values().stream().map(CityCard::new).forEach(deck::push);
 
         shuffle(deck);
-        int amountCards = 0;
-        switch (players.values().size()){
-            case 2:
-                amountCards = 4;
-                break;
-            case 3:
-                amountCards = 3;
-                break;
-            case 4:
-                amountCards = 2;
-                break;
-        }
-        int k = amountCards* players.size();
-        int max_pop = Integer.MIN_VALUE;
+        int amountCards = switch (players.values().size()) {
+            case 2 -> 4;
+            case 3 -> 3;
+            case 4 -> 2;
+            default -> 0;
+        };
+
+        int k = amountCards*players.size();
+        CityCard max_pop_cityCard = null;
         Stack<Card> initialDeck = new Stack<>();
         for (int i = 0; i< k; i++){
             Card p = deck.pop();
             if (p instanceof CityCard){
-
+                if (max_pop_cityCard== null || ((CityCard) p).getCity().getPopulation()>max_pop_cityCard.getCity().getPopulation()){
+                    max_pop_cityCard  = ((CityCard) p);
+                }
             }
             initialDeck.push(p);
         }
-
-        for(Player p: players.values()){
-            for(int i = 0; i < amountCards; i++){
-                p.addCard(deck.pop());
+        for (Player p : players.values()) {
+            for (int i = 0; i< amountCards; i++){
+                Card card = initialDeck.pop();
+                p.addCard(card);
+                if (card.equals(max_pop_cityCard))
+                    p.setItsTurn(true);
             }
         }
         return difficultyShuffle(difficultyLevel,deck);

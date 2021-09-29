@@ -1,7 +1,5 @@
 package org.um.nine.domain;
 
-import com.jme3.math.ColorRGBA;
-
 import java.util.ArrayList;
 
 public class Player {
@@ -11,25 +9,25 @@ public class Player {
     private boolean isBot;
     private boolean itsTurn;
     private ArrayList<Card> hand;
+    private RoundState currentState;
+
 
     public Player(String name, boolean isBot) {
-        this.name = name;
+        this(name);
         this.isBot = isBot;
-        this.hand = new ArrayList<>();
-        //TODO : this.location = Atlanta city
     }
 
     public Player(String name, City city, boolean isBot) {
         this(name,isBot);
         this.location = city;
         this.location.addPawn(this);
-        this.hand = new ArrayList<>();
     }
 
     public Player(String name) {
         this.name = name;
         this.isBot = false;
         this.hand = new ArrayList<>();
+        this.itsTurn = false;
     }
 
     public ArrayList<Card> getHandCards(){
@@ -106,4 +104,14 @@ public class Player {
 
         return sb.toString();
     }
+
+    public RoundState getCurrentState() {
+        return currentState;
+    }
+
+    public void setCurrentState(RoundState currentState) {
+        this.currentState = currentState;
+    }
+
+
 }
