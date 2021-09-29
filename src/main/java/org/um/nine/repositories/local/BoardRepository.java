@@ -68,7 +68,7 @@ public class BoardRepository implements IBoardRepository {
         //create Atlanta research station
         City atlanta = cityRepository.getCities().get("Atlanta");
         try {
-            cityRepository.addResearchStation(atlanta);
+            cityRepository.addResearchStation(atlanta,null);
         } catch (ResearchStationLimitException e) {
             e.printStackTrace();
         } catch (CityAlreadyHasResearchStationException e) {
@@ -83,14 +83,11 @@ public class BoardRepository implements IBoardRepository {
         renderCureSection();
         renderOutbreakSection();
         renderInfectionSection();
-        renderManager.renderCureMarker(new Cure(ColorRGBA.Red), new Vector3f(200, 0, 0), true);
-        renderManager.renderCureMarker(new Cure(ColorRGBA.Yellow), new Vector3f(100, 0, 0));
-        renderManager.renderCureMarker(new Cure(ColorRGBA.Cyan), new Vector3f(0, 0, 0));
-        renderManager.renderCureMarker(new Cure(ColorRGBA.Magenta), new Vector3f(-100, 0, 0));
 
         //Set up infection deck
         //TODO: Complete infection deck setup
         infectionDeck = CityCardReader.generateInfectionDeck(cityRepository.getCities().values().toArray(new City[0]));
+        infectionDiscardPile = new Stack<>();
         //Shuffle.shuffle(infectionDeck);
 
         //Set initial infection:
@@ -102,7 +99,7 @@ public class BoardRepository implements IBoardRepository {
                 infectionDiscardPile.add(c);
                 Disease d = new Disease(c.getCity().getColor());
                 for(int k=i;k>0;k--)
-                    c.getCity().addCube(d);
+                    infectCity(c.getCity(),d);
             }
         }
 
@@ -129,14 +126,12 @@ public class BoardRepository implements IBoardRepository {
             e.printStackTrace();
         }
         //Draw 2 cities per person, count max population
-        for (String name: playerNames) {
-
-        }
 
 
-        }
         //get difficulty, shuffle rest of cards + epidemic cards
-    }
+
+        }
+
 
     private void renderCureSection() {
         renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Red), new Vector3f(100, 0, 0), true);

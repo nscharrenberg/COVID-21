@@ -84,7 +84,7 @@ public class CityCardReader {
     }
 
     public static CityCard generateCityCard(City city){
-        return new CityCard(city.getName(),city);
+        return new CityCard(city);
     }
 
     public static Stack<PlayerCard> generateCityCardDeck(City[] cities){
@@ -95,7 +95,7 @@ public class CityCardReader {
         return cityDeck;
     }
     public static InfectionCard generateInfectionCard(City city){
-        return new InfectionCard(city.getName(),city);
+        return new InfectionCard(city);
     }
 
     public static Stack<InfectionCard> generateInfectionDeck(City[] cities){

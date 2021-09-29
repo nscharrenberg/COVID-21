@@ -64,14 +64,15 @@ public class CityRepository implements ICityRepository {
             throw new ResearchStationLimitException();
         }
 
-        RoleAction action = RoleAction.BUILD_RESEARCH_STATION;
-        if (player.getRole().actions(action) && boardRepository.getSelectedAction().equals(action) && !boardRepository.getUsedActions().contains(action)) {
-            //TODO: add without discarding city card
-        } else {
-            // TODO: Check if player has this city card, if not throw exception
-            // TODO: else add research station and discard city card
+        if(player!=null) { //if player == null build station for free (start of game, Atlanta)
+            RoleAction action = RoleAction.BUILD_RESEARCH_STATION;
+            if (player.getRole().actions(action) && boardRepository.getSelectedAction().equals(action) && !boardRepository.getUsedActions().contains(action)) {
+                //TODO: add without discarding city card
+            } else {
+                // TODO: Check if player has this city card, if not throw exception
+                // TODO: else add research station and discard city card
+            }
         }
-
         this.researchStations.add(new ResearchStation(city));
 
         if (city.getResearchStation() != null) {
@@ -94,7 +95,7 @@ public class CityRepository implements ICityRepository {
         renderManager.renderDisease(cube, city.getCubePosition(cube));
     }
 
-    @Override
+    //@Override
     public void addPawn(City city, Player player) {
         city.addPawn(player);
 
