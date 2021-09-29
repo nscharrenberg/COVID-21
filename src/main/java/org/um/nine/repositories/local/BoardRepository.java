@@ -62,6 +62,7 @@ public class BoardRepository implements IBoardRepository {
             e.printStackTrace();
         }
         //Initialise outbreak and Infection markers
+        //TODO: initialise outbreak marker
         infectionRateMarker = new InfectionRateMarker(1,0,true);
         //Initialise cure pieces
         renderManager.renderCureMarker(new Cure(ColorRGBA.Red), new Vector3f(200, 0, 0), true);
@@ -70,6 +71,7 @@ public class BoardRepository implements IBoardRepository {
         renderManager.renderCureMarker(new Cure(ColorRGBA.Magenta), new Vector3f(-100, 0, 0));
 
         //Set up infection deck
+        //TODO: Complete infection deck setup
         infectionDeck = CityCardReader.generateInfectionDeck(cityRepository.getCities().values().toArray(new City[0]));
         //Shuffle.shuffle(infectionDeck);
 
@@ -109,7 +111,12 @@ public class BoardRepository implements IBoardRepository {
             e.printStackTrace();
         }
         //Draw 2 cities per person, count max population
+        for (String name: playerNames) {
 
+        }
+
+
+        }
         //get difficulty, shuffle rest of cards + epidemic cards
     }
 
