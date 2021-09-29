@@ -10,6 +10,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
+import org.um.nine.domain.RoundState;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
@@ -22,6 +23,8 @@ public class BoardRepository implements IBoardRepository {
     private City selectedCity;
     private RoleAction selectedAction = null;
     private List<RoleAction> usedActions = new ArrayList<>();
+    private RoundState currentState;
+    private int count;
 
     @Inject
     private IGameRepository gameRepository;
