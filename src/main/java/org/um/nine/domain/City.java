@@ -2,6 +2,7 @@ package org.um.nine.domain;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import org.um.nine.exceptions.OutbreakException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,9 +59,14 @@ public class City {
         return cubes;
     }
 
-    public void addCube(Disease cube) {
+    public void addCube(Disease cube) throws OutbreakException {
         if (this.cubes == null) {
             this.cubes = new ArrayList<>();
+        }
+
+        // TODO: if there are already 3 cubes, and this causes it to become the 4th, then ensure an outbreak happens.
+        if (this.cubes.size() >= 3) {
+            throw new OutbreakException(this);
         }
 
         this.cubes.add(cube);

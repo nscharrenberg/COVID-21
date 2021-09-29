@@ -8,17 +8,20 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import org.um.nine.contracts.repositories.IBoardRepository;
-import org.um.nine.contracts.repositories.ICityRepository;
-import org.um.nine.contracts.repositories.IGameRepository;
-import org.um.nine.contracts.repositories.IPlayerRepository;
+import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
+import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BoardRepository implements IBoardRepository {
     private Geometry board;
     private City selectedCity;
+    private RoleAction selectedAction = null;
+    private List<RoleAction> usedActions = new ArrayList<>();
 
     @Inject
     private IGameRepository gameRepository;
@@ -30,7 +33,7 @@ public class BoardRepository implements IBoardRepository {
     private IPlayerRepository playerRepository;
 
     @Inject
-    private DiseaseRepository diseaseRepository;
+    private IDiseaseRepository diseaseRepository;
 
     @Inject
     private RenderManager renderManager;
@@ -53,10 +56,10 @@ public class BoardRepository implements IBoardRepository {
     }
 
     private void renderCureSection() {
-        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Red.toString()), new Vector3f(100, 0, 0), true);
-        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Yellow.toString()), new Vector3f(50, 0, 0));
-        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Blue.toString()), new Vector3f(0, 0, 0));
-        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Black.toString()), new Vector3f(-50, 0, 0));
+        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Red), new Vector3f(100, 0, 0), true);
+        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Yellow), new Vector3f(50, 0, 0));
+        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Blue), new Vector3f(0, 0, 0));
+        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Black), new Vector3f(-50, 0, 0));
     }
 
     private void renderOutbreakSection() {
@@ -121,5 +124,25 @@ public class BoardRepository implements IBoardRepository {
         String textName = "selected-city-text";
 
         renderManager.renderText(selectedCity != null ? selectedCity.getName() : "Nothing Selected", new Vector3f(0, 0, 5), ColorRGBA.White, textName);
+    }
+
+    @Override
+    public List<RoleAction> getUsedActions() {
+        return usedActions;
+    }
+
+    @Override
+    public void setUsedActions(List<RoleAction> usedActions) {
+        this.usedActions = usedActions;
+    }
+
+    @Override
+    public RoleAction getSelectedAction() {
+        return selectedAction;
+    }
+
+    @Override
+    public void setSelectedAction(RoleAction selectedAction) {
+        this.selectedAction = selectedAction;
     }
 }

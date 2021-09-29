@@ -1,12 +1,10 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import org.um.nine.Info;
-import org.um.nine.contracts.repositories.ICityRepository;
-import org.um.nine.contracts.repositories.IDiseaseRepository;
-import org.um.nine.contracts.repositories.IGameRepository;
-import org.um.nine.contracts.repositories.IPlayerRepository;
+import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
 import org.um.nine.domain.Player;
@@ -14,6 +12,7 @@ import org.um.nine.domain.ResearchStation;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.EpidemicCard;
 import org.um.nine.domain.cards.EventCard;
+import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
 import org.um.nine.exceptions.DiseaseAlreadyInCity;
 import org.um.nine.exceptions.OutbreakException;
@@ -31,10 +30,10 @@ public class CityRepository implements ICityRepository {
     private List<ResearchStation> researchStations;
 
     @Inject
-    private IGameRepository gameRepository;
+    private IPlayerRepository playerRepository;
 
     @Inject
-    private IPlayerRepository playerRepository;
+    private IBoardRepository boardRepository;
 
     @Inject
     private RenderManager renderManager;
@@ -53,13 +52,21 @@ public class CityRepository implements ICityRepository {
     }
 
     @Override
-    public void addResearchStation(City city) throws ResearchStationLimitException, CityAlreadyHasResearchStationException {
+    public void addResearchStation(City city, Player player) throws ResearchStationLimitException, CityAlreadyHasResearchStationException {
         if (city.getResearchStation() != null) {
             throw new CityAlreadyHasResearchStationException();
         }
 
         if ((researchStations.size() + 1) > Info.RESEARCH_STATION_THRESHOLD) {
             throw new ResearchStationLimitException();
+        }
+
+        RoleAction action = RoleAction.BUILD_RESEARCH_STATION;
+        if (player.getRole().actions(action) && boardRepository.getSelectedAction().equals(action) && !boardRepository.getUsedActions().contains(action)) {
+            //TODO: add without discarding city card
+        } else {
+            // TODO: Check if player has this city card, if not throw exception
+            // TODO: else add research station and discard city card
         }
 
         this.researchStations.add(new ResearchStation(city));
@@ -76,19 +83,12 @@ public class CityRepository implements ICityRepository {
         }
 
         if ((city.getCubes().size() + 1) > Info.OUTBREAK_THRESHOLD) {
-            throw new OutbreakException();
+            throw new OutbreakException(city);
         }
 
         city.addCube(cube);
 
         renderManager.renderDisease(cube, city.getCubePosition(cube));
-    }
-
-    @Override
-    public void addPawn(City city, Player player) {
-        city.addPawn(player);
-
-        renderManager.renderPlayer(player, city.getPawnPosition(player));
     }
 
     @Override
@@ -105,25 +105,22 @@ public class CityRepository implements ICityRepository {
 
         renderCities();
 
-        try {
-            addResearchStation(cities.get("Atlanta"));
-        } catch (ResearchStationLimitException e) {
-            e.printStackTrace();
-        } catch (CityAlreadyHasResearchStationException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getYellowCubes().get(0));
-            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getRedCubes().get(0));
-            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getBlueCubes().get(1));
-        } catch (OutbreakException e) {
-            e.printStackTrace();
-        } catch (DiseaseAlreadyInCity e) {
-            e.printStackTrace();
-        }
-
+        // TODO: remove all this stuff.
         playerRepository.reset();
+
+        try {
+            addResearchStation(cities.get("Atlanta"), playerRepository.getPlayers().get("example"));
+        } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getCubes().get(ColorRGBA.Yellow).get(0));
+            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getCubes().get(ColorRGBA.Red).get(0));
+            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getCubes().get(ColorRGBA.Blue).get(1));
+        } catch (OutbreakException | DiseaseAlreadyInCity e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

@@ -3,10 +3,12 @@ package org.um.nine.repositories.local;
 import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
-import org.um.nine.domain.Cure;
-import org.um.nine.domain.Disease;
-import org.um.nine.domain.InfectionRateMarker;
-import org.um.nine.domain.OutbreakMarker;
+import org.um.nine.domain.*;
+import org.um.nine.domain.roles.RoleEvent;
+import org.um.nine.exceptions.NoCubesLeftException;
+import org.um.nine.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
+import org.um.nine.exceptions.OutbreakException;
+import org.um.nine.exceptions.UnableToDiscoverCureException;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.ArrayList;
@@ -16,13 +18,10 @@ import java.util.List;
 public class DiseaseRepository implements IDiseaseRepository {
     private List<InfectionRateMarker> infectionRate;
     private List<OutbreakMarker> outbreakMarker;
-    private HashMap<String, Cure> cures;
+    private HashMap<ColorRGBA, Cure> cures;
 
     // TODO: We could also use 1 array for all instead of 4.
-    private List<Disease> blackCubes;
-    private List<Disease> yellowCubes;
-    private List<Disease> blueCubes;
-    private List<Disease> redCubes;
+    private HashMap<ColorRGBA, List<Disease>> cubes;
 
     @Inject
     private RenderManager renderManager;
@@ -42,28 +41,13 @@ public class DiseaseRepository implements IDiseaseRepository {
     }
 
     @Override
-    public HashMap<String, Cure> getCures() {
+    public HashMap<ColorRGBA, Cure> getCures() {
         return cures;
     }
 
     @Override
-    public List<Disease> getBlackCubes() {
-        return blackCubes;
-    }
-
-    @Override
-    public List<Disease> getYellowCubes() {
-        return yellowCubes;
-    }
-
-    @Override
-    public List<Disease> getBlueCubes() {
-        return blueCubes;
-    }
-
-    @Override
-    public List<Disease> getRedCubes() {
-        return redCubes;
+    public HashMap<ColorRGBA, List<Disease>> getCubes() {
+        return cubes;
     }
 
     private void initMarkers() {
@@ -87,18 +71,18 @@ public class DiseaseRepository implements IDiseaseRepository {
     }
 
     private void initCures() {
-        this.cures.put(ColorRGBA.Red.toString(), new Cure(ColorRGBA.Red));
-        this.cures.put(ColorRGBA.Yellow.toString(), new Cure(ColorRGBA.Yellow));
-        this.cures.put(ColorRGBA.Blue.toString(), new Cure(ColorRGBA.Blue));
-        this.cures.put(ColorRGBA.Black.toString(), new Cure(ColorRGBA.Black));
+        this.cures.put(ColorRGBA.Red, new Cure(ColorRGBA.Red));
+        this.cures.put(ColorRGBA.Yellow, new Cure(ColorRGBA.Yellow));
+        this.cures.put(ColorRGBA.Blue, new Cure(ColorRGBA.Blue));
+        this.cures.put(ColorRGBA.Black, new Cure(ColorRGBA.Black));
     }
 
     private void initCubes() {
         for (int i = 0; i < 24; i++) {
-            this.redCubes.add(new Disease(ColorRGBA.Red));
-            this.blackCubes.add(new Disease(ColorRGBA.Black));
-            this.yellowCubes.add(new Disease(ColorRGBA.Yellow));
-            this.blueCubes.add(new Disease(ColorRGBA.Blue));
+            this.cubes.get(ColorRGBA.Red).add(new Disease(ColorRGBA.Red));
+            this.cubes.get(ColorRGBA.Black).add(new Disease(ColorRGBA.Black));
+            this.cubes.get(ColorRGBA.Blue).add(new Disease(ColorRGBA.Blue));
+            this.cubes.get(ColorRGBA.Yellow).add(new Disease(ColorRGBA.Yellow));
         }
     }
 
@@ -107,17 +91,76 @@ public class DiseaseRepository implements IDiseaseRepository {
         this.infectionRate = new ArrayList<>();
         this.outbreakMarker = new ArrayList<>();
         this.cures = new HashMap<>();
-        this.redCubes = new ArrayList<>();
-        this.yellowCubes = new ArrayList<>();
-        this.blueCubes = new ArrayList<>();
-        this.blackCubes = new ArrayList<>();
+        this.cubes = new HashMap<>();
+        this.cubes.put(ColorRGBA.Red, new ArrayList<>());
+        this.cubes.put(ColorRGBA.Yellow, new ArrayList<>());
+        this.cubes.put(ColorRGBA.Blue, new ArrayList<>());
+        this.cubes.put(ColorRGBA.Black, new ArrayList<>());
 
         initMarkers();
         initCures();
         initCubes();
     }
 
-    private void renderCures() {
+    @Override
+    public void infect(ColorRGBA color, City city) throws NoCubesLeftException, OutbreakException, NoDiseaseOrOutbreakPossibleDueToEvent {
+        // Prevents both outbreaks and the placement of disease cubes in the city she is in
+        for (Player player : city.getPawns() ) {
+            if(player.getRole().events(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK)) {
+                throw new NoDiseaseOrOutbreakPossibleDueToEvent(city);
+            }
+        }
 
+        // all cities connected to that city.
+        for (City neighbor : city.getNeighbors()) {
+            for (Player player : neighbor.getPawns() ) {
+                if(player.getRole().events(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK)) {
+                    throw new NoDiseaseOrOutbreakPossibleDueToEvent(neighbor);
+                }
+            }
+        }
+
+        Disease found = this.cubes.get(color).stream().filter(v -> v.getCity() == null).findFirst().orElse(null);
+
+        if (found == null) {
+            throw new NoCubesLeftException(color);
+        }
+
+        found.setCity(city);
+        city.addCube(found);
+
+        renderManager.renderDisease(found, city.getCubePosition(found));
+    }
+
+    @Override
+    public void treat(Player pawn, City city, Disease disease) {
+        if (pawn.getRole().events(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR)) {
+            city.getCubes().removeIf(d -> d.getColor().equals(disease.getColor()));
+        }
+
+        city.getCubes().remove(disease);
+        disease.setCity(null);
+
+        if (cures.get(disease.getColor()).isDiscovered()) {
+            city.getCubes().forEach(cube -> {
+                if (cube.getColor().equals(disease.getColor())) {
+                    city.getCubes().remove(cube);
+                    cube.setCity(null);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void discoverCure(Player pawn, Cure cure) throws UnableToDiscoverCureException {
+        if (pawn.getRole().events(RoleEvent.DISCOVER_CURE_FOUR_CARDS)) {
+            // TODO: If pawn has 4 cards of same color, then discover cure
+            return;
+        }
+
+        // TODO: if pawn has 5 cards of the same color, then discover cure
+
+        // else unable to discover a cure
+        throw new UnableToDiscoverCureException(cure);
     }
 }
