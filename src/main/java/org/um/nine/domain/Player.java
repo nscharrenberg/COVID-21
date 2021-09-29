@@ -1,12 +1,11 @@
 package org.um.nine.domain;
 
-import com.jme3.math.ColorRGBA;
-
 public class Player {
     private String name;
     private Role role;
     private City location;
     private boolean isBot;
+    private boolean itsTurn;
 
     public Player(String name, boolean isBot) {
         this.name = name;
@@ -55,6 +54,14 @@ public class Player {
 
     public void setCity(City location) {
         this.location = location;
+    }
+
+    public boolean isItsTurn() {
+        return itsTurn;
+    }
+
+    public void setItsTurn(boolean itsTurn) {
+        this.itsTurn = itsTurn;
     }
 
     @Override

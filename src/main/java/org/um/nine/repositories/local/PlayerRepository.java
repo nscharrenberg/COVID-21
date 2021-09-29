@@ -10,6 +10,7 @@ import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Cure;
 import org.um.nine.domain.Player;
+import org.um.nine.domain.RoundState;
 import org.um.nine.domain.roles.GenericRole;
 import org.um.nine.domain.roles.QuarantineSpecialistRole;
 import org.um.nine.domain.roles.RoleEvent;
@@ -22,6 +23,8 @@ import java.util.HashMap;
 
 public class PlayerRepository implements IPlayerRepository {
     private HashMap<String, Player> players;
+
+    private RoundState currentState;
 
     @Inject
     private ICityRepository cityRepository;
@@ -47,6 +50,7 @@ public class PlayerRepository implements IPlayerRepository {
         renderManager.renderPlayer(player, player.getCity().getPawnPosition(player));
 
     }
+
     public void reset() {
         this.players = new HashMap<>();
         try {

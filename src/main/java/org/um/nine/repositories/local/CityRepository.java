@@ -4,14 +4,14 @@ import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import org.um.nine.Info;
-import org.um.nine.contracts.repositories.*;
+import org.um.nine.contracts.repositories.IBoardRepository;
+import org.um.nine.contracts.repositories.ICityRepository;
+import org.um.nine.contracts.repositories.IDiseaseRepository;
+import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.ResearchStation;
-import org.um.nine.domain.cards.CityCard;
-import org.um.nine.domain.cards.EpidemicCard;
-import org.um.nine.domain.cards.EventCard;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
 import org.um.nine.exceptions.DiseaseAlreadyInCity;
@@ -21,7 +21,6 @@ import org.um.nine.utils.cardmanaging.CityCardReader;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -62,13 +61,16 @@ public class CityRepository implements ICityRepository {
         }
 
         RoleAction action = RoleAction.BUILD_RESEARCH_STATION;
-        if (player.getRole().actions(action) && boardRepository.getSelectedAction().equals(action) && !boardRepository.getUsedActions().contains(action)) {
-            //TODO: add without discarding city card
-            // TODO: add to used actions
-        } else {
-            // TODO: Check if player has this city card, if not throw exception
-            // TODO: else add research station and discard city card
+        if (player!= null){
+            if (player.getRole().actions(action) && boardRepository.getSelectedAction().equals(action) && !boardRepository.getUsedActions().contains(action)) {
+                //TODO: add without discarding city card
+                // TODO: add to used actions
+            } else {
+                // TODO: Check if player has this city card, if not throw exception
+                // TODO: else add research station and discard city card
+            }
         }
+
 
         this.researchStations.add(new ResearchStation(city));
 
@@ -106,11 +108,9 @@ public class CityRepository implements ICityRepository {
 
         renderCities();
 
-        // TODO: remove all this stuff.
-        playerRepository.reset();
 
         try {
-            addResearchStation(cities.get("Atlanta"), playerRepository.getPlayers().get("example"));
+            addResearchStation(cities.get("Atlanta"), null);
         } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException e) {
             e.printStackTrace();
         }
@@ -131,16 +131,6 @@ public class CityRepository implements ICityRepository {
             renderManager.renderCity(city);
         });
 
-        //TODO: remove this test
-        renderManager.renderPlayerCards(Arrays.asList(
-                new CityCard(getCities().get("Atlanta")),
-                new EpidemicCard("Plague"),
-                new CityCard(getCities().get("Chicago")),
-                new CityCard(getCities().get("Bangkok")),
-                new EventCard("idk","might be important") {@Override public void event() {}},
-                new CityCard(getCities().get("Mexico City")),
-                new CityCard(getCities().get("Milan"))
-        ));
 
     }
 }
