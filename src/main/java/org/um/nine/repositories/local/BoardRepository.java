@@ -27,7 +27,6 @@ public class BoardRepository implements IBoardRepository {
     private InfectionRateMarker infectionRateMarker;
     private String cityCardsJSONPath = new File("").getAbsolutePath() +"src/main/resources/Cards/CityCards.json";
 
-
     private int count;
 
     @Inject
@@ -165,6 +164,4 @@ public class BoardRepository implements IBoardRepository {
     public void setSelectedAction(RoleAction selectedAction) {
         this.selectedAction = selectedAction;
     }
-
-
 }
