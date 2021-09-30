@@ -18,10 +18,16 @@ import org.um.nine.utils.managers.RenderManager;
 import java.util.HashMap;
 import java.util.Objects;
 
-import static org.um.nine.domain.RoundState.*;
+import org.um.nine.domain.RoundState;
 
 public class PlayerRepository implements IPlayerRepository {
     private HashMap<String, Player> players;
+
+    private RoundState currentRoundState = null;
+
+    private int actionsLeft = 4;
+    private int drawLeft = 2;
+    private int infectionLeft = 2;
 
     @Inject
     private ICityRepository cityRepository;
@@ -46,7 +52,6 @@ public class PlayerRepository implements IPlayerRepository {
 
         this.players.put(player.getName(), player);
         renderManager.renderPlayer(player, player.getCity().getPawnPosition(player));
-
     }
 
     public void reset() {
@@ -119,38 +124,58 @@ public class PlayerRepository implements IPlayerRepository {
         move(target, city);
     }
 
-
-    int actionsLeft = 4;
-    int drawLeft = 2;
-    int infectionLeft = 2;
-
     /**
      * @return null if the turn has ended otherwise the RoundState of the turn
      */
+    @Override
     public RoundState nextState(RoundState currentState){
-        if (currentState == null)
-            return ACTION;
-        else if (currentState == ACTION){
+        if (currentState == null) {
+            this.currentRoundState = RoundState.ACTION;
+            return RoundState.ACTION;
+        } else if (currentState == RoundState.ACTION){
             actionsLeft--;
             if (actionsLeft == 0) {
                 actionsLeft = 4;
-                return DRAW;
-            } else return ACTION;
-        } else if (currentState == DRAW){
+                this.currentRoundState = RoundState.DRAW;
+                return RoundState.DRAW;
+            }
+
+            this.currentRoundState = RoundState.ACTION;
+            return RoundState.ACTION;
+        } else if (currentState == RoundState.DRAW){
             drawLeft--;
             if (drawLeft == 0){
                 drawLeft = 2;
-                return INFECT;
-            } else return DRAW;
-        } else if (currentState == INFECT){
+                this.currentRoundState = RoundState.INFECT;
+                return RoundState.INFECT;
+            }
+
+            this.currentRoundState = RoundState.DRAW;
+            return RoundState.DRAW;
+        } else if (currentState == RoundState.INFECT){
             infectionLeft--;
             if (infectionLeft == 0){
                 infectionLeft = Objects.requireNonNull(diseaseRepository.getInfectionRate().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
+                this.currentRoundState = null;
                 return null;
-            } else return INFECT;
+            }
+
+            this.currentRoundState = RoundState.INFECT;
+            return RoundState.INFECT;
         }
+
+        this.currentRoundState = null;
         throw new IllegalStateException();
     }
 
+    @Override
+    public RoundState getCurrentRoundState() {
+        return currentRoundState;
+    }
+
+    @Override
+    public void setCurrentRoundState(RoundState currentRoundState) {
+        this.currentRoundState = currentRoundState;
+    }
 }
 
