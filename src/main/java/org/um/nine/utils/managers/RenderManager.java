@@ -108,8 +108,15 @@ public class RenderManager {
         Material mat = new Material(gameRepository.getApp().getAssetManager(),
                 "Common/MatDefs/Light/Lighting.j3md");
         mat.setBoolean("UseMaterialColors",true);
-        mat.setColor("Diffuse", disease.getColor() );
-        mat.setColor("Ambient", disease.getColor() );
+
+        ColorRGBA color = disease.getColor();
+
+        if (disease.getColor().equals(ColorRGBA.Black)) {
+            color = ColorRGBA.Gray;
+        }
+
+        mat.setColor("Diffuse", color );
+        mat.setColor("Ambient", color );
         model.setMaterial(mat);
         gameRepository.getApp().getRootNode().attachChild(model);
     }
