@@ -78,21 +78,6 @@ public class CityRepository implements ICityRepository {
         }
     }
 
-    @Override
-    public void addDiseaseCube(City city, Disease cube) throws OutbreakException, DiseaseAlreadyInCity {
-        if (cube.getCity() != null) {
-            throw new DiseaseAlreadyInCity();
-        }
-
-        if ((city.getCubes().size() + 1) > Info.OUTBREAK_THRESHOLD) {
-            throw new OutbreakException(city);
-        }
-
-        city.addCube(cube);
-
-        renderManager.renderDisease(cube, city.getCubePosition(cube));
-    }
-
     //@Override
     public void addPawn(City city, Player player) {
         city.addPawn(player);
@@ -132,8 +117,6 @@ public class CityRepository implements ICityRepository {
             city.getNeighbors().forEach(neighbor -> renderManager.renderEdge(city, neighbor));
             renderManager.renderCity(city);
         });
-
-
     }
 
 }

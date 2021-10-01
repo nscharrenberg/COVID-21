@@ -49,7 +49,7 @@ public class CardRepository implements ICardRepository {
         this.playerDeck = Shuffle.buildPlayerDeck(4, cityRepository.getCities(), playerRepository.getPlayers());
         infectionDeck = CityCardReader.generateInfectionDeck(cityRepository.getCities().values().toArray(new City[0]));
         infectionDiscardPile = new Stack<>();
-        //Shuffle.shuffle(infectionDeck);
+//        Shuffle.shuffle(infectionDeck);
 
         //Set initial infection:
         //draw 3 cards 3 cubes, 3 cards 2 cubes, 3 cards 1 cube

@@ -7,9 +7,7 @@ import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
-import org.um.nine.domain.City;
-import org.um.nine.domain.Cure;
-import org.um.nine.domain.Player;
+import org.um.nine.domain.*;
 import org.um.nine.domain.roles.RoleEvent;
 import org.um.nine.exceptions.ExternalMoveNotAcceptedException;
 import org.um.nine.exceptions.InvalidMoveException;
@@ -18,8 +16,6 @@ import org.um.nine.utils.managers.RenderManager;
 
 import java.util.HashMap;
 import java.util.Objects;
-
-import org.um.nine.domain.RoundState;
 
 public class PlayerRepository implements IPlayerRepository {
     private HashMap<String, Player> players;
