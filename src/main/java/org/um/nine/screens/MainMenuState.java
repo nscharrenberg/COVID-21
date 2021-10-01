@@ -7,7 +7,6 @@ import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import org.um.nine.Game;
 import org.um.nine.Info;
-import org.um.nine.Main;
 import org.um.nine.contracts.repositories.IGameRepository;
 
 import javax.inject.Inject;

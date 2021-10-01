@@ -1,7 +1,6 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
-import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RendererException;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.ICityRepository;
@@ -11,8 +10,6 @@ import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Cure;
 import org.um.nine.domain.Player;
-import org.um.nine.domain.roles.GenericRole;
-import org.um.nine.domain.roles.QuarantineSpecialistRole;
 import org.um.nine.domain.roles.RoleEvent;
 import org.um.nine.exceptions.ExternalMoveNotAcceptedException;
 import org.um.nine.exceptions.InvalidMoveException;
