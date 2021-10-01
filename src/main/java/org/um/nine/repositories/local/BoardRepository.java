@@ -10,6 +10,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
+import org.um.nine.domain.Difficulty;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
@@ -22,6 +23,7 @@ public class BoardRepository implements IBoardRepository {
     private City selectedCity;
     private RoleAction selectedAction = null;
     private List<RoleAction> usedActions = new ArrayList<>();
+    private Difficulty difficulty;
 
     @Inject
     private IGameRepository gameRepository;
@@ -40,6 +42,14 @@ public class BoardRepository implements IBoardRepository {
 
     @Inject
     private OptionHudState optionHudState;
+
+    @Override
+    public void preload() {
+        this.difficulty = Difficulty.NORMAL;
+        playerRepository.reset();
+        cityRepository.preload();
+        diseaseRepository.reset();
+    }
 
     @Override
     public void startGame() {
@@ -144,5 +154,15 @@ public class BoardRepository implements IBoardRepository {
     @Override
     public void setSelectedAction(RoleAction selectedAction) {
         this.selectedAction = selectedAction;
+    }
+
+    @Override
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
+    @Override
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
     }
 }

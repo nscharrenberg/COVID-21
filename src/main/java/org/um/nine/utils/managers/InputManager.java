@@ -14,7 +14,7 @@ import com.jme3.scene.Geometry;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
-import org.um.nine.domain.City;
+import org.um.nine.screens.PauseMenu;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -32,8 +32,16 @@ public class InputManager {
     @Inject
     private ICityRepository cityRepository;
 
+    @Inject
+    private PauseMenu pauseMenu;
+
+    public void clear() {
+        gameRepository.getApp().getInputManager().clearMappings();
+    }
+
     public void init() {
         gameRepository.getApp().getInputManager().deleteMapping(SimpleApplication.INPUT_MAPPING_MEMORY);
+        gameRepository.getApp().getInputManager().deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
 
         //camera input mapping
         gameRepository.getApp().getFlyByCamera().unregisterInput();
@@ -43,6 +51,7 @@ public class InputManager {
         gameRepository.getApp().getInputManager().addMapping(Input.DOWN.getName(), Input.DOWN.getTriggers());
         gameRepository.getApp().getInputManager().addMapping(Input.ZOOM_IN.getName(), Input.ZOOM_IN.getTriggers());
         gameRepository.getApp().getInputManager().addMapping(Input.ZOOM_OUT.getName(), Input.ZOOM_OUT.getTriggers());
+        gameRepository.getApp().getInputManager().addMapping(Input.PAUSE.getName(), Input.PAUSE.getTriggers());
 
         //mouse input mapping
         gameRepository.getApp().getInputManager().addMapping("LClick",new MouseButtonTrigger(0));
@@ -51,7 +60,7 @@ public class InputManager {
 
 
         gameRepository.getApp().getInputManager().addListener(flyByCameraAnalogListener, Input.LEFT.getName(), Input.RIGHT.getName(), Input.UP.getName(), Input.DOWN.getName(), Input.ZOOM_IN.getName(), Input.ZOOM_OUT.getName());
-        gameRepository.getApp().getInputManager().addListener(mouseButtonsListener,"LClick","RClick","CClick");
+        gameRepository.getApp().getInputManager().addListener(mouseButtonsListener,"LClick","RClick","CClick", Input.PAUSE.getName());
 
         gameRepository.getApp().getFlyByCamera().setRotationSpeed(2);
         gameRepository.getApp().getFlyByCamera().setMoveSpeed(200);
@@ -82,12 +91,16 @@ public class InputManager {
 
 
     private final ActionListener mouseButtonsListener = (name, clicking, tpf) -> {
-        switch (name) {
-            case "LClick" -> System.out.println("Left Click");
-            case "RClick" -> System.out.println("Right Click");
-            case "CClick" -> System.out.println("Center Click");
+        if (name.equals("LClick")) {
+            select();
+        } else if (name.equals(Input.PAUSE.getName())) {
+            System.out.println("Paused");
+            gameRepository.getApp().getStateManager().attach(pauseMenu);
+            pauseMenu.setEnabled(true);
         }
+    };
 
+    private void select() {
         CollisionResults results = new CollisionResults();
         // Convert screen click to 3d position
         Vector2f click2d = gameRepository.getApp().getInputManager().getCursorPosition();
@@ -151,7 +164,7 @@ public class InputManager {
                 return;
             }
         });
-    };
+    }
 
 
 

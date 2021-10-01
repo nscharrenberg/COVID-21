@@ -92,8 +92,7 @@ public class CityRepository implements ICityRepository {
     }
 
     @Override
-    public void reset() {
-        this.researchStations = new ArrayList<>();
+    public void preload() {
         this.cities = new HashMap<>();
 
         CityCardReader ccr = new CityCardReader();
@@ -102,25 +101,14 @@ public class CityRepository implements ICityRepository {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void reset() {
+        this.researchStations = new ArrayList<>();
+        preload();
 
         renderCities();
-
-        // TODO: remove all this stuff.
-        playerRepository.reset();
-
-        try {
-            addResearchStation(cities.get("Atlanta"), playerRepository.getPlayers().get("example"));
-        } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getCubes().get(ColorRGBA.Yellow).get(0));
-            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getCubes().get(ColorRGBA.Red).get(0));
-            addDiseaseCube(cities.get("Atlanta"), diseaseRepository.getCubes().get(ColorRGBA.Blue).get(1));
-        } catch (OutbreakException | DiseaseAlreadyInCity e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
