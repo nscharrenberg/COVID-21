@@ -1,6 +1,5 @@
 package org.um.nine.contracts.repositories;
 
-import com.jme3.renderer.RendererException;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.RoundState;
@@ -14,8 +13,6 @@ public interface IPlayerRepository {
     void addPlayer(Player player) throws PlayerLimitException;
     HashMap<String, Player> getPlayers();
 
-    void addPlayer(Player player, boolean render) throws PlayerLimitException, RendererException;
-
     void reset();
 
     void move(Player player, City city) throws InvalidMoveException;
@@ -27,4 +24,6 @@ public interface IPlayerRepository {
     RoundState getCurrentRoundState();
 
     void setCurrentRoundState(RoundState currentRoundState);
+
+    void assignRoleToPlayer(Player player);
 }

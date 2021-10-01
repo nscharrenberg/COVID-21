@@ -95,6 +95,7 @@ public class City {
         }
 
         this.pawns.add(pawn);
+        pawn.setCity(this);
     }
 
     public void setPawns(List<Player> pawns) {

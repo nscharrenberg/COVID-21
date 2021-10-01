@@ -5,13 +5,10 @@ import com.jme3.math.Vector3f;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
-import org.um.nine.domain.Disease;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.ResearchStation;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
-import org.um.nine.exceptions.DiseaseAlreadyInCity;
-import org.um.nine.exceptions.OutbreakException;
 import org.um.nine.exceptions.ResearchStationLimitException;
 import org.um.nine.utils.cardmanaging.CityCardReader;
 import org.um.nine.utils.managers.RenderManager;
@@ -76,13 +73,6 @@ public class CityRepository implements ICityRepository {
         if (city.getResearchStation() != null) {
             renderManager.renderResearchStation(city.getResearchStation(), new Vector3f(-20, 5, 0));
         }
-    }
-
-    //@Override
-    public void addPawn(City city, Player player) {
-        city.addPawn(player);
-
-        renderManager.renderPlayer(player, city.getPawnPosition(player));
     }
 
     @Override

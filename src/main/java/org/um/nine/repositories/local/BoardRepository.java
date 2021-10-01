@@ -12,7 +12,11 @@ import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Difficulty;
 import org.um.nine.domain.InfectionRateMarker;
+import org.um.nine.domain.Player;
+import org.um.nine.domain.roles.GenericRole;
 import org.um.nine.domain.roles.RoleAction;
+import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
+import org.um.nine.exceptions.ResearchStationLimitException;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
 
@@ -62,16 +66,24 @@ public class BoardRepository implements IBoardRepository {
 
     @Override
     public void startGame() {
+        cityRepository.renderCities();
+
+        City atlanta = cityRepository.getCities().get("Atlanta");
+        playerRepository.getPlayers().forEach((key, player) -> {
+            playerRepository.assignRoleToPlayer(player);
+
+            atlanta.addPawn(player);
+            renderManager.renderPlayer(player, atlanta.getPawnPosition(player));
+        });
+
+        try {
+            cityRepository.addResearchStation(atlanta, null);
+        } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException e) {
+            e.printStackTrace();
+        }
+
         renderBoard();
-        //TODO: Init Game:
-        //initialise city list
-        cityRepository.reset();
-        //Initialise outbreak and Infection markers
-        //TODO: initialise outbreak marker
         infectionRateMarker = new InfectionRateMarker(1,0,true);
-        //Initialise cure pieces
-        diseaseRepository.reset();
-        playerRepository.reset();
 
         renderCureSection();
         renderOutbreakSection();
@@ -79,10 +91,7 @@ public class BoardRepository implements IBoardRepository {
 
         gameRepository.getApp().getStateManager().attach(optionHudState);
         cardRepository.buildDecks();
-
     }
-
-
 
     private void renderCureSection() {
         renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Red), new Vector3f(100, 0, 0), true);
@@ -94,28 +103,30 @@ public class BoardRepository implements IBoardRepository {
     private void renderOutbreakSection() {
         BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
         renderManager.renderText("Outbreaks",new Vector3f(-975, -175, 2),ColorRGBA.White,"outbreaks-title-label",20,myFont);
-        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(0), new Vector3f(0, 0, 0));
-        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(1), new Vector3f(30, -30, 0));
-        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(2), new Vector3f(0, -60, 0));
-        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(3), new Vector3f(30, -90, 0));
-        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(4), new Vector3f(0, -120, 0));
-        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(5), new Vector3f(30, -150, 0));
-        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(6), new Vector3f(0, -180, 0));
-        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(7), new Vector3f(30, -210, 0));
-        renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(8), new Vector3f(0, -240, 0));
+
+        int currentHeight = 0;
+
+        for (int i = 0; i < 9; i++) {
+            int currentWidth = 30;
+
+            if ((i % 2) == 0) {
+                currentWidth = 0;
+            }
+            renderManager.renderOutbreakStar(diseaseRepository.getOutbreakMarker().get(i), new Vector3f(currentWidth, currentHeight, 0));
+            currentHeight = currentHeight - 30;
+        }
     }
 
-    // TODO: Properly add them to a list so we can keep track of infection rate markers and their states.
     private void renderInfectionSection() {
         BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
         renderManager.renderText("Infection Rate",new Vector3f(-975, -75, 2),ColorRGBA.White,"infections-title-label",20,myFont);
-        renderManager.renderInfectionRateStar(diseaseRepository.getInfectionRate().get(0), new Vector3f(0, 0, 0));
-        renderManager.renderInfectionRateStar(diseaseRepository.getInfectionRate().get(1), new Vector3f(30, 0, 0));
-        renderManager.renderInfectionRateStar(diseaseRepository.getInfectionRate().get(2), new Vector3f(60, 0, 0));
-        renderManager.renderInfectionRateStar(diseaseRepository.getInfectionRate().get(3), new Vector3f(90, 0, 0));
-        renderManager.renderInfectionRateStar(diseaseRepository.getInfectionRate().get(4), new Vector3f(120, 0, 0));
-        renderManager.renderInfectionRateStar(diseaseRepository.getInfectionRate().get(5), new Vector3f(150, 0, 0));
-        renderManager.renderInfectionRateStar(diseaseRepository.getInfectionRate().get(6), new Vector3f(180, 0, 0));
+
+        int currentWidth = 0;
+
+        for (int i = 0; i < 7; i++) {
+            renderManager.renderInfectionRateStar(diseaseRepository.getInfectionRate().get(i), new Vector3f(currentWidth, 0, 0));
+            currentWidth = currentWidth + 30;
+        }
     }
 
     @Override
