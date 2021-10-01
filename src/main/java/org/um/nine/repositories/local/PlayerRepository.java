@@ -1,14 +1,15 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
-import com.jme3.math.ColorRGBA;
+import com.jme3.renderer.RendererException;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
-import org.um.nine.domain.*;
-import org.um.nine.domain.roles.GenericRole;
+import org.um.nine.domain.City;
+import org.um.nine.domain.Cure;
+import org.um.nine.domain.Player;
 import org.um.nine.domain.roles.RoleEvent;
 import org.um.nine.exceptions.ExternalMoveNotAcceptedException;
 import org.um.nine.exceptions.InvalidMoveException;
@@ -44,41 +45,33 @@ public class PlayerRepository implements IPlayerRepository {
     public HashMap<String, Player> getPlayers() {
         return players;
     }
+
     public void addPlayer(Player player) throws PlayerLimitException {
-        if(this.players==null) this.players=new HashMap<>();
-        if (this.players.size() + 1 > Info.PLAYER_THRESHOLD) {
+        if (this.players.size() + 1 >= Info.PLAYER_THRESHOLD) {
             throw new PlayerLimitException();
         }
 
         this.players.put(player.getName(), player);
+    }
+
+    @Override
+    public void addPlayer(Player player, boolean render) throws PlayerLimitException, RendererException {
+        if (this.players.size() + 1 >= Info.PLAYER_THRESHOLD) {
+            throw new PlayerLimitException();
+        }
+
+        this.players.put(player.getName(), player);
+
+        if (player.getCity() == null) {
+            throw new RendererException("Unable to draw the Player as it does not have a city");
+        }
+
         renderManager.renderPlayer(player, player.getCity().getPawnPosition(player));
     }
 
+    @Override
     public void reset() {
         this.players = new HashMap<>();
-        //Add players and give random roles
-        City atlanta = cityRepository.getCities().get("Atlanta");
-        int difficulty = 4;//Todo: get game info from setup menu
-        int humans = 3;
-        int bots = 1;
-        int players = humans+bots;
-        GenericRole[] roles = new GenericRole[players]; //keep track of roles? Not sure if needed
-        String[] playerNames = {"Eric", "Noah", "Kai", "Drago"};
-        String[] botNames = {"Cortana", "Jarvis", "Ultron", "Dave"};
-        try {
-            for(int i=0;i<humans;i++){
-                Player player = new Player(playerNames[i], atlanta,false);
-                player.setRole(new GenericRole("GenericBlue", ColorRGBA.Blue)); //Todo: add role assignment
-                addPlayer(player);
-            }
-            for(int i=0;i<bots;i++){
-                Player player = new Player(botNames[i], atlanta,true);
-                player.setRole(new GenericRole("GenericRed", ColorRGBA.Red)); //Todo: add role assignment
-                addPlayer(player);
-            }
-        } catch (PlayerLimitException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

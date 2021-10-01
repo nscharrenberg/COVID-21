@@ -15,7 +15,7 @@ public enum Input {
     LEFT("FLYCAM_StrafeLeft", new KeyTrigger(KeyInput.KEY_A)),
     ZOOM_IN("FLYCAM_ZoomIn", new KeyTrigger(KeyInput.KEY_MINUS), new MouseAxisTrigger(2, true)),
     ZOOM_OUT("FLYCAM_ZoomOut", new KeyTrigger(KeyInput.KEY_EQUALS), new MouseAxisTrigger(2, false)),
-    PAUSE("Pause", new KeyTrigger(KeyInput.KEY_P));
+    PAUSE("SIMPLEAPP_Exit", new KeyTrigger(KeyInput.KEY_ESCAPE));
 
     Input(String name, Trigger... triggers) {
         this.name = name;

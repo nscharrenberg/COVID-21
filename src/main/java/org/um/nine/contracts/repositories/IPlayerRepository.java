@@ -1,5 +1,6 @@
 package org.um.nine.contracts.repositories;
 
+import com.jme3.renderer.RendererException;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.RoundState;
@@ -12,6 +13,9 @@ import java.util.HashMap;
 public interface IPlayerRepository {
     void addPlayer(Player player) throws PlayerLimitException;
     HashMap<String, Player> getPlayers();
+
+    void addPlayer(Player player, boolean render) throws PlayerLimitException, RendererException;
+
     void reset();
 
     void move(Player player, City city) throws InvalidMoveException;

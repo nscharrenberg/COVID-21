@@ -10,6 +10,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
+import org.um.nine.domain.Difficulty;
 import org.um.nine.domain.InfectionRateMarker;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.screens.hud.OptionHudState;
@@ -24,6 +25,7 @@ public class BoardRepository implements IBoardRepository {
     private City selectedCity;
     private RoleAction selectedAction = null;
     private List<RoleAction> usedActions = new ArrayList<>();
+    private Difficulty difficulty;
     private InfectionRateMarker infectionRateMarker;
     private String cityCardsJSONPath = new File("").getAbsolutePath() +"src/main/resources/Cards/CityCards.json";
 
@@ -49,6 +51,14 @@ public class BoardRepository implements IBoardRepository {
 
     @Inject
     private CardRepository cardRepository;
+
+    @Override
+    public void preload() {
+        this.difficulty = Difficulty.NORMAL;
+        playerRepository.reset();
+        cityRepository.preload();
+        diseaseRepository.reset();
+    }
 
     @Override
     public void startGame() {
@@ -163,5 +173,15 @@ public class BoardRepository implements IBoardRepository {
     @Override
     public void setSelectedAction(RoleAction selectedAction) {
         this.selectedAction = selectedAction;
+    }
+
+    @Override
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
+    @Override
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
     }
 }

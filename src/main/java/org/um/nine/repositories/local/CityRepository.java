@@ -101,8 +101,7 @@ public class CityRepository implements ICityRepository {
     }
 
     @Override
-    public void reset() {
-        this.researchStations = new ArrayList<>();
+    public void preload() {
         this.cities = new HashMap<>();
 
         CityCardReader ccr = new CityCardReader();
@@ -111,9 +110,14 @@ public class CityRepository implements ICityRepository {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void reset() {
+        this.researchStations = new ArrayList<>();
+        preload();
 
         renderCities();
-
         try {
             addResearchStation(cities.get("Atlanta"), null);
         } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException e) {

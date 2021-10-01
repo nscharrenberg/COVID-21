@@ -6,22 +6,19 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import org.um.nine.Game;
-import org.um.nine.Info;
 import org.um.nine.contracts.repositories.IGameRepository;
+import org.um.nine.utils.managers.InputManager;
 
 import javax.inject.Inject;
 
-public class MainMenuState extends BaseAppState {
+public class PauseMenu extends BaseAppState {
     private Container window;
 
     @Inject
     private SettingsState settingsState;
 
     @Inject
-    private ConfigurationState configurationState;
-
-    @Inject
-    private IGameRepository gameRepository;
+    private InputManager inputManager;
 
     public float getStandardScale() {
         int height = getApplication().getCamera().getHeight();
@@ -30,15 +27,16 @@ public class MainMenuState extends BaseAppState {
 
     @Override
     protected void initialize(Application application) {
+        inputManager.clear();
+
         window = new Container();
 
-        Label title = window.addChild(new Label(Info.APP_TITLE));
+        Label title = window.addChild(new Label("Paused"));
         title.setFontSize(32);
         title.setFont(application.getAssetManager().loadFont("fonts/covid2.fnt"));
         title.setInsets(new Insets3f(10, 10, 0, 10));
 
         playButton();
-        settingsButton();
         quitButton(application);
 
         int height = application.getCamera().getHeight();
@@ -71,18 +69,12 @@ public class MainMenuState extends BaseAppState {
     }
 
     private void playButton() {
-        Button menuButton = window.addChild(new Button("Play"));
+        Button menuButton = window.addChild(new Button("Continue"));
         menuButton.addClickCommands(button -> {
-            getStateManager().attach(configurationState);
-            configurationState.setEnabled(true);
+            inputManager.init();
             setEnabled(false);
-        });
-        menuButton.setInsets(new Insets3f(10, 10, 0, 10));
-    }
 
-    private void settingsButton() {
-        Button menuButton = window.addChild(new Button("Settings"));
-        menuButton.addClickCommands(button -> goToSettings());
+        });
         menuButton.setInsets(new Insets3f(10, 10, 0, 10));
     }
 
