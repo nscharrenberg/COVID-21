@@ -19,6 +19,9 @@ public class MainMenuState extends BaseAppState {
     private SettingsState settingsState;
 
     @Inject
+    private ConfigurationState configurationState;
+
+    @Inject
     private IGameRepository gameRepository;
 
     public float getStandardScale() {
@@ -71,7 +74,8 @@ public class MainMenuState extends BaseAppState {
     private void playButton() {
         Button menuButton = window.addChild(new Button("Play"));
         menuButton.addClickCommands(button -> {
-            gameRepository.start();
+            getStateManager().attach(configurationState);
+            configurationState.setEnabled(true);
             setEnabled(false);
         });
         menuButton.setInsets(new Insets3f(10, 10, 0, 10));

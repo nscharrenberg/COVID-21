@@ -2,6 +2,7 @@ package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
+import com.jme3.renderer.RendererException;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
@@ -38,37 +39,33 @@ public class PlayerRepository implements IPlayerRepository {
     public HashMap<String, Player> getPlayers() {
         return players;
     }
+
     public void addPlayer(Player player) throws PlayerLimitException {
-        if (this.players.size() + 1 > Info.PLAYER_THRESHOLD) {
+        if (this.players.size() + 1 >= Info.PLAYER_THRESHOLD) {
             throw new PlayerLimitException();
         }
 
         this.players.put(player.getName(), player);
-        renderManager.renderPlayer(player, player.getCity().getPawnPosition(player));
-
     }
+
+    @Override
+    public void addPlayer(Player player, boolean render) throws PlayerLimitException, RendererException {
+        if (this.players.size() + 1 >= Info.PLAYER_THRESHOLD) {
+            throw new PlayerLimitException();
+        }
+
+        this.players.put(player.getName(), player);
+
+        if (player.getCity() == null) {
+            throw new RendererException("Unable to draw the Player as it does not have a city");
+        }
+
+        renderManager.renderPlayer(player, player.getCity().getPawnPosition(player));
+    }
+
+    @Override
     public void reset() {
         this.players = new HashMap<>();
-        try {
-            City city = cityRepository.getCities().get("Atlanta");
-            Player player = new Player("example", city,false);
-            player.setRole(new QuarantineSpecialistRole());
-            addPlayer(player);
-
-            Player playerTwo = new Player("example2", city, false);
-            playerTwo.setRole(new GenericRole("GenericOne", ColorRGBA.Red));
-            addPlayer(playerTwo);
-
-            Player playerThree = new Player("example3", city, false);
-            playerThree.setRole(new GenericRole("GenericTwo", ColorRGBA.Blue));
-            addPlayer(playerThree);
-
-            Player playerFour = new Player("example4", city, false);
-            playerFour.setRole(new GenericRole("GenericThree", ColorRGBA.Yellow));
-            addPlayer(playerFour);
-        } catch (PlayerLimitException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

@@ -14,6 +14,9 @@ public interface ICityRepository {
     HashMap<String, City> getCities();
     void addResearchStation(City city, Player player) throws ResearchStationLimitException, CityAlreadyHasResearchStationException;
     void addDiseaseCube(City city, Disease cube) throws OutbreakException, DiseaseAlreadyInCity;
+
+    void preload();
+
     void reset();
     void renderCities();
 }
