@@ -5,6 +5,7 @@ import org.um.nine.contracts.repositories.*;
 import org.um.nine.repositories.local.*;
 import org.um.nine.screens.ConfigurationState;
 import org.um.nine.screens.MainMenuState;
+import org.um.nine.screens.PauseMenu;
 import org.um.nine.screens.SettingsState;
 import org.um.nine.utils.managers.RenderManager;
 
@@ -21,6 +22,7 @@ public class GuiceConfiguration extends AbstractModule {
     private final MainMenuState mainMenuState = new MainMenuState();
     private final SettingsState settingsState = new SettingsState();
     private final ConfigurationState configurationState = new ConfigurationState();
+    private final PauseMenu pauseState = new PauseMenu();
 
     @Override
     protected void configure() {
@@ -35,5 +37,6 @@ public class GuiceConfiguration extends AbstractModule {
         bind(MainMenuState.class).toInstance(mainMenuState);
         bind(SettingsState.class).toInstance(settingsState);
         bind(ConfigurationState.class).toInstance(configurationState);
+        bind(PauseMenu.class).toInstance(pauseState);
     }
 }

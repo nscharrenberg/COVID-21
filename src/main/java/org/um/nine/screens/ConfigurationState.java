@@ -19,9 +19,6 @@ public class ConfigurationState extends BaseAppState {
     private Container window;
 
     @Inject
-    private MainMenuState mainMenuState;
-
-    @Inject
     private IGameRepository gameRepository;
 
     @Inject
