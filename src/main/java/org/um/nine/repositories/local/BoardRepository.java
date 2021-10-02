@@ -15,8 +15,7 @@ import org.um.nine.domain.InfectionRateMarker;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.roles.GenericRole;
 import org.um.nine.domain.roles.RoleAction;
-import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
-import org.um.nine.exceptions.ResearchStationLimitException;
+import org.um.nine.exceptions.*;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
 
@@ -90,7 +89,17 @@ public class BoardRepository implements IBoardRepository {
         renderInfectionSection();
 
         gameRepository.getApp().getStateManager().attach(optionHudState);
-        cardRepository.buildDecks();
+        try {
+            cardRepository.buildDecks();
+        } catch (NoCubesLeftException e) {
+            e.printStackTrace();
+        } catch (NoDiseaseOrOutbreakPossibleDueToEvent noDiseaseOrOutbreakPossibleDueToEvent) {
+            noDiseaseOrOutbreakPossibleDueToEvent.printStackTrace();
+        } catch (GameOverException e) {
+            e.printStackTrace();
+        } catch (OutbreakException e) {
+            e.printStackTrace();
+        }
     }
 
     private void renderCureSection() {

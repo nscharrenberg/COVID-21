@@ -5,10 +5,7 @@ import com.jme3.math.ColorRGBA;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.domain.*;
 import org.um.nine.domain.roles.RoleEvent;
-import org.um.nine.exceptions.NoCubesLeftException;
-import org.um.nine.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
-import org.um.nine.exceptions.OutbreakException;
-import org.um.nine.exceptions.UnableToDiscoverCureException;
+import org.um.nine.exceptions.*;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.ArrayList;
@@ -20,7 +17,6 @@ public class DiseaseRepository implements IDiseaseRepository {
     private List<OutbreakMarker> outbreakMarker;
     private HashMap<ColorRGBA, Cure> cures;
 
-    // TODO: We could also use 1 array for all instead of 4.
     private HashMap<ColorRGBA, List<Disease>> cubes;
 
     @Inject
@@ -87,6 +83,27 @@ public class DiseaseRepository implements IDiseaseRepository {
     }
 
     @Override
+    public void nextOutbreak() throws GameOverException {
+        OutbreakMarker marker = this.outbreakMarker.stream().filter(Marker::isCurrent).findFirst().orElse(null);
+
+        if (marker == null) {
+            this.outbreakMarker.get(0).setCurrent(true);
+            return;
+        }
+
+        marker.setCurrent(false);
+        OutbreakMarker newMarker = this.outbreakMarker.stream().filter(v -> v.getId() == marker.getId() + 1).findFirst().orElse(null);
+
+        if (newMarker == null) {
+            throw new GameOverException();
+        }
+
+        newMarker.setCurrent(true);
+        renderManager.renderOutbreakMarker(marker);
+        renderManager.renderOutbreakMarker(newMarker);
+    }
+
+    @Override
     public void reset() {
         this.infectionRate = new ArrayList<>();
         this.outbreakMarker = new ArrayList<>();
@@ -103,7 +120,7 @@ public class DiseaseRepository implements IDiseaseRepository {
     }
 
     @Override
-    public void infect(ColorRGBA color, City city) throws NoCubesLeftException, OutbreakException, NoDiseaseOrOutbreakPossibleDueToEvent {
+    public void infect(ColorRGBA color, City city) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         // Prevents both outbreaks and the placement of disease cubes in the city she is in
         for (Player player : city.getPawns() ) {
             if(player.getRole().events(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK)) {
@@ -127,13 +144,15 @@ public class DiseaseRepository implements IDiseaseRepository {
         }
 
         found.setCity(city);
-        if(!city.addCube(found))
+        if(!city.addCube(found)) {
             initOutbreak(city, found);
+            return;
+        }
 
         renderManager.renderDisease(found, city.getCubePosition(found));
     }
-    private static void initOutbreak(City city, Disease disease) {
-        //TODO: increment outbreak marker
+    private void initOutbreak(City city, Disease disease) throws GameOverException {
+        nextOutbreak();
         List<City> previousOutbreaks = new ArrayList<>();
         List<City> neighbors = city.getNeighbors();
         previousOutbreaks.add(city);
@@ -143,18 +162,21 @@ public class DiseaseRepository implements IDiseaseRepository {
         }
     }
 
-    private static void spreadOutbreak(City city, Disease disease, List<City> previousOutbreaks) {
+    private void spreadOutbreak(City city, Disease disease, List<City> previousOutbreaks) {
         if(!city.addCube(disease)){
-            //TODO: increment outbreak marker
             List<City> neighbors = city.getNeighbors();
             previousOutbreaks.add(city);
 
             for (City c: neighbors) {
-                if(!previousOutbreaks.contains(c)) //prevent outbreaks happening twice
+                if(!previousOutbreaks.contains(c)) {
                     spreadOutbreak(c,disease,previousOutbreaks);
+                }
             }
 
+            return;
         }
+
+        renderManager.renderDisease(disease, city.getCubePosition(disease));
     }
 
     @Override

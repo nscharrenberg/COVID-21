@@ -77,6 +77,8 @@ public class PlayerInfoState extends BaseAppState  {
 
             cardIndex.getAndIncrement();
         });
+
+
         window.setInsets(new Insets3f(10, 10, 0, 10));
         window.addChild(cards, 4, i);
     }

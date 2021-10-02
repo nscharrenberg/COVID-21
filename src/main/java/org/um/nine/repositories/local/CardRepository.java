@@ -6,6 +6,7 @@ import org.um.nine.domain.Card;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
 import org.um.nine.domain.cards.InfectionCard;
+import org.um.nine.exceptions.GameOverException;
 import org.um.nine.exceptions.NoCubesLeftException;
 import org.um.nine.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
 import org.um.nine.exceptions.OutbreakException;
@@ -46,7 +47,7 @@ public class CardRepository implements ICardRepository {
 
     }
 
-    public void buildDecks(){
+    public void buildDecks() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException, OutbreakException {
         this.playerDeck = Shuffle.buildPlayerDeck(boardRepository.getDifficulty(), cityRepository.getCities(), playerRepository.getPlayers());
         infectionDeck = CityCardReader.generateInfectionDeck(cityRepository.getCities().values().toArray(new City[0]));
         infectionDiscardPile = new Stack<>();
@@ -61,11 +62,7 @@ public class CardRepository implements ICardRepository {
                 infectionDiscardPile.add(c);
                 Disease d = new Disease(c.getCity().getColor());
                 for(int k=i;k>0;k--) {
-                    try {
-                        diseaseRepository.infect(d.getColor(),c.getCity());
-                    } catch (NoCubesLeftException | OutbreakException | NoDiseaseOrOutbreakPossibleDueToEvent e) {
-                        e.printStackTrace();
-                    }
+                    diseaseRepository.infect(d.getColor(),c.getCity());
                 }
             }
         }

@@ -13,7 +13,11 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.ICityRepository;
+import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
+import org.um.nine.exceptions.GameOverException;
+import org.um.nine.exceptions.NoCubesLeftException;
+import org.um.nine.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
 import org.um.nine.screens.PauseMenu;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,6 +35,9 @@ public class InputManager {
 
     @Inject
     private ICityRepository cityRepository;
+
+    @Inject
+    private IDiseaseRepository diseaseRepository;
 
     @Inject
     private PauseMenu pauseMenu;
@@ -164,6 +171,16 @@ public class InputManager {
                 return;
             }
         });
+
+        if(boardRepository.getSelectedCity() != null) {
+            try {
+                diseaseRepository.infect(boardRepository.getSelectedCity().getColor(), boardRepository.getSelectedCity());
+            } catch (NoCubesLeftException | GameOverException e) {
+                gameRepository.getApp().stop();
+            } catch (NoDiseaseOrOutbreakPossibleDueToEvent noDiseaseOrOutbreakPossibleDueToEvent) {
+                noDiseaseOrOutbreakPossibleDueToEvent.printStackTrace();
+            }
+        }
     }
 
 
