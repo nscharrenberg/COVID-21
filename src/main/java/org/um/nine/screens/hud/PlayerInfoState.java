@@ -7,6 +7,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
+import com.simsilica.lemur.list.DefaultCellRenderer;
 import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.Player;
@@ -68,16 +69,16 @@ public class PlayerInfoState extends BaseAppState  {
         cardTxt.setInsets(new Insets3f(10, 10, 0, 10));
         window.addChild(cardTxt, 3, i);
 
-        ListBox<PlayerCard> cards = new ListBox<>();
+        ListBox<String> cards = new ListBox<>();
+        cards.setBackground(new QuadBackgroundComponent(ColorRGBA.White));
 
         AtomicInteger cardIndex = new AtomicInteger();
 
         player.getHandCards().forEach(c -> {
-            cards.getModel().add(cardIndex.get(), c);
+            cards.getModel().add(cardIndex.get(), c.getName());
 
             cardIndex.getAndIncrement();
         });
-
 
         window.setInsets(new Insets3f(10, 10, 0, 10));
         window.addChild(cards, 4, i);
