@@ -45,7 +45,9 @@ public class CardRepository implements ICardRepository {
     }
 
     public void reset() {
-
+        this.playerDeck = new Stack<>();
+        this.infectionDeck = new Stack<>();
+        this.infectionDiscardPile = new Stack<>();
     }
 
     @Override
@@ -56,6 +58,7 @@ public class CardRepository implements ICardRepository {
         // TODO: else add to hand
     }
 
+    @Override
     public void buildDecks() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException, OutbreakException {
         this.playerDeck = Shuffle.buildPlayerDeck(boardRepository.getDifficulty(), cityRepository.getCities(), playerRepository.getPlayers());
         infectionDeck = CityCardReader.generateInfectionDeck(cityRepository.getCities().values().toArray(new City[0]));

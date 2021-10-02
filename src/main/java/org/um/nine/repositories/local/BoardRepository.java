@@ -53,7 +53,7 @@ public class BoardRepository implements IBoardRepository {
     private OptionHudState optionHudState;
 
     @Inject
-    private CardRepository cardRepository;
+    private ICardRepository cardRepository;
 
     @Override
     public void preload() {
@@ -61,6 +61,7 @@ public class BoardRepository implements IBoardRepository {
         playerRepository.reset();
         cityRepository.preload();
         diseaseRepository.reset();
+        cardRepository.reset();
     }
 
     @Override
