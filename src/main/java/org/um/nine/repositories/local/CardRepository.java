@@ -6,6 +6,7 @@ import org.um.nine.domain.Card;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
 import org.um.nine.domain.cards.InfectionCard;
+import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.exceptions.GameOverException;
 import org.um.nine.exceptions.NoCubesLeftException;
 import org.um.nine.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
@@ -45,6 +46,14 @@ public class CardRepository implements ICardRepository {
 
     public void reset() {
 
+    }
+
+    @Override
+    public void drawPlayCard() {
+        // TODO: Check if Epedemic Card
+        // TODO: Epidemic Card loigc
+
+        // TODO: else add to hand
     }
 
     public void buildDecks() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException, OutbreakException {

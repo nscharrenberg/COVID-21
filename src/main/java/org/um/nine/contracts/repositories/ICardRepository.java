@@ -9,4 +9,6 @@ public interface ICardRepository {
     Stack<Card> getPlayerDeck();
     Stack<InfectionCard> getInfectionDeck();
     void reset();
+
+    void drawPlayCard();
 }
