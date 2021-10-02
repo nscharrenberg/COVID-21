@@ -13,6 +13,7 @@ import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.ActionType;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Difficulty;
+import org.um.nine.domain.InfectionRateMarker;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
 import org.um.nine.screens.hud.OptionHudState;
@@ -29,6 +30,7 @@ public class BoardRepository implements IBoardRepository {
     private ActionType selectedPlayerAction = null;
     private List<RoleAction> usedActions = new ArrayList<>();
     private Difficulty difficulty;
+    private InfectionRateMarker infectionRateMarker;
     private String cityCardsJSONPath = new File("").getAbsolutePath() +"src/main/resources/Cards/CityCards.json";
 
     @Inject
@@ -227,4 +229,9 @@ public class BoardRepository implements IBoardRepository {
             }
         }
     }
+
+    public InfectionRateMarker getInfectionRateMarker() {
+        return infectionRateMarker;
+    }
+
 }

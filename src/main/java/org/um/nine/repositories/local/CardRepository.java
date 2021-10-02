@@ -44,6 +44,14 @@ public class CardRepository implements ICardRepository {
         return infectionDeck;
     }
 
+    public Stack<InfectionCard> getInfectionDiscardPile() {
+        return infectionDiscardPile;
+    }
+
+    public void setInfectionDiscardPile(Stack<InfectionCard> newPile) {
+        infectionDiscardPile = newPile;
+    }
+
     public void reset() {
         this.playerDeck = new Stack<>();
         this.infectionDeck = new Stack<>();
