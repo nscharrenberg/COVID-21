@@ -63,4 +63,10 @@ public class EpidemicCard extends PlayerCard {
         cardRepository.getInfectionDeck().addAll(pile);
         cardRepository.setInfectionDiscardPile(new Stack<>());
     }
+
+    public void action(){
+        increase();
+        infect();
+        intensify();
+    }
 }
