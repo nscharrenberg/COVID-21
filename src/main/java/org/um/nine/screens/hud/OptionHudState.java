@@ -25,6 +25,9 @@ public class OptionHudState extends BaseAppState  {
     @Inject
     private ICardRepository cardRepository;
 
+    @Inject
+    private ActionState actionState;
+
     private float getStandardScale() {
         int height = getApplication().getCamera().getHeight();
         return height / 720f;
@@ -35,24 +38,27 @@ public class OptionHudState extends BaseAppState  {
         window = new Container();
 
         String currentPlayerName = playerRepository.getCurrentPlayer() != null ? playerRepository.getCurrentPlayer().getName() : "Unknown";
-        Label currentPlayerMoveLbl = new Label("Current Player: " + currentPlayerName, "currentPlayerNameLbl");
+        Label currentPlayerMoveLbl = new Label("Current Player: " + currentPlayerName);
+        currentPlayerMoveLbl.setName("currentPlayerNameLbl");
         currentPlayerMoveLbl.setInsets(new Insets3f(10, 10, 0, 10));
         window.addChild(currentPlayerMoveLbl, 1, 0);
 
-        String currentActionName = boardRepository.getSelectedPlayerAction() != null ? boardRepository.getSelectedPlayerAction().name() : "None";
-        Label currentActionLbl = new Label("Selected Action: " + currentActionName, "currentActionNameLbl");
+        String currentActionName = boardRepository.getSelectedPlayerAction() != null ? boardRepository.getSelectedPlayerAction().toString() : "None";
+        Label currentActionLbl = new Label("Selected Action: " + currentActionName);
+        currentActionLbl.setName("currentActionNameLbl");
         currentActionLbl.setInsets(new Insets3f(10, 10, 0, 10));
         window.addChild(currentActionLbl, 2, 0);
 
-        String currentRoleActionName = boardRepository.getSelectedRoleAction() != null ? boardRepository.getSelectedRoleAction().name() : "None";
-        Label currentRoleActionLbl = new Label("Selected Role Action: " + currentRoleActionName, "currentRoleActionNameLbl");
+        String currentRoleActionName = boardRepository.getSelectedRoleAction() != null ? boardRepository.getSelectedRoleAction().getName() : "None";
+        Label currentRoleActionLbl = new Label("Selected Role Action: " + currentRoleActionName);
+        currentRoleActionLbl.setName("currentRoleActionNameLbl");
         currentRoleActionLbl.setInsets(new Insets3f(10, 10, 10, 10));
         window.addChild(currentRoleActionLbl, 3, 0);
 
         Button actionButton = window.addChild(new Button("Actions"));
         actionButton.addClickCommands(button -> {
-            System.out.println(cardRepository.getPlayerDeck().size());
-            System.out.println("Action Button Clicked");
+           getStateManager().attach(actionState);
+           actionState.setEnabled(true);
         });
         actionButton.setInsets(new Insets3f(2, 2, 0, 2));
 
@@ -89,5 +95,9 @@ public class OptionHudState extends BaseAppState  {
     @Override
     protected void onDisable() {
         window.removeFromParent();
+    }
+
+    public Container getWindow() {
+        return window;
     }
 }

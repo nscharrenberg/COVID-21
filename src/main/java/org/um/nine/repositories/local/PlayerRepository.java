@@ -1,6 +1,7 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
+import com.simsilica.lemur.Label;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
@@ -11,6 +12,7 @@ import org.um.nine.domain.roles.*;
 import org.um.nine.exceptions.ExternalMoveNotAcceptedException;
 import org.um.nine.exceptions.InvalidMoveException;
 import org.um.nine.exceptions.PlayerLimitException;
+import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.Collections;
@@ -37,6 +39,9 @@ public class PlayerRepository implements IPlayerRepository {
 
     @Inject
     private IDiseaseRepository diseaseRepository;
+
+    @Inject
+    private OptionHudState optionHudState;
 
     @Inject
     private RenderManager renderManager;
@@ -180,6 +185,14 @@ public class PlayerRepository implements IPlayerRepository {
     @Override
     public void setCurrentPlayer(Player currentPlayer) {
         this.currentPlayer = currentPlayer;
+
+        if (optionHudState != null) {
+            Label tempLbl = (Label) optionHudState.getWindow().getChild("currentPlayerNameLbl");
+
+            if (tempLbl != null) {
+                tempLbl.setText("Current Player: " + currentPlayer);
+            }
+        }
     }
 }
 

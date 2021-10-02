@@ -45,6 +45,8 @@ public class ActionState extends BaseAppState  {
         closeBtn.setInsets(new Insets3f(10, 10, 0, 10));
         window.addChild(closeBtn, 0, 1);
 
+        int btnCount = 1;
+
         for (ActionType type : ActionType.values()) {
             Button button = new Button(type.getDescription());
             button.setInsets(new Insets3f(10, 10, 0, 10));
@@ -54,10 +56,11 @@ public class ActionState extends BaseAppState  {
                 setEnabled(false);
             });
 
-            window.addChild(button, 1, 0);
+            window.addChild(button, btnCount, 0);
+            btnCount++;
         }
 
-        window.setLocalTranslation(getApplication().getCamera().getWidth() / 2f, getApplication().getCamera().getHeight() / 2f, 5);
+        window.setLocalTranslation(25, 1000, 5);
         window.setLocalScale(1.5f);
     }
 

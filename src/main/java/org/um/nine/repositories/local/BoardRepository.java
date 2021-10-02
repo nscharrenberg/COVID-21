@@ -8,11 +8,11 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
+import com.simsilica.lemur.Label;
 import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.ActionType;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Difficulty;
-import org.um.nine.domain.InfectionRateMarker;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
 import org.um.nine.screens.hud.OptionHudState;
@@ -29,10 +29,7 @@ public class BoardRepository implements IBoardRepository {
     private ActionType selectedPlayerAction = null;
     private List<RoleAction> usedActions = new ArrayList<>();
     private Difficulty difficulty;
-    private InfectionRateMarker infectionRateMarker;
     private String cityCardsJSONPath = new File("").getAbsolutePath() +"src/main/resources/Cards/CityCards.json";
-
-    private int count;
 
     @Inject
     private IGameRepository gameRepository;
@@ -83,7 +80,6 @@ public class BoardRepository implements IBoardRepository {
         }
 
         renderBoard();
-        infectionRateMarker = new InfectionRateMarker(1,0,true);
 
         renderCureSection();
         renderOutbreakSection();
@@ -194,6 +190,14 @@ public class BoardRepository implements IBoardRepository {
     @Override
     public void setSelectedRoleAction(RoleAction selectedRoleAction) {
         this.selectedRoleAction = selectedRoleAction;
+
+        if (optionHudState != null) {
+            Label tempLbl = (Label) optionHudState.getWindow().getChild("currentRoleActionNameLbl");
+
+            if (tempLbl != null) {
+                tempLbl.setText("Selected Role Action: " + selectedRoleAction);
+            }
+        }
     }
 
     @Override
@@ -214,5 +218,13 @@ public class BoardRepository implements IBoardRepository {
     @Override
     public void setSelectedPlayerAction(ActionType selectedPlayerAction) {
         this.selectedPlayerAction = selectedPlayerAction;
+
+        if (optionHudState != null) {
+            Label tempLbl = (Label) optionHudState.getWindow().getChild("currentActionNameLbl");
+
+            if (tempLbl != null) {
+                tempLbl.setText("Selected Action: " + selectedPlayerAction);
+            }
+        }
     }
 }
