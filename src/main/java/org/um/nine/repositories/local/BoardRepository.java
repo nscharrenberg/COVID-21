@@ -10,7 +10,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.*;
-import org.um.nine.domain.roles.GenericRole;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
 import org.um.nine.screens.hud.OptionHudState;
