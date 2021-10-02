@@ -9,10 +9,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import org.um.nine.contracts.repositories.*;
-import org.um.nine.domain.City;
-import org.um.nine.domain.Difficulty;
-import org.um.nine.domain.InfectionRateMarker;
-import org.um.nine.domain.Player;
+import org.um.nine.domain.*;
 import org.um.nine.domain.roles.GenericRole;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
@@ -53,7 +50,7 @@ public class BoardRepository implements IBoardRepository {
     private OptionHudState optionHudState;
 
     @Inject
-    private CardRepository cardRepository;
+    private ICardRepository cardRepository;
 
     @Override
     public void preload() {
@@ -88,7 +85,6 @@ public class BoardRepository implements IBoardRepository {
         renderOutbreakSection();
         renderInfectionSection();
 
-        gameRepository.getApp().getStateManager().attach(optionHudState);
         try {
             cardRepository.buildDecks();
         } catch (NoCubesLeftException e) {
@@ -100,6 +96,7 @@ public class BoardRepository implements IBoardRepository {
         } catch (OutbreakException e) {
             e.printStackTrace();
         }
+        gameRepository.getApp().getStateManager().attach(optionHudState);
     }
 
     private void renderCureSection() {
@@ -205,6 +202,7 @@ public class BoardRepository implements IBoardRepository {
         this.difficulty = difficulty;
     }
 
+    @Override
     public InfectionRateMarker getInfectionRateMarker() {
         return infectionRateMarker;
     }

@@ -9,6 +9,7 @@ import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
 import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IPlayerRepository;
+import org.um.nine.domain.Card;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.PlayerCard;
 
@@ -68,7 +69,7 @@ public class PlayerInfoState extends BaseAppState  {
         cardTxt.setInsets(new Insets3f(10, 10, 0, 10));
         window.addChild(cardTxt, 3, i);
 
-        ListBox<PlayerCard> cards = new ListBox<>();
+        ListBox<Card> cards = new ListBox<>();
 
         AtomicInteger cardIndex = new AtomicInteger();
 

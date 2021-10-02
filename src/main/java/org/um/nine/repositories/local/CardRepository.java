@@ -5,6 +5,8 @@ import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.Card;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
+import org.um.nine.domain.Player;
+import org.um.nine.domain.cards.EpidemicCard;
 import org.um.nine.domain.cards.InfectionCard;
 import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.exceptions.GameOverException;
@@ -28,6 +30,9 @@ public class CardRepository implements ICardRepository {
     @Inject
     private IBoardRepository boardRepository;
 
+    @Inject
+    private IEpidemicRepository epidemicRepository;
+
     private Stack<Card> playerDeck;
     private Stack<InfectionCard> infectionDeck;
     private Stack<InfectionCard> infectionDiscardPile;
@@ -44,10 +49,12 @@ public class CardRepository implements ICardRepository {
         return infectionDeck;
     }
 
+    @Override
     public Stack<InfectionCard> getInfectionDiscardPile() {
         return infectionDiscardPile;
     }
 
+    @Override
     public void setInfectionDiscardPile(Stack<InfectionCard> newPile) {
         infectionDiscardPile = newPile;
     }
@@ -57,13 +64,17 @@ public class CardRepository implements ICardRepository {
     }
 
     @Override
-    public void drawPlayCard() {
-        // TODO: Check if Epedemic Card
-        // TODO: Epidemic Card loigc
-
-        // TODO: else add to hand
+    public void drawPlayCard(Player player) throws GameOverException {
+        if(playerDeck.isEmpty()) throw new GameOverException();
+        Card pc = playerDeck.pop();
+        if(pc instanceof EpidemicCard){
+            epidemicRepository.action();
+        }else{
+            player.addCard(pc);
+        }
     }
 
+    @Override
     public void buildDecks() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException, OutbreakException {
         this.playerDeck = Shuffle.buildPlayerDeck(boardRepository.getDifficulty(), cityRepository.getCities(), playerRepository.getPlayers());
         infectionDeck = CityCardReader.generateInfectionDeck(cityRepository.getCities().values().toArray(new City[0]));
