@@ -2,10 +2,12 @@ package org.um.nine.utils.cardmanaging;
 
 import org.um.nine.domain.Card;
 import org.um.nine.domain.City;
+import org.um.nine.domain.Difficulty;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.EpidemicCard;
 import org.um.nine.domain.cards.InfectionCard;
+import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.cards.events.*;
 
 import java.util.HashMap;
@@ -19,11 +21,11 @@ public class Shuffle {
      * Those get a epidemic card added and then shuffled again.
      * @return a shuffled deck of cards including difficulty*epidemic cards mixed in every quarter
      */
-    public static Stack<Card> difficultyShuffle(int difficulty, Stack<Card> deck){
+    public static Stack<Card> difficultyShuffle(Difficulty difficulty, Stack<Card> deck){
         deck = shuffle( deck);
         Stack<Card> shuffled = new Stack<>();
 
-        Stack<Card>[] split = new Stack[difficulty];
+        Stack<Card>[] split = new Stack[difficulty.getCount()];
         for(int i = 0; i < split.length; i++){
             split[i] = new Stack<>();
         }
@@ -65,7 +67,7 @@ public class Shuffle {
 
 
 
-    public static Stack<Card> buildPlayerDeck(int difficultyLevel, HashMap<String,City> cities, HashMap<String, Player> players){
+    public static Stack<Card> buildPlayerDeck(Difficulty difficultyLevel, HashMap<String,City> cities, HashMap<String, Player> players){
         Stack<Card> deck = new Stack<>();
         deck.push(new GovernmentGrandEvent());
         deck.push(new PrognosisEvent());
@@ -96,7 +98,7 @@ public class Shuffle {
         }
         for (Player p : players.values()) {
             for (int i = 0; i< amountCards; i++){
-                Card card = initialDeck.pop();
+                PlayerCard card = (PlayerCard) initialDeck.pop();
                 p.addCard(card);
                 if (card.equals(max_pop_cityCard))
                     p.setItsTurn(true);

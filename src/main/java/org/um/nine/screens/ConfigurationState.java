@@ -82,7 +82,7 @@ public class ConfigurationState extends BaseAppState {
     private void startGame() {
         Button menuButton = window.addChild(new Button("Start Game"),0, 0);
         menuButton.addClickCommands(button -> {
-            if (playerRepository.getPlayers().size() + 1 < 2) {
+            if (playerRepository.getPlayers().size() < 2) {
                 DialogBoxState dialog = new DialogBoxState("The game can only start when there are at least 2 players.");
                 getStateManager().attach(dialog);
                 dialog.setEnabled(true);

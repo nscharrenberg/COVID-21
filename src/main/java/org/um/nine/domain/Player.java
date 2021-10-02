@@ -1,5 +1,7 @@
 package org.um.nine.domain;
 
+import org.um.nine.domain.cards.PlayerCard;
+
 import java.util.ArrayList;
 
 public class Player {
@@ -8,7 +10,7 @@ public class Player {
     private City location;
     private boolean isBot;
     private boolean itsTurn;
-    private ArrayList<Card> hand;
+    private ArrayList<PlayerCard> hand;
     private RoundState currentState;
 
 
@@ -30,15 +32,15 @@ public class Player {
         this.itsTurn = false;
     }
 
-    public ArrayList<Card> getHandCards(){
+    public ArrayList<PlayerCard> getHandCards(){
         return hand;
     }
 
-    public void setHandCards(ArrayList<Card> cards){
+    public void setHandCards(ArrayList<PlayerCard> cards){
         hand = cards;
     }
 
-    public void addCard(Card card){
+    public void addCard(PlayerCard card){
         if(hand.size()<=7){
             hand.add(card);
         }else{
@@ -47,7 +49,7 @@ public class Player {
         }
     }
 
-    public void discard(Card card){
+    public void discard(PlayerCard card){
         hand.remove(card);
     }
 

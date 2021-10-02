@@ -1,10 +1,7 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
-import org.um.nine.contracts.repositories.ICardRepository;
-import org.um.nine.contracts.repositories.ICityRepository;
-import org.um.nine.contracts.repositories.IDiseaseRepository;
-import org.um.nine.contracts.repositories.IPlayerRepository;
+import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.Card;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
@@ -15,7 +12,6 @@ import org.um.nine.exceptions.OutbreakException;
 import org.um.nine.utils.cardmanaging.CityCardReader;
 import org.um.nine.utils.cardmanaging.Shuffle;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Stack;
 
@@ -26,6 +22,9 @@ public class CardRepository implements ICardRepository {
     private IPlayerRepository playerRepository;
     @Inject
     private IDiseaseRepository diseaseRepository;
+
+    @Inject
+    private IBoardRepository boardRepository;
 
     private Stack<Card> playerDeck;
     private Stack<InfectionCard> infectionDeck;
@@ -48,7 +47,7 @@ public class CardRepository implements ICardRepository {
     }
 
     public void buildDecks(){
-        this.playerDeck = Shuffle.buildPlayerDeck(4, cityRepository.getCities(), playerRepository.getPlayers());
+        this.playerDeck = Shuffle.buildPlayerDeck(boardRepository.getDifficulty(), cityRepository.getCities(), playerRepository.getPlayers());
         infectionDeck = CityCardReader.generateInfectionDeck(cityRepository.getCities().values().toArray(new City[0]));
         infectionDiscardPile = new Stack<>();
         Collections.shuffle(infectionDeck);
