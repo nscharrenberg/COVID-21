@@ -26,7 +26,8 @@ import java.util.List;
 public class BoardRepository implements IBoardRepository {
     private Geometry board;
     private City selectedCity;
-    private RoleAction selectedAction = null;
+    private RoleAction selectedRoleAction = null;
+    private ActionType selectedPlayerAction = null;
     private List<RoleAction> usedActions = new ArrayList<>();
     private Difficulty difficulty;
     private InfectionRateMarker infectionRateMarker;
@@ -210,7 +211,6 @@ public class BoardRepository implements IBoardRepository {
     public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
     }
-
 
     @Override
     public ActionType getSelectedPlayerAction() {
