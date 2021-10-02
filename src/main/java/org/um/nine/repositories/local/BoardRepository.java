@@ -204,4 +204,9 @@ public class BoardRepository implements IBoardRepository {
     public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
     }
+
+    public InfectionRateMarker getInfectionRateMarker() {
+        return infectionRateMarker;
+    }
+
 }
