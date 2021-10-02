@@ -26,4 +26,8 @@ public interface IPlayerRepository {
     void setCurrentRoundState(RoundState currentRoundState);
 
     void assignRoleToPlayer(Player player);
+
+    Player getCurrentPlayer();
+
+    void setCurrentPlayer(Player currentPlayer);
 }

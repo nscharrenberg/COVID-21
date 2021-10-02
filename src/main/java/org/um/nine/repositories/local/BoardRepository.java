@@ -9,11 +9,10 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import org.um.nine.contracts.repositories.*;
+import org.um.nine.domain.ActionType;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Difficulty;
 import org.um.nine.domain.InfectionRateMarker;
-import org.um.nine.domain.Player;
-import org.um.nine.domain.roles.GenericRole;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
 import org.um.nine.screens.hud.OptionHudState;
@@ -26,7 +25,8 @@ import java.util.List;
 public class BoardRepository implements IBoardRepository {
     private Geometry board;
     private City selectedCity;
-    private RoleAction selectedAction = null;
+    private RoleAction selectedRoleAction = null;
+    private ActionType selectedPlayerAction = null;
     private List<RoleAction> usedActions = new ArrayList<>();
     private Difficulty difficulty;
     private InfectionRateMarker infectionRateMarker;
@@ -186,13 +186,13 @@ public class BoardRepository implements IBoardRepository {
     }
 
     @Override
-    public RoleAction getSelectedAction() {
-        return selectedAction;
+    public RoleAction getSelectedRoleAction() {
+        return selectedRoleAction;
     }
 
     @Override
-    public void setSelectedAction(RoleAction selectedAction) {
-        this.selectedAction = selectedAction;
+    public void setSelectedRoleAction(RoleAction selectedRoleAction) {
+        this.selectedRoleAction = selectedRoleAction;
     }
 
     @Override
@@ -203,5 +203,15 @@ public class BoardRepository implements IBoardRepository {
     @Override
     public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
+    }
+
+    @Override
+    public ActionType getSelectedPlayerAction() {
+        return selectedPlayerAction;
+    }
+
+    @Override
+    public void setSelectedPlayerAction(ActionType selectedPlayerAction) {
+        this.selectedPlayerAction = selectedPlayerAction;
     }
 }

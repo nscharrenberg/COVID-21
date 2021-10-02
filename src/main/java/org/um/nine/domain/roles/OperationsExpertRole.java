@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OperationsExpertRole extends Role {
-    static ColorRGBA lightGreen = new ColorRGBA(136f, 255f, 47f, 100f);
+    static ColorRGBA lightGreen = new ColorRGBA(136f, 255f, 47f, 1f);
 
     public OperationsExpertRole() {
         super("Operations Expert", lightGreen);

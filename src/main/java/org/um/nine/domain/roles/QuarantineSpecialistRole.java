@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QuarantineSpecialistRole extends Role {
-    static ColorRGBA darkGreen = new ColorRGBA(56f, 119f, 0f, 100f);
+    static ColorRGBA darkGreen = new ColorRGBA(56f, 119f, 0f, 1f);
 
     public QuarantineSpecialistRole() {
         super("Quarantine Specialist", darkGreen);

@@ -58,7 +58,7 @@ public class CityRepository implements ICityRepository {
 
         RoleAction action = RoleAction.BUILD_RESEARCH_STATION;
         if (player!= null){
-            if (player.getRole().actions(action) && boardRepository.getSelectedAction().equals(action) && !boardRepository.getUsedActions().contains(action)) {
+            if (player.getRole().actions(action) && boardRepository.getSelectedRoleAction().equals(action) && !boardRepository.getUsedActions().contains(action)) {
                 //TODO: add without discarding city card
                 // TODO: add to used actions
             } else {

@@ -7,19 +7,22 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
-import com.simsilica.lemur.list.DefaultCellRenderer;
 import org.um.nine.Game;
+import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
+import org.um.nine.domain.ActionType;
 import org.um.nine.domain.Player;
-import org.um.nine.domain.cards.PlayerCard;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PlayerInfoState extends BaseAppState  {
+public class ActionState extends BaseAppState  {
     private Container window;
 
     @Inject
     private IPlayerRepository playerRepository;
+
+    @Inject
+    private IBoardRepository boardRepository;
 
     private float getStandardScale() {
         int height = getApplication().getCamera().getHeight();
@@ -30,7 +33,7 @@ public class PlayerInfoState extends BaseAppState  {
     protected void initialize(Application application) {
         window = new Container();
 
-        Label title = window.addChild(new Label("Players Information"));
+        Label title = window.addChild(new Label("Actions"));
         title.setFontSize(16);
         title.setInsets(new Insets3f(10, 10, 0, 10));
         window.addChild(title, 0, 0);
@@ -42,44 +45,20 @@ public class PlayerInfoState extends BaseAppState  {
         closeBtn.setInsets(new Insets3f(10, 10, 0, 10));
         window.addChild(closeBtn, 0, 1);
 
-        AtomicInteger i = new AtomicInteger(0);
+        for (ActionType type : ActionType.values()) {
+            Button button = new Button(type.getDescription());
+            button.setInsets(new Insets3f(10, 10, 0, 10));
 
-        playerRepository.getPlayers().forEach((key, player) -> {
-            renderPlayerInfo(player, i.get());
-            i.getAndIncrement();
-        });
+            button.addClickCommands(c -> {
+                boardRepository.setSelectedPlayerAction(type);
+                setEnabled(false);
+            });
 
+            window.addChild(button, 1, 0);
+        }
 
-        window.setLocalTranslation(25, getApplication().getCamera().getHeight() / 2f, 5);
+        window.setLocalTranslation(getApplication().getCamera().getWidth() / 2f, getApplication().getCamera().getHeight() / 2f, 5);
         window.setLocalScale(1.5f);
-    }
-
-    private void renderPlayerInfo(Player player, int i) {
-        Label title = window.addChild(new Label(player.getName()));
-        title.setFontSize(16);
-        title.setInsets(new Insets3f(10, 10, 0, 10));
-        window.addChild(title, 1, i);
-
-        Label role = window.addChild(new Label("Role: " + player.getRole().getName()));
-        role.setInsets(new Insets3f(10, 10, 0, 10));
-        window.addChild(role, 2, i);
-
-        Label cardTxt = window.addChild(new Label("Cards: "));
-        cardTxt.setInsets(new Insets3f(10, 10, 0, 10));
-        window.addChild(cardTxt, 3, i);
-
-        ListBox<String> cards = new ListBox<>();
-
-        AtomicInteger cardIndex = new AtomicInteger();
-
-        player.getHandCards().forEach(c -> {
-            cards.getModel().add(cardIndex.get(), c.getName());
-
-            cardIndex.getAndIncrement();
-        });
-
-        window.setInsets(new Insets3f(10, 10, 0, 10));
-        window.addChild(cards, 4, i);
     }
 
     @Override

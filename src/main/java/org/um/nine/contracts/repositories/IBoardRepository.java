@@ -1,6 +1,7 @@
 package org.um.nine.contracts.repositories;
 
 import com.jme3.scene.Geometry;
+import org.um.nine.domain.ActionType;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Difficulty;
 import org.um.nine.domain.roles.RoleAction;
@@ -19,11 +20,15 @@ public interface IBoardRepository {
 
     void setUsedActions(List<RoleAction> usedActions);
 
-    RoleAction getSelectedAction();
+    RoleAction getSelectedRoleAction();
 
-    void setSelectedAction(RoleAction selectedAction);
+    void setSelectedRoleAction(RoleAction selectedRoleAction);
 
     Difficulty getDifficulty();
 
     void setDifficulty(Difficulty difficulty);
+
+    ActionType getSelectedPlayerAction();
+
+    void setSelectedPlayerAction(ActionType selectedPlayerAction);
 }

@@ -1,7 +1,6 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
-import com.jme3.renderer.RendererException;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
@@ -22,6 +21,7 @@ import java.util.Stack;
 public class PlayerRepository implements IPlayerRepository {
     private HashMap<String, Player> players;
     private Stack<Role> availableRoles;
+    private Player currentPlayer = null;
 
     private RoundState currentRoundState = null;
 
@@ -170,6 +170,16 @@ public class PlayerRepository implements IPlayerRepository {
     public void assignRoleToPlayer(Player player) {
         Role role = availableRoles.pop();
         player.setRole(role);
+    }
+
+    @Override
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    @Override
+    public void setCurrentPlayer(Player currentPlayer) {
+        this.currentPlayer = currentPlayer;
     }
 }
 
