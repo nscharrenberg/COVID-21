@@ -3,7 +3,11 @@ package org.um.nine.utils.cardmanaging;
 import com.google.gson.*;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import org.um.nine.domain.Card;
 import org.um.nine.domain.City;
+import org.um.nine.domain.cards.CityCard;
+import org.um.nine.domain.cards.InfectionCard;
+import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.exceptions.ColorNotFoundException;
 
 import java.io.InputStream;
@@ -12,6 +16,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Stack;
 
 public class CityCardReader {
     public HashMap<String, City> cityReader(String path) {
@@ -78,4 +83,26 @@ public class CityCardReader {
         return cities;
     }
 
+    public static CityCard generateCityCard(City city){
+        return new CityCard(city);
+    }
+
+    public static Stack<PlayerCard> generateCityCardDeck(City[] cities){
+        Stack<PlayerCard> cityDeck = new Stack<>();
+        for (City c:cities) {
+            cityDeck.add(generateCityCard(c));
+        }
+        return cityDeck;
+    }
+    public static InfectionCard generateInfectionCard(City city){
+        return new InfectionCard(city);
+    }
+
+    public static Stack<InfectionCard> generateInfectionDeck(City[] cities){
+        Stack<InfectionCard> infectionDeck = new Stack<>();
+        for (City c:cities) {
+            infectionDeck.add(generateInfectionCard(c));
+        }
+        return infectionDeck;
+    }
 }

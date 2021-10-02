@@ -1,5 +1,6 @@
 package org.um.nine.screens.hud;
 
+import com.google.inject.Inject;
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
 import com.jme3.scene.Node;
@@ -8,6 +9,9 @@ import org.um.nine.Game;
 
 public class OptionHudState extends BaseAppState  {
     private Container window;
+
+    @Inject
+    private PlayerInfoState playerInfoState;
 
     private float getStandardScale() {
         int height = getApplication().getCamera().getHeight();
@@ -25,10 +29,10 @@ public class OptionHudState extends BaseAppState  {
         });
         actionButton.setInsets(new Insets3f(2, 2, 0, 2));
 
-        Button cardsButton = window.addChild(new Button("Show Cards"));
+        Button cardsButton = window.addChild(new Button("Show Players Info (Cards, Roles)"));
         cardsButton.addClickCommands(button -> {
-            // TODO: Open Show Cards Menu
-            System.out.println("Show Cards Button Clicked");
+            getStateManager().attach(playerInfoState);
+            playerInfoState.setEnabled(true);
         });
         cardsButton.setInsets(new Insets3f(2, 2, 0, 2));
 

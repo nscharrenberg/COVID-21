@@ -1,17 +1,22 @@
 package org.um.nine.domain;
 
-import com.jme3.math.ColorRGBA;
+import org.um.nine.domain.cards.PlayerCard;
+
+import java.util.ArrayList;
 
 public class Player {
     private String name;
     private Role role;
     private City location;
     private boolean isBot;
+    private boolean itsTurn;
+    private ArrayList<PlayerCard> hand;
+    private RoundState currentState;
+
 
     public Player(String name, boolean isBot) {
-        this.name = name;
+        this(name);
         this.isBot = isBot;
-        //TODO : this.location = Atlanta city
     }
 
     public Player(String name, City city, boolean isBot) {
@@ -23,7 +28,31 @@ public class Player {
     public Player(String name) {
         this.name = name;
         this.isBot = false;
+        this.hand = new ArrayList<>();
+        this.itsTurn = false;
     }
+
+    public ArrayList<PlayerCard> getHandCards(){
+        return hand;
+    }
+
+    public void setHandCards(ArrayList<PlayerCard> cards){
+        hand = cards;
+    }
+
+    public void addCard(PlayerCard card){
+        if(hand.size()<=7){
+            hand.add(card);
+        }else{
+            //todo add choice for discard
+            discard(card);
+        }
+    }
+
+    public void discard(PlayerCard card){
+        hand.remove(card);
+    }
+
 
     public Role getRole() {
         return role;
@@ -57,6 +86,14 @@ public class Player {
         this.location = location;
     }
 
+    public boolean isItsTurn() {
+        return itsTurn;
+    }
+
+    public void setItsTurn(boolean itsTurn) {
+        this.itsTurn = itsTurn;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -69,4 +106,14 @@ public class Player {
 
         return sb.toString();
     }
+
+    public RoundState getCurrentState() {
+        return currentState;
+    }
+
+    public void setCurrentState(RoundState currentState) {
+        this.currentState = currentState;
+    }
+
+
 }

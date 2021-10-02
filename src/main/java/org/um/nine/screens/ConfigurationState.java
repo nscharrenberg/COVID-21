@@ -75,14 +75,14 @@ public class ConfigurationState extends BaseAppState {
     }
 
     private void renderFields() {
-        createPlayer(0);
         startGame();
+        createPlayer(0);
     }
 
     private void startGame() {
-        Button menuButton = window.addChild(new Button("Start Game"));
+        Button menuButton = window.addChild(new Button("Start Game"),0, 0);
         menuButton.addClickCommands(button -> {
-            if (playerRepository.getPlayers().size() + 1 < 2) {
+            if (playerRepository.getPlayers().size() < 2) {
                 DialogBoxState dialog = new DialogBoxState("The game can only start when there are at least 2 players.");
                 getStateManager().attach(dialog);
                 dialog.setEnabled(true);
@@ -96,7 +96,7 @@ public class ConfigurationState extends BaseAppState {
     }
 
     int rowCount = 1;
-    int count = 0;
+    int count = 1;
 
     private void createPlayer(int i) {
         Container subPanel = window.addChild(new Container(), rowCount, count);

@@ -127,9 +127,34 @@ public class DiseaseRepository implements IDiseaseRepository {
         }
 
         found.setCity(city);
-        city.addCube(found);
+        if(!city.addCube(found))
+            initOutbreak(city, found);
 
         renderManager.renderDisease(found, city.getCubePosition(found));
+    }
+    private static void initOutbreak(City city, Disease disease) {
+        //TODO: increment outbreak marker
+        List<City> previousOutbreaks = new ArrayList<>();
+        List<City> neighbors = city.getNeighbors();
+        previousOutbreaks.add(city);
+
+        for (City c: neighbors) {
+            spreadOutbreak(c,disease,previousOutbreaks);
+        }
+    }
+
+    private static void spreadOutbreak(City city, Disease disease, List<City> previousOutbreaks) {
+        if(!city.addCube(disease)){
+            //TODO: increment outbreak marker
+            List<City> neighbors = city.getNeighbors();
+            previousOutbreaks.add(city);
+
+            for (City c: neighbors) {
+                if(!previousOutbreaks.contains(c)) //prevent outbreaks happening twice
+                    spreadOutbreak(c,disease,previousOutbreaks);
+            }
+
+        }
     }
 
     @Override

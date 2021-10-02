@@ -7,6 +7,8 @@ import org.um.nine.screens.ConfigurationState;
 import org.um.nine.screens.MainMenuState;
 import org.um.nine.screens.PauseMenu;
 import org.um.nine.screens.SettingsState;
+import org.um.nine.screens.hud.OptionHudState;
+import org.um.nine.screens.hud.PlayerInfoState;
 import org.um.nine.utils.managers.RenderManager;
 
 public class GuiceConfiguration extends AbstractModule {
@@ -23,6 +25,8 @@ public class GuiceConfiguration extends AbstractModule {
     private final SettingsState settingsState = new SettingsState();
     private final ConfigurationState configurationState = new ConfigurationState();
     private final PauseMenu pauseState = new PauseMenu();
+    private final PlayerInfoState playerInfoState = new PlayerInfoState();
+    private final OptionHudState optionHudState = new OptionHudState();
 
     @Override
     protected void configure() {
@@ -38,5 +42,7 @@ public class GuiceConfiguration extends AbstractModule {
         bind(SettingsState.class).toInstance(settingsState);
         bind(ConfigurationState.class).toInstance(configurationState);
         bind(PauseMenu.class).toInstance(pauseState);
+        bind(OptionHudState.class).toInstance(optionHudState);
+        bind(PlayerInfoState.class).toInstance(playerInfoState);
     }
 }

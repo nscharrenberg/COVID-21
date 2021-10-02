@@ -7,19 +7,27 @@ import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
-import org.um.nine.domain.City;
-import org.um.nine.domain.Cure;
-import org.um.nine.domain.Player;
-import org.um.nine.domain.roles.RoleEvent;
+import org.um.nine.domain.*;
+import org.um.nine.domain.roles.*;
 import org.um.nine.exceptions.ExternalMoveNotAcceptedException;
 import org.um.nine.exceptions.InvalidMoveException;
 import org.um.nine.exceptions.PlayerLimitException;
 import org.um.nine.utils.managers.RenderManager;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Objects;
+import java.util.Stack;
 
 public class PlayerRepository implements IPlayerRepository {
     private HashMap<String, Player> players;
+    private Stack<Role> availableRoles;
+
+    private RoundState currentRoundState = null;
+
+    private int actionsLeft = 4;
+    private int drawLeft = 2;
+    private int infectionLeft = 2;
 
     @Inject
     private ICityRepository cityRepository;
@@ -38,31 +46,27 @@ public class PlayerRepository implements IPlayerRepository {
     }
 
     public void addPlayer(Player player) throws PlayerLimitException {
-        if (this.players.size() + 1 >= Info.PLAYER_THRESHOLD) {
+        if (this.players.size() + 1 > Info.PLAYER_THRESHOLD) {
             throw new PlayerLimitException();
         }
 
         this.players.put(player.getName(), player);
-    }
-
-    @Override
-    public void addPlayer(Player player, boolean render) throws PlayerLimitException, RendererException {
-        if (this.players.size() + 1 >= Info.PLAYER_THRESHOLD) {
-            throw new PlayerLimitException();
-        }
-
-        this.players.put(player.getName(), player);
-
-        if (player.getCity() == null) {
-            throw new RendererException("Unable to draw the Player as it does not have a city");
-        }
-
-        renderManager.renderPlayer(player, player.getCity().getPawnPosition(player));
     }
 
     @Override
     public void reset() {
         this.players = new HashMap<>();
+
+        this.availableRoles = new Stack<>();
+        availableRoles.add(new ContingencyPlannerRole());
+        availableRoles.add(new DispatcherRole());
+        availableRoles.add(new MedicRole());
+        availableRoles.add(new OperationsExpertRole());
+        availableRoles.add(new QuarantineSpecialistRole());
+        availableRoles.add(new ResearcherRole());
+        availableRoles.add(new ScientistRole());
+
+        Collections.shuffle(availableRoles);
     }
 
     @Override
@@ -106,6 +110,66 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         move(target, city);
+    }
+
+    /**
+     * @return null if the turn has ended otherwise the RoundState of the turn
+     */
+    @Override
+    public RoundState nextState(RoundState currentState){
+        if (currentState == null) {
+            this.currentRoundState = RoundState.ACTION;
+            return RoundState.ACTION;
+        } else if (currentState == RoundState.ACTION){
+            actionsLeft--;
+            if (actionsLeft == 0) {
+                actionsLeft = 4;
+                this.currentRoundState = RoundState.DRAW;
+                return RoundState.DRAW;
+            }
+
+            this.currentRoundState = RoundState.ACTION;
+            return RoundState.ACTION;
+        } else if (currentState == RoundState.DRAW){
+            drawLeft--;
+            if (drawLeft == 0){
+                drawLeft = 2;
+                this.currentRoundState = RoundState.INFECT;
+                return RoundState.INFECT;
+            }
+
+            this.currentRoundState = RoundState.DRAW;
+            return RoundState.DRAW;
+        } else if (currentState == RoundState.INFECT){
+            infectionLeft--;
+            if (infectionLeft == 0){
+                infectionLeft = Objects.requireNonNull(diseaseRepository.getInfectionRate().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
+                this.currentRoundState = null;
+                return null;
+            }
+
+            this.currentRoundState = RoundState.INFECT;
+            return RoundState.INFECT;
+        }
+
+        this.currentRoundState = null;
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public RoundState getCurrentRoundState() {
+        return currentRoundState;
+    }
+
+    @Override
+    public void setCurrentRoundState(RoundState currentRoundState) {
+        this.currentRoundState = currentRoundState;
+    }
+
+    @Override
+    public void assignRoleToPlayer(Player player) {
+        Role role = availableRoles.pop();
+        player.setRole(role);
     }
 }
 
