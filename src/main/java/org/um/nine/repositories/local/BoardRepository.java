@@ -8,14 +8,12 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.simsilica.lemur.Label;
 import org.um.nine.contracts.repositories.*;
+import com.simsilica.lemur.Label;
 import org.um.nine.domain.ActionType;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Difficulty;
 import org.um.nine.domain.InfectionRateMarker;
-import org.um.nine.domain.*;
-import org.um.nine.domain.roles.GenericRole;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
 import org.um.nine.screens.hud.OptionHudState;
@@ -28,8 +26,7 @@ import java.util.List;
 public class BoardRepository implements IBoardRepository {
     private Geometry board;
     private City selectedCity;
-    private RoleAction selectedRoleAction = null;
-    private ActionType selectedPlayerAction = null;
+    private RoleAction selectedAction = null;
     private List<RoleAction> usedActions = new ArrayList<>();
     private Difficulty difficulty;
     private InfectionRateMarker infectionRateMarker;
@@ -100,6 +97,7 @@ public class BoardRepository implements IBoardRepository {
         } catch (OutbreakException e) {
             e.printStackTrace();
         }
+        gameRepository.getApp().getStateManager().attach(optionHudState);
     }
 
     private void renderCureSection() {
