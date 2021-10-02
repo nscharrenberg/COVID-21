@@ -14,6 +14,8 @@ import org.um.nine.domain.ActionType;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Difficulty;
 import org.um.nine.domain.InfectionRateMarker;
+import org.um.nine.domain.*;
+import org.um.nine.domain.roles.GenericRole;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
 import org.um.nine.screens.hud.OptionHudState;
@@ -87,7 +89,6 @@ public class BoardRepository implements IBoardRepository {
         renderOutbreakSection();
         renderInfectionSection();
 
-        gameRepository.getApp().getStateManager().attach(optionHudState);
         try {
             cardRepository.buildDecks();
         } catch (NoCubesLeftException e) {
@@ -212,6 +213,7 @@ public class BoardRepository implements IBoardRepository {
         this.difficulty = difficulty;
     }
 
+
     @Override
     public ActionType getSelectedPlayerAction() {
         return selectedPlayerAction;
@@ -230,6 +232,7 @@ public class BoardRepository implements IBoardRepository {
         }
     }
 
+    @Override
     public InfectionRateMarker getInfectionRateMarker() {
         return infectionRateMarker;
     }
