@@ -11,6 +11,7 @@ import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.roles.*;
 import org.um.nine.exceptions.*;
 import org.um.nine.screens.dialogs.DialogBoxState;
+import org.um.nine.screens.dialogs.DiscoverCureDialogBox;
 import org.um.nine.screens.dialogs.TreatDiseaseDialogBox;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
@@ -49,6 +50,9 @@ public class PlayerRepository implements IPlayerRepository {
 
     @Inject
     private TreatDiseaseDialogBox treatDiseaseDialogBox;
+
+    @Inject
+    private DiscoverCureDialogBox discoverCureDialogBox;
 
     @Inject
     private RenderManager renderManager;
@@ -371,9 +375,19 @@ public class PlayerRepository implements IPlayerRepository {
             } else if (type.equals(ActionType.SHARE_KNOWLEDGE)) {
                 // TODO: Share knowledge
             } else if (type.equals(ActionType.DISCOVER_CURE)) {
-               // TODO: Discover cure
+                if (!player.getCity().equals(city)) {
+                    DialogBoxState dialog = new DialogBoxState("Only able to discover cure in players current city");
+                    gameRepository.getApp().getStateManager().attach(dialog);
+                    dialog.setEnabled(true);
+                    return;
+                }
+
+                discoverCureDialogBox.setPlayer(player);
+                gameRepository.getApp().getStateManager().attach(discoverCureDialogBox);
+                discoverCureDialogBox.setEnabled(true);
             }
 
+            nextState(currentRoundState);
         } else if (currentRoundState.equals(RoundState.DRAW)) {
             cardRepository.drawPlayCard();
 
@@ -382,7 +396,6 @@ public class PlayerRepository implements IPlayerRepository {
                 action(null);
             }
 
-            return;
         } else if (currentRoundState.equals(RoundState.INFECT)) {
 //            cardRepository.drawPlayCard();
 
@@ -390,11 +403,7 @@ public class PlayerRepository implements IPlayerRepository {
             if (infectionLeft > 0) {
                 action(null);
             }
-
-            return;
         }
-
-        nextState(currentRoundState);
     }
 }
 

@@ -7,6 +7,7 @@ import org.um.nine.screens.ConfigurationState;
 import org.um.nine.screens.MainMenuState;
 import org.um.nine.screens.PauseMenu;
 import org.um.nine.screens.SettingsState;
+import org.um.nine.screens.dialogs.DiscoverCureDialogBox;
 import org.um.nine.screens.dialogs.TreatDiseaseDialogBox;
 import org.um.nine.screens.hud.ActionState;
 import org.um.nine.screens.hud.OptionHudState;
@@ -31,6 +32,7 @@ public class GuiceConfiguration extends AbstractModule {
     private final OptionHudState optionHudState = new OptionHudState();
     private final ActionState actionState = new ActionState();
     private final TreatDiseaseDialogBox treatDiseaseDialogBox = new TreatDiseaseDialogBox();
+    private final DiscoverCureDialogBox discoverCureDialogBox = new DiscoverCureDialogBox();
 
     @Override
     protected void configure() {
@@ -51,6 +53,6 @@ public class GuiceConfiguration extends AbstractModule {
         bind(PlayerInfoState.class).toInstance(playerInfoState);
         bind(ActionState.class).toInstance(actionState);
         bind(TreatDiseaseDialogBox.class).toInstance(treatDiseaseDialogBox);
-
+        bind(DiscoverCureDialogBox.class).toInstance(discoverCureDialogBox);
     }
 }

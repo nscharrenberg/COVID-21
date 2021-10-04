@@ -15,6 +15,7 @@ import org.um.nine.utils.managers.RenderManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DiseaseRepository implements IDiseaseRepository {
     private List<InfectionRateMarker> infectionRate;
@@ -232,12 +233,35 @@ public class DiseaseRepository implements IDiseaseRepository {
 
     @Override
     public void discoverCure(Player pawn, Cure cure) throws UnableToDiscoverCureException {
-        if (pawn.getRole().events(RoleEvent.DISCOVER_CURE_FOUR_CARDS)) {
-            // TODO: If pawn has 4 cards of same color, then discover cure
-            return;
+        if (pawn.getCity().getResearchStation() == null) {
+            throw new UnableToDiscoverCureException(cure);
         }
 
-        // TODO: if pawn has 5 cards of the same color, then discover cure
+        ArrayList<PlayerCard> pc = pawn.getHandCards().stream().filter(c -> {
+            if (c instanceof CityCard) {
+                CityCard cc = (CityCard) c;
+
+                return cc.getCity().getColor().equals(cure.getColor());
+            }
+
+            return false;
+        }).collect(Collectors.toCollection(ArrayList::new));
+
+        long count = pc.size();
+
+        if (pawn.getRole().events(RoleEvent.DISCOVER_CURE_FOUR_CARDS)) {
+            if (count >= 4) {
+                pawn.getHandCards().removeAll(pc);
+                cure.setDiscovered(true);
+                return;
+            }
+        }
+
+        if (count >= 5) {
+            pawn.getHandCards().removeAll(pc);
+            cure.setDiscovered(true);
+            return;
+        }
 
         // else unable to discover a cure
         throw new UnableToDiscoverCureException(cure);

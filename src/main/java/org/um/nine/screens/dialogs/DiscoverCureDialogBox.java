@@ -11,26 +11,27 @@ import com.simsilica.lemur.component.QuadBackgroundComponent;
 import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.domain.City;
+import org.um.nine.domain.Cure;
 import org.um.nine.domain.Disease;
 import org.um.nine.domain.Player;
 import org.um.nine.exceptions.NoCityCardToTreatDiseaseException;
+import org.um.nine.exceptions.UnableToDiscoverCureException;
 
-public class TreatDiseaseDialogBox extends BaseAppState {
+import java.util.Map;
+
+public class DiscoverCureDialogBox extends BaseAppState {
     private Container window;
 
-    private City city;
     private Player player;
 
     @Inject
     private IDiseaseRepository diseaseRepository;
 
-    public TreatDiseaseDialogBox() {
-        this.city = null;
+    public DiscoverCureDialogBox() {
         this.player = null;
     }
 
-    public TreatDiseaseDialogBox(City city, Player player) {
-        this.city = city;
+    public DiscoverCureDialogBox(Player player) {
         this.player = player;
     }
 
@@ -51,14 +52,16 @@ public class TreatDiseaseDialogBox extends BaseAppState {
 
         int btnCount = 1;
 
-        for (Disease disease : city.getCubes()) {
-            Button button = new Button(disease.getColor().toString());
+        for (Map.Entry<ColorRGBA, Cure> entry : diseaseRepository.getCures().entrySet()) {
+            Cure cure = entry.getValue();
+
+            Button button = new Button(cure.getColor().toString());
             button.setInsets(new Insets3f(10, 10, 0, 10));
 
             button.addClickCommands(c -> {
                 try {
-                    diseaseRepository.treat(player, city, disease);
-                } catch (NoCityCardToTreatDiseaseException e) {
+                    diseaseRepository.discoverCure(player, cure);
+                } catch (UnableToDiscoverCureException e) {
                     DialogBoxState dialog = new DialogBoxState(e.getMessage());
                     getStateManager().attach(dialog);
                     dialog.setEnabled(true);
@@ -103,16 +106,8 @@ public class TreatDiseaseDialogBox extends BaseAppState {
         window.removeFromParent();
     }
 
-    public City getCity() {
-        return city;
-    }
-
     public Player getPlayer() {
         return player;
-    }
-
-    public void setCity(City city) {
-        this.city = city;
     }
 
     public void setPlayer(Player player) {
