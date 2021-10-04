@@ -11,13 +11,9 @@ import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import org.um.nine.contracts.repositories.IBoardRepository;
-import org.um.nine.contracts.repositories.ICityRepository;
-import org.um.nine.contracts.repositories.IDiseaseRepository;
-import org.um.nine.contracts.repositories.IGameRepository;
-import org.um.nine.exceptions.GameOverException;
-import org.um.nine.exceptions.NoCubesLeftException;
-import org.um.nine.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
+import org.um.nine.contracts.repositories.*;
+import org.um.nine.exceptions.*;
+import org.um.nine.screens.DialogBoxState;
 import org.um.nine.screens.PauseMenu;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,13 +33,14 @@ public class InputManager {
     private ICityRepository cityRepository;
 
     @Inject
-    private IDiseaseRepository diseaseRepository;
+    private IPlayerRepository playerRepository;
 
     @Inject
     private PauseMenu pauseMenu;
 
     public void clear() {
         gameRepository.getApp().getInputManager().clearMappings();
+        gameRepository.getApp().getInputManager().clearRawInputListeners();
     }
 
     public void init() {
@@ -174,11 +171,11 @@ public class InputManager {
 
         if(boardRepository.getSelectedCity() != null) {
             try {
-                diseaseRepository.infect(boardRepository.getSelectedCity().getColor(), boardRepository.getSelectedCity());
-            } catch (NoCubesLeftException | GameOverException e) {
-                gameRepository.getApp().stop();
-            } catch (NoDiseaseOrOutbreakPossibleDueToEvent noDiseaseOrOutbreakPossibleDueToEvent) {
-                noDiseaseOrOutbreakPossibleDueToEvent.printStackTrace();
+                playerRepository.action(boardRepository.getSelectedPlayerAction());
+            } catch (InvalidMoveException | NoActionSelectedException e) {
+                DialogBoxState dialog = new DialogBoxState(e.getMessage());
+                gameRepository.getApp().getStateManager().attach(dialog);
+                dialog.setEnabled(true);
             }
         }
     }

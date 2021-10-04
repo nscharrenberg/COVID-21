@@ -11,6 +11,7 @@ import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.roles.*;
 import org.um.nine.exceptions.ExternalMoveNotAcceptedException;
 import org.um.nine.exceptions.InvalidMoveException;
+import org.um.nine.exceptions.NoActionSelectedException;
 import org.um.nine.exceptions.PlayerLimitException;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
@@ -69,16 +70,9 @@ public class PlayerRepository implements IPlayerRepository {
         Collections.shuffle(availableRoles);
     }
 
-    @Override
-    public void move(Player player, City city) throws InvalidMoveException {
+    public void drive(Player player, City city) throws InvalidMoveException {
         if (player.getCity().equals(city)) {
             throw new InvalidMoveException(city, player);
-        }
-
-        if(player.getCity().getResearchStation() != null && city.getResearchStation() != null) {
-            // TODO: Allow Move normally
-        } else if (!player.getCity().getNeighbors().contains(city)) {
-            // TODO: allow player to discard a card or not
         }
 
         city.addPawn(player);
@@ -98,10 +92,86 @@ public class PlayerRepository implements IPlayerRepository {
         renderManager.renderPlayer(player, city.getPawnPosition(player));
     }
 
+    public void direct(Player player, City city) throws InvalidMoveException {
+        if (player.getCity().equals(city)) {
+            throw new InvalidMoveException(city, player);
+        }
+
+        // No need to charter when neighbouring city
+        if (player.getCity().getNeighbors().contains(city)) {
+            drive(player, city);
+        }
+
+        // No need to charter when both cities have research station
+        if (player.getCity().getResearchStation() != null && city.getResearchStation() != null) {
+            drive(player, city);
+        }
+
+        PlayerCard pc = player.getHandCards().stream().filter(c -> {
+            if (c instanceof CityCard cc) {
+                return cc.getCity().equals(city);
+            }
+
+            return false;
+        }).findFirst().orElse(null);
+
+        // If player doesn't have the city card, it can't make this move.
+        if (pc == null) {
+            throw new InvalidMoveException(city, player);
+        }
+
+        player.getHandCards().remove(pc);
+        drive(player, city);
+    }
+
+    public void charter(Player player, City city) throws InvalidMoveException {
+        if (player.getCity().equals(city)) {
+            throw new InvalidMoveException(city, player);
+        }
+
+        // No need to charter when neighbouring city
+        if (player.getCity().getNeighbors().contains(city)) {
+            drive(player, city);
+        }
+
+        // No need to charter when both cities have research station
+        if (player.getCity().getResearchStation() != null && city.getResearchStation() != null) {
+            drive(player, city);
+        }
+
+        PlayerCard pc = player.getHandCards().stream().filter(c -> {
+            if (c instanceof CityCard cc) {
+                return cc.getCity().equals(player.getCity());
+            }
+
+            return false;
+        }).findFirst().orElse(null);
+
+        // If player doesn't have city card of his current city, it can't make this move.
+        if (pc == null) {
+            throw new InvalidMoveException(city, player);
+        }
+
+        player.getHandCards().remove(pc);
+        drive(player, city);
+    }
+
+    public void shuttle(Player player, City city) throws InvalidMoveException {
+        if (player.getCity().equals(city)) {
+            throw new InvalidMoveException(city, player);
+        }
+
+        if (player.getCity().getResearchStation() == null || city.getResearchStation() == null) {
+            throw new InvalidMoveException(city, player);
+        }
+
+        drive(player, city);
+    }
+
     @Override
     public void verifyExternalMove(Player instigator, Player target, City city, boolean accept) throws InvalidMoveException, ExternalMoveNotAcceptedException {
         if (instigator.equals(target)) {
-            move(instigator, city);
+            drive(instigator, city);
             return;
         }
 
@@ -109,7 +179,7 @@ public class PlayerRepository implements IPlayerRepository {
             throw new ExternalMoveNotAcceptedException(instigator, target, city);
         }
 
-        move(target, city);
+        drive(target, city);
     }
 
     /**
@@ -153,6 +223,7 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         this.currentRoundState = null;
+        nextPlayer();
         throw new IllegalStateException();
     }
 
@@ -221,12 +292,7 @@ public class PlayerRepository implements IPlayerRepository {
 
         HashMap<String, Integer> highestPopulation = new HashMap<>();
 
-        System.out.println("Player Population Counting START:");
-
         this.players.forEach((key, player) -> {
-
-            System.out.println("START GOING THROUGH CITIES OF : " + key);
-
             int highestPopulationCount = 0;
 
             for (PlayerCard c : player.getHandCards()) {
@@ -234,24 +300,47 @@ public class PlayerRepository implements IPlayerRepository {
                     highestPopulationCount = Math.max(tempCityCard.getCity().getPopulation(), highestPopulationCount);
                 }
             }
-
-            System.out.println("Highest Population number: " + highestPopulationCount);
-
             highestPopulation.put(key, highestPopulationCount);
-
-            System.out.println("END GOING THROUGH CITIES OF : " + key);
         });
-
-        System.out.println("Player Population Counting END:");
-
-        System.out.println("Final Player Order START");
-
         highestPopulation.entrySet().stream().sorted(Map.Entry.comparingByValue()).forEach(p -> {
-            System.out.println("Player: " + this.players.get(p.getKey()) + " - " + p.getValue());
             this.playerOrder.push(this.players.get(p.getKey()));
         });
+    }
 
-        System.out.println("Final Player Order START");
+    @Override
+    public void action(ActionType type) throws InvalidMoveException, NoActionSelectedException {
+        if (type == null) {
+            throw new NoActionSelectedException();
+        }
+
+        if (currentRoundState == null) {
+            nextState(null);
+        }
+
+        if (currentRoundState.equals(RoundState.ACTION)) {
+            City city = boardRepository.getSelectedCity();
+            Player player = currentPlayer;
+
+            if (type.equals(ActionType.DRIVE)) {
+                drive(player, city);
+            } else if (type.equals(ActionType.DIRECT_FLIGHT)) {
+                direct(player, city);
+            } else if (type.equals(ActionType.CHARTER_FLIGHT)) {
+                charter(player, city);
+            } else if (type.equals(ActionType.SHUTTLE)) {
+                shuttle(player, city);
+            } else if (type.equals(ActionType.BUILD_RESEARCH_STATION)) {
+
+            } else if (type.equals(ActionType.TREAT_DISEASE)) {
+
+            } else if (type.equals(ActionType.SHARE_KNOWLEDGE)) {
+
+            } else if (type.equals(ActionType.DISCOVER_CURE)) {
+
+            }
+        }
+
+        nextState(currentRoundState);
     }
 }
 

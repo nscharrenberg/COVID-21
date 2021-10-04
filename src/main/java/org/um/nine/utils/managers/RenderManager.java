@@ -39,6 +39,12 @@ public class RenderManager {
         float offsetX = offset.getX();
         float offsetY = offset.getY();
 
+        Spatial found = gameRepository.getApp().getRootNode().getChild(player.toString());
+
+        if (found != null) {
+            found.removeFromParent();
+        }
+
         Spatial model = gameRepository.getApp().getAssetManager().loadModel("models/pawn.j3o");
         model.setName(player.toString());
         model.rotate(45, 0, 0);
