@@ -1,13 +1,13 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
+import com.jme3.scene.Spatial;
 import com.simsilica.lemur.Label;
 import org.um.nine.Info;
-import org.um.nine.contracts.repositories.ICityRepository;
-import org.um.nine.contracts.repositories.IDiseaseRepository;
-import org.um.nine.contracts.repositories.IGameRepository;
-import org.um.nine.contracts.repositories.IPlayerRepository;
+import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.*;
+import org.um.nine.domain.cards.CityCard;
+import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.roles.*;
 import org.um.nine.exceptions.ExternalMoveNotAcceptedException;
 import org.um.nine.exceptions.InvalidMoveException;
@@ -15,15 +15,13 @@ import org.um.nine.exceptions.PlayerLimitException;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Stack;
+import java.util.*;
 
 public class PlayerRepository implements IPlayerRepository {
     private HashMap<String, Player> players;
     private Stack<Role> availableRoles;
     private Player currentPlayer = null;
+    private Stack<Player> playerOrder;
 
     private RoundState currentRoundState = null;
 
@@ -32,10 +30,7 @@ public class PlayerRepository implements IPlayerRepository {
     private int infectionLeft = 2;
 
     @Inject
-    private ICityRepository cityRepository;
-
-    @Inject
-    private IGameRepository gameRepository;
+    private IBoardRepository boardRepository;
 
     @Inject
     private IDiseaseRepository diseaseRepository;
@@ -187,12 +182,76 @@ public class PlayerRepository implements IPlayerRepository {
         this.currentPlayer = currentPlayer;
 
         if (optionHudState != null) {
-            Label tempLbl = (Label) optionHudState.getWindow().getChild("currentPlayerNameLbl");
-
-            if (tempLbl != null) {
-                tempLbl.setText("Current Player: " + currentPlayer);
+            if (optionHudState.getWindow() == null) {
+                return;
             }
+
+            Spatial tempSpat = optionHudState.getWindow().getChild("currentPlayerNameLbl");
+
+            if (tempSpat == null) {
+                return;
+            }
+
+            Label tempLbl = (Label) tempSpat;
+            tempLbl.setText("Current Player: " + currentPlayer);
         }
+    }
+
+    @Override
+    public void nextPlayer() {
+        Player newPlayer = this.playerOrder.pop();
+        this.playerOrder.push(newPlayer);
+
+        setCurrentPlayer(newPlayer);
+
+        boardRepository.resetRound();
+    }
+
+    @Override
+    public void resetRound() {
+        actionsLeft = 4;
+        drawLeft = 2;
+        infectionLeft = 2;
+        currentRoundState = null;
+    }
+
+    @Override
+    public void decidePlayerOrder() {
+        this.playerOrder = new Stack<>();
+
+        HashMap<String, Integer> highestPopulation = new HashMap<>();
+
+        System.out.println("Player Population Counting START:");
+
+        this.players.forEach((key, player) -> {
+
+            System.out.println("START GOING THROUGH CITIES OF : " + key);
+
+            int highestPopulationCount = 0;
+
+            for (PlayerCard c : player.getHandCards()) {
+                if (c instanceof CityCard tempCityCard) {
+                    highestPopulationCount = Math.max(tempCityCard.getCity().getPopulation(), highestPopulationCount);
+                }
+            }
+
+            System.out.println("Highest Population number: " + highestPopulationCount);
+
+            highestPopulation.put(key, highestPopulationCount);
+
+            System.out.println("END GOING THROUGH CITIES OF : " + key);
+        });
+
+        System.out.println("Player Population Counting END:");
+
+        System.out.println("Final Player Order START");
+
+        highestPopulation.entrySet().stream().sorted(Map.Entry.comparingByValue()).forEach(p -> {
+            System.out.println("Player: " + this.players.get(p.getKey()) + " - " + p.getValue());
+            this.playerOrder.push(this.players.get(p.getKey()));
+        });
+
+        System.out.println("Final Player Order START");
     }
 }
 

@@ -18,7 +18,6 @@ import org.um.nine.exceptions.*;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +28,6 @@ public class BoardRepository implements IBoardRepository {
     private ActionType selectedPlayerAction = null;
     private List<RoleAction> usedActions = new ArrayList<>();
     private Difficulty difficulty;
-    private String cityCardsJSONPath = new File("").getAbsolutePath() +"src/main/resources/Cards/CityCards.json";
 
     @Inject
     private IGameRepository gameRepository;
@@ -63,6 +61,9 @@ public class BoardRepository implements IBoardRepository {
 
     @Override
     public void startGame() {
+        gameRepository.getApp().getStateManager().attach(optionHudState);
+        optionHudState.setEnabled(true);
+
         cityRepository.renderCities();
 
         City atlanta = cityRepository.getCities().get("Atlanta");
@@ -85,7 +86,6 @@ public class BoardRepository implements IBoardRepository {
         renderOutbreakSection();
         renderInfectionSection();
 
-        gameRepository.getApp().getStateManager().attach(optionHudState);
         try {
             cardRepository.buildDecks();
         } catch (NoCubesLeftException e) {
@@ -97,6 +97,9 @@ public class BoardRepository implements IBoardRepository {
         } catch (OutbreakException e) {
             e.printStackTrace();
         }
+
+        playerRepository.decidePlayerOrder();
+        playerRepository.nextPlayer();
     }
 
     private void renderCureSection() {
@@ -226,5 +229,15 @@ public class BoardRepository implements IBoardRepository {
                 tempLbl.setText("Selected Action: " + selectedPlayerAction);
             }
         }
+    }
+
+    @Override
+    public void resetRound() {
+//        setSelectedCity(null);
+//        setSelectedPlayerAction(null);
+//        setSelectedRoleAction(null);
+        usedActions = new ArrayList<>();
+
+        playerRepository.resetRound();
     }
 }

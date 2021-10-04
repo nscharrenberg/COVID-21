@@ -30,4 +30,10 @@ public interface IPlayerRepository {
     Player getCurrentPlayer();
 
     void setCurrentPlayer(Player currentPlayer);
+
+    void nextPlayer();
+
+    void resetRound();
+
+    void decidePlayerOrder();
 }

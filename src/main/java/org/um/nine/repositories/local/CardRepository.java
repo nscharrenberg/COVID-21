@@ -79,5 +79,4 @@ public class CardRepository implements ICardRepository {
             }
         }
     }
-
 }

@@ -10,6 +10,7 @@ import org.um.nine.domain.cards.InfectionCard;
 import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.cards.events.*;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Stack;
@@ -76,7 +77,9 @@ public class Shuffle {
         deck.push(new ResilientPopulationEvent());
         cities.values().stream().map(CityCard::new).forEach(deck::push);
 
-        shuffle(deck);
+        // TODO: Shuffle method doesn't work.
+//        shuffle(deck);
+        Collections.shuffle(deck);
         int amountCards = switch (players.values().size()) {
             case 2 -> 4;
             case 3 -> 3;
@@ -104,6 +107,7 @@ public class Shuffle {
                     p.setItsTurn(true);
             }
         }
+
         return difficultyShuffle(difficultyLevel,deck);
     }
 

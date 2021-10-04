@@ -23,9 +23,6 @@ public class OptionHudState extends BaseAppState  {
     private IBoardRepository boardRepository;
 
     @Inject
-    private ICardRepository cardRepository;
-
-    @Inject
     private ActionState actionState;
 
     private float getStandardScale() {

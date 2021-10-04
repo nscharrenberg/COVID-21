@@ -31,4 +31,6 @@ public interface IBoardRepository {
     ActionType getSelectedPlayerAction();
 
     void setSelectedPlayerAction(ActionType selectedPlayerAction);
+
+    void resetRound();
 }

@@ -11,8 +11,6 @@ public class Player {
     private boolean isBot;
     private boolean itsTurn;
     private ArrayList<PlayerCard> hand;
-    private RoundState currentState;
-
 
     public Player(String name, boolean isBot) {
         this(name);
@@ -105,14 +103,6 @@ public class Player {
         sb.append(role.getName());
 
         return sb.toString();
-    }
-
-    public RoundState getCurrentState() {
-        return currentState;
-    }
-
-    public void setCurrentState(RoundState currentState) {
-        this.currentState = currentState;
     }
 
 
