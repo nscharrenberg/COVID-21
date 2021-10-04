@@ -2,8 +2,12 @@ package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
+import com.jme3.scene.Spatial;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
+import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.domain.*;
+import org.um.nine.domain.cards.CityCard;
+import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.roles.RoleEvent;
 import org.um.nine.exceptions.*;
 import org.um.nine.utils.managers.RenderManager;
@@ -21,6 +25,9 @@ public class DiseaseRepository implements IDiseaseRepository {
 
     @Inject
     private RenderManager renderManager;
+
+    @Inject
+    private IGameRepository gameRepository;
 
     public DiseaseRepository() {
         reset();
@@ -180,19 +187,44 @@ public class DiseaseRepository implements IDiseaseRepository {
     }
 
     @Override
-    public void treat(Player pawn, City city, Disease disease) {
-        if (pawn.getRole().events(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR)) {
-            city.getCubes().removeIf(d -> d.getColor().equals(disease.getColor()));
+    public void treat(Player pawn, City city, Disease disease) throws NoCityCardToTreatDiseaseException {
+        if (!pawn.getRole().events(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR)) {
+            PlayerCard pc = pawn.getHandCards().stream().filter(c -> {
+                if (c instanceof CityCard cc) {
+                    return cc.getCity().equals(city);
+                }
+
+                return false;
+            }).findFirst().orElse(null);
+
+            if (!pawn.getHandCards().contains(pc)) {
+                throw new NoCityCardToTreatDiseaseException(city);
+            }
         }
+
+        String cubeName = disease.toString();
 
         city.getCubes().remove(disease);
         disease.setCity(null);
 
-        if (cures.get(disease.getColor()).isDiscovered()) {
+        Spatial cubeSpatial = gameRepository.getApp().getRootNode().getChild(cubeName);
+
+        if (cubeSpatial != null) {
+            cubeSpatial.removeFromParent();
+        }
+
+        if (cures.get(disease.getColor()).isDiscovered() || pawn.getRole().events(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR)) {
             city.getCubes().forEach(cube -> {
                 if (cube.getColor().equals(disease.getColor())) {
+                    String tempCubeName = cube.toString();
                     city.getCubes().remove(cube);
                     cube.setCity(null);
+
+                    Spatial tempCubeSpatial = gameRepository.getApp().getRootNode().getChild(tempCubeName);
+
+                    if (tempCubeSpatial != null) {
+                        tempCubeSpatial.removeFromParent();
+                    }
                 }
             });
         }

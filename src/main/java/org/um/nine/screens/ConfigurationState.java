@@ -12,6 +12,7 @@ import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.Difficulty;
 import org.um.nine.domain.Player;
 import org.um.nine.exceptions.PlayerLimitException;
+import org.um.nine.screens.dialogs.DialogBoxState;
 
 import javax.inject.Inject;
 

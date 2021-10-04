@@ -13,7 +13,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import org.um.nine.contracts.repositories.*;
 import org.um.nine.exceptions.*;
-import org.um.nine.screens.DialogBoxState;
+import org.um.nine.screens.dialogs.DialogBoxState;
 import org.um.nine.screens.PauseMenu;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,7 +40,6 @@ public class InputManager {
 
     public void clear() {
         gameRepository.getApp().getInputManager().clearMappings();
-        gameRepository.getApp().getInputManager().clearRawInputListeners();
     }
 
     public void init() {
@@ -95,12 +94,14 @@ public class InputManager {
 
 
     private final ActionListener mouseButtonsListener = (name, clicking, tpf) -> {
-        if (name.equals("LClick")) {
-            select();
-        } else if (name.equals(Input.PAUSE.getName())) {
-            System.out.println("Paused");
-            gameRepository.getApp().getStateManager().attach(pauseMenu);
-            pauseMenu.setEnabled(true);
+        if (clicking) {
+            if (name.equals("LClick")) {
+                System.out.println("Clicked");
+                select();
+            } else if (name.equals(Input.PAUSE.getName())) {
+                gameRepository.getApp().getStateManager().attach(pauseMenu);
+                pauseMenu.setEnabled(true);
+            }
         }
     };
 

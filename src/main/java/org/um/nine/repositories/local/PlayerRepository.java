@@ -10,6 +10,8 @@ import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.roles.*;
 import org.um.nine.exceptions.*;
+import org.um.nine.screens.dialogs.DialogBoxState;
+import org.um.nine.screens.dialogs.TreatDiseaseDialogBox;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
 
@@ -19,13 +21,16 @@ public class PlayerRepository implements IPlayerRepository {
     private HashMap<String, Player> players;
     private Stack<Role> availableRoles;
     private Player currentPlayer = null;
-    private Stack<Player> playerOrder;
+    private Queue<Player> playerOrder;
 
     private RoundState currentRoundState = null;
 
     private int actionsLeft = 4;
     private int drawLeft = 2;
     private int infectionLeft = 2;
+
+    @Inject
+    private IGameRepository gameRepository;
 
     @Inject
     private IBoardRepository boardRepository;
@@ -41,6 +46,9 @@ public class PlayerRepository implements IPlayerRepository {
 
     @Inject
     private OptionHudState optionHudState;
+
+    @Inject
+    private TreatDiseaseDialogBox treatDiseaseDialogBox;
 
     @Inject
     private RenderManager renderManager;
@@ -74,7 +82,11 @@ public class PlayerRepository implements IPlayerRepository {
     }
 
     public void drive(Player player, City city) throws InvalidMoveException {
-        if (player.getCity().equals(city)) {
+        drive(player, city, true);
+    }
+
+    public void drive(Player player, City city, boolean careAboutNeighbours) throws InvalidMoveException {
+        if (player.getCity().equals(city) || (!player.getCity().getNeighbors().contains(city) && careAboutNeighbours)) {
             throw new InvalidMoveException(city, player);
         }
 
@@ -118,13 +130,15 @@ public class PlayerRepository implements IPlayerRepository {
             return false;
         }).findFirst().orElse(null);
 
+        System.out.println(pc);
+
         // If player doesn't have the city card, it can't make this move.
         if (pc == null) {
             throw new InvalidMoveException(city, player);
         }
 
         player.getHandCards().remove(pc);
-        drive(player, city);
+        drive(player, city, false);
     }
 
     public void charter(Player player, City city) throws InvalidMoveException {
@@ -156,7 +170,7 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         player.getHandCards().remove(pc);
-        drive(player, city);
+        drive(player, city, false);
     }
 
     public void shuttle(Player player, City city) throws InvalidMoveException {
@@ -168,7 +182,7 @@ public class PlayerRepository implements IPlayerRepository {
             throw new InvalidMoveException(city, player);
         }
 
-        drive(player, city);
+        drive(player, city, false);
     }
 
     @Override
@@ -218,6 +232,7 @@ public class PlayerRepository implements IPlayerRepository {
             if (infectionLeft == 0){
                 infectionLeft = Objects.requireNonNull(diseaseRepository.getInfectionRate().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
                 this.currentRoundState = null;
+                nextPlayer();
                 return null;
             }
 
@@ -225,8 +240,6 @@ public class PlayerRepository implements IPlayerRepository {
             return RoundState.INFECT;
         }
 
-        this.currentRoundState = null;
-        nextPlayer();
         throw new IllegalStateException();
     }
 
@@ -273,10 +286,12 @@ public class PlayerRepository implements IPlayerRepository {
 
     @Override
     public void nextPlayer() {
-        Player newPlayer = this.playerOrder.pop();
-        this.playerOrder.push(newPlayer);
+        Player newPlayer = this.playerOrder.poll();
+        System.out.println("Old: " + newPlayer.getName());
+        this.playerOrder.add(newPlayer);
 
-        setCurrentPlayer(newPlayer);
+        System.out.println("New: " + this.playerOrder.peek().getName());
+        setCurrentPlayer(this.playerOrder.peek());
 
         boardRepository.resetRound();
     }
@@ -291,7 +306,7 @@ public class PlayerRepository implements IPlayerRepository {
 
     @Override
     public void decidePlayerOrder() {
-        this.playerOrder = new Stack<>();
+        this.playerOrder = new LinkedList<>();
 
         HashMap<String, Integer> highestPopulation = new HashMap<>();
 
@@ -306,7 +321,7 @@ public class PlayerRepository implements IPlayerRepository {
             highestPopulation.put(key, highestPopulationCount);
         });
         highestPopulation.entrySet().stream().sorted(Map.Entry.comparingByValue()).forEach(p -> {
-            this.playerOrder.push(this.players.get(p.getKey()));
+            this.playerOrder.add(this.players.get(p.getKey()));
         });
     }
 
@@ -335,22 +350,47 @@ public class PlayerRepository implements IPlayerRepository {
             } else if (type.equals(ActionType.BUILD_RESEARCH_STATION)) {
                 cityRepository.addResearchStation(city, player);
             } else if (type.equals(ActionType.TREAT_DISEASE)) {
-                // TODO: Treat disease
+                if (!player.getCity().equals(city)) {
+                    DialogBoxState dialog = new DialogBoxState("Only able to treat cure in players current city");
+                    gameRepository.getApp().getStateManager().attach(dialog);
+                    dialog.setEnabled(true);
+                    return;
+                }
+
+                if (city.getCubes().isEmpty()) {
+                    DialogBoxState dialog = new DialogBoxState("There are no diseases to treat in this city.");
+                    gameRepository.getApp().getStateManager().attach(dialog);
+                    dialog.setEnabled(true);
+                    return;
+                }
+
+                treatDiseaseDialogBox.setPlayer(player);
+                treatDiseaseDialogBox.setCity(city);
+                gameRepository.getApp().getStateManager().attach(treatDiseaseDialogBox);
+                treatDiseaseDialogBox.setEnabled(true);
             } else if (type.equals(ActionType.SHARE_KNOWLEDGE)) {
                 // TODO: Share knowledge
             } else if (type.equals(ActionType.DISCOVER_CURE)) {
                // TODO: Discover cure
             }
+
         } else if (currentRoundState.equals(RoundState.DRAW)) {
             cardRepository.drawPlayCard();
 
+            nextState(currentRoundState);
             if (drawLeft > 0) {
                 action(null);
             }
 
             return;
         } else if (currentRoundState.equals(RoundState.INFECT)) {
-            // TODO: Draw card from infection deck
+//            cardRepository.drawPlayCard();
+
+            nextState(currentRoundState);
+            if (infectionLeft > 0) {
+                action(null);
+            }
+
             return;
         }
 
