@@ -172,7 +172,7 @@ public class InputManager {
         if(boardRepository.getSelectedCity() != null) {
             try {
                 playerRepository.action(boardRepository.getSelectedPlayerAction());
-            } catch (InvalidMoveException | NoActionSelectedException e) {
+            } catch (InvalidMoveException | NoActionSelectedException | ResearchStationLimitException | CityAlreadyHasResearchStationException e) {
                 DialogBoxState dialog = new DialogBoxState(e.getMessage());
                 gameRepository.getApp().getStateManager().attach(dialog);
                 dialog.setEnabled(true);

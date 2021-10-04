@@ -9,10 +9,7 @@ import org.um.nine.domain.*;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.roles.*;
-import org.um.nine.exceptions.ExternalMoveNotAcceptedException;
-import org.um.nine.exceptions.InvalidMoveException;
-import org.um.nine.exceptions.NoActionSelectedException;
-import org.um.nine.exceptions.PlayerLimitException;
+import org.um.nine.exceptions.*;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
 
@@ -35,6 +32,12 @@ public class PlayerRepository implements IPlayerRepository {
 
     @Inject
     private IDiseaseRepository diseaseRepository;
+
+    @Inject
+    private ICityRepository cityRepository;
+
+    @Inject
+    private ICardRepository cardRepository;
 
     @Inject
     private OptionHudState optionHudState;
@@ -308,16 +311,16 @@ public class PlayerRepository implements IPlayerRepository {
     }
 
     @Override
-    public void action(ActionType type) throws InvalidMoveException, NoActionSelectedException {
-        if (type == null) {
-            throw new NoActionSelectedException();
-        }
-
+    public void action(ActionType type) throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException, CityAlreadyHasResearchStationException {
         if (currentRoundState == null) {
             nextState(null);
         }
 
         if (currentRoundState.equals(RoundState.ACTION)) {
+            if (type == null) {
+                throw new NoActionSelectedException();
+            }
+
             City city = boardRepository.getSelectedCity();
             Player player = currentPlayer;
 
@@ -330,14 +333,25 @@ public class PlayerRepository implements IPlayerRepository {
             } else if (type.equals(ActionType.SHUTTLE)) {
                 shuttle(player, city);
             } else if (type.equals(ActionType.BUILD_RESEARCH_STATION)) {
-
+                cityRepository.addResearchStation(city, player);
             } else if (type.equals(ActionType.TREAT_DISEASE)) {
-
+                // TODO: Treat disease
             } else if (type.equals(ActionType.SHARE_KNOWLEDGE)) {
-
+                // TODO: Share knowledge
             } else if (type.equals(ActionType.DISCOVER_CURE)) {
-
+               // TODO: Discover cure
             }
+        } else if (currentRoundState.equals(RoundState.DRAW)) {
+            cardRepository.drawPlayCard();
+
+            if (drawLeft > 0) {
+                action(null);
+            }
+
+            return;
+        } else if (currentRoundState.equals(RoundState.INFECT)) {
+            // TODO: Draw card from infection deck
+            return;
         }
 
         nextState(currentRoundState);

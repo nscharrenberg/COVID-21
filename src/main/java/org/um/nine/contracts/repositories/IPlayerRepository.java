@@ -4,10 +4,7 @@ import org.um.nine.domain.ActionType;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.RoundState;
-import org.um.nine.exceptions.ExternalMoveNotAcceptedException;
-import org.um.nine.exceptions.InvalidMoveException;
-import org.um.nine.exceptions.NoActionSelectedException;
-import org.um.nine.exceptions.PlayerLimitException;
+import org.um.nine.exceptions.*;
 
 import java.util.HashMap;
 
@@ -37,5 +34,5 @@ public interface IPlayerRepository {
 
     void decidePlayerOrder();
 
-    void action(ActionType type) throws InvalidMoveException, NoActionSelectedException;
+    void action(ActionType type) throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException, CityAlreadyHasResearchStationException;
 }
