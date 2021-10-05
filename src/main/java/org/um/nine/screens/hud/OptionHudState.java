@@ -9,6 +9,7 @@ import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.ICardRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
+import org.um.nine.screens.hud.RuleState;
 
 public class OptionHudState extends BaseAppState  {
     private Container window;
@@ -27,6 +28,9 @@ public class OptionHudState extends BaseAppState  {
 
     @Inject
     private RoleActionState roleActionState;
+
+    @Inject
+    private RuleState ruleState;
 
     private float getStandardScale() {
         int height = getApplication().getCamera().getHeight();
@@ -79,7 +83,7 @@ public class OptionHudState extends BaseAppState  {
         Button rulesButton = window.addChild(new Button("Show Rules"));
         rulesButton.addClickCommands(button -> {
             // TODO: Open Show Rules Menu
-            System.out.println("Show Rules Button Clicked");
+            getStateManager().attach(ruleState);
         });
         rulesButton.setInsets(new Insets3f(2, 2, 0, 2));
 

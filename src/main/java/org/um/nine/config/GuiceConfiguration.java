@@ -11,10 +11,7 @@ import org.um.nine.screens.dialogs.DiscoverCureDialogBox;
 import org.um.nine.screens.dialogs.ShareCityCardConfirmationDialogBox;
 import org.um.nine.screens.dialogs.ShareCityCardDialogBox;
 import org.um.nine.screens.dialogs.TreatDiseaseDialogBox;
-import org.um.nine.screens.hud.ActionState;
-import org.um.nine.screens.hud.OptionHudState;
-import org.um.nine.screens.hud.PlayerInfoState;
-import org.um.nine.screens.hud.RoleActionState;
+import org.um.nine.screens.hud.*;
 import org.um.nine.utils.managers.RenderManager;
 
 public class GuiceConfiguration extends AbstractModule {
@@ -39,6 +36,8 @@ public class GuiceConfiguration extends AbstractModule {
     private final ShareCityCardDialogBox shareCityCardDialogBox = new ShareCityCardDialogBox();
     private final ShareCityCardConfirmationDialogBox shareCityCardConfirmationDialogBox = new ShareCityCardConfirmationDialogBox();
     private final RoleActionState roleActionState = new RoleActionState();
+    private final RuleState ruleState = new RuleState();
+
 
     @Override
     protected void configure() {
@@ -63,5 +62,6 @@ public class GuiceConfiguration extends AbstractModule {
         bind(ShareCityCardDialogBox.class).toInstance(shareCityCardDialogBox);
         bind(ShareCityCardConfirmationDialogBox.class).toInstance(shareCityCardConfirmationDialogBox);
         bind(RoleActionState.class).toInstance(roleActionState);
+        bind(RuleState.class).toInstance(ruleState);
     }
 }
