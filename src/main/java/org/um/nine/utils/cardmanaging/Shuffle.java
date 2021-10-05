@@ -22,17 +22,17 @@ public class Shuffle {
      * Those get a epidemic card added and then shuffled again.
      * @return a shuffled deck of cards including difficulty*epidemic cards mixed in every quarter
      */
-    public static Stack<Card> difficultyShuffle(Difficulty difficulty, Stack<Card> deck){
+    public static Stack<PlayerCard> difficultyShuffle(Difficulty difficulty, Stack<PlayerCard> deck){
         Collections.shuffle(deck);
-        Stack<Card> shuffled = new Stack<>();
+        Stack<PlayerCard> shuffled = new Stack<>();
 
-        Stack<Card>[] split = new Stack[difficulty.getCount()];
+        Stack<PlayerCard>[] split = new Stack[difficulty.getCount()];
         for(int i = 0; i < split.length; i++){
             split[i] = new Stack<>();
         }
 
         int counter = 0;
-        for (Card c: deck) {
+        for (PlayerCard c: deck) {
             if(counter > 3) counter = 0;
             split[counter].add(c);
             counter++;
@@ -45,17 +45,15 @@ public class Shuffle {
         }
 
         for(int i = 0; i < split.length; i++){
-            for (Card c: split[i]) {
-                shuffled.add(c);
-            }
+            shuffled.addAll(split[i]);
         }
 
         return shuffled;
     }
 
 
-    public static Stack<Card> buildPlayerDeck(Difficulty difficultyLevel, HashMap<String,City> cities, HashMap<String, Player> players){
-        Stack<Card> deck = new Stack<>();
+    public static Stack<PlayerCard> buildPlayerDeck(Difficulty difficultyLevel, HashMap<String,City> cities, HashMap<String, Player> players){
+        Stack<PlayerCard> deck = new Stack<>();
         deck.push(new GovernmentGrandEvent());
         deck.push(new PrognosisEvent());
         deck.push(new AirliftEvent());
@@ -92,7 +90,7 @@ public class Shuffle {
             }
         }
 
-        return difficultyShuffle(difficultyLevel,deck);
+        return difficultyShuffle(difficultyLevel, deck);
     }
 
     public static Stack<Card> buildEpidemicDeck(HashMap<String,City> cities){

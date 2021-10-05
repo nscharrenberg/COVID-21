@@ -16,6 +16,7 @@ import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Line;
 import com.jme3.scene.shape.Quad;
+import com.simsilica.lemur.Label;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.domain.*;
@@ -86,6 +87,8 @@ public class RenderManager {
         mat.setColor("Ambient", city.getColor() );
         plate.setMaterial(mat);
         plate.setLocalTranslation(city.getLocation());
+
+        renderText(city.getName(), city.getLocation().add(new Vector3f(-5, -5, 1)), ColorRGBA.White, city.toString() + "-label");
 
         AmbientLight al = new AmbientLight();
         al.setColor(ColorRGBA.White.mult(3f));

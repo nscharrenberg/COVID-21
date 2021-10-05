@@ -15,6 +15,7 @@ import org.um.nine.screens.dialogs.DiscoverCureDialogBox;
 import org.um.nine.screens.dialogs.ShareCityCardDialogBox;
 import org.um.nine.screens.dialogs.TreatDiseaseDialogBox;
 import org.um.nine.screens.hud.OptionHudState;
+import org.um.nine.screens.hud.PlayerInfoState;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.*;
@@ -48,6 +49,9 @@ public class PlayerRepository implements IPlayerRepository {
 
     @Inject
     private OptionHudState optionHudState;
+
+    @Inject
+    private PlayerInfoState playerInfoState;
 
     @Inject
     private TreatDiseaseDialogBox treatDiseaseDialogBox;
@@ -141,14 +145,20 @@ public class PlayerRepository implements IPlayerRepository {
             return false;
         }).findFirst().orElse(null);
 
-        System.out.println(pc);
-
         // If player doesn't have the city card, it can't make this move.
         if (pc == null) {
             throw new InvalidMoveException(city, player);
         }
 
         player.getHandCards().remove(pc);
+
+        PlayerInfoState pis = gameRepository.getApp().getStateManager().getState(PlayerInfoState.class);
+
+        if (pis != null) {
+            pis.setEnabled(false);
+            gameRepository.getApp().getStateManager().attach(playerInfoState);
+        }
+
         drive(player, city, false);
     }
 
@@ -383,7 +393,7 @@ public class PlayerRepository implements IPlayerRepository {
     }
 
     @Override
-    public void action(ActionType type) throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException, CityAlreadyHasResearchStationException {
+    public void action(ActionType type) throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException, CityAlreadyHasResearchStationException, NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         if (currentRoundState == null) {
             nextState(null);
         }
@@ -439,7 +449,7 @@ public class PlayerRepository implements IPlayerRepository {
             }
 
         } else if (currentRoundState.equals(RoundState.INFECT)) {
-            // TODO: draw infection cards and infect
+            cardRepository.drawInfectionCard();
 
             nextState(currentRoundState);
             if (infectionLeft >= 0) {

@@ -5,6 +5,7 @@ import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.Card;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
+import org.um.nine.domain.cards.EpidemicCard;
 import org.um.nine.domain.cards.InfectionCard;
 import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.exceptions.GameOverException;
@@ -28,14 +29,14 @@ public class CardRepository implements ICardRepository {
     @Inject
     private IBoardRepository boardRepository;
 
-    private Stack<Card> playerDeck;
+    private Stack<PlayerCard> playerDeck;
     private Stack<InfectionCard> infectionDeck;
     private Stack<InfectionCard> infectionDiscardPile;
     public CardRepository() {
     }
 
     @Override
-    public Stack<Card> getPlayerDeck() {
+    public Stack<PlayerCard> getPlayerDeck() {
         return playerDeck;
     }
 
@@ -52,10 +53,22 @@ public class CardRepository implements ICardRepository {
 
     @Override
     public void drawPlayCard() {
-        // TODO: Check if Epedemic Card
-        // TODO: Epidemic Card loigc
+        PlayerCard drawn = this.playerDeck.pop();
 
-        // TODO: else add to hand
+        if (drawn instanceof EpidemicCard) {
+            // TODO: Epidemic Card logic
+            return;
+        }
+
+        playerRepository.getCurrentPlayer().getHandCards().add(drawn);
+    }
+
+    @Override
+    public void drawInfectionCard() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
+        InfectionCard infectionCard = this.infectionDeck.pop();
+
+        diseaseRepository.infect(infectionCard.getCity().getColor(), infectionCard.getCity());
+        this.infectionDiscardPile.push(infectionCard);
     }
 
     @Override
@@ -78,5 +91,7 @@ public class CardRepository implements ICardRepository {
                 }
             }
         }
+
+
     }
 }
