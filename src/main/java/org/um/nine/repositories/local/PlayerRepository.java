@@ -350,18 +350,23 @@ public class PlayerRepository implements IPlayerRepository {
 
     @Override
     public void share(Player player, City city) {
-        if (!player.getCity().equals(city)) {
-            DialogBoxState dialog = new DialogBoxState("Only able to share knowledge on the city the player is currently at.");
-            gameRepository.getApp().getStateManager().attach(dialog);
-            dialog.setEnabled(true);
-            return;
-        }
-
         if (city.getPawns().size() <= 1) {
             DialogBoxState dialog = new DialogBoxState("Can not share when you are the only pawn in the city.");
             gameRepository.getApp().getStateManager().attach(dialog);
             dialog.setEnabled(true);
             return;
+        }
+
+        RoleAction action = RoleAction.GIVE_PLAYER_CITY_CARD;
+        if (player.getRole().actions(action) && boardRepository.getSelectedRoleAction().equals(action) && !boardRepository.getUsedActions().contains(action)) {
+            boardRepository.getUsedActions().add(action);
+        } else {
+            if (!player.getCity().equals(city)) {
+                DialogBoxState dialog = new DialogBoxState("Only able to share knowledge on the city the player is currently at.");
+                gameRepository.getApp().getStateManager().attach(dialog);
+                dialog.setEnabled(true);
+                return;
+            }
         }
 
         gameRepository.getApp().getStateManager().attach(shareCityCardDialogBox);

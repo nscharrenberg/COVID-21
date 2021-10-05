@@ -76,7 +76,7 @@ public class BoardRepository implements IBoardRepository {
 
         try {
             cityRepository.addResearchStation(atlanta, null);
-        } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException e) {
+        } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException | InvalidMoveException e) {
             e.printStackTrace();
         }
 
