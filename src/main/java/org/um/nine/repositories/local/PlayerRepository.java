@@ -12,6 +12,7 @@ import org.um.nine.domain.roles.*;
 import org.um.nine.exceptions.*;
 import org.um.nine.screens.dialogs.DialogBoxState;
 import org.um.nine.screens.dialogs.DiscoverCureDialogBox;
+import org.um.nine.screens.dialogs.ShareCityCardDialogBox;
 import org.um.nine.screens.dialogs.TreatDiseaseDialogBox;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
@@ -55,6 +56,9 @@ public class PlayerRepository implements IPlayerRepository {
     private DiscoverCureDialogBox discoverCureDialogBox;
 
     @Inject
+    private ShareCityCardDialogBox shareCityCardDialogBox;
+
+    @Inject
     private RenderManager renderManager;
 
     public HashMap<String, Player> getPlayers() {
@@ -85,10 +89,12 @@ public class PlayerRepository implements IPlayerRepository {
         Collections.shuffle(availableRoles);
     }
 
+    @Override
     public void drive(Player player, City city) throws InvalidMoveException {
         drive(player, city, true);
     }
 
+    @Override
     public void drive(Player player, City city, boolean careAboutNeighbours) throws InvalidMoveException {
         if (player.getCity().equals(city) || (!player.getCity().getNeighbors().contains(city) && careAboutNeighbours)) {
             throw new InvalidMoveException(city, player);
@@ -111,6 +117,7 @@ public class PlayerRepository implements IPlayerRepository {
         renderManager.renderPlayer(player, city.getPawnPosition(player));
     }
 
+    @Override
     public void direct(Player player, City city) throws InvalidMoveException {
         if (player.getCity().equals(city)) {
             throw new InvalidMoveException(city, player);
@@ -145,6 +152,7 @@ public class PlayerRepository implements IPlayerRepository {
         drive(player, city, false);
     }
 
+    @Override
     public void charter(Player player, City city) throws InvalidMoveException {
         if (player.getCity().equals(city)) {
             throw new InvalidMoveException(city, player);
@@ -177,6 +185,7 @@ public class PlayerRepository implements IPlayerRepository {
         drive(player, city, false);
     }
 
+    @Override
     public void shuttle(Player player, City city) throws InvalidMoveException {
         if (player.getCity().equals(city)) {
             throw new InvalidMoveException(city, player);
@@ -330,6 +339,50 @@ public class PlayerRepository implements IPlayerRepository {
     }
 
     @Override
+    public void share(Player player, City city) {
+        if (!player.getCity().equals(city)) {
+            DialogBoxState dialog = new DialogBoxState("Only able to share knowledge on the city the player is currently at.");
+            gameRepository.getApp().getStateManager().attach(dialog);
+            dialog.setEnabled(true);
+            return;
+        }
+
+        if (city.getPawns().size() <= 1) {
+            DialogBoxState dialog = new DialogBoxState("Can not share when you are the only pawn in the city.");
+            gameRepository.getApp().getStateManager().attach(dialog);
+            dialog.setEnabled(true);
+            return;
+        }
+
+        gameRepository.getApp().getStateManager().attach(shareCityCardDialogBox);
+        shareCityCardDialogBox.setCity(city);
+        shareCityCardDialogBox.setCurrentPlayer(player);
+        shareCityCardDialogBox.setEnabled(true);
+    }
+
+    @Override
+    public void treat(Player player, City city) {
+        if (!player.getCity().equals(city)) {
+            DialogBoxState dialog = new DialogBoxState("Only able to treat cure in players current city");
+            gameRepository.getApp().getStateManager().attach(dialog);
+            dialog.setEnabled(true);
+            return;
+        }
+
+        if (city.getCubes().isEmpty()) {
+            DialogBoxState dialog = new DialogBoxState("There are no diseases to treat in this city.");
+            gameRepository.getApp().getStateManager().attach(dialog);
+            dialog.setEnabled(true);
+            return;
+        }
+
+        treatDiseaseDialogBox.setPlayer(player);
+        treatDiseaseDialogBox.setCity(city);
+        gameRepository.getApp().getStateManager().attach(treatDiseaseDialogBox);
+        treatDiseaseDialogBox.setEnabled(true);
+    }
+
+    @Override
     public void action(ActionType type) throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException, CityAlreadyHasResearchStationException {
         if (currentRoundState == null) {
             nextState(null);
@@ -354,26 +407,13 @@ public class PlayerRepository implements IPlayerRepository {
             } else if (type.equals(ActionType.BUILD_RESEARCH_STATION)) {
                 cityRepository.addResearchStation(city, player);
             } else if (type.equals(ActionType.TREAT_DISEASE)) {
-                if (!player.getCity().equals(city)) {
-                    DialogBoxState dialog = new DialogBoxState("Only able to treat cure in players current city");
-                    gameRepository.getApp().getStateManager().attach(dialog);
-                    dialog.setEnabled(true);
-                    return;
-                }
+                treat(player, city);
 
-                if (city.getCubes().isEmpty()) {
-                    DialogBoxState dialog = new DialogBoxState("There are no diseases to treat in this city.");
-                    gameRepository.getApp().getStateManager().attach(dialog);
-                    dialog.setEnabled(true);
-                    return;
-                }
-
-                treatDiseaseDialogBox.setPlayer(player);
-                treatDiseaseDialogBox.setCity(city);
-                gameRepository.getApp().getStateManager().attach(treatDiseaseDialogBox);
-                treatDiseaseDialogBox.setEnabled(true);
+                return;
             } else if (type.equals(ActionType.SHARE_KNOWLEDGE)) {
-                // TODO: Share knowledge
+                share(player, city);
+
+                return;
             } else if (type.equals(ActionType.DISCOVER_CURE)) {
                 if (!player.getCity().equals(city)) {
                     DialogBoxState dialog = new DialogBoxState("Only able to discover cure in players current city");
@@ -385,6 +425,8 @@ public class PlayerRepository implements IPlayerRepository {
                 discoverCureDialogBox.setPlayer(player);
                 gameRepository.getApp().getStateManager().attach(discoverCureDialogBox);
                 discoverCureDialogBox.setEnabled(true);
+
+                return;
             }
 
             nextState(currentRoundState);
@@ -392,15 +434,15 @@ public class PlayerRepository implements IPlayerRepository {
             cardRepository.drawPlayCard();
 
             nextState(currentRoundState);
-            if (drawLeft > 0) {
+            if (drawLeft >= 0) {
                 action(null);
             }
 
         } else if (currentRoundState.equals(RoundState.INFECT)) {
-//            cardRepository.drawPlayCard();
+            // TODO: draw infection cards and infect
 
             nextState(currentRoundState);
-            if (infectionLeft > 0) {
+            if (infectionLeft >= 0) {
                 action(null);
             }
         }

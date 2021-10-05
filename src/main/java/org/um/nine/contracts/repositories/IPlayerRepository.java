@@ -14,6 +14,16 @@ public interface IPlayerRepository {
 
     void reset();
 
+    void drive(Player player, City city) throws InvalidMoveException;
+
+    void drive(Player player, City city, boolean careAboutNeighbours) throws InvalidMoveException;
+
+    void direct(Player player, City city) throws InvalidMoveException;
+
+    void charter(Player player, City city) throws InvalidMoveException;
+
+    void shuttle(Player player, City city) throws InvalidMoveException;
+
     void verifyExternalMove(Player instigator, Player target, City city, boolean accept) throws InvalidMoveException, ExternalMoveNotAcceptedException;
 
     RoundState nextState(RoundState currentState);
@@ -33,6 +43,10 @@ public interface IPlayerRepository {
     void resetRound();
 
     void decidePlayerOrder();
+
+    void share(Player player, City city);
+
+    void treat(Player player, City city);
 
     void action(ActionType type) throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException, CityAlreadyHasResearchStationException;
 }

@@ -10,6 +10,7 @@ import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
 import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
+import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Cure;
 import org.um.nine.domain.Disease;
@@ -26,6 +27,9 @@ public class DiscoverCureDialogBox extends BaseAppState {
 
     @Inject
     private IDiseaseRepository diseaseRepository;
+
+    @Inject
+    private IPlayerRepository playerRepository;
 
     public DiscoverCureDialogBox() {
         this.player = null;
@@ -61,6 +65,7 @@ public class DiscoverCureDialogBox extends BaseAppState {
             button.addClickCommands(c -> {
                 try {
                     diseaseRepository.discoverCure(player, cure);
+                    playerRepository.nextState(playerRepository.getCurrentRoundState());
                 } catch (UnableToDiscoverCureException e) {
                     DialogBoxState dialog = new DialogBoxState(e.getMessage());
                     getStateManager().attach(dialog);

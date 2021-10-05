@@ -10,6 +10,7 @@ import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
 import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
+import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
 import org.um.nine.domain.Player;
@@ -23,6 +24,9 @@ public class TreatDiseaseDialogBox extends BaseAppState {
 
     @Inject
     private IDiseaseRepository diseaseRepository;
+
+    @Inject
+    private IPlayerRepository playerRepository;
 
     public TreatDiseaseDialogBox() {
         this.city = null;
@@ -58,6 +62,7 @@ public class TreatDiseaseDialogBox extends BaseAppState {
             button.addClickCommands(c -> {
                 try {
                     diseaseRepository.treat(player, city, disease);
+                    playerRepository.nextState(playerRepository.getCurrentRoundState());
                 } catch (NoCityCardToTreatDiseaseException e) {
                     DialogBoxState dialog = new DialogBoxState(e.getMessage());
                     getStateManager().attach(dialog);

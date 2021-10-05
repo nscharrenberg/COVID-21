@@ -8,6 +8,8 @@ import org.um.nine.screens.MainMenuState;
 import org.um.nine.screens.PauseMenu;
 import org.um.nine.screens.SettingsState;
 import org.um.nine.screens.dialogs.DiscoverCureDialogBox;
+import org.um.nine.screens.dialogs.ShareCityCardConfirmationDialogBox;
+import org.um.nine.screens.dialogs.ShareCityCardDialogBox;
 import org.um.nine.screens.dialogs.TreatDiseaseDialogBox;
 import org.um.nine.screens.hud.ActionState;
 import org.um.nine.screens.hud.OptionHudState;
@@ -33,6 +35,8 @@ public class GuiceConfiguration extends AbstractModule {
     private final ActionState actionState = new ActionState();
     private final TreatDiseaseDialogBox treatDiseaseDialogBox = new TreatDiseaseDialogBox();
     private final DiscoverCureDialogBox discoverCureDialogBox = new DiscoverCureDialogBox();
+    private final ShareCityCardDialogBox shareCityCardDialogBox = new ShareCityCardDialogBox();
+    private final ShareCityCardConfirmationDialogBox shareCityCardConfirmationDialogBox = new ShareCityCardConfirmationDialogBox();
 
     @Override
     protected void configure() {
@@ -54,5 +58,7 @@ public class GuiceConfiguration extends AbstractModule {
         bind(ActionState.class).toInstance(actionState);
         bind(TreatDiseaseDialogBox.class).toInstance(treatDiseaseDialogBox);
         bind(DiscoverCureDialogBox.class).toInstance(discoverCureDialogBox);
+        bind(ShareCityCardDialogBox.class).toInstance(shareCityCardDialogBox);
+        bind(ShareCityCardConfirmationDialogBox.class).toInstance(shareCityCardConfirmationDialogBox);
     }
 }
