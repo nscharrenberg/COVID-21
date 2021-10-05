@@ -25,6 +25,9 @@ public class OptionHudState extends BaseAppState  {
     @Inject
     private ActionState actionState;
 
+    @Inject
+    private RoleActionState roleActionState;
+
     private float getStandardScale() {
         int height = getApplication().getCamera().getHeight();
         return height / 720f;
@@ -59,6 +62,13 @@ public class OptionHudState extends BaseAppState  {
         });
         actionButton.setInsets(new Insets3f(2, 2, 0, 2));
 
+        Button roleActionsButton = window.addChild(new Button("Role Actions"));
+        roleActionsButton.addClickCommands(button -> {
+            getStateManager().attach(roleActionState);
+            roleActionState.setEnabled(true);
+        });
+        roleActionsButton.setInsets(new Insets3f(2, 2, 0, 2));
+
         Button cardsButton = window.addChild(new Button("Cards & Roles"));
         cardsButton.addClickCommands(button -> {
             getStateManager().attach(playerInfoState);
@@ -73,7 +83,7 @@ public class OptionHudState extends BaseAppState  {
         });
         rulesButton.setInsets(new Insets3f(2, 2, 0, 2));
 
-        window.setLocalTranslation(25, 300, 5);
+        window.setLocalTranslation(25, 350, 5);
         window.setLocalScale(1.5f);
     }
 
