@@ -66,11 +66,7 @@ public class EpidemicRepository implements IEpidemicRepository {
     }
 
     @Override
-    public void action(){
-        DialogBoxState dialog = new DialogBoxState("An outbreak has occurred");
-        gameRepository.getApp().getStateManager().attach(dialog);
-        dialog.setEnabled(true);
-
+    public void action() {
         increase();
         infect();
         intensify();

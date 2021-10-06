@@ -16,11 +16,15 @@ import org.um.nine.domain.Disease;
 import org.um.nine.domain.Player;
 import org.um.nine.exceptions.NoCityCardToTreatDiseaseException;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class TreatDiseaseDialogBox extends BaseAppState {
     private Container window;
 
     private City city;
     private Player player;
+
+    private boolean heartbeat = false;
 
     @Inject
     private IDiseaseRepository diseaseRepository;
@@ -53,6 +57,23 @@ public class TreatDiseaseDialogBox extends BaseAppState {
         cureText.setInsets(new Insets3f(10, 10, 0, 10));
         cureText.setColor(ColorRGBA.Red);
 
+        renderItems();
+
+        window.addChild(cureText);
+
+        int height = application.getCamera().getHeight();
+        Vector3f pref = window.getPreferredSize().clone();
+
+        float standardScale = getStandardScale();
+        pref.multLocal(1.5f * standardScale);
+
+        float y = height * 0.6f + pref.y * 0.5f;
+
+        window.setLocalTranslation(100 * standardScale, y, 100);
+        window.setLocalScale(1.5f * standardScale);
+    }
+
+    private void renderItems() {
         int btnCount = 1;
 
         for (Disease disease : city.getCubes()) {
@@ -76,19 +97,17 @@ public class TreatDiseaseDialogBox extends BaseAppState {
             window.addChild(button, btnCount, 0);
             btnCount++;
         }
+    }
 
-        window.addChild(cureText);
+    @Override
+    public void update(float tpf) {
+        super.update(tpf);
 
-        int height = application.getCamera().getHeight();
-        Vector3f pref = window.getPreferredSize().clone();
+        if (heartbeat) {
+            renderItems();
 
-        float standardScale = getStandardScale();
-        pref.multLocal(1.5f * standardScale);
-
-        float y = height * 0.6f + pref.y * 0.5f;
-
-        window.setLocalTranslation(100 * standardScale, y, 100);
-        window.setLocalScale(1.5f * standardScale);
+            heartbeat = false;
+        }
     }
 
     @Override
@@ -122,5 +141,13 @@ public class TreatDiseaseDialogBox extends BaseAppState {
 
     public void setPlayer(Player player) {
         this.player = player;
+    }
+
+    public boolean isHeartbeat() {
+        return heartbeat;
+    }
+
+    public void setHeartbeat(boolean heartbeat) {
+        this.heartbeat = heartbeat;
     }
 }

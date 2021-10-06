@@ -150,6 +150,10 @@ public class DiseaseRepository implements IDiseaseRepository {
 
     @Override
     public void infect(ColorRGBA color, City city) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
+        if (cures.get(color).isDiscovered() && (cubes.get(color).stream().filter(c -> (c.getCity() != null)).findFirst().orElse(null) == null)) {
+            return;
+        }
+
         // Prevents both outbreaks and the placement of disease cubes in the city she is in
         for (Player player : city.getPawns() ) {
             if(player.getRole().events(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK)) {
@@ -209,21 +213,7 @@ public class DiseaseRepository implements IDiseaseRepository {
     }
 
     @Override
-    public void treat(Player pawn, City city, Disease disease) throws NoCityCardToTreatDiseaseException {
-        if (!pawn.getRole().events(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR)) {
-            PlayerCard pc = pawn.getHandCards().stream().filter(c -> {
-                if (c instanceof CityCard cc) {
-                    return cc.getCity().equals(city);
-                }
-
-                return false;
-            }).findFirst().orElse(null);
-
-            if (!pawn.getHandCards().contains(pc)) {
-                throw new NoCityCardToTreatDiseaseException(city);
-            }
-        }
-
+    public void treat(Player pawn, City city, Disease disease) {
         String cubeName = disease.toString();
 
         city.getCubes().remove(disease);
