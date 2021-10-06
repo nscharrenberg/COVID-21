@@ -48,6 +48,7 @@ public class RoleActionState extends BaseAppState  {
 
             button.addClickCommands(c -> {
                 boardRepository.setSelectedRoleAction(type);
+                boardRepository.roleAction(type);
                 setEnabled(false);
             });
 

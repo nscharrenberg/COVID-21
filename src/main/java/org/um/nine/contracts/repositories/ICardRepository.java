@@ -9,6 +9,7 @@ import org.um.nine.exceptions.NoCubesLeftException;
 import org.um.nine.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
 import org.um.nine.exceptions.OutbreakException;
 
+import java.util.LinkedList;
 import java.util.Stack;
 
 public interface ICardRepository {
@@ -26,4 +27,8 @@ public interface ICardRepository {
     void drawInfectionCard() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
 
     void buildDecks() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException, OutbreakException;
+
+    LinkedList<PlayerCard> getEventDiscardPile();
+
+    void setEventDiscardPile(LinkedList<PlayerCard> eventDiscardPile);
 }

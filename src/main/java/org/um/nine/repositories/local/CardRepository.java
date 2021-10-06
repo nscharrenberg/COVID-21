@@ -19,6 +19,8 @@ import org.um.nine.utils.cardmanaging.CityCardReader;
 import org.um.nine.utils.cardmanaging.Shuffle;
 
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 
 public class CardRepository implements ICardRepository {
@@ -45,6 +47,7 @@ public class CardRepository implements ICardRepository {
     private PlayerInfoState playerInfoState;
 
     private Stack<PlayerCard> playerDeck;
+    private LinkedList<PlayerCard> eventDiscardPile;
     private Stack<InfectionCard> infectionDeck;
     private Stack<InfectionCard> infectionDiscardPile;
 
@@ -128,5 +131,15 @@ public class CardRepository implements ICardRepository {
     @Override
     public void setInfectionDiscardPile(Stack<InfectionCard> newPile) {
         infectionDiscardPile = newPile;
+    }
+
+    @Override
+    public LinkedList<PlayerCard> getEventDiscardPile() {
+        return eventDiscardPile;
+    }
+
+    @Override
+    public void setEventDiscardPile(LinkedList<PlayerCard> eventDiscardPile) {
+        this.eventDiscardPile = eventDiscardPile;
     }
 }
