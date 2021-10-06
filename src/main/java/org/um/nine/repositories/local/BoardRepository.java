@@ -57,6 +57,9 @@ public class BoardRepository implements IBoardRepository {
     private ContingencyPlannerState contingencyPlannerState;
 
     @Inject
+    private ContingencyPlannerState contingencyPlannerState;
+
+    @Inject
     private DiscardCardDialog discardCardDialog;
 
     @Override
