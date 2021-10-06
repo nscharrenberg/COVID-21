@@ -3,6 +3,7 @@ package org.um.nine.screens.hud;
 import com.google.inject.Inject;
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import org.um.nine.Game;
@@ -72,13 +73,22 @@ public class RuleState extends BaseAppState {
         Label generalInfoText = window.addChild(new Label("1. Event cards can be played at any time \n2. You can give city cards to other players if both players are \nin the city of the city card\n3. It is a team game! Players should help each other! \n"));
         generalInfoText.setFontSize(8);
         generalInfoText.setInsets(new Insets3f(10, 10, 0, 10));
+        window.setLocalScale(15f);
         window.addChild(generalInfoText, 8, 0);
         int btnCount = 1;
 
 
 
-        window.setLocalTranslation(25, 1000, 5);
-        window.setLocalScale(1.5f);
+        int height = application.getCamera().getHeight();
+        Vector3f pref = window.getPreferredSize().clone();
+
+        float standardScale = getStandardScale();
+        pref.multLocal(1.5f * standardScale);
+
+        float y = height * 0.6f + pref.y * 0.5f;
+
+        window.setLocalTranslation(100 * standardScale, y, 0);
+        window.setLocalScale(1.5f * standardScale);
     }
 
     @Override

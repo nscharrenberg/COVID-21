@@ -82,8 +82,8 @@ public class OptionHudState extends BaseAppState  {
 
         Button rulesButton = window.addChild(new Button("Show Rules"));
         rulesButton.addClickCommands(button -> {
-            // TODO: Open Show Rules Menu
             getStateManager().attach(ruleState);
+            ruleState.setEnabled(true);
         });
         rulesButton.setInsets(new Insets3f(2, 2, 0, 2));
 

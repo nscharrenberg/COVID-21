@@ -8,7 +8,6 @@ import com.simsilica.lemur.*;
 import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
-import org.um.nine.domain.ActionType;
 import org.um.nine.domain.roles.RoleAction;
 
 public class RoleActionState extends BaseAppState  {
