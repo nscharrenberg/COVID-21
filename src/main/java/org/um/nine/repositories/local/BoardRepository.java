@@ -10,16 +10,17 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.simsilica.lemur.Label;
 import org.um.nine.contracts.repositories.*;
-import org.um.nine.domain.ActionType;
-import org.um.nine.domain.City;
-import org.um.nine.domain.Difficulty;
-import org.um.nine.domain.InfectionRateMarker;
+import org.um.nine.domain.*;
+import org.um.nine.domain.cards.CityCard;
+import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
+import org.um.nine.screens.hud.ContingencyPlannerState;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class BoardRepository implements IBoardRepository {
@@ -50,6 +51,9 @@ public class BoardRepository implements IBoardRepository {
 
     @Inject
     private ICardRepository cardRepository;
+
+    @Inject
+    private ContingencyPlannerState contingencyPlannerState;
 
     @Override
     public void preload() {
@@ -234,6 +238,25 @@ public class BoardRepository implements IBoardRepository {
             if (tempLbl != null) {
                 tempLbl.setText("Selected Action: " + selectedPlayerAction);
             }
+        }
+    }
+
+    @Override
+    public void roleAction(RoleAction roleAction){
+
+        if(roleAction.equals(RoleAction.BUILD_RESEARCH_STATION) && playerRepository.getCurrentPlayer().getRole().getName().equals("Operations Expert")){
+            try{
+                Player p = new Player("Substitute");
+                p.addCard(new CityCard(playerRepository.getCurrentPlayer().getCity()));
+                cityRepository.addResearchStation(playerRepository.getCurrentPlayer().getCity(),p);
+            } catch (CityAlreadyHasResearchStationException | InvalidMoveException | ResearchStationLimitException e) {
+                e.printStackTrace();
+            }
+        }else if(roleAction.equals(RoleAction.TAKE_ANY_DISCARED_EVENT) && playerRepository.getCurrentPlayer().getRole().getName().equals("Contingency Planner")){
+            gameRepository.getApp().getStateManager().attach(contingencyPlannerState);
+            contingencyPlannerState.setEnabled(true);
+        }else if(roleAction.equals(RoleAction.GIVE_PLAYER_CITY_CARD) && playerRepository.getCurrentPlayer().getRole().getName().equals("Researcher")){
+
         }
     }
 
