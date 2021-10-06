@@ -13,6 +13,7 @@ import org.um.nine.exceptions.GameOverException;
 import org.um.nine.exceptions.NoCubesLeftException;
 import org.um.nine.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
 import org.um.nine.exceptions.OutbreakException;
+import org.um.nine.screens.hud.PlayerInfoState;
 import org.um.nine.utils.cardmanaging.CityCardReader;
 import org.um.nine.utils.cardmanaging.Shuffle;
 
@@ -32,6 +33,9 @@ public class CardRepository implements ICardRepository {
 
     @Inject
     private IEpidemicRepository epidemicRepository;
+
+    @Inject
+    private PlayerInfoState playerInfoState;
 
     private Stack<PlayerCard> playerDeck;
     private Stack<InfectionCard> infectionDeck;
@@ -70,11 +74,12 @@ public class CardRepository implements ICardRepository {
         PlayerCard drawn = this.playerDeck.pop();
 
         if (drawn instanceof EpidemicCard) {
-            // TODO: Epidemic Card logic
+            epidemicRepository.action();
             return;
         }
-
+        
         playerRepository.getCurrentPlayer().getHandCards().add(drawn);
+        playerInfoState.setHeartbeat(true);
     }
 
     @Override
@@ -86,7 +91,7 @@ public class CardRepository implements ICardRepository {
     }
 
     @Override
-    public void buildDecks() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException, OutbreakException {
+    public void buildDecks() {
         this.playerDeck = Shuffle.buildPlayerDeck(boardRepository.getDifficulty(), cityRepository.getCities(), playerRepository.getPlayers());
         infectionDeck = CityCardReader.generateInfectionDeck(cityRepository.getCities().values().toArray(new City[0]));
         infectionDiscardPile = new Stack<>();
@@ -101,11 +106,13 @@ public class CardRepository implements ICardRepository {
                 infectionDiscardPile.add(c);
                 Disease d = new Disease(c.getCity().getColor());
                 for(int k=i;k>0;k--) {
-                    diseaseRepository.infect(d.getColor(),c.getCity());
+                    try {
+                        diseaseRepository.infect(d.getColor(),c.getCity());
+                    }catch (NoCubesLeftException | NoDiseaseOrOutbreakPossibleDueToEvent | GameOverException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
-
-
     }
 }

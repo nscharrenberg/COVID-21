@@ -22,6 +22,8 @@ public class PlayerInfoState extends BaseAppState  {
     @Inject
     private IPlayerRepository playerRepository;
 
+    private boolean heartbeat = false;
+
     private float getStandardScale() {
         int height = getApplication().getCamera().getHeight();
         return height / 720f;
@@ -53,6 +55,22 @@ public class PlayerInfoState extends BaseAppState  {
 
         window.setLocalTranslation(25, getApplication().getCamera().getHeight() / 2f, 5);
         window.setLocalScale(1.5f);
+    }
+
+    @Override
+    public void update(float tpf) {
+        super.update(tpf);
+
+        if (heartbeat) {
+            AtomicInteger i = new AtomicInteger(0);
+
+            playerRepository.getPlayers().forEach((key, player) -> {
+                renderPlayerInfo(player, i.get());
+                i.getAndIncrement();
+            });
+
+            heartbeat = false;
+        }
     }
 
     private void renderPlayerInfo(Player player, int i) {
@@ -98,5 +116,13 @@ public class PlayerInfoState extends BaseAppState  {
     @Override
     protected void onDisable() {
         window.removeFromParent();
+    }
+
+    public boolean isHeartbeat() {
+        return heartbeat;
+    }
+
+    public void setHeartbeat(boolean heartbeat) {
+        this.heartbeat = heartbeat;
     }
 }

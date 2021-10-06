@@ -19,6 +19,7 @@ import org.um.nine.screens.hud.PlayerInfoState;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PlayerRepository implements IPlayerRepository {
     private HashMap<String, Player> players;
@@ -49,9 +50,6 @@ public class PlayerRepository implements IPlayerRepository {
 
     @Inject
     private OptionHudState optionHudState;
-
-    @Inject
-    private PlayerInfoState playerInfoState;
 
     @Inject
     private TreatDiseaseDialogBox treatDiseaseDialogBox;
@@ -130,11 +128,13 @@ public class PlayerRepository implements IPlayerRepository {
         // No need to charter when neighbouring city
         if (player.getCity().getNeighbors().contains(city)) {
             drive(player, city);
+            return;
         }
 
         // No need to charter when both cities have research station
         if (player.getCity().getResearchStation() != null && city.getResearchStation() != null) {
             drive(player, city);
+            return;
         }
 
         PlayerCard pc = player.getHandCards().stream().filter(c -> {
@@ -151,13 +151,6 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         player.getHandCards().remove(pc);
-
-        PlayerInfoState pis = gameRepository.getApp().getStateManager().getState(PlayerInfoState.class);
-
-        if (pis != null) {
-            pis.setEnabled(false);
-            gameRepository.getApp().getStateManager().attach(playerInfoState);
-        }
 
         drive(player, city, false);
     }
@@ -207,6 +200,7 @@ public class PlayerRepository implements IPlayerRepository {
 
         drive(player, city, false);
     }
+
 
     @Override
     public void verifyExternalMove(Player instigator, Player target, City city, boolean accept) throws InvalidMoveException, ExternalMoveNotAcceptedException {

@@ -54,7 +54,7 @@ public class ShareCityCardDialogBox extends BaseAppState {
 
         window.setBackground(new QuadBackgroundComponent(ColorRGBA.White));
 
-        Label cureText = window.addChild(new Label("Select Disease to treat:"), 1, 0);
+        Label cureText = window.addChild(new Label("Select Player to share knowledge with:"), 1, 0);
         cureText.setInsets(new Insets3f(10, 10, 0, 10));
         cureText.setColor(ColorRGBA.Red);
 
