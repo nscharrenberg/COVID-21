@@ -7,7 +7,7 @@ import org.um.nine.contracts.repositories.IGameRepository;
 
 import javax.inject.Inject;
 
-public class Main  {
+public class Main {
     public static Injector injector = null;
 
     public static void main(String[] args) {
