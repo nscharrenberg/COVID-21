@@ -34,6 +34,8 @@ public class Shuffle {
         int counter = 0;
         for (PlayerCard c: deck) {
             if(counter > 3) counter = 0;
+        for (Card c: deck) {
+            if(counter > difficulty.getCount()-1) counter = 0;
             split[counter].add(c);
             counter++;
         }

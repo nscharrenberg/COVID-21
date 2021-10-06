@@ -112,6 +112,27 @@ public class DiseaseRepository implements IDiseaseRepository {
     }
 
     @Override
+    public void nextInfectionMarker(){
+        InfectionRateMarker marker = this.infectionRate.stream().filter(Marker::isCurrent).findFirst().orElse(null);
+
+        if (marker == null) {
+            this.infectionRate.get(0).setCurrent(true);
+            return;
+        }
+
+        marker.setCurrent(false);
+        InfectionRateMarker newMarker = this.infectionRate.stream().filter(v -> v.getId() == marker.getId() + 1).findFirst().orElse(null);
+
+        if (newMarker == null) {
+            return;
+        }
+
+        newMarker.setCurrent(true);
+        renderManager.renderInfectionMarker(marker);
+        renderManager.renderInfectionMarker(newMarker);
+    }
+
+    @Override
     public void reset() {
         this.infectionRate = new ArrayList<>();
         this.outbreakMarker = new ArrayList<>();

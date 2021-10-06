@@ -5,6 +5,8 @@ import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
 import org.um.nine.domain.cards.EpidemicCard;
+import org.um.nine.domain.Player;
+import org.um.nine.domain.cards.EpidemicCard;
 import org.um.nine.domain.cards.InfectionCard;
 import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.exceptions.GameOverException;
@@ -28,6 +30,10 @@ public class CardRepository implements ICardRepository {
     @Inject
     private IBoardRepository boardRepository;
 
+    @Inject
+    private IEpidemicRepository epidemicRepository;
+
+    private Stack<PlayerCard> playerDeck;
     private Stack<PlayerCard> playerDeck;
     private Stack<InfectionCard> infectionDeck;
     private Stack<InfectionCard> infectionDiscardPile;
@@ -42,6 +48,16 @@ public class CardRepository implements ICardRepository {
     @Override
     public Stack<InfectionCard> getInfectionDeck() {
         return infectionDeck;
+    }
+
+    @Override
+    public Stack<InfectionCard> getInfectionDiscardPile() {
+        return infectionDiscardPile;
+    }
+
+    @Override
+    public void setInfectionDiscardPile(Stack<InfectionCard> newPile) {
+        infectionDiscardPile = newPile;
     }
 
     public void reset() {

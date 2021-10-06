@@ -22,6 +22,7 @@ public class GuiceConfiguration extends AbstractModule {
     private final IPlayerRepository playerRepository = new PlayerRepository();
     private final IDiseaseRepository diseaseRepository = new DiseaseRepository();
     private final RenderManager renderManager = new RenderManager();
+    private final IEpidemicRepository epidemicRepository = new EpidemicRepository();
 
     // Screens
     private final MainMenuState mainMenuState = new MainMenuState();
@@ -48,6 +49,7 @@ public class GuiceConfiguration extends AbstractModule {
         bind(IPlayerRepository.class).toInstance(playerRepository);
         bind(IDiseaseRepository.class).toInstance(diseaseRepository);
         bind(RenderManager.class).toInstance(renderManager);
+        bind(IEpidemicRepository.class).toInstance(epidemicRepository);
 
 
         bind(MainMenuState.class).toInstance(mainMenuState);

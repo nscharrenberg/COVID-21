@@ -10,6 +10,8 @@ import java.util.List;
 public interface IDiseaseRepository {
     void nextOutbreak() throws GameOverException;
 
+    void nextInfectionMarker();
+
     void reset();
     List<InfectionRateMarker> getInfectionRate();
     List<OutbreakMarker> getOutbreakMarker();
