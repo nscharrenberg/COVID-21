@@ -1,5 +1,7 @@
 package org.um.nine.domain;
 
+import org.um.nine.domain.cards.PlayerCard;
+
 import java.util.ArrayList;
 
 public class Player {
@@ -9,7 +11,6 @@ public class Player {
     private boolean isBot;
     private boolean itsTurn;
     private ArrayList<PlayerCard> hand;
-    private ArrayList<Card> hand;
     private RoundState currentState;
 
 

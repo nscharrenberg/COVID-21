@@ -1,18 +1,15 @@
 package org.um.nine.utils.cardmanaging;
 
-import org.um.nine.domain.Card;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Difficulty;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.EpidemicCard;
-import org.um.nine.domain.cards.InfectionCard;
 import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.cards.events.*;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Stack;
 
 public class Shuffle {
@@ -32,9 +29,8 @@ public class Shuffle {
         }
 
         int counter = 0;
+
         for (PlayerCard c: deck) {
-            if(counter > 3) counter = 0;
-        for (Card c: deck) {
             if(counter > difficulty.getCount()-1) counter = 0;
             split[counter].add(c);
             counter++;
@@ -73,9 +69,9 @@ public class Shuffle {
 
         int k = amountCards*players.size();
         CityCard max_pop_cityCard = null;
-        Stack<Card> initialDeck = new Stack<>();
+        Stack<PlayerCard> initialDeck = new Stack<>();
         for (int i = 0; i< k; i++){
-            Card p = deck.pop();
+            PlayerCard p = deck.pop();
             if (p instanceof CityCard){
                 if (max_pop_cityCard== null || ((CityCard) p).getCity().getPopulation()>max_pop_cityCard.getCity().getPopulation()){
                     max_pop_cityCard  = ((CityCard) p);
@@ -85,7 +81,7 @@ public class Shuffle {
         }
         for (Player p : players.values()) {
             for (int i = 0; i< amountCards; i++){
-                PlayerCard card = (PlayerCard) initialDeck.pop();
+                PlayerCard card = initialDeck.pop();
                 p.addCard(card);
                 if (card.equals(max_pop_cityCard))
                     p.setItsTurn(true);
@@ -93,13 +89,6 @@ public class Shuffle {
         }
 
         return difficultyShuffle(difficultyLevel, deck);
-    }
-
-    public static Stack<Card> buildEpidemicDeck(HashMap<String,City> cities){
-        Stack<Card> deck = new Stack<>();
-        cities.values().stream().map(InfectionCard::new).forEach(deck::push);
-        Collections.shuffle(deck);
-        return deck;
     }
 
 }

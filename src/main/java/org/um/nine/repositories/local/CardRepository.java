@@ -34,7 +34,6 @@ public class CardRepository implements ICardRepository {
     private IEpidemicRepository epidemicRepository;
 
     private Stack<PlayerCard> playerDeck;
-    private Stack<PlayerCard> playerDeck;
     private Stack<InfectionCard> infectionDeck;
     private Stack<InfectionCard> infectionDiscardPile;
     public CardRepository() {
