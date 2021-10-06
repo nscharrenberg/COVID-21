@@ -1,14 +1,12 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
-import org.um.nine.contracts.repositories.IBoardRepository;
-import org.um.nine.contracts.repositories.ICardRepository;
-import org.um.nine.contracts.repositories.IDiseaseRepository;
-import org.um.nine.contracts.repositories.IEpidemicRepository;
+import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.Marker;
 import org.um.nine.domain.OutbreakMarker;
 import org.um.nine.domain.cards.InfectionCard;
 import org.um.nine.exceptions.GameOverException;
+import org.um.nine.screens.dialogs.DialogBoxState;
 
 import java.util.Collections;
 import java.util.Stack;
@@ -20,6 +18,9 @@ public class EpidemicRepository implements IEpidemicRepository {
 
     @Inject
     private ICardRepository cardRepository;
+
+    @Inject
+    private IGameRepository gameRepository;
 
     @Inject
     private IDiseaseRepository diseaseRepository;
@@ -66,6 +67,10 @@ public class EpidemicRepository implements IEpidemicRepository {
 
     @Override
     public void action(){
+        DialogBoxState dialog = new DialogBoxState("An outbreak has occurred");
+        gameRepository.getApp().getStateManager().attach(dialog);
+        dialog.setEnabled(true);
+
         increase();
         infect();
         intensify();

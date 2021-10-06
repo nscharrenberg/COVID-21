@@ -77,7 +77,7 @@ public class CardRepository implements ICardRepository {
             epidemicRepository.action();
             return;
         }
-        
+
         playerRepository.getCurrentPlayer().getHandCards().add(drawn);
         playerInfoState.setHeartbeat(true);
     }
