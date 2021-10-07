@@ -7,6 +7,7 @@ import org.um.nine.screens.ConfigurationState;
 import org.um.nine.screens.MainMenuState;
 import org.um.nine.screens.PauseMenu;
 import org.um.nine.screens.SettingsState;
+import org.um.nine.screens.dialogs.DiscardCardDialog;
 import org.um.nine.screens.dialogs.DiscoverCureDialogBox;
 import org.um.nine.screens.dialogs.ShareCityCardConfirmationDialogBox;
 import org.um.nine.screens.dialogs.ShareCityCardDialogBox;
@@ -22,7 +23,6 @@ public class GuiceConfiguration extends AbstractModule {
     private final IPlayerRepository playerRepository = new PlayerRepository();
     private final IDiseaseRepository diseaseRepository = new DiseaseRepository();
     private final RenderManager renderManager = new RenderManager();
-    private final IEpidemicRepository epidemicRepository = new EpidemicRepository();
 
     // Screens
     private final MainMenuState mainMenuState = new MainMenuState();
@@ -38,7 +38,7 @@ public class GuiceConfiguration extends AbstractModule {
     private final ShareCityCardConfirmationDialogBox shareCityCardConfirmationDialogBox = new ShareCityCardConfirmationDialogBox();
     private final RoleActionState roleActionState = new RoleActionState();
     private final RuleState ruleState = new RuleState();
-
+    private final DiscardCardDialog discardCardDialog = new DiscardCardDialog();
 
     @Override
     protected void configure() {
@@ -49,8 +49,6 @@ public class GuiceConfiguration extends AbstractModule {
         bind(IPlayerRepository.class).toInstance(playerRepository);
         bind(IDiseaseRepository.class).toInstance(diseaseRepository);
         bind(RenderManager.class).toInstance(renderManager);
-        bind(IEpidemicRepository.class).toInstance(epidemicRepository);
-
 
         bind(MainMenuState.class).toInstance(mainMenuState);
         bind(SettingsState.class).toInstance(settingsState);
@@ -65,5 +63,6 @@ public class GuiceConfiguration extends AbstractModule {
         bind(ShareCityCardConfirmationDialogBox.class).toInstance(shareCityCardConfirmationDialogBox);
         bind(RoleActionState.class).toInstance(roleActionState);
         bind(RuleState.class).toInstance(ruleState);
+        bind(DiscardCardDialog.class).toInstance(discardCardDialog);
     }
 }

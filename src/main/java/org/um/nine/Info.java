@@ -5,6 +5,8 @@ public class Info {
     public static final int RESEARCH_STATION_THRESHOLD = 6;
     public static final int PLAYER_THRESHOLD = 4;
     public static final int OUTBREAK_THRESHOLD = 3;
+    public static final int HAND_LIMIT = 7;
 
-    private Info() {}
+    private Info() {
+    }
 }
