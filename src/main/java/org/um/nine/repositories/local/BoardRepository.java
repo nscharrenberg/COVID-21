@@ -57,11 +57,10 @@ public class BoardRepository implements IBoardRepository {
     private ContingencyPlannerState contingencyPlannerState;
 
     @Inject
-    private ContingencyPlannerState contingencyPlannerState;
-
-    @Inject
     private DiscardCardDialog discardCardDialog;
 
+    @Inject
+    private ContingencyPlannerState contingencyPlannerState;
     @Override
     public void preload() {
         this.difficulty = Difficulty.NORMAL;
