@@ -9,6 +9,7 @@ import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.roles.RoleAction;
+import org.um.nine.exceptions.*;
 
 public class RoleActionState extends BaseAppState  {
     private Container window;
@@ -48,7 +49,13 @@ public class RoleActionState extends BaseAppState  {
 
             button.addClickCommands(c -> {
                 boardRepository.setSelectedRoleAction(type);
-                boardRepository.roleAction(type);
+                if(type.equals(RoleAction.BUILD_RESEARCH_STATION)||type.equals(RoleAction.TAKE_ANY_DISCARED_EVENT)){
+                    try {
+                        playerRepository.action(null);
+                    } catch (InvalidMoveException | NoDiseaseOrOutbreakPossibleDueToEvent | NoActionSelectedException | ResearchStationLimitException | CityAlreadyHasResearchStationException | NoCubesLeftException | GameOverException e) {
+                        e.printStackTrace();
+                    }
+                }
                 setEnabled(false);
             });
 
