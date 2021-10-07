@@ -8,32 +8,27 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
+import com.simsilica.lemur.Label;
 import org.um.nine.contracts.repositories.*;
+import org.um.nine.domain.ActionType;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Difficulty;
 import org.um.nine.domain.InfectionRateMarker;
-import org.um.nine.domain.Player;
-import org.um.nine.domain.roles.GenericRole;
 import org.um.nine.domain.roles.RoleAction;
-import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
-import org.um.nine.exceptions.ResearchStationLimitException;
+import org.um.nine.exceptions.*;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BoardRepository implements IBoardRepository {
     private Geometry board;
     private City selectedCity;
-    private RoleAction selectedAction = null;
+    private RoleAction selectedRoleAction = null;
+    private ActionType selectedPlayerAction = null;
     private List<RoleAction> usedActions = new ArrayList<>();
     private Difficulty difficulty;
-    private InfectionRateMarker infectionRateMarker;
-    private String cityCardsJSONPath = new File("").getAbsolutePath() +"src/main/resources/Cards/CityCards.json";
-
-    private int count;
 
     @Inject
     private IGameRepository gameRepository;
@@ -54,7 +49,7 @@ public class BoardRepository implements IBoardRepository {
     private OptionHudState optionHudState;
 
     @Inject
-    private CardRepository cardRepository;
+    private ICardRepository cardRepository;
 
     @Override
     public void preload() {
@@ -62,10 +57,14 @@ public class BoardRepository implements IBoardRepository {
         playerRepository.reset();
         cityRepository.preload();
         diseaseRepository.reset();
+        cardRepository.reset();
     }
 
     @Override
     public void startGame() {
+        gameRepository.getApp().getStateManager().attach(optionHudState);
+        optionHudState.setEnabled(true);
+
         cityRepository.renderCities();
 
         City atlanta = cityRepository.getCities().get("Atlanta");
@@ -78,19 +77,30 @@ public class BoardRepository implements IBoardRepository {
 
         try {
             cityRepository.addResearchStation(atlanta, null);
-        } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException e) {
+        } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException | InvalidMoveException e) {
             e.printStackTrace();
         }
 
         renderBoard();
-        infectionRateMarker = new InfectionRateMarker(1,0,true);
 
         renderCureSection();
         renderOutbreakSection();
         renderInfectionSection();
 
-        gameRepository.getApp().getStateManager().attach(optionHudState);
-        cardRepository.buildDecks();
+        try {
+            cardRepository.buildDecks();
+        } catch (NoCubesLeftException e) {
+            e.printStackTrace();
+        } catch (NoDiseaseOrOutbreakPossibleDueToEvent noDiseaseOrOutbreakPossibleDueToEvent) {
+            noDiseaseOrOutbreakPossibleDueToEvent.printStackTrace();
+        } catch (GameOverException e) {
+            e.printStackTrace();
+        } catch (OutbreakException e) {
+            e.printStackTrace();
+        }
+
+        playerRepository.decidePlayerOrder();
+        playerRepository.nextPlayer();
     }
 
     private void renderCureSection() {
@@ -177,13 +187,21 @@ public class BoardRepository implements IBoardRepository {
     }
 
     @Override
-    public RoleAction getSelectedAction() {
-        return selectedAction;
+    public RoleAction getSelectedRoleAction() {
+        return selectedRoleAction;
     }
 
     @Override
-    public void setSelectedAction(RoleAction selectedAction) {
-        this.selectedAction = selectedAction;
+    public void setSelectedRoleAction(RoleAction selectedRoleAction) {
+        this.selectedRoleAction = selectedRoleAction;
+
+        if (optionHudState != null) {
+            Label tempLbl = (Label) optionHudState.getWindow().getChild("currentRoleActionNameLbl");
+
+            if (tempLbl != null) {
+                tempLbl.setText("Selected Role Action: " + selectedRoleAction);
+            }
+        }
     }
 
     @Override
@@ -194,5 +212,38 @@ public class BoardRepository implements IBoardRepository {
     @Override
     public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
+    }
+
+    @Override
+    public InfectionRateMarker getInfectionRateMarker() {
+        return null;
+    }
+
+    @Override
+    public ActionType getSelectedPlayerAction() {
+        return selectedPlayerAction;
+    }
+
+    @Override
+    public void setSelectedPlayerAction(ActionType selectedPlayerAction) {
+        this.selectedPlayerAction = selectedPlayerAction;
+
+        if (optionHudState != null) {
+            Label tempLbl = (Label) optionHudState.getWindow().getChild("currentActionNameLbl");
+
+            if (tempLbl != null) {
+                tempLbl.setText("Selected Action: " + selectedPlayerAction);
+            }
+        }
+    }
+
+    @Override
+    public void resetRound() {
+//        setSelectedCity(null);
+//        setSelectedPlayerAction(null);
+//        setSelectedRoleAction(null);
+        usedActions = new ArrayList<>();
+
+        playerRepository.resetRound();
     }
 }

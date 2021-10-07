@@ -11,9 +11,9 @@ import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import org.um.nine.contracts.repositories.IBoardRepository;
-import org.um.nine.contracts.repositories.ICityRepository;
-import org.um.nine.contracts.repositories.IGameRepository;
+import org.um.nine.contracts.repositories.*;
+import org.um.nine.exceptions.*;
+import org.um.nine.screens.dialogs.DialogBoxState;
 import org.um.nine.screens.PauseMenu;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,6 +31,9 @@ public class InputManager {
 
     @Inject
     private ICityRepository cityRepository;
+
+    @Inject
+    private IPlayerRepository playerRepository;
 
     @Inject
     private PauseMenu pauseMenu;
@@ -91,12 +94,14 @@ public class InputManager {
 
 
     private final ActionListener mouseButtonsListener = (name, clicking, tpf) -> {
-        if (name.equals("LClick")) {
-            select();
-        } else if (name.equals(Input.PAUSE.getName())) {
-            System.out.println("Paused");
-            gameRepository.getApp().getStateManager().attach(pauseMenu);
-            pauseMenu.setEnabled(true);
+        if (clicking) {
+            if (name.equals("LClick")) {
+                System.out.println("Clicked");
+                select();
+            } else if (name.equals(Input.PAUSE.getName())) {
+                gameRepository.getApp().getStateManager().attach(pauseMenu);
+                pauseMenu.setEnabled(true);
+            }
         }
     };
 
@@ -164,6 +169,16 @@ public class InputManager {
                 return;
             }
         });
+
+        if(boardRepository.getSelectedCity() != null) {
+            try {
+                playerRepository.action(boardRepository.getSelectedPlayerAction());
+            } catch (InvalidMoveException | NoActionSelectedException | ResearchStationLimitException | CityAlreadyHasResearchStationException | NoCubesLeftException | NoDiseaseOrOutbreakPossibleDueToEvent | GameOverException e) {
+                DialogBoxState dialog = new DialogBoxState(e.getMessage());
+                gameRepository.getApp().getStateManager().attach(dialog);
+                dialog.setEnabled(true);
+            }
+        }
     }
 
 

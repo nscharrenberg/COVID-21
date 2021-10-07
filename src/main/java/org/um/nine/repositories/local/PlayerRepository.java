@@ -1,27 +1,31 @@
 package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
-import com.jme3.renderer.RendererException;
+import com.jme3.scene.Spatial;
+import com.simsilica.lemur.Label;
 import org.um.nine.Info;
-import org.um.nine.contracts.repositories.ICityRepository;
-import org.um.nine.contracts.repositories.IDiseaseRepository;
-import org.um.nine.contracts.repositories.IGameRepository;
-import org.um.nine.contracts.repositories.IPlayerRepository;
+import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.*;
+import org.um.nine.domain.cards.CityCard;
+import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.roles.*;
-import org.um.nine.exceptions.ExternalMoveNotAcceptedException;
-import org.um.nine.exceptions.InvalidMoveException;
-import org.um.nine.exceptions.PlayerLimitException;
+import org.um.nine.exceptions.*;
+import org.um.nine.screens.dialogs.DialogBoxState;
+import org.um.nine.screens.dialogs.DiscoverCureDialogBox;
+import org.um.nine.screens.dialogs.ShareCityCardDialogBox;
+import org.um.nine.screens.dialogs.TreatDiseaseDialogBox;
+import org.um.nine.screens.hud.OptionHudState;
+import org.um.nine.screens.hud.PlayerInfoState;
 import org.um.nine.utils.managers.RenderManager;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Stack;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PlayerRepository implements IPlayerRepository {
     private HashMap<String, Player> players;
     private Stack<Role> availableRoles;
+    private Player currentPlayer = null;
+    private Queue<Player> playerOrder;
 
     private RoundState currentRoundState = null;
 
@@ -30,13 +34,31 @@ public class PlayerRepository implements IPlayerRepository {
     private int infectionLeft = 2;
 
     @Inject
-    private ICityRepository cityRepository;
-
-    @Inject
     private IGameRepository gameRepository;
 
     @Inject
+    private IBoardRepository boardRepository;
+
+    @Inject
     private IDiseaseRepository diseaseRepository;
+
+    @Inject
+    private ICityRepository cityRepository;
+
+    @Inject
+    private ICardRepository cardRepository;
+
+    @Inject
+    private OptionHudState optionHudState;
+
+    @Inject
+    private TreatDiseaseDialogBox treatDiseaseDialogBox;
+
+    @Inject
+    private DiscoverCureDialogBox discoverCureDialogBox;
+
+    @Inject
+    private ShareCityCardDialogBox shareCityCardDialogBox;
 
     @Inject
     private RenderManager renderManager;
@@ -70,15 +92,14 @@ public class PlayerRepository implements IPlayerRepository {
     }
 
     @Override
-    public void move(Player player, City city) throws InvalidMoveException {
-        if (player.getCity().equals(city)) {
-            throw new InvalidMoveException(city, player);
-        }
+    public void drive(Player player, City city) throws InvalidMoveException {
+        drive(player, city, true);
+    }
 
-        if(player.getCity().getResearchStation() != null && city.getResearchStation() != null) {
-            // TODO: Allow Move normally
-        } else if (!player.getCity().getNeighbors().contains(city)) {
-            // TODO: allow player to discard a card or not
+    @Override
+    public void drive(Player player, City city, boolean careAboutNeighbours) throws InvalidMoveException {
+        if (player.getCity().equals(city) || (!player.getCity().getNeighbors().contains(city) && careAboutNeighbours)) {
+            throw new InvalidMoveException(city, player);
         }
 
         city.addPawn(player);
@@ -99,9 +120,92 @@ public class PlayerRepository implements IPlayerRepository {
     }
 
     @Override
+    public void direct(Player player, City city) throws InvalidMoveException {
+        if (player.getCity().equals(city)) {
+            throw new InvalidMoveException(city, player);
+        }
+
+        // No need to charter when neighbouring city
+        if (player.getCity().getNeighbors().contains(city)) {
+            drive(player, city);
+            return;
+        }
+
+        // No need to charter when both cities have research station
+        if (player.getCity().getResearchStation() != null && city.getResearchStation() != null) {
+            drive(player, city);
+            return;
+        }
+
+        PlayerCard pc = player.getHandCards().stream().filter(c -> {
+            if (c instanceof CityCard cc) {
+                return cc.getCity().equals(city);
+            }
+
+            return false;
+        }).findFirst().orElse(null);
+
+        // If player doesn't have the city card, it can't make this move.
+        if (pc == null) {
+            throw new InvalidMoveException(city, player);
+        }
+
+        player.getHandCards().remove(pc);
+
+        drive(player, city, false);
+    }
+
+    @Override
+    public void charter(Player player, City city) throws InvalidMoveException {
+        if (player.getCity().equals(city)) {
+            throw new InvalidMoveException(city, player);
+        }
+
+        // No need to charter when neighbouring city
+        if (player.getCity().getNeighbors().contains(city)) {
+            drive(player, city);
+        }
+
+        // No need to charter when both cities have research station
+        if (player.getCity().getResearchStation() != null && city.getResearchStation() != null) {
+            drive(player, city);
+        }
+
+        PlayerCard pc = player.getHandCards().stream().filter(c -> {
+            if (c instanceof CityCard cc) {
+                return cc.getCity().equals(player.getCity());
+            }
+
+            return false;
+        }).findFirst().orElse(null);
+
+        // If player doesn't have city card of his current city, it can't make this move.
+        if (pc == null) {
+            throw new InvalidMoveException(city, player);
+        }
+
+        player.getHandCards().remove(pc);
+        drive(player, city, false);
+    }
+
+    @Override
+    public void shuttle(Player player, City city) throws InvalidMoveException {
+        if (player.getCity().equals(city)) {
+            throw new InvalidMoveException(city, player);
+        }
+
+        if (player.getCity().getResearchStation() == null || city.getResearchStation() == null) {
+            throw new InvalidMoveException(city, player);
+        }
+
+        drive(player, city, false);
+    }
+
+
+    @Override
     public void verifyExternalMove(Player instigator, Player target, City city, boolean accept) throws InvalidMoveException, ExternalMoveNotAcceptedException {
         if (instigator.equals(target)) {
-            move(instigator, city);
+            drive(instigator, city);
             return;
         }
 
@@ -109,7 +213,7 @@ public class PlayerRepository implements IPlayerRepository {
             throw new ExternalMoveNotAcceptedException(instigator, target, city);
         }
 
-        move(target, city);
+        drive(target, city);
     }
 
     /**
@@ -145,6 +249,7 @@ public class PlayerRepository implements IPlayerRepository {
             if (infectionLeft == 0){
                 infectionLeft = Objects.requireNonNull(diseaseRepository.getInfectionRate().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
                 this.currentRoundState = null;
+                nextPlayer();
                 return null;
             }
 
@@ -152,7 +257,6 @@ public class PlayerRepository implements IPlayerRepository {
             return RoundState.INFECT;
         }
 
-        this.currentRoundState = null;
         throw new IllegalStateException();
     }
 
@@ -170,6 +274,187 @@ public class PlayerRepository implements IPlayerRepository {
     public void assignRoleToPlayer(Player player) {
         Role role = availableRoles.pop();
         player.setRole(role);
+    }
+
+    @Override
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    @Override
+    public void setCurrentPlayer(Player currentPlayer) {
+        this.currentPlayer = currentPlayer;
+
+        if (optionHudState != null) {
+            if (optionHudState.getWindow() == null) {
+                return;
+            }
+
+            Spatial tempSpat = optionHudState.getWindow().getChild("currentPlayerNameLbl");
+
+            if (tempSpat == null) {
+                return;
+            }
+
+            Label tempLbl = (Label) tempSpat;
+            tempLbl.setText("Current Player: " + currentPlayer);
+        }
+    }
+
+    @Override
+    public void nextPlayer() {
+        Player newPlayer = this.playerOrder.poll();
+        System.out.println("Old: " + newPlayer.getName());
+        this.playerOrder.add(newPlayer);
+
+        System.out.println("New: " + this.playerOrder.peek().getName());
+        setCurrentPlayer(this.playerOrder.peek());
+
+        boardRepository.resetRound();
+    }
+
+    @Override
+    public void resetRound() {
+        actionsLeft = 4;
+        drawLeft = 2;
+        infectionLeft = 2;
+        currentRoundState = null;
+    }
+
+    @Override
+    public void decidePlayerOrder() {
+        this.playerOrder = new LinkedList<>();
+
+        HashMap<String, Integer> highestPopulation = new HashMap<>();
+
+        this.players.forEach((key, player) -> {
+            int highestPopulationCount = 0;
+
+            for (PlayerCard c : player.getHandCards()) {
+                if (c instanceof CityCard tempCityCard) {
+                    highestPopulationCount = Math.max(tempCityCard.getCity().getPopulation(), highestPopulationCount);
+                }
+            }
+            highestPopulation.put(key, highestPopulationCount);
+        });
+        highestPopulation.entrySet().stream().sorted(Map.Entry.comparingByValue()).forEach(p -> {
+            this.playerOrder.add(this.players.get(p.getKey()));
+        });
+    }
+
+    @Override
+    public void share(Player player, City city) {
+        if (city.getPawns().size() <= 1) {
+            DialogBoxState dialog = new DialogBoxState("Can not share when you are the only pawn in the city.");
+            gameRepository.getApp().getStateManager().attach(dialog);
+            dialog.setEnabled(true);
+            return;
+        }
+
+        RoleAction action = RoleAction.GIVE_PLAYER_CITY_CARD;
+        if (player.getRole().actions(action) && boardRepository.getSelectedRoleAction().equals(action) && !boardRepository.getUsedActions().contains(action)) {
+            boardRepository.getUsedActions().add(action);
+        } else {
+            if (!player.getCity().equals(city)) {
+                DialogBoxState dialog = new DialogBoxState("Only able to share knowledge on the city the player is currently at.");
+                gameRepository.getApp().getStateManager().attach(dialog);
+                dialog.setEnabled(true);
+                return;
+            }
+        }
+
+        gameRepository.getApp().getStateManager().attach(shareCityCardDialogBox);
+        shareCityCardDialogBox.setCity(city);
+        shareCityCardDialogBox.setCurrentPlayer(player);
+        shareCityCardDialogBox.setEnabled(true);
+    }
+
+    @Override
+    public void treat(Player player, City city) {
+        if (!player.getCity().equals(city)) {
+            DialogBoxState dialog = new DialogBoxState("Only able to treat cure in players current city");
+            gameRepository.getApp().getStateManager().attach(dialog);
+            dialog.setEnabled(true);
+            return;
+        }
+
+        if (city.getCubes().isEmpty()) {
+            DialogBoxState dialog = new DialogBoxState("There are no diseases to treat in this city.");
+            gameRepository.getApp().getStateManager().attach(dialog);
+            dialog.setEnabled(true);
+            return;
+        }
+
+        treatDiseaseDialogBox.setPlayer(player);
+        treatDiseaseDialogBox.setCity(city);
+        gameRepository.getApp().getStateManager().attach(treatDiseaseDialogBox);
+        treatDiseaseDialogBox.setEnabled(true);
+    }
+
+    @Override
+    public void action(ActionType type) throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException, CityAlreadyHasResearchStationException, NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
+        if (currentRoundState == null) {
+            nextState(null);
+        }
+
+        if (currentRoundState.equals(RoundState.ACTION)) {
+            if (type == null) {
+                throw new NoActionSelectedException();
+            }
+
+            City city = boardRepository.getSelectedCity();
+            Player player = currentPlayer;
+
+            if (type.equals(ActionType.DRIVE)) {
+                drive(player, city);
+            } else if (type.equals(ActionType.DIRECT_FLIGHT)) {
+                direct(player, city);
+            } else if (type.equals(ActionType.CHARTER_FLIGHT)) {
+                charter(player, city);
+            } else if (type.equals(ActionType.SHUTTLE)) {
+                shuttle(player, city);
+            } else if (type.equals(ActionType.BUILD_RESEARCH_STATION)) {
+                cityRepository.addResearchStation(city, player);
+            } else if (type.equals(ActionType.TREAT_DISEASE)) {
+                treat(player, city);
+
+                return;
+            } else if (type.equals(ActionType.SHARE_KNOWLEDGE)) {
+                share(player, city);
+
+                return;
+            } else if (type.equals(ActionType.DISCOVER_CURE)) {
+                if (!player.getCity().equals(city)) {
+                    DialogBoxState dialog = new DialogBoxState("Only able to discover cure in players current city");
+                    gameRepository.getApp().getStateManager().attach(dialog);
+                    dialog.setEnabled(true);
+                    return;
+                }
+
+                discoverCureDialogBox.setPlayer(player);
+                gameRepository.getApp().getStateManager().attach(discoverCureDialogBox);
+                discoverCureDialogBox.setEnabled(true);
+
+                return;
+            }
+
+            nextState(currentRoundState);
+        } else if (currentRoundState.equals(RoundState.DRAW)) {
+            cardRepository.drawPlayCard();
+
+            nextState(currentRoundState);
+            if (drawLeft >= 0) {
+                action(null);
+            }
+
+        } else if (currentRoundState.equals(RoundState.INFECT)) {
+            cardRepository.drawInfectionCard();
+
+            nextState(currentRoundState);
+            if (infectionLeft >= 0) {
+                action(null);
+            }
+        }
     }
 }
 

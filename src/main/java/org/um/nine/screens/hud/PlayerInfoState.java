@@ -7,8 +7,10 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
+import com.simsilica.lemur.list.DefaultCellRenderer;
 import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IPlayerRepository;
+import org.um.nine.domain.Card;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.PlayerCard;
 
@@ -20,6 +22,8 @@ public class PlayerInfoState extends BaseAppState  {
     @Inject
     private IPlayerRepository playerRepository;
 
+    private boolean heartbeat = false;
+
     private float getStandardScale() {
         int height = getApplication().getCamera().getHeight();
         return height / 720f;
@@ -28,7 +32,6 @@ public class PlayerInfoState extends BaseAppState  {
     @Override
     protected void initialize(Application application) {
         window = new Container();
-        window.setBackground(new QuadBackgroundComponent(ColorRGBA.White));
 
         Label title = window.addChild(new Label("Players Information"));
         title.setFontSize(16);
@@ -50,8 +53,24 @@ public class PlayerInfoState extends BaseAppState  {
         });
 
 
-        window.setLocalTranslation(getApplication().getCamera().getWidth() / 2f, getApplication().getCamera().getHeight() / 2f, 5);
+        window.setLocalTranslation(25, getApplication().getCamera().getHeight() / 2f, 5);
         window.setLocalScale(1.5f);
+    }
+
+    @Override
+    public void update(float tpf) {
+        super.update(tpf);
+
+        if (heartbeat) {
+            AtomicInteger i = new AtomicInteger(0);
+
+            playerRepository.getPlayers().forEach((key, player) -> {
+                renderPlayerInfo(player, i.get());
+                i.getAndIncrement();
+            });
+
+            heartbeat = false;
+        }
     }
 
     private void renderPlayerInfo(Player player, int i) {
@@ -68,15 +87,16 @@ public class PlayerInfoState extends BaseAppState  {
         cardTxt.setInsets(new Insets3f(10, 10, 0, 10));
         window.addChild(cardTxt, 3, i);
 
-        ListBox<PlayerCard> cards = new ListBox<>();
+        ListBox<String> cards = new ListBox<>();
 
         AtomicInteger cardIndex = new AtomicInteger();
 
         player.getHandCards().forEach(c -> {
-            cards.getModel().add(cardIndex.get(), c);
+            cards.getModel().add(cardIndex.get(), c.getName());
 
             cardIndex.getAndIncrement();
         });
+
         window.setInsets(new Insets3f(10, 10, 0, 10));
         window.addChild(cards, 4, i);
     }
@@ -96,5 +116,13 @@ public class PlayerInfoState extends BaseAppState  {
     @Override
     protected void onDisable() {
         window.removeFromParent();
+    }
+
+    public boolean isHeartbeat() {
+        return heartbeat;
+    }
+
+    public void setHeartbeat(boolean heartbeat) {
+        this.heartbeat = heartbeat;
     }
 }

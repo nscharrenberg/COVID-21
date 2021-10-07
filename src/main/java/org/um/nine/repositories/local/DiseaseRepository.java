@@ -2,29 +2,33 @@ package org.um.nine.repositories.local;
 
 import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
+import com.jme3.scene.Spatial;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
+import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.domain.*;
+import org.um.nine.domain.cards.CityCard;
+import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.roles.RoleEvent;
-import org.um.nine.exceptions.NoCubesLeftException;
-import org.um.nine.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
-import org.um.nine.exceptions.OutbreakException;
-import org.um.nine.exceptions.UnableToDiscoverCureException;
+import org.um.nine.exceptions.*;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DiseaseRepository implements IDiseaseRepository {
     private List<InfectionRateMarker> infectionRate;
     private List<OutbreakMarker> outbreakMarker;
     private HashMap<ColorRGBA, Cure> cures;
 
-    // TODO: We could also use 1 array for all instead of 4.
     private HashMap<ColorRGBA, List<Disease>> cubes;
 
     @Inject
     private RenderManager renderManager;
+
+    @Inject
+    private IGameRepository gameRepository;
 
     public DiseaseRepository() {
         reset();
@@ -87,6 +91,48 @@ public class DiseaseRepository implements IDiseaseRepository {
     }
 
     @Override
+    public void nextOutbreak() throws GameOverException {
+        OutbreakMarker marker = this.outbreakMarker.stream().filter(Marker::isCurrent).findFirst().orElse(null);
+
+        if (marker == null) {
+            this.outbreakMarker.get(0).setCurrent(true);
+            return;
+        }
+
+        marker.setCurrent(false);
+        OutbreakMarker newMarker = this.outbreakMarker.stream().filter(v -> v.getId() == marker.getId() + 1).findFirst().orElse(null);
+
+        if (newMarker == null) {
+            throw new GameOverException();
+        }
+
+        newMarker.setCurrent(true);
+        renderManager.renderOutbreakMarker(marker);
+        renderManager.renderOutbreakMarker(newMarker);
+    }
+
+    @Override
+    public void nextInfectionMarker(){
+        InfectionRateMarker marker = this.infectionRate.stream().filter(Marker::isCurrent).findFirst().orElse(null);
+
+        if (marker == null) {
+            this.infectionRate.get(0).setCurrent(true);
+            return;
+        }
+
+        marker.setCurrent(false);
+        InfectionRateMarker newMarker = this.infectionRate.stream().filter(v -> v.getId() == marker.getId() + 1).findFirst().orElse(null);
+
+        if (newMarker == null) {
+            return;
+        }
+
+        newMarker.setCurrent(true);
+        renderManager.renderInfectionMarker(marker);
+        renderManager.renderInfectionMarker(newMarker);
+    }
+
+    @Override
     public void reset() {
         this.infectionRate = new ArrayList<>();
         this.outbreakMarker = new ArrayList<>();
@@ -103,7 +149,11 @@ public class DiseaseRepository implements IDiseaseRepository {
     }
 
     @Override
-    public void infect(ColorRGBA color, City city) throws NoCubesLeftException, OutbreakException, NoDiseaseOrOutbreakPossibleDueToEvent {
+    public void infect(ColorRGBA color, City city) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
+        if (cures.get(color).isDiscovered() && (cubes.get(color).stream().filter(c -> (c.getCity() != null)).findFirst().orElse(null) == null)) {
+            return;
+        }
+
         // Prevents both outbreaks and the placement of disease cubes in the city she is in
         for (Player player : city.getPawns() ) {
             if(player.getRole().events(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK)) {
@@ -127,13 +177,15 @@ public class DiseaseRepository implements IDiseaseRepository {
         }
 
         found.setCity(city);
-        if(!city.addCube(found))
+        if(!city.addCube(found)) {
             initOutbreak(city, found);
+            return;
+        }
 
         renderManager.renderDisease(found, city.getCubePosition(found));
     }
-    private static void initOutbreak(City city, Disease disease) {
-        //TODO: increment outbreak marker
+    private void initOutbreak(City city, Disease disease) throws GameOverException {
+        nextOutbreak();
         List<City> previousOutbreaks = new ArrayList<>();
         List<City> neighbors = city.getNeighbors();
         previousOutbreaks.add(city);
@@ -143,34 +195,48 @@ public class DiseaseRepository implements IDiseaseRepository {
         }
     }
 
-    private static void spreadOutbreak(City city, Disease disease, List<City> previousOutbreaks) {
+    private void spreadOutbreak(City city, Disease disease, List<City> previousOutbreaks) {
         if(!city.addCube(disease)){
-            //TODO: increment outbreak marker
             List<City> neighbors = city.getNeighbors();
             previousOutbreaks.add(city);
 
             for (City c: neighbors) {
-                if(!previousOutbreaks.contains(c)) //prevent outbreaks happening twice
+                if(!previousOutbreaks.contains(c)) {
                     spreadOutbreak(c,disease,previousOutbreaks);
+                }
             }
 
+            return;
         }
+
+        renderManager.renderDisease(disease, city.getCubePosition(disease));
     }
 
     @Override
     public void treat(Player pawn, City city, Disease disease) {
-        if (pawn.getRole().events(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR)) {
-            city.getCubes().removeIf(d -> d.getColor().equals(disease.getColor()));
-        }
+        String cubeName = disease.toString();
 
         city.getCubes().remove(disease);
         disease.setCity(null);
 
-        if (cures.get(disease.getColor()).isDiscovered()) {
+        Spatial cubeSpatial = gameRepository.getApp().getRootNode().getChild(cubeName);
+
+        if (cubeSpatial != null) {
+            cubeSpatial.removeFromParent();
+        }
+
+        if (cures.get(disease.getColor()).isDiscovered() || pawn.getRole().events(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR)) {
             city.getCubes().forEach(cube -> {
                 if (cube.getColor().equals(disease.getColor())) {
+                    String tempCubeName = cube.toString();
                     city.getCubes().remove(cube);
                     cube.setCity(null);
+
+                    Spatial tempCubeSpatial = gameRepository.getApp().getRootNode().getChild(tempCubeName);
+
+                    if (tempCubeSpatial != null) {
+                        tempCubeSpatial.removeFromParent();
+                    }
                 }
             });
         }
@@ -178,12 +244,35 @@ public class DiseaseRepository implements IDiseaseRepository {
 
     @Override
     public void discoverCure(Player pawn, Cure cure) throws UnableToDiscoverCureException {
-        if (pawn.getRole().events(RoleEvent.DISCOVER_CURE_FOUR_CARDS)) {
-            // TODO: If pawn has 4 cards of same color, then discover cure
-            return;
+        if (pawn.getCity().getResearchStation() == null) {
+            throw new UnableToDiscoverCureException(cure);
         }
 
-        // TODO: if pawn has 5 cards of the same color, then discover cure
+        ArrayList<PlayerCard> pc = pawn.getHandCards().stream().filter(c -> {
+            if (c instanceof CityCard) {
+                CityCard cc = (CityCard) c;
+
+                return cc.getCity().getColor().equals(cure.getColor());
+            }
+
+            return false;
+        }).collect(Collectors.toCollection(ArrayList::new));
+
+        long count = pc.size();
+
+        if (pawn.getRole().events(RoleEvent.DISCOVER_CURE_FOUR_CARDS)) {
+            if (count >= 4) {
+                pawn.getHandCards().removeAll(pc);
+                cure.setDiscovered(true);
+                return;
+            }
+        }
+
+        if (count >= 5) {
+            pawn.getHandCards().removeAll(pc);
+            cure.setDiscovered(true);
+            return;
+        }
 
         // else unable to discover a cure
         throw new UnableToDiscoverCureException(cure);

@@ -1,4 +1,4 @@
-package org.um.nine.screens;
+package org.um.nine.screens.dialogs;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;

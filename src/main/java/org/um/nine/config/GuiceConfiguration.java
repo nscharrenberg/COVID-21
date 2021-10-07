@@ -7,8 +7,12 @@ import org.um.nine.screens.ConfigurationState;
 import org.um.nine.screens.MainMenuState;
 import org.um.nine.screens.PauseMenu;
 import org.um.nine.screens.SettingsState;
-import org.um.nine.screens.hud.OptionHudState;
-import org.um.nine.screens.hud.PlayerInfoState;
+import org.um.nine.screens.dialogs.DiscardCardDialog;
+import org.um.nine.screens.dialogs.DiscoverCureDialogBox;
+import org.um.nine.screens.dialogs.ShareCityCardConfirmationDialogBox;
+import org.um.nine.screens.dialogs.ShareCityCardDialogBox;
+import org.um.nine.screens.dialogs.TreatDiseaseDialogBox;
+import org.um.nine.screens.hud.*;
 import org.um.nine.utils.managers.RenderManager;
 
 public class GuiceConfiguration extends AbstractModule {
@@ -27,6 +31,14 @@ public class GuiceConfiguration extends AbstractModule {
     private final PauseMenu pauseState = new PauseMenu();
     private final PlayerInfoState playerInfoState = new PlayerInfoState();
     private final OptionHudState optionHudState = new OptionHudState();
+    private final ActionState actionState = new ActionState();
+    private final TreatDiseaseDialogBox treatDiseaseDialogBox = new TreatDiseaseDialogBox();
+    private final DiscoverCureDialogBox discoverCureDialogBox = new DiscoverCureDialogBox();
+    private final ShareCityCardDialogBox shareCityCardDialogBox = new ShareCityCardDialogBox();
+    private final ShareCityCardConfirmationDialogBox shareCityCardConfirmationDialogBox = new ShareCityCardConfirmationDialogBox();
+    private final RoleActionState roleActionState = new RoleActionState();
+    private final RuleState ruleState = new RuleState();
+    private final DiscardCardDialog discardCardDialog = new DiscardCardDialog();
 
     @Override
     protected void configure() {
@@ -44,5 +56,13 @@ public class GuiceConfiguration extends AbstractModule {
         bind(PauseMenu.class).toInstance(pauseState);
         bind(OptionHudState.class).toInstance(optionHudState);
         bind(PlayerInfoState.class).toInstance(playerInfoState);
+        bind(ActionState.class).toInstance(actionState);
+        bind(TreatDiseaseDialogBox.class).toInstance(treatDiseaseDialogBox);
+        bind(DiscoverCureDialogBox.class).toInstance(discoverCureDialogBox);
+        bind(ShareCityCardDialogBox.class).toInstance(shareCityCardDialogBox);
+        bind(ShareCityCardConfirmationDialogBox.class).toInstance(shareCityCardConfirmationDialogBox);
+        bind(RoleActionState.class).toInstance(roleActionState);
+        bind(RuleState.class).toInstance(ruleState);
+        bind(DiscardCardDialog.class).toInstance(discardCardDialog);
     }
 }

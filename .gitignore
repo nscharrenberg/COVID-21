@@ -341,3 +341,5 @@ buildNumber.properties
 lwjgl64.dll
 OpenAL64.dll
 .sensei/
+
+.vscode/
