@@ -304,10 +304,8 @@ public class PlayerRepository implements IPlayerRepository {
     @Override
     public void nextPlayer() {
         Player newPlayer = this.playerOrder.poll();
-        System.out.println("Old: " + newPlayer.getName());
         this.playerOrder.add(newPlayer);
 
-        System.out.println("New: " + this.playerOrder.peek().getName());
         setCurrentPlayer(this.playerOrder.peek());
 
         boardRepository.resetRound();
@@ -387,6 +385,7 @@ public class PlayerRepository implements IPlayerRepository {
 
         treatDiseaseDialogBox.setPlayer(player);
         treatDiseaseDialogBox.setCity(city);
+        treatDiseaseDialogBox.setHeartbeat(true);
         gameRepository.getApp().getStateManager().attach(treatDiseaseDialogBox);
         treatDiseaseDialogBox.setEnabled(true);
     }

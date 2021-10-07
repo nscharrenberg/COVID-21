@@ -6,9 +6,16 @@ import com.jme3.app.state.BaseAppState;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
+import com.simsilica.lemur.Button;
+import com.simsilica.lemur.Container;
+import com.simsilica.lemur.Label;
 import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IBoardRepository;
 
+import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 
 public class RuleState extends BaseAppState {
@@ -75,9 +82,17 @@ public class RuleState extends BaseAppState {
         generalInfoText.setInsets(new Insets3f(10, 10, 0, 10));
         window.setLocalScale(15f);
         window.addChild(generalInfoText, 8, 0);
-        int btnCount = 1;
 
-
+        Button readMoreBtn = new Button("Read More");
+        readMoreBtn.addClickCommands(b -> {
+            try {
+                Desktop.getDesktop().browse(new URI("https://images.zmangames.com/filer_public/53/ed/53edbee8-adfb-4715-899f-dd381e1420d7/zm7101_rules_web.pdf"));
+            } catch (IOException | URISyntaxException e) {
+                e.printStackTrace();
+            }
+        });
+        readMoreBtn.setInsets(new Insets3f(10, 10, 10, 10));
+        window.addChild(readMoreBtn, 9, 0);
 
         int height = application.getCamera().getHeight();
         Vector3f pref = window.getPreferredSize().clone();
