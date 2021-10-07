@@ -61,6 +61,7 @@ public class CardRepository implements ICardRepository {
         this.playerDeck = new Stack<>();
         this.infectionDeck = new Stack<>();
         this.infectionDiscardPile = new Stack<>();
+        this.eventDiscardPile = new LinkedList<>();
     }
 
     @Override

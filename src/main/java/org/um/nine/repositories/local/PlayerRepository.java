@@ -10,10 +10,8 @@ import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.roles.*;
 import org.um.nine.exceptions.*;
-import org.um.nine.screens.dialogs.DialogBoxState;
-import org.um.nine.screens.dialogs.DiscoverCureDialogBox;
-import org.um.nine.screens.dialogs.ShareCityCardDialogBox;
-import org.um.nine.screens.dialogs.TreatDiseaseDialogBox;
+import org.um.nine.screens.dialogs.*;
+import org.um.nine.screens.hud.ContingencyPlannerState;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.screens.hud.PlayerInfoState;
 import org.um.nine.utils.managers.RenderManager;
@@ -62,6 +60,12 @@ public class PlayerRepository implements IPlayerRepository {
 
     @Inject
     private RenderManager renderManager;
+
+    @Inject
+    private DiscardCardDialog discardCardDialog;
+
+    @Inject
+    private ContingencyPlannerState contingencyPlannerState;
 
     public HashMap<String, Player> getPlayers() {
         return players;
@@ -194,8 +198,17 @@ public class PlayerRepository implements IPlayerRepository {
             throw new InvalidMoveException(city, player);
         }
 
-        if (player.getCity().getResearchStation() == null || city.getResearchStation() == null) {
+        if(player.getCity().getResearchStation() == null){
             throw new InvalidMoveException(city, player);
+        }
+        else if (city.getResearchStation() == null) {
+            if(!player.getRole().getName().equals("Operations Expert"))
+                throw new InvalidMoveException(city, player);
+            else{
+                gameRepository.getApp().getStateManager().attach(discardCardDialog);
+                boardRepository.getUsedActions().add(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY);
+            }
+
         }
 
         drive(player, city, false);
@@ -398,30 +411,42 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         if (currentRoundState.equals(RoundState.ACTION)) {
-            if (type == null) {
+            if (type == null && boardRepository.getSelectedRoleAction() == null) {
                 throw new NoActionSelectedException();
             }
 
             City city = boardRepository.getSelectedCity();
             Player player = currentPlayer;
 
-            if (type.equals(ActionType.DRIVE)) {
+            if(type == null){
+                type = ActionType.NO_ACTION;
+            }else if(boardRepository.getSelectedRoleAction() == null){
+                boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
+            }
+
+            if (boardRepository.getSelectedRoleAction().equals(RoleAction.TAKE_ANY_DISCARED_EVENT)){
+                gameRepository.getApp().getStateManager().attach(contingencyPlannerState);
+                contingencyPlannerState.setEnabled(true);
+                boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
+            } else if ( boardRepository.getSelectedRoleAction().equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY) || type.equals(ActionType.SHUTTLE)) {
+                shuttle(player, city);
+                boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
+            } else if (boardRepository.getSelectedRoleAction().equals(RoleAction.BUILD_RESEARCH_STATION) || type.equals(ActionType.BUILD_RESEARCH_STATION)) {
+                cityRepository.addResearchStation(city, player);
+                boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
+            } else if (type.equals(ActionType.DRIVE)) {
                 drive(player, city);
             } else if (type.equals(ActionType.DIRECT_FLIGHT)) {
                 direct(player, city);
             } else if (type.equals(ActionType.CHARTER_FLIGHT)) {
                 charter(player, city);
-            } else if (type.equals(ActionType.SHUTTLE)) {
-                shuttle(player, city);
-            } else if (type.equals(ActionType.BUILD_RESEARCH_STATION)) {
-                cityRepository.addResearchStation(city, player);
-            } else if (type.equals(ActionType.TREAT_DISEASE)) {
+            }  else if (type.equals(ActionType.TREAT_DISEASE)) {
                 treat(player, city);
 
                 return;
-            } else if (type.equals(ActionType.SHARE_KNOWLEDGE)) {
+            } else if (type.equals(ActionType.SHARE_KNOWLEDGE) || boardRepository.getSelectedRoleAction().equals(RoleAction.GIVE_PLAYER_CITY_CARD)) {
                 share(player, city);
-
+                boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
                 return;
             } else if (type.equals(ActionType.DISCOVER_CURE)) {
                 if (!player.getCity().equals(city)) {
