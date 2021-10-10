@@ -144,4 +144,14 @@ public class CardRepository implements ICardRepository {
     public void setEventDiscardPile(LinkedList<PlayerCard> eventDiscardPile) {
         this.eventDiscardPile = eventDiscardPile;
     }
+
+    @Override
+    public LinkedList<PlayerCard> getEventDiscardPile() {
+        return eventDiscardPile;
+    }
+
+    @Override
+    public void setEventDiscardPile(LinkedList<PlayerCard> eventDiscardPile) {
+        this.eventDiscardPile = eventDiscardPile;
+    }
 }
