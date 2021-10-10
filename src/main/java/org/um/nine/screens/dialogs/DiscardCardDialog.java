@@ -1,5 +1,6 @@
 package org.um.nine.screens.dialogs;
 
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.inject.Inject;
@@ -16,6 +17,7 @@ import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.PlayerCard;
+import org.um.nine.screens.hud.PlayerInfoState;
 
 public class DiscardCardDialog extends BaseAppState {
     private Container window;
@@ -24,6 +26,13 @@ public class DiscardCardDialog extends BaseAppState {
 
     @Inject
     private IGameRepository gameRepository;
+
+    @Inject
+    private PlayerInfoState playerInfoState;
+
+    private boolean heartbeat = false;
+
+    private int height;
 
     public DiscardCardDialog() {
         this.currentPlayer = null;
@@ -49,6 +58,22 @@ public class DiscardCardDialog extends BaseAppState {
         discardText.setColor(ColorRGBA.Red);
 
         window.addChild(discardText);
+
+        height = application.getCamera().getHeight();
+
+    }
+
+    @Override
+    public void update(float tpf){
+        super.update(tpf);
+        if(heartbeat){
+            renderInfo();
+            heartbeat=false;
+        }
+    }
+
+    private void renderInfo() {
+        LinkedList<Button> blist = new LinkedList<>();
         currentPlayer.getHandCards().forEach(c -> {
             Button b = new Button(c.getName());
             b.setInsets(new Insets3f(10, 10, 0, 10));
@@ -56,12 +81,15 @@ public class DiscardCardDialog extends BaseAppState {
             b.addClickCommands(d -> {
                 currentPlayer.discard(c);
                 this.setEnabled(false);
+                playerInfoState.setHeartbeat(true);
+                blist.forEach(button -> {
+                    window.removeChild(button);
+                });
             });
-
+            blist.add(b);
             window.addChild(b);
         });
 
-        int height = application.getCamera().getHeight();
         Vector3f pref = window.getPreferredSize().clone();
 
         float standardScale = getStandardScale();
@@ -96,6 +124,10 @@ public class DiscardCardDialog extends BaseAppState {
 
     public void setCurrentPlayer(Player currentPlayer) {
         this.currentPlayer = currentPlayer;
+    }
+
+    public void setHeartbeat(boolean state){
+        heartbeat=state;
     }
 
 }
