@@ -14,9 +14,11 @@ import com.simsilica.lemur.component.QuadBackgroundComponent;
 
 import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IGameRepository;
+import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.PlayerCard;
+import org.um.nine.repositories.local.PlayerRepository;
 import org.um.nine.screens.hud.PlayerInfoState;
 
 public class DiscardCardDialog extends BaseAppState {
@@ -29,6 +31,9 @@ public class DiscardCardDialog extends BaseAppState {
 
     @Inject
     private PlayerInfoState playerInfoState;
+
+    @Inject
+    private IPlayerRepository playerRepository;
 
     private boolean heartbeat = false;
 

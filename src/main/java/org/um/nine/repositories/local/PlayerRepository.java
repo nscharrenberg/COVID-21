@@ -254,7 +254,6 @@ public class PlayerRepository implements IPlayerRepository {
                 this.currentRoundState = RoundState.INFECT;
                 return RoundState.INFECT;
             }
-
             this.currentRoundState = RoundState.DRAW;
             return RoundState.DRAW;
         } else if (currentState == RoundState.INFECT){

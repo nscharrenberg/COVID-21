@@ -6,6 +6,7 @@ import org.um.nine.Info;
 import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
+import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.EpidemicCard;
 import org.um.nine.domain.cards.InfectionCard;
 import org.um.nine.domain.cards.PlayerCard;
