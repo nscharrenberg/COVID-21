@@ -50,6 +50,7 @@ public class ActionState extends BaseAppState  {
         for (ActionType type : ActionType.values()) {
             Button button = new Button(type.getDescription());
             button.setInsets(new Insets3f(10, 10, 0, 10));
+            button.setInsets(new Insets3f(10, 10, 0, 10));
 
             button.addClickCommands(c -> {
                 boardRepository.setSelectedPlayerAction(type);

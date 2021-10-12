@@ -40,6 +40,7 @@ public class GuiceConfiguration extends AbstractModule {
     private final RoleActionState roleActionState = new RoleActionState();
     private final RuleState ruleState = new RuleState();
     private final DiscardCardDialog discardCardDialog = new DiscardCardDialog();
+    private final ContingencyPlannerState contingencyPlannerState = new ContingencyPlannerState();
 
     @Override
     protected void configure() {
@@ -66,5 +67,6 @@ public class GuiceConfiguration extends AbstractModule {
         bind(RoleActionState.class).toInstance(roleActionState);
         bind(RuleState.class).toInstance(ruleState);
         bind(DiscardCardDialog.class).toInstance(discardCardDialog);
+        bind(ContingencyPlannerState.class).toInstance(contingencyPlannerState);
     }
 }

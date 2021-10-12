@@ -10,16 +10,18 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.simsilica.lemur.Label;
 import org.um.nine.contracts.repositories.*;
-import org.um.nine.domain.ActionType;
-import org.um.nine.domain.City;
-import org.um.nine.domain.Difficulty;
-import org.um.nine.domain.InfectionRateMarker;
+import org.um.nine.domain.*;
+import org.um.nine.domain.cards.CityCard;
+import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
+import org.um.nine.screens.dialogs.DiscardCardDialog;
+import org.um.nine.screens.hud.ContingencyPlannerState;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class BoardRepository implements IBoardRepository {
@@ -50,6 +52,12 @@ public class BoardRepository implements IBoardRepository {
 
     @Inject
     private ICardRepository cardRepository;
+
+    @Inject
+    private ContingencyPlannerState contingencyPlannerState;
+
+    @Inject
+    private DiscardCardDialog discardCardDialog;
 
     @Override
     public void preload() {

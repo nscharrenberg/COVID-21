@@ -6,6 +6,7 @@ import org.um.nine.Info;
 import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
+import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.EpidemicCard;
 import org.um.nine.domain.cards.InfectionCard;
 import org.um.nine.domain.cards.PlayerCard;
@@ -19,6 +20,8 @@ import org.um.nine.utils.cardmanaging.CityCardReader;
 import org.um.nine.utils.cardmanaging.Shuffle;
 
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 
 public class CardRepository implements ICardRepository {
@@ -45,6 +48,7 @@ public class CardRepository implements ICardRepository {
     private PlayerInfoState playerInfoState;
 
     private Stack<PlayerCard> playerDeck;
+    private LinkedList<PlayerCard> eventDiscardPile;
     private Stack<InfectionCard> infectionDeck;
     private Stack<InfectionCard> infectionDiscardPile;
 
@@ -56,15 +60,18 @@ public class CardRepository implements ICardRepository {
         return playerDeck;
     }
 
+
     @Override
     public Stack<InfectionCard> getInfectionDeck() {
         return infectionDeck;
     }
 
+
     public void reset() {
         this.playerDeck = new Stack<>();
         this.infectionDeck = new Stack<>();
         this.infectionDiscardPile = new Stack<>();
+        this.eventDiscardPile = new LinkedList<>();
     }
 
     @Override
@@ -118,6 +125,16 @@ public class CardRepository implements ICardRepository {
             }
         }
 
+    }
+
+    @Override
+    public LinkedList<PlayerCard> getEventDiscardPile() {
+        return eventDiscardPile;
+    }
+
+    @Override
+    public void setEventDiscardPile(LinkedList<PlayerCard> eventDiscardPile) {
+        this.eventDiscardPile = eventDiscardPile;
     }
 
     @Override
