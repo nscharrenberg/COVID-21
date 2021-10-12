@@ -60,10 +60,12 @@ public class CardRepository implements ICardRepository {
         return playerDeck;
     }
 
+
     @Override
     public Stack<InfectionCard> getInfectionDeck() {
         return infectionDeck;
     }
+
 
     public void reset() {
         this.playerDeck = new Stack<>();
@@ -127,12 +129,12 @@ public class CardRepository implements ICardRepository {
 
     @Override
     public LinkedList<PlayerCard> getEventDiscardPile() {
-        return null;
+        return eventDiscardPile;
     }
 
     @Override
     public void setEventDiscardPile(LinkedList<PlayerCard> eventDiscardPile) {
-
+        this.eventDiscardPile = eventDiscardPile;
     }
 
     @Override

@@ -56,7 +56,6 @@ public class RoleActionState extends BaseAppState  {
                         e.printStackTrace();
                     }
                 }
-                boardRepository.roleAction(type);
                 setEnabled(false);
             });
 

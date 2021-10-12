@@ -87,7 +87,7 @@ public class DiscardCardDialog extends BaseAppState {
             b.addClickCommands(d -> {
                 currentPlayer.discard(c);
                 playerInfoState.setHeartbeat(true);
-                if(playerRepository.getCurrentPlayer().getHandCards().size() > Info.HAND_LIMIT){
+                if(currentPlayer.getHandCards().size() > Info.HAND_LIMIT){
                     window.removeChild(b);
                 }
                 else{
