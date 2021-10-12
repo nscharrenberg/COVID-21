@@ -467,6 +467,7 @@ public class PlayerRepository implements IPlayerRepository {
 
             nextState(currentRoundState);
             if (drawLeft >= 0) {
+
                 action(null);
             }
 
@@ -475,6 +476,7 @@ public class PlayerRepository implements IPlayerRepository {
 
             nextState(currentRoundState);
             if (infectionLeft >= 0) {
+                boardRepository.setSelectedRoleAction(null);
                 action(null);
             }
         }

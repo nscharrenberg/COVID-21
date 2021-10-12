@@ -126,6 +126,16 @@ public class CardRepository implements ICardRepository {
     }
 
     @Override
+    public LinkedList<PlayerCard> getEventDiscardPile() {
+        return null;
+    }
+
+    @Override
+    public void setEventDiscardPile(LinkedList<PlayerCard> eventDiscardPile) {
+
+    }
+
+    @Override
     public Stack<InfectionCard> getInfectionDiscardPile() {
         return infectionDiscardPile;
     }
@@ -133,25 +143,5 @@ public class CardRepository implements ICardRepository {
     @Override
     public void setInfectionDiscardPile(Stack<InfectionCard> newPile) {
         infectionDiscardPile = newPile;
-    }
-
-    @Override
-    public LinkedList<PlayerCard> getEventDiscardPile() {
-        return eventDiscardPile;
-    }
-
-    @Override
-    public void setEventDiscardPile(LinkedList<PlayerCard> eventDiscardPile) {
-        this.eventDiscardPile = eventDiscardPile;
-    }
-
-    @Override
-    public LinkedList<PlayerCard> getEventDiscardPile() {
-        return eventDiscardPile;
-    }
-
-    @Override
-    public void setEventDiscardPile(LinkedList<PlayerCard> eventDiscardPile) {
-        this.eventDiscardPile = eventDiscardPile;
     }
 }
