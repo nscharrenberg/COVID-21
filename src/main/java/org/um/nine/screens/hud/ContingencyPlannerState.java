@@ -12,6 +12,8 @@ import org.um.nine.contracts.repositories.ICityRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.roles.RoleAction;
 
+import java.util.LinkedList;
+
 public class ContingencyPlannerState extends BaseAppState  {
     private Container window;
 
@@ -20,6 +22,14 @@ public class ContingencyPlannerState extends BaseAppState  {
 
     @Inject
     private IPlayerRepository playerRepository;
+
+    @Inject
+    private PlayerInfoState playerInfoState;
+
+    private boolean heartbeat = false;
+
+    LinkedList<Button> blist = new LinkedList<>();
+
 
     private float getStandardScale() {
         int height = getApplication().getCamera().getHeight();
@@ -38,10 +48,26 @@ public class ContingencyPlannerState extends BaseAppState  {
         Button closeBtn = new Button("Close");
         closeBtn.addClickCommands(c -> {
             this.setEnabled(false);
+            blist.forEach(button -> {
+                window.removeChild(button);
+            });
+            blist.clear();
         });
         closeBtn.setInsets(new Insets3f(10, 10, 0, 10));
         window.addChild(closeBtn, 0, 1);
 
+    }
+
+    @Override
+    public void update(float tpf){
+        super.update(tpf);
+        if(heartbeat){
+            info();
+            heartbeat=false;
+        }
+    }
+
+    private void info(){
         if(cardRepository.getEventDiscardPile().isEmpty()){
             Label no = window.addChild(new Label("No Event cards have been used!"));
             no.setFontSize(12);
@@ -53,8 +79,14 @@ public class ContingencyPlannerState extends BaseAppState  {
                 b.addClickCommands(command ->{
                     playerRepository.getCurrentPlayer().addCard(c);
                     cardRepository.getEventDiscardPile().remove(c);
+                    playerInfoState.setHeartbeat(true);
                     setEnabled(false);
+                    blist.forEach(button -> {
+                        window.removeChild(button);
+                    });
+                    blist.clear();
                 });
+                blist.add(b);
                 window.addChild(b);
             });
         }
@@ -78,5 +110,9 @@ public class ContingencyPlannerState extends BaseAppState  {
     @Override
     protected void onDisable() {
         window.removeFromParent();
+    }
+
+    public void setHeartbeat(boolean b) {
+        heartbeat = b;
     }
 }

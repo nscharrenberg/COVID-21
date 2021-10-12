@@ -8,6 +8,7 @@ import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.*;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.PlayerCard;
+import org.um.nine.domain.cards.events.AirliftEvent;
 import org.um.nine.domain.roles.*;
 import org.um.nine.exceptions.*;
 import org.um.nine.screens.dialogs.*;
@@ -206,6 +207,9 @@ public class PlayerRepository implements IPlayerRepository {
                 throw new InvalidMoveException(city, player);
             else{
                 gameRepository.getApp().getStateManager().attach(discardCardDialog);
+                discardCardDialog.setCurrentPlayer(currentPlayer);
+                discardCardDialog.setHeartbeat(true);
+                discardCardDialog.setEnabled(true);
                 boardRepository.getUsedActions().add(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY);
             }
 
@@ -424,6 +428,7 @@ public class PlayerRepository implements IPlayerRepository {
 
             if (boardRepository.getSelectedRoleAction().equals(RoleAction.TAKE_ANY_DISCARED_EVENT)){
                 gameRepository.getApp().getStateManager().attach(contingencyPlannerState);
+                contingencyPlannerState.setHeartbeat(true);
                 contingencyPlannerState.setEnabled(true);
                 boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
             } else if ( boardRepository.getSelectedRoleAction().equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY) || type.equals(ActionType.SHUTTLE)) {
