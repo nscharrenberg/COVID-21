@@ -31,4 +31,6 @@ public interface ICardRepository {
     LinkedList<PlayerCard> getEventDiscardPile();
 
     void setEventDiscardPile(LinkedList<PlayerCard> eventDiscardPile);
+
+    void cleanup();
 }

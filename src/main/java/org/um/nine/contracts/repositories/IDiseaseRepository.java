@@ -13,6 +13,9 @@ public interface IDiseaseRepository {
     void nextInfectionMarker();
 
     void reset();
+
+    void cleanup();
+
     List<InfectionRateMarker> getInfectionRate();
     List<OutbreakMarker> getOutbreakMarker();
     HashMap<ColorRGBA, Cure> getCures();

@@ -16,4 +16,6 @@ public interface ICityRepository {
 
     void reset();
     void renderCities();
+
+    void cleanup();
 }

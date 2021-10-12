@@ -486,5 +486,17 @@ public class PlayerRepository implements IPlayerRepository {
             }
         }
     }
+
+    @Override
+    public void cleanup() {
+        playerOrder = null;
+        players = null;
+        availableRoles = null;
+        currentPlayer = null;
+        currentRoundState = null;
+        actionsLeft = 4;
+        drawLeft = 2;
+        infectionLeft = 2;
+    }
 }
 

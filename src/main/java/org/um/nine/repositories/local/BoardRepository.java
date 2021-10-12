@@ -10,18 +10,19 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.simsilica.lemur.Label;
 import org.um.nine.contracts.repositories.*;
-import org.um.nine.domain.*;
-import org.um.nine.domain.cards.CityCard;
-import org.um.nine.domain.cards.PlayerCard;
+import org.um.nine.domain.ActionType;
+import org.um.nine.domain.City;
+import org.um.nine.domain.Difficulty;
+import org.um.nine.domain.InfectionRateMarker;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
 import org.um.nine.screens.dialogs.DiscardCardDialog;
+import org.um.nine.screens.dialogs.GameEndState;
 import org.um.nine.screens.hud.ContingencyPlannerState;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class BoardRepository implements IBoardRepository {
@@ -58,6 +59,9 @@ public class BoardRepository implements IBoardRepository {
 
     @Inject
     private DiscardCardDialog discardCardDialog;
+
+    @Inject
+    private GameEndState gameEndState;
 
     @Override
     public void preload() {
@@ -97,14 +101,12 @@ public class BoardRepository implements IBoardRepository {
 
         try {
             cardRepository.buildDecks();
-        } catch (NoCubesLeftException e) {
+        } catch (OutbreakException | NoDiseaseOrOutbreakPossibleDueToEvent e) {
             e.printStackTrace();
-        } catch (NoDiseaseOrOutbreakPossibleDueToEvent noDiseaseOrOutbreakPossibleDueToEvent) {
-            noDiseaseOrOutbreakPossibleDueToEvent.printStackTrace();
-        } catch (GameOverException e) {
-            e.printStackTrace();
-        } catch (OutbreakException e) {
-            e.printStackTrace();
+        } catch (GameOverException | NoCubesLeftException e) {
+            gameRepository.getApp().getStateManager().attach(gameEndState);
+            gameEndState.setMessage("Game Over! You Lost!");
+            gameEndState.setEnabled(true);
         }
 
         playerRepository.decidePlayerOrder();
@@ -247,11 +249,26 @@ public class BoardRepository implements IBoardRepository {
 
     @Override
     public void resetRound() {
-//        setSelectedCity(null);
-//        setSelectedPlayerAction(null);
-//        setSelectedRoleAction(null);
+        selectedCity = null;
+        selectedPlayerAction = null;
+        selectedRoleAction = null;
         usedActions = new ArrayList<>();
 
         playerRepository.resetRound();
+    }
+
+    @Override
+    public void cleanup() {
+        selectedCity = null;
+        selectedPlayerAction = null;
+        selectedRoleAction = null;
+        usedActions = new ArrayList<>();
+        board = null;
+        difficulty = null;
+
+        playerRepository.cleanup();
+        cardRepository.cleanup();
+        cityRepository.cleanup();
+        diseaseRepository.cleanup();
     }
 }

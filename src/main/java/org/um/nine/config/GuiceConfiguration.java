@@ -7,11 +7,7 @@ import org.um.nine.screens.ConfigurationState;
 import org.um.nine.screens.MainMenuState;
 import org.um.nine.screens.PauseMenu;
 import org.um.nine.screens.SettingsState;
-import org.um.nine.screens.dialogs.DiscardCardDialog;
-import org.um.nine.screens.dialogs.DiscoverCureDialogBox;
-import org.um.nine.screens.dialogs.ShareCityCardConfirmationDialogBox;
-import org.um.nine.screens.dialogs.ShareCityCardDialogBox;
-import org.um.nine.screens.dialogs.TreatDiseaseDialogBox;
+import org.um.nine.screens.dialogs.*;
 import org.um.nine.screens.hud.*;
 import org.um.nine.utils.managers.RenderManager;
 
@@ -41,6 +37,7 @@ public class GuiceConfiguration extends AbstractModule {
     private final RuleState ruleState = new RuleState();
     private final DiscardCardDialog discardCardDialog = new DiscardCardDialog();
     private final ContingencyPlannerState contingencyPlannerState = new ContingencyPlannerState();
+    private final GameEndState gameEndState = new GameEndState();
 
     @Override
     protected void configure() {
@@ -68,5 +65,6 @@ public class GuiceConfiguration extends AbstractModule {
         bind(RuleState.class).toInstance(ruleState);
         bind(DiscardCardDialog.class).toInstance(discardCardDialog);
         bind(ContingencyPlannerState.class).toInstance(contingencyPlannerState);
+        bind(GameEndState.class).toInstance(gameEndState);
     }
 }

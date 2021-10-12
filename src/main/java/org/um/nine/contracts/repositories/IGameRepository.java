@@ -15,4 +15,6 @@ public interface IGameRepository {
     void setApp(Game app);
     int getSpeed();
     void setSpeed(int speed);
+
+    void cleanup();
 }

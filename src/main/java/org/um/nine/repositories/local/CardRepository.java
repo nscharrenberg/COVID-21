@@ -6,22 +6,20 @@ import org.um.nine.Info;
 import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
-import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.EpidemicCard;
 import org.um.nine.domain.cards.InfectionCard;
 import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.exceptions.GameOverException;
 import org.um.nine.exceptions.NoCubesLeftException;
 import org.um.nine.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
-import org.um.nine.exceptions.OutbreakException;
 import org.um.nine.screens.dialogs.DiscardCardDialog;
+import org.um.nine.screens.dialogs.GameEndState;
 import org.um.nine.screens.hud.PlayerInfoState;
 import org.um.nine.utils.cardmanaging.CityCardReader;
 import org.um.nine.utils.cardmanaging.Shuffle;
 
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Stack;
 
 public class CardRepository implements ICardRepository {
@@ -46,6 +44,9 @@ public class CardRepository implements ICardRepository {
 
     @Inject
     private PlayerInfoState playerInfoState;
+
+    @Inject
+    private GameEndState gameEndState;
 
     private Stack<PlayerCard> playerDeck;
     private LinkedList<PlayerCard> eventDiscardPile;
@@ -118,8 +119,12 @@ public class CardRepository implements ICardRepository {
                 for(int k=i;k>0;k--) {
                     try {
                         diseaseRepository.infect(d.getColor(), c.getCity());
-                    } catch (NoCubesLeftException | NoDiseaseOrOutbreakPossibleDueToEvent | GameOverException e) {
+                    } catch (NoDiseaseOrOutbreakPossibleDueToEvent e) {
                         e.printStackTrace();
+                    } catch (GameOverException | NoCubesLeftException e) {
+                        gameRepository.getApp().getStateManager().attach(gameEndState);
+                        gameEndState.setMessage("Game Over! You Lost!");
+                        gameEndState.setEnabled(true);
                     }
                 }
             }
@@ -145,5 +150,13 @@ public class CardRepository implements ICardRepository {
     @Override
     public void setInfectionDiscardPile(Stack<InfectionCard> newPile) {
         infectionDiscardPile = newPile;
+    }
+
+    @Override
+    public void cleanup() {
+        playerDeck = null;
+        eventDiscardPile = null;
+        infectionDeck = null;
+        infectionDiscardPile = null;
     }
 }
