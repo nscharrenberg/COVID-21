@@ -13,6 +13,7 @@ import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
 
 import org.um.nine.Game;
+import org.um.nine.Info;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.Player;
@@ -85,11 +86,16 @@ public class DiscardCardDialog extends BaseAppState {
 
             b.addClickCommands(d -> {
                 currentPlayer.discard(c);
-                this.setEnabled(false);
                 playerInfoState.setHeartbeat(true);
-                blist.forEach(button -> {
-                    window.removeChild(button);
-                });
+                if(playerRepository.getCurrentPlayer().getHandCards().size() > Info.HAND_LIMIT){
+                    window.removeChild(b);
+                }
+                else{
+                    blist.forEach(button -> {
+                        window.removeChild(button);
+                    });
+                    this.setEnabled(false);
+                }
             });
             blist.add(b);
             window.addChild(b);
