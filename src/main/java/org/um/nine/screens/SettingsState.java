@@ -10,8 +10,12 @@ import com.simsilica.lemur.Checkbox;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.Label;
 import org.um.nine.Game;
+import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.domain.Resolution;
 import org.um.nine.domain.SAMPLING;
+import org.um.nine.screens.dialogs.*;
+import org.um.nine.screens.hud.*;
+import org.um.nine.utils.Util;
 
 import javax.inject.Inject;
 import java.awt.*;
@@ -19,13 +23,12 @@ import java.awt.*;
 public class SettingsState extends BaseAppState {
     private Container window;
 
+    private boolean heartbeat = false;
+
     @Inject
     private MainMenuState mainMenuState;
 
-    public float getStandardScale() {
-        int height = getApplication().getCamera().getHeight();
-        return height / 720f;
-    }
+    @Inject private IGameRepository gameRepository;
 
     @Override
     protected void initialize(Application application) {
@@ -43,16 +46,23 @@ public class SettingsState extends BaseAppState {
         sampleInput();
         settingsButton();
 
-        int height = application.getCamera().getHeight();
-        Vector3f pref = window.getPreferredSize().clone();
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+//        size.addLocal(0, 0, 100);
+        System.out.println(size);
+        window.setLocalTranslation(size);
 
-        float standardScale = getStandardScale();
-        pref.multLocal(1.5f * standardScale);
+        window.setLocalScale(Util.getStandardScale(window));
+    }
 
-        float y = height * 0.6f + pref.y * 0.5f;
+    @Override
+    public void update(float tpf) {
+        super.update(tpf);
 
-        window.setLocalTranslation(100 * standardScale, y, 0);
-        window.setLocalScale(1.5f * standardScale);
+        if (heartbeat) {
+            initialize(gameRepository.getApp());
+
+            this.heartbeat = false;
+        }
     }
 
     @Override
@@ -62,6 +72,11 @@ public class SettingsState extends BaseAppState {
 
     @Override
     protected void onEnable() {
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+
         Node gui = ((Game)getApplication()).getGuiNode();
         gui.attachChild(window);
         GuiGlobals.getInstance().requestFocus(window);
@@ -143,7 +158,8 @@ public class SettingsState extends BaseAppState {
         }
 
         item.addClickCommands(listBox -> {
-            getApplication().getContext().getSettings().setResolution(item.getSelectedItem().getHeight(), item.getSelectedItem().getHeight());
+            getApplication().getContext().getSettings().setWidth(item.getSelectedItem().getWidth());
+            getApplication().getContext().getSettings().setHeight(item.getSelectedItem().getHeight());
         });
 
         subPanel.setInsets(new Insets3f(10, 10, 0, 10));
@@ -167,5 +183,13 @@ public class SettingsState extends BaseAppState {
             getApplication().getContext().getSettings().setSamples(item.getSelectedItem().getValue());
         });
         subPanel.setInsets(new Insets3f(10, 10, 0, 10));
+    }
+
+    public boolean isHeartbeat() {
+        return heartbeat;
+    }
+
+    public void setHeartbeat(boolean heartbeat) {
+        this.heartbeat = heartbeat;
     }
 }

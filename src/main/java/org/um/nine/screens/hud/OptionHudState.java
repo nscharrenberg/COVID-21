@@ -3,25 +3,18 @@ package org.um.nine.screens.hud;
 import com.google.inject.Inject;
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IBoardRepository;
-import org.um.nine.contracts.repositories.ICardRepository;
+import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
-import org.um.nine.screens.hud.RuleState;
-import org.um.nine.contracts.repositories.IBoardRepository;
-import org.um.nine.contracts.repositories.ICardRepository;
-import org.um.nine.contracts.repositories.IPlayerRepository;
-import org.um.nine.domain.Card;
-import org.um.nine.domain.Player;
-import org.um.nine.exceptions.GameOverException;
-
-import java.sql.SQLOutput;
-import java.util.ArrayList;
+import org.um.nine.utils.Util;
 
 public class OptionHudState extends BaseAppState  {
     private Container window;
+    private boolean heartbeat = false;
 
     @Inject
     private PlayerInfoState playerInfoState;
@@ -39,12 +32,10 @@ public class OptionHudState extends BaseAppState  {
     private RoleActionState roleActionState;
 
     @Inject
-    private RuleState ruleState;
+    private IGameRepository gameRepository;
 
-    private float getStandardScale() {
-        int height = getApplication().getCamera().getHeight();
-        return height / 720f;
-    }
+    @Inject
+    private RuleState ruleState;
 
     @Override
     protected void initialize(Application application) {
@@ -96,8 +87,21 @@ public class OptionHudState extends BaseAppState  {
         });
         rulesButton.setInsets(new Insets3f(2, 2, 0, 2));
 
-        window.setLocalTranslation(25, 350, 5);
-        window.setLocalScale(1.5f);
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+    }
+
+    @Override
+    public void update(float tpf) {
+        super.update(tpf);
+
+        if (heartbeat) {
+            initialize(gameRepository.getApp());
+
+            this.heartbeat = false;
+        }
     }
 
     @Override
@@ -107,6 +111,9 @@ public class OptionHudState extends BaseAppState  {
 
     @Override
     protected void onEnable() {
+        window.setLocalTranslation(window.getWorldScale().getX(), 200, 100);
+        window.setLocalScale(Util.getStandardScale(window));
+
         Node gui = ((Game)getApplication()).getGuiNode();
         gui.attachChild(window);
         GuiGlobals.getInstance().requestFocus(window);
@@ -119,5 +126,13 @@ public class OptionHudState extends BaseAppState  {
 
     public Container getWindow() {
         return window;
+    }
+
+    public boolean isHeartbeat() {
+        return heartbeat;
+    }
+
+    public void setHeartbeat(boolean heartbeat) {
+        this.heartbeat = heartbeat;
     }
 }

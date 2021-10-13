@@ -9,13 +9,13 @@ import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
 import org.um.nine.Game;
-import org.um.nine.contracts.repositories.IDiseaseRepository;
+import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.PlayerCard;
-import org.um.nine.exceptions.UnableToShareKnowledgeException;
+import org.um.nine.utils.Util;
 
 public class ShareCityCardConfirmationDialogBox extends BaseAppState {
     private Container window;
@@ -23,9 +23,18 @@ public class ShareCityCardConfirmationDialogBox extends BaseAppState {
     private Player currentPlayer;
     private Player otherPlayer;
     private City city;
+    private boolean heartbeat = false;
 
     @Inject
-    private IDiseaseRepository diseaseRepository;
+    private IGameRepository gameRepository;
+
+    public boolean isHeartbeat() {
+        return heartbeat;
+    }
+
+    public void setHeartbeat(boolean heartbeat) {
+        this.heartbeat = heartbeat;
+    }
 
     @Inject
     private IPlayerRepository playerRepository;
@@ -34,12 +43,6 @@ public class ShareCityCardConfirmationDialogBox extends BaseAppState {
         this.currentPlayer = null;
         this.city = null;
         this.otherPlayer = null;
-    }
-
-    public ShareCityCardConfirmationDialogBox(Player player, Player otherPlayer, City city) {
-        this.currentPlayer = player;
-        this.otherPlayer = otherPlayer;
-        this.city = city;
     }
 
     public float getStandardScale() {
@@ -69,7 +72,7 @@ public class ShareCityCardConfirmationDialogBox extends BaseAppState {
             return false;
         }).findFirst().orElse(null);
 
-        Label cureText= null;
+        Label cureText;
 
         if (currentPlayer.getHandCards().contains(cpc)) {
            cureText  = window.addChild(new Label("Does " + otherPlayer.getName() + " accept to retrieve " + city.getName() + " from " + currentPlayer.getName()), 1, 0);
@@ -112,16 +115,21 @@ public class ShareCityCardConfirmationDialogBox extends BaseAppState {
         window.addChild(acceptBtn, 2, 0);
         window.addChild(cureText);
 
-        int height = application.getCamera().getHeight();
-        Vector3f pref = window.getPreferredSize().clone();
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+    }
 
-        float standardScale = getStandardScale();
-        pref.multLocal(1.5f * standardScale);
+    @Override
+    public void update(float tpf) {
+        super.update(tpf);
 
-        float y = height * 0.6f + pref.y * 0.5f;
+        if (heartbeat) {
+            initialize(gameRepository.getApp());
 
-        window.setLocalTranslation(100 * standardScale, y, 100);
-        window.setLocalScale(1.5f * standardScale);
+            this.heartbeat = false;
+        }
     }
 
     @Override
@@ -131,6 +139,11 @@ public class ShareCityCardConfirmationDialogBox extends BaseAppState {
 
     @Override
     protected void onEnable() {
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+
         Node gui = ((Game)getApplication()).getGuiNode();
         gui.attachChild(window);
         GuiGlobals.getInstance().requestFocus(window);

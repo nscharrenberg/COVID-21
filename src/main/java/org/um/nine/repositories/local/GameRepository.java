@@ -47,7 +47,7 @@ public class GameRepository implements IGameRepository {
 
         // Set the splash screen image
         settings.setSettingsDialogImage("images/image.jpg");
-        settings.setResolution(gd.getDisplayMode().getWidth(), gd.getDisplayMode().getHeight());
+        settings.setResolution(1920, 1080);
         settings.setSamples(16);
         settings.setVSync(true);
         settings.setFullscreen(false);

@@ -9,23 +9,20 @@ import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
 import org.um.nine.Game;
-import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.PlayerCard;
-import org.um.nine.exceptions.NoCityCardToTreatDiseaseException;
 import org.um.nine.exceptions.UnableToShareKnowledgeException;
+import org.um.nine.utils.Util;
 
 public class ShareCityCardDialogBox extends BaseAppState {
     private Container window;
 
     private Player currentPlayer;
     private City city;
-
-    @Inject
-    private IDiseaseRepository diseaseRepository;
+    private boolean heartbeat = false;
 
     @Inject
     private ShareCityCardConfirmationDialogBox shareCityCardConfirmationDialogBox;
@@ -36,11 +33,6 @@ public class ShareCityCardDialogBox extends BaseAppState {
     public ShareCityCardDialogBox() {
         this.currentPlayer = null;
         this.city = null;
-    }
-
-    public ShareCityCardDialogBox(Player player, City city) {
-        this.currentPlayer = player;
-        this.city = city;
     }
 
     public float getStandardScale() {
@@ -108,16 +100,21 @@ public class ShareCityCardDialogBox extends BaseAppState {
 
         window.addChild(cureText);
 
-        int height = application.getCamera().getHeight();
-        Vector3f pref = window.getPreferredSize().clone();
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+    }
 
-        float standardScale = getStandardScale();
-        pref.multLocal(1.5f * standardScale);
+    @Override
+    public void update(float tpf) {
+        super.update(tpf);
 
-        float y = height * 0.6f + pref.y * 0.5f;
+        if (heartbeat) {
+            initialize(gameRepository.getApp());
 
-        window.setLocalTranslation(100 * standardScale, y, 100);
-        window.setLocalScale(1.5f * standardScale);
+            this.heartbeat = false;
+        }
     }
 
     @Override
@@ -127,6 +124,11 @@ public class ShareCityCardDialogBox extends BaseAppState {
 
     @Override
     protected void onEnable() {
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+
         Node gui = ((Game)getApplication()).getGuiNode();
         gui.attachChild(window);
         GuiGlobals.getInstance().requestFocus(window);
@@ -151,5 +153,13 @@ public class ShareCityCardDialogBox extends BaseAppState {
 
     public void setCity(City city) {
         this.city = city;
+    }
+
+    public boolean isHeartbeat() {
+        return heartbeat;
+    }
+
+    public void setHeartbeat(boolean heartbeat) {
+        this.heartbeat = heartbeat;
     }
 }

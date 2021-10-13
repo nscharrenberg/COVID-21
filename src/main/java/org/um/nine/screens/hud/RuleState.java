@@ -5,12 +5,13 @@ import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
-import com.simsilica.lemur.*;
 import com.simsilica.lemur.Button;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.Label;
+import com.simsilica.lemur.*;
 import org.um.nine.Game;
-import org.um.nine.contracts.repositories.IBoardRepository;
+import org.um.nine.contracts.repositories.IGameRepository;
+import org.um.nine.utils.Util;
 
 import java.awt.*;
 import java.io.IOException;
@@ -21,10 +22,10 @@ import java.net.URISyntaxException;
 public class RuleState extends BaseAppState {
     private Container window;
 
-    private float getStandardScale() {
-        int height = getApplication().getCamera().getHeight();
-        return height / 720f;
-    }
+    private boolean heartbeat = false;
+
+    @Inject
+    private IGameRepository gameRepository;
 
     @Override
     protected void initialize(Application application) {
@@ -94,16 +95,21 @@ public class RuleState extends BaseAppState {
         readMoreBtn.setInsets(new Insets3f(10, 10, 10, 10));
         window.addChild(readMoreBtn, 9, 0);
 
-        int height = application.getCamera().getHeight();
-        Vector3f pref = window.getPreferredSize().clone();
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+    }
 
-        float standardScale = getStandardScale();
-        pref.multLocal(1.5f * standardScale);
+    @Override
+    public void update(float tpf) {
+        super.update(tpf);
 
-        float y = height * 0.6f + pref.y * 0.5f;
+        if (heartbeat) {
+            initialize(gameRepository.getApp());
 
-        window.setLocalTranslation(100 * standardScale, y, 0);
-        window.setLocalScale(1.5f * standardScale);
+            this.heartbeat = false;
+        }
     }
 
     @Override
@@ -113,6 +119,11 @@ public class RuleState extends BaseAppState {
 
     @Override
     protected void onEnable() {
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+
         Node gui = ((Game)getApplication()).getGuiNode();
         gui.attachChild(window);
         GuiGlobals.getInstance().requestFocus(window);
@@ -121,5 +132,13 @@ public class RuleState extends BaseAppState {
     @Override
     protected void onDisable() {
         window.removeFromParent();
+    }
+
+    public boolean isHeartbeat() {
+        return heartbeat;
+    }
+
+    public void setHeartbeat(boolean heartbeat) {
+        this.heartbeat = heartbeat;
     }
 }

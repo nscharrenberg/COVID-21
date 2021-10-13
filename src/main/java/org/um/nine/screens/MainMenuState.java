@@ -8,11 +8,16 @@ import com.simsilica.lemur.*;
 import org.um.nine.Game;
 import org.um.nine.Info;
 import org.um.nine.contracts.repositories.IGameRepository;
+import org.um.nine.screens.dialogs.*;
+import org.um.nine.screens.hud.*;
+import org.um.nine.utils.Util;
 
 import javax.inject.Inject;
 
 public class MainMenuState extends BaseAppState {
     private Container window;
+
+    private boolean heartbeat = false;
 
     @Inject
     private SettingsState settingsState;
@@ -23,10 +28,20 @@ public class MainMenuState extends BaseAppState {
     @Inject
     private IGameRepository gameRepository;
 
-    public float getStandardScale() {
-        int height = getApplication().getCamera().getHeight();
-        return height / 720f;
-    }
+
+    @Inject private DiscardCardDialog discardCardDialog;
+    @Inject private DiscoverCureDialogBox discoverCureDialogBox;
+    @Inject private GameEndState gameEndState;
+    @Inject private ShareCityCardConfirmationDialogBox shareCityCardConfirmationDialogBox;
+    @Inject private ShareCityCardDialogBox shareCityCardDialogBox;
+    @Inject private TreatDiseaseDialogBox treatDiseaseDialogBox;
+    @Inject private ActionState actionState;
+    @Inject private ContingencyPlannerState contingencyPlannerState;
+    @Inject private OptionHudState optionHudState;
+    @Inject private PlayerInfoState playerInfoState;
+    @Inject private RoleActionState roleActionState;
+    @Inject private RuleState ruleState;
+    @Inject private PauseMenu pauseMenu;
 
     @Override
     protected void initialize(Application application) {
@@ -41,16 +56,21 @@ public class MainMenuState extends BaseAppState {
         settingsButton();
         quitButton(application);
 
-        int height = application.getCamera().getHeight();
-        Vector3f pref = window.getPreferredSize().clone();
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+    }
 
-        float standardScale = getStandardScale();
-        pref.multLocal(1.5f * standardScale);
+    @Override
+    public void update(float tpf) {
+        super.update(tpf);
 
-        float y = height * 0.6f + pref.y * 0.5f;
+        if (heartbeat) {
+            initialize(gameRepository.getApp());
 
-        window.setLocalTranslation(100 * standardScale, y, 0);
-        window.setLocalScale(1.5f * standardScale);
+            this.heartbeat = false;
+        }
     }
 
     @Override
@@ -60,6 +80,11 @@ public class MainMenuState extends BaseAppState {
 
     @Override
     protected void onEnable() {
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+
         Node gui = ((Game)getApplication()).getGuiNode();
         gui.attachChild(window);
         GuiGlobals.getInstance().requestFocus(window);
@@ -96,5 +121,13 @@ public class MainMenuState extends BaseAppState {
         getStateManager().attach(settingsState);
         settingsState.setEnabled(true);
         setEnabled(false);
+    }
+
+    public boolean isHeartbeat() {
+        return heartbeat;
+    }
+
+    public void setHeartbeat(boolean heartbeat) {
+        this.heartbeat = heartbeat;
     }
 }
