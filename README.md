@@ -1,1 +1,124 @@
-# Pandemic
+<br/>
+<p align="center">
+  <a href="https://github.com/nscharrenberg/COVID-21">
+    <img src="https://www.childcareaware.org/wp-content/uploads/2020/03/EmergencyPrep-Pandemic.png" alt="Logo" width="80" height="80">
+  </a>
+
+  <h3 align="center">COVID-21 The Game</h3>
+
+  <p align="center">
+    Prevent another pandemic! Fight against COVID-21 and eradicate all its mutations!
+    <br/>
+    <br/>
+    <a href="https://github.com/nscharrenberg/COVID-21/wiki"><strong>Explore the docs »</strong></a>
+    <br/>
+    <br/>
+    <a href="https://github.com/nscharrenberg/COVID-21/issues/new?assignees=&labels=bug&template=bug_report.md&title=%5BBUG%5D">Report Bug</a>
+    .
+    <a href="https://github.com/nscharrenberg/COVID-21/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=%5BFEATURE%5D">Request Feature</a>
+  </p>
+</p>
+
+![Contributors](https://img.shields.io/github/contributors/nscharrenberg/COVID-21?color=dark-green) ![Issues](https://img.shields.io/github/issues/nscharrenberg/COVID-21) 
+
+## Table Of Contents
+
+* [About the Project](#about-the-project)
+* [Built With](#built-with)
+* [Getting Started](#getting-started)
+  * [Prerequisites](#prerequisites)
+  * [Installation](#installation)
+* [Usage](#usage)
+* [Roadmap](#roadmap)
+* [Contributing](#contributing)
+* [License](#license)
+* [Authors](#authors)
+* [Acknowledgements](#acknowledgements)
+
+## About The Project
+
+![Screen Shot](https://raw.githubusercontent.com/nscharrenberg/COVID-21/master/preview.png)
+
+This project is developed in assignment of the [department of Data Science & Knowledge Engineering](https://www.maastrichtuniversity.nl/education/bachelor/data-science-and-artificial-intelligence) from the University of Maastricht.
+
+COVID-21 is based of the board game [Pandemic](https://www.zmangames.com/en/games/pandemic/) and contains the same rule set and similar visualization as [Pandemic the board game](https://www.zmangames.com/en/games/pandemic/).
+
+The eventual goal is to create an AI for the game that together with the other players tries to defeat COVID-21 and it's mutations.
+
+## Built With
+
+The game is developed using [JMonkey Engine 3](https://wiki.jmonkeyengine.org)
+
+## Getting Started
+
+This is an example of how you may give instructions on setting up your project locally.
+To get a local copy up and running follow these simple example steps.
+
+### Prerequisites
+
+In order to make a build you need the following prerequisites:
+
+* Java SDK 16+
+* Maven
+
+### Installation
+
+1. clone or download: 
+``` 
+git clone git@github.com:nscharrenberg/COVID-21.git
+```
+
+2. run `maven install` to install all required libraries
+
+3. run `maven compile` to run the game
+
+
+
+## Usage
+
+Take a look at the "Show Rules" button when you started the game. (after you configured the game and press the "Start Game" button.
+
+or refer the COVID-21 docs, on the top of this read me.
+
+Additionally you could also take a look at the [Pandemic rules](https://images.zmangames.com/filer_public/53/ed/53edbee8-adfb-4715-899f-dd381e1420d7/zm7101_rules_web.pdf).
+
+## Roadmap
+
+See the [open issues](https://github.com/nscharrenberg/COVID-21/issues) for a list of proposed features (and known issues).
+
+## Contributing
+
+We only allow contributions from the assigned project group.
+
+### Creating A Pull Request
+
+1. Clone the project
+2. Create your Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request from your branch to the master branch.
+6. Wait for approval from the lead developer.
+
+## License
+
+The game code is to not be used in other projects, unless explicit permission has been granted by the developers.
+
+## Authors
+
+* **Noah** - *Software Engineer & Bsc DSAI Student* - [Noah](https://nscharrenberg.nl) - *Lead Developer*
+* **Lorenzo** - *Bsc DSAI Student* - [Lorenzo](https://github.com/Lozzio99) - *Developer*
+* **Eric** - *Bsc DSAI Student* - [Eric](https://github.com/Wei17083) - *Developer*
+* **Kai** - *Bsc DSAI Student* - [Kai](https://github.com/KaiK-Um) - *Developer*
+* **Illian** - *Bsc DSAI Student* - [Illian](https://github.com/SuleymanIII) - *Developer*
+* **Drago** - *Bsc DSAI Student* - [Drago](https://github.com/DragoStoyanovDKE) - *Developer*
+
+## Acknowledgements
+
+* [Google Guice](https://github.com/google/guice)
+* [Katharina Schneider](#)
+* [Bill Gates](https://nl.wikipedia.org/wiki/Bill_Gates)
+* [Steve Jobs](https://nl.wikipedia.org/wiki/Steve_Jobs)
+* [Linus Torvalds](https://nl.wikipedia.org/wiki/Linus_Torvalds)
+* [Google Guava](https://github.com/google/guava)
+* [Lemur](https://github.com/jMonkeyEngine-Contributions/Lemur)
+* [Google Gson](https://github.com/google/gson)
