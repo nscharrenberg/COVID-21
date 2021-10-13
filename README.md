@@ -133,4 +133,4 @@ The game code is to not be used in other projects, unless explicit permission ha
 * Lines that go from e.g Tokyo to San Fransisco go across the map, instead of wrapping over edges. (do not fix)
 * Settings screen has duplicate resolution options in the dropdown. (do not fix)
 * There is a 5th player in the config menu visible? (It only adds a new player when you click the ADD button, and when you click on "Add" for player 5 you get an error, thus you only have 4 players)
-* 
+* Infection cubes not getting removed visually after treating.
