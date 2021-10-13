@@ -12,12 +12,14 @@ import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.exceptions.GameOverException;
 import org.um.nine.exceptions.NoCubesLeftException;
 import org.um.nine.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
-import org.um.nine.exceptions.OutbreakException;
 import org.um.nine.screens.dialogs.DiscardCardDialog;
+import org.um.nine.screens.dialogs.GameEndState;
+import org.um.nine.screens.hud.PlayerInfoState;
 import org.um.nine.utils.cardmanaging.CityCardReader;
 import org.um.nine.utils.cardmanaging.Shuffle;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Stack;
 
 public class CardRepository implements ICardRepository {
@@ -37,7 +39,17 @@ public class CardRepository implements ICardRepository {
     @Inject
     private IBoardRepository boardRepository;
 
+    @Inject
+    private IEpidemicRepository epidemicRepository;
+
+    @Inject
+    private PlayerInfoState playerInfoState;
+
+    @Inject
+    private GameEndState gameEndState;
+
     private Stack<PlayerCard> playerDeck;
+    private LinkedList<PlayerCard> eventDiscardPile;
     private Stack<InfectionCard> infectionDeck;
     private Stack<InfectionCard> infectionDiscardPile;
 
@@ -49,37 +61,40 @@ public class CardRepository implements ICardRepository {
         return playerDeck;
     }
 
+
     @Override
     public Stack<InfectionCard> getInfectionDeck() {
         return infectionDeck;
     }
 
+
     public void reset() {
         this.playerDeck = new Stack<>();
         this.infectionDeck = new Stack<>();
         this.infectionDiscardPile = new Stack<>();
+        this.eventDiscardPile = new LinkedList<>();
     }
 
     @Override
     public void drawPlayCard() {
         PlayerCard drawn = this.playerDeck.pop();
-
         if (drawn instanceof EpidemicCard) {
-            // TODO: Epidemic Card logic
+            epidemicRepository.action();
             return;
         }
 
-        playerRepository.getCurrentPlayer().getHandCards().add(drawn);
-        if (playerRepository.getCurrentPlayer().getHandCards().size() >= Info.HAND_LIMIT) {
-            gameRepository.getApp().getStateManager().attach(discardCardDialog);
+        playerRepository.getCurrentPlayer().addCard(drawn);
+        if(playerRepository.getCurrentPlayer().getHandCards().size() > Info.HAND_LIMIT) {
             discardCardDialog.setCurrentPlayer(playerRepository.getCurrentPlayer());
+            gameRepository.getApp().getStateManager().attach(discardCardDialog);
+            discardCardDialog.setHeartbeat(true);
             discardCardDialog.setEnabled(true);
         }
+        playerInfoState.setHeartbeat(true);
     }
 
     @Override
-    public void drawInfectionCard()
-            throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
+    public void drawInfectionCard() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         InfectionCard infectionCard = this.infectionDeck.pop();
 
         diseaseRepository.infect(infectionCard.getCity().getColor(), infectionCard.getCity());
@@ -87,10 +102,8 @@ public class CardRepository implements ICardRepository {
     }
 
     @Override
-    public void buildDecks()
-            throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException, OutbreakException {
-        this.playerDeck = Shuffle.buildPlayerDeck(boardRepository.getDifficulty(), cityRepository.getCities(),
-                playerRepository.getPlayers());
+    public void buildDecks(){
+        this.playerDeck = Shuffle.buildPlayerDeck(boardRepository.getDifficulty(), cityRepository.getCities(), playerRepository.getPlayers());
         infectionDeck = CityCardReader.generateInfectionDeck(cityRepository.getCities().values().toArray(new City[0]));
         infectionDiscardPile = new Stack<>();
         Collections.shuffle(infectionDeck);
@@ -103,8 +116,16 @@ public class CardRepository implements ICardRepository {
                 InfectionCard c = infectionDeck.pop();
                 infectionDiscardPile.add(c);
                 Disease d = new Disease(c.getCity().getColor());
-                for (int k = i; k > 0; k--) {
-                    diseaseRepository.infect(d.getColor(), c.getCity());
+                for(int k=i;k>0;k--) {
+                    try {
+                        diseaseRepository.infect(d.getColor(), c.getCity());
+                    } catch (NoDiseaseOrOutbreakPossibleDueToEvent e) {
+                        e.printStackTrace();
+                    } catch (GameOverException | NoCubesLeftException e) {
+                        gameRepository.getApp().getStateManager().attach(gameEndState);
+                        gameEndState.setMessage("Game Over! You Lost!");
+                        gameEndState.setEnabled(true);
+                    }
                 }
             }
         }
@@ -112,14 +133,30 @@ public class CardRepository implements ICardRepository {
     }
 
     @Override
+    public LinkedList<PlayerCard> getEventDiscardPile() {
+        return eventDiscardPile;
+    }
+
+    @Override
+    public void setEventDiscardPile(LinkedList<PlayerCard> eventDiscardPile) {
+        this.eventDiscardPile = eventDiscardPile;
+    }
+
+    @Override
     public Stack<InfectionCard> getInfectionDiscardPile() {
-        // TODO Auto-generated method stub
-        return null;
+        return infectionDiscardPile;
     }
 
     @Override
     public void setInfectionDiscardPile(Stack<InfectionCard> newPile) {
-        // TODO Auto-generated method stub
+        infectionDiscardPile = newPile;
+    }
 
+    @Override
+    public void cleanup() {
+        playerDeck = null;
+        eventDiscardPile = null;
+        infectionDeck = null;
+        infectionDiscardPile = null;
     }
 }

@@ -41,12 +41,7 @@ public class Player {
     }
 
     public void addCard(PlayerCard card){
-        if(hand.size()<=7){
-            hand.add(card);
-        }else{
-            //todo add choice for discard
-            discard(card);
-        }
+        hand.add(card);
     }
 
     public void discard(PlayerCard card){

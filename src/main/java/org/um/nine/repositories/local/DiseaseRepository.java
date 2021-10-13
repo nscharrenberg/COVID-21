@@ -3,6 +3,7 @@ package org.um.nine.repositories.local;
 import com.google.inject.Inject;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Spatial;
+import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.domain.*;
@@ -10,11 +11,13 @@ import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.roles.RoleEvent;
 import org.um.nine.exceptions.*;
+import org.um.nine.screens.dialogs.GameEndState;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DiseaseRepository implements IDiseaseRepository {
@@ -29,6 +32,9 @@ public class DiseaseRepository implements IDiseaseRepository {
 
     @Inject
     private IGameRepository gameRepository;
+
+    @Inject
+    private GameEndState gameEndState;
 
     public DiseaseRepository() {
         reset();
@@ -264,6 +270,7 @@ public class DiseaseRepository implements IDiseaseRepository {
             if (count >= 4) {
                 pawn.getHandCards().removeAll(pc);
                 cure.setDiscovered(true);
+                checkIfAllCured();
                 return;
             }
         }
@@ -271,10 +278,39 @@ public class DiseaseRepository implements IDiseaseRepository {
         if (count >= 5) {
             pawn.getHandCards().removeAll(pc);
             cure.setDiscovered(true);
+            checkIfAllCured();
+
             return;
         }
 
         // else unable to discover a cure
         throw new UnableToDiscoverCureException(cure);
+    }
+
+    private void checkIfAllCured() {
+        boolean eradicated = true;
+
+        for (Map.Entry<ColorRGBA, Cure> entry : cures.entrySet()) {
+            if (!entry.getValue().isDiscovered()) {
+                eradicated = false;
+                break;
+            }
+        }
+
+        if (!eradicated) {
+            return;
+        }
+
+        gameRepository.getApp().getStateManager().attach(gameEndState);
+        gameEndState.setMessage("All cures discovered. You Win!");
+        gameEndState.setEnabled(true);
+    }
+
+    @Override
+    public void cleanup() {
+        infectionRate = null;
+        outbreakMarker = null;
+        cures = null;
+        cubes = null;
     }
 }

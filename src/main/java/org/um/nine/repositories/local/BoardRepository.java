@@ -16,6 +16,9 @@ import org.um.nine.domain.Difficulty;
 import org.um.nine.domain.InfectionRateMarker;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
+import org.um.nine.screens.dialogs.DiscardCardDialog;
+import org.um.nine.screens.dialogs.GameEndState;
+import org.um.nine.screens.hud.ContingencyPlannerState;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
 
@@ -50,6 +53,15 @@ public class BoardRepository implements IBoardRepository {
 
     @Inject
     private ICardRepository cardRepository;
+
+    @Inject
+    private ContingencyPlannerState contingencyPlannerState;
+
+    @Inject
+    private DiscardCardDialog discardCardDialog;
+
+    @Inject
+    private GameEndState gameEndState;
 
     @Override
     public void preload() {
@@ -89,14 +101,12 @@ public class BoardRepository implements IBoardRepository {
 
         try {
             cardRepository.buildDecks();
-        } catch (NoCubesLeftException e) {
+        } catch (OutbreakException | NoDiseaseOrOutbreakPossibleDueToEvent e) {
             e.printStackTrace();
-        } catch (NoDiseaseOrOutbreakPossibleDueToEvent noDiseaseOrOutbreakPossibleDueToEvent) {
-            noDiseaseOrOutbreakPossibleDueToEvent.printStackTrace();
-        } catch (GameOverException e) {
-            e.printStackTrace();
-        } catch (OutbreakException e) {
-            e.printStackTrace();
+        } catch (GameOverException | NoCubesLeftException e) {
+            gameRepository.getApp().getStateManager().attach(gameEndState);
+            gameEndState.setMessage("Game Over! You Lost!");
+            gameEndState.setEnabled(true);
         }
 
         playerRepository.decidePlayerOrder();
@@ -104,7 +114,7 @@ public class BoardRepository implements IBoardRepository {
     }
 
     private void renderCureSection() {
-        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Red), new Vector3f(100, 0, 0), true);
+        renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Red), new Vector3f(100, 0, 0));
         renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Yellow), new Vector3f(50, 0, 0));
         renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Blue), new Vector3f(0, 0, 0));
         renderManager.renderCureMarker(diseaseRepository.getCures().get(ColorRGBA.Black), new Vector3f(-50, 0, 0));
@@ -239,11 +249,26 @@ public class BoardRepository implements IBoardRepository {
 
     @Override
     public void resetRound() {
-//        setSelectedCity(null);
-//        setSelectedPlayerAction(null);
-//        setSelectedRoleAction(null);
+        selectedCity = null;
+        selectedPlayerAction = null;
+        selectedRoleAction = null;
         usedActions = new ArrayList<>();
 
         playerRepository.resetRound();
+    }
+
+    @Override
+    public void cleanup() {
+        selectedCity = null;
+        selectedPlayerAction = null;
+        selectedRoleAction = null;
+        usedActions = new ArrayList<>();
+        board = null;
+        difficulty = null;
+
+        playerRepository.cleanup();
+        cardRepository.cleanup();
+        cityRepository.cleanup();
+        diseaseRepository.cleanup();
     }
 }

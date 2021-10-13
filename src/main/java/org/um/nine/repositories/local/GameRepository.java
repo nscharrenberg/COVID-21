@@ -168,4 +168,15 @@ public class GameRepository implements IGameRepository {
     public void setSpeed(int speed) {
         this.speed = speed;
     }
+
+    @Override
+    public void cleanup() {
+        isStarted = false;
+        speed = 200;
+        boardRepository.cleanup();
+        backgroundGeom = null;
+        app.getRootNode().detachAllChildren();
+        app.restart();
+        create();
+    }
 }

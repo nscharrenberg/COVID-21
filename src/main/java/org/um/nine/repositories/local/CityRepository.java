@@ -123,4 +123,9 @@ public class CityRepository implements ICityRepository {
         });
     }
 
+    @Override
+    public void cleanup() {
+        cities = null;
+        researchStations = null;
+    }
 }
