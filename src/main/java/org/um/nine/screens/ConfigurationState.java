@@ -60,6 +60,7 @@ public class ConfigurationState extends BaseAppState {
         super.update(tpf);
 
         if (heartbeat) {
+            this.setEnabled(false);
             initialize(gameRepository.getApp());
 
             this.heartbeat = false;
