@@ -3,14 +3,13 @@ package org.um.nine.screens.hud;
 import com.google.inject.Inject;
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import org.um.nine.Game;
-import org.um.nine.contracts.repositories.IBoardRepository;
-import org.um.nine.contracts.repositories.ICardRepository;
-import org.um.nine.contracts.repositories.ICityRepository;
-import org.um.nine.contracts.repositories.IPlayerRepository;
+import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.roles.RoleAction;
+import org.um.nine.utils.Util;
 
 import java.util.LinkedList;
 
@@ -26,15 +25,12 @@ public class ContingencyPlannerState extends BaseAppState  {
     @Inject
     private PlayerInfoState playerInfoState;
 
+    @Inject
+    private IGameRepository gameRepository;
+
     private boolean heartbeat = false;
 
     LinkedList<Button> blist = new LinkedList<>();
-
-
-    private float getStandardScale() {
-        int height = getApplication().getCamera().getHeight();
-        return height / 720f;
-    }
 
     @Override
     protected void initialize(Application application) {
@@ -48,9 +44,7 @@ public class ContingencyPlannerState extends BaseAppState  {
         Button closeBtn = new Button("Close");
         closeBtn.addClickCommands(c -> {
             this.setEnabled(false);
-            blist.forEach(button -> {
-                window.removeChild(button);
-            });
+            blist.forEach(button -> window.removeChild(button));
             blist.clear();
         });
         closeBtn.setInsets(new Insets3f(10, 10, 0, 10));
@@ -81,9 +75,7 @@ public class ContingencyPlannerState extends BaseAppState  {
                     cardRepository.getEventDiscardPile().remove(c);
                     playerInfoState.setHeartbeat(true);
                     setEnabled(false);
-                    blist.forEach(button -> {
-                        window.removeChild(button);
-                    });
+                    blist.forEach(button -> window.removeChild(button));
                     blist.clear();
                 });
                 blist.add(b);
@@ -91,8 +83,10 @@ public class ContingencyPlannerState extends BaseAppState  {
             });
         }
 
-        window.setLocalTranslation(25, 1000, 5);
-        window.setLocalScale(1.5f);
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
     }
 
     @Override
@@ -102,6 +96,11 @@ public class ContingencyPlannerState extends BaseAppState  {
 
     @Override
     protected void onEnable() {
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+
         Node gui = ((Game)getApplication()).getGuiNode();
         gui.attachChild(window);
         GuiGlobals.getInstance().requestFocus(window);

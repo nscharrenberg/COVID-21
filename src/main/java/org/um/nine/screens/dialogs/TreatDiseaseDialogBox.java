@@ -10,13 +10,13 @@ import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
 import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
+import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
 import org.um.nine.domain.Player;
 import org.um.nine.exceptions.NoCityCardToTreatDiseaseException;
-
-import java.util.concurrent.atomic.AtomicInteger;
+import org.um.nine.utils.Util;
 
 public class TreatDiseaseDialogBox extends BaseAppState {
     private Container window;
@@ -32,14 +32,12 @@ public class TreatDiseaseDialogBox extends BaseAppState {
     @Inject
     private IPlayerRepository playerRepository;
 
+    @Inject
+    private IGameRepository gameRepository;
+
     public TreatDiseaseDialogBox() {
         this.city = null;
         this.player = null;
-    }
-
-    public TreatDiseaseDialogBox(City city, Player player) {
-        this.city = city;
-        this.player = player;
     }
 
     public float getStandardScale() {
@@ -61,16 +59,10 @@ public class TreatDiseaseDialogBox extends BaseAppState {
 
         window.addChild(cureText);
 
-        int height = application.getCamera().getHeight();
-        Vector3f pref = window.getPreferredSize().clone();
-
-        float standardScale = getStandardScale();
-        pref.multLocal(1.5f * standardScale);
-
-        float y = height * 0.6f + pref.y * 0.5f;
-
-        window.setLocalTranslation(100 * standardScale, y, 100);
-        window.setLocalScale(1.5f * standardScale);
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
     }
 
     private void renderItems() {
@@ -104,7 +96,7 @@ public class TreatDiseaseDialogBox extends BaseAppState {
         super.update(tpf);
 
         if (heartbeat) {
-            renderItems();
+            initialize(gameRepository.getApp());
 
             heartbeat = false;
         }
@@ -117,6 +109,11 @@ public class TreatDiseaseDialogBox extends BaseAppState {
 
     @Override
     protected void onEnable() {
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+
         Node gui = ((Game)getApplication()).getGuiNode();
         gui.attachChild(window);
         GuiGlobals.getInstance().requestFocus(window);

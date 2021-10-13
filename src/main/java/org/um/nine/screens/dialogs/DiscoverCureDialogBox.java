@@ -10,13 +10,12 @@ import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
 import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IDiseaseRepository;
+import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
-import org.um.nine.domain.City;
 import org.um.nine.domain.Cure;
-import org.um.nine.domain.Disease;
 import org.um.nine.domain.Player;
-import org.um.nine.exceptions.NoCityCardToTreatDiseaseException;
 import org.um.nine.exceptions.UnableToDiscoverCureException;
+import org.um.nine.utils.Util;
 
 import java.util.Map;
 
@@ -24,6 +23,15 @@ public class DiscoverCureDialogBox extends BaseAppState {
     private Container window;
 
     private Player player;
+    private boolean heartbeat = false;
+
+    public boolean isHeartbeat() {
+        return heartbeat;
+    }
+
+    public void setHeartbeat(boolean heartbeat) {
+        this.heartbeat = heartbeat;
+    }
 
     @Inject
     private IDiseaseRepository diseaseRepository;
@@ -31,17 +39,11 @@ public class DiscoverCureDialogBox extends BaseAppState {
     @Inject
     private IPlayerRepository playerRepository;
 
+    @Inject
+    private IGameRepository gameRepository;
+
     public DiscoverCureDialogBox() {
         this.player = null;
-    }
-
-    public DiscoverCureDialogBox(Player player) {
-        this.player = player;
-    }
-
-    public float getStandardScale() {
-        int height = getApplication().getCamera().getHeight();
-        return height / 720f;
     }
 
     @Override
@@ -50,7 +52,7 @@ public class DiscoverCureDialogBox extends BaseAppState {
 
         window.setBackground(new QuadBackgroundComponent(ColorRGBA.White));
 
-        Label cureText = window.addChild(new Label("Select Disease to treat:"), 1, 0);
+        Label cureText = window.addChild(new Label("Select disease to Cure:"), 1, 0);
         cureText.setInsets(new Insets3f(10, 10, 0, 10));
         cureText.setColor(ColorRGBA.Red);
 
@@ -82,16 +84,21 @@ public class DiscoverCureDialogBox extends BaseAppState {
 
         window.addChild(cureText);
 
-        int height = application.getCamera().getHeight();
-        Vector3f pref = window.getPreferredSize().clone();
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+    }
 
-        float standardScale = getStandardScale();
-        pref.multLocal(1.5f * standardScale);
+    @Override
+    public void update(float tpf) {
+        super.update(tpf);
 
-        float y = height * 0.6f + pref.y * 0.5f;
+        if (heartbeat) {
+            initialize(gameRepository.getApp());
 
-        window.setLocalTranslation(100 * standardScale, y, 100);
-        window.setLocalScale(1.5f * standardScale);
+            this.heartbeat = false;
+        }
     }
 
     @Override
@@ -101,6 +108,11 @@ public class DiscoverCureDialogBox extends BaseAppState {
 
     @Override
     protected void onEnable() {
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+
         Node gui = ((Game)getApplication()).getGuiNode();
         gui.attachChild(window);
         GuiGlobals.getInstance().requestFocus(window);

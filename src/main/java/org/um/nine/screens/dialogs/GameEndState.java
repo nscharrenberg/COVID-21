@@ -10,22 +10,19 @@ import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
 import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IGameRepository;
+import org.um.nine.utils.Util;
 
 public class GameEndState extends BaseAppState {
     private Container window;
 
     private String message;
+    private boolean heartbeat = false;
 
     @Inject
     private IGameRepository gameRepository;
 
     public GameEndState() {
         this.message = "Game End!";
-    }
-
-    public float getStandardScale() {
-        int height = getApplication().getCamera().getHeight();
-        return height / 720f;
     }
 
     @Override
@@ -39,31 +36,32 @@ public class GameEndState extends BaseAppState {
         descriptionText.setColor(ColorRGBA.Red);
 
         Button menuButton = window.addChild(new Button("Back to Main Menu"));
-        menuButton.addClickCommands(button -> {
-            gameRepository.cleanup();
-        });
+        menuButton.addClickCommands(button -> gameRepository.cleanup());
         menuButton.setInsets(new Insets3f(10, 10, 10, 10));
 
         Button quitButton = window.addChild(new Button("Quit Game"));
-        quitButton.addClickCommands(button -> {
-            application.stop();
-        });
+        quitButton.addClickCommands(button -> application.stop());
         quitButton.setInsets(new Insets3f(10, 10, 10, 10));
 
         window.addChild(descriptionText);
         window.addChild(menuButton);
         window.addChild(quitButton);
 
-        int height = application.getCamera().getHeight();
-        Vector3f pref = window.getPreferredSize().clone();
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+    }
 
-        float standardScale = getStandardScale();
-        pref.multLocal(1.5f * standardScale);
+    @Override
+    public void update(float tpf) {
+        super.update(tpf);
 
-        float y = height * 0.6f + pref.y * 0.5f;
+        if (heartbeat) {
+            initialize(gameRepository.getApp());
 
-        window.setLocalTranslation(100 * standardScale, y, 100);
-        window.setLocalScale(1.5f * standardScale);
+            this.heartbeat = false;
+        }
     }
 
     @Override
@@ -73,6 +71,11 @@ public class GameEndState extends BaseAppState {
 
     @Override
     protected void onEnable() {
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+
         Node gui = ((Game)getApplication()).getGuiNode();
         gui.attachChild(window);
         GuiGlobals.getInstance().requestFocus(window);
@@ -90,4 +93,13 @@ public class GameEndState extends BaseAppState {
     public void setMessage(String message) {
         this.message = message;
     }
+
+    public boolean isHeartbeat() {
+        return heartbeat;
+    }
+
+    public void setHeartbeat(boolean heartbeat) {
+        this.heartbeat = heartbeat;
+    }
 }
+

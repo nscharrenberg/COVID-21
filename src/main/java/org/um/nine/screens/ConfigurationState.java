@@ -13,11 +13,14 @@ import org.um.nine.domain.Difficulty;
 import org.um.nine.domain.Player;
 import org.um.nine.exceptions.PlayerLimitException;
 import org.um.nine.screens.dialogs.DialogBoxState;
+import org.um.nine.utils.Util;
 
 import javax.inject.Inject;
 
 public class ConfigurationState extends BaseAppState {
     private Container window;
+
+    private boolean heartbeat = false;
 
     @Inject
     private IGameRepository gameRepository;
@@ -46,16 +49,21 @@ public class ConfigurationState extends BaseAppState {
         difficultyLevel();
         renderFields();
 
-        int height = application.getCamera().getHeight();
-        Vector3f pref = window.getPreferredSize().clone();
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+    }
 
-        float standardScale = getStandardScale();
-        pref.multLocal(1.5f * standardScale);
+    @Override
+    public void update(float tpf) {
+        super.update(tpf);
 
-        float y = height * 0.6f + pref.y * 0.5f;
+        if (heartbeat) {
+            initialize(gameRepository.getApp());
 
-        window.setLocalTranslation(100 * standardScale, y, 0);
-        window.setLocalScale(1.5f * standardScale);
+            this.heartbeat = false;
+        }
     }
 
     @Override
@@ -65,6 +73,11 @@ public class ConfigurationState extends BaseAppState {
 
     @Override
     protected void onEnable() {
+        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(Util.getStandardScale(window));
+
         Node gui = ((Game)getApplication()).getGuiNode();
         gui.attachChild(window);
         GuiGlobals.getInstance().requestFocus(window);
@@ -111,9 +124,7 @@ public class ConfigurationState extends BaseAppState {
         subPanel.addChild(item, 3, 0);
 
         Button addBtn = new Button("Add");
-        addBtn.addClickCommands(c -> {
-            addPlayer(item.getText(), botEnabled.isEnabled());
-        });
+        addBtn.addClickCommands(c -> addPlayer(item.getText(), botEnabled.isEnabled()));
         subPanel.addChild(addBtn, 1, 1);
         if (count == 2) {
             count = 0;
@@ -125,7 +136,8 @@ public class ConfigurationState extends BaseAppState {
 
     private Checkbox isBot(int i) {
         Checkbox item = window.addChild(new Checkbox("is AI"));
-        item.getModel().setChecked(getApplication().getContext().getSettings().isFullscreen());
+        // TODO: Mark this player as a bot
+//        item.getModel().setChecked(getApplication().getContext().getSettings().isFullscreen());
 
         return item;
     }
@@ -165,5 +177,13 @@ public class ConfigurationState extends BaseAppState {
         item.addClickCommands(c -> {
             boardRepository.setDifficulty(item.getSelectedItem());
         });
+    }
+
+    public boolean isHeartbeat() {
+        return heartbeat;
+    }
+
+    public void setHeartbeat(boolean heartbeat) {
+        this.heartbeat = heartbeat;
     }
 }
