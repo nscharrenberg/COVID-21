@@ -122,3 +122,15 @@ The game code is to not be used in other projects, unless explicit permission ha
 * [Google Guava](https://github.com/google/guava)
 * [Lemur](https://github.com/jMonkeyEngine-Contributions/Lemur)
 * [Google Gson](https://github.com/google/gson)
+
+## Known Issues
+
+* Dispatcher role missing
+* Event Cards Missing
+* Fullscreen crash (do not fix or remove)
+* Overlapping menu items (do not fix)
+* Items off-screen with smaller resolutions.(do not fix or remove)
+* Lines that go from e.g Tokyo to San Fransisco go across the map, instead of wrapping over edges. (do not fix)
+* Settings screen has duplicate resolution options in the dropdown. (do not fix)
+* There is a 5th player in the config menu visible? (It only adds a new player when you click the ADD button, and when you click on "Add" for player 5 you get an error, thus you only have 4 players)
+* 
