@@ -14,10 +14,7 @@ import org.um.nine.exceptions.*;
 import org.um.nine.screens.dialogs.GameEndState;
 import org.um.nine.utils.managers.RenderManager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DiseaseRepository implements IDiseaseRepository {
@@ -232,7 +229,9 @@ public class DiseaseRepository implements IDiseaseRepository {
         }
 
         if (cures.get(disease.getColor()).isDiscovered() || pawn.getRole().events(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR)) {
-            city.getCubes().forEach(cube -> {
+            for (Iterator<Disease> it = city.getCubes().iterator(); it.hasNext();) {
+                Disease cube = it.next();
+
                 if (cube.getColor().equals(disease.getColor())) {
                     String tempCubeName = cube.toString();
                     city.getCubes().remove(cube);
@@ -244,7 +243,7 @@ public class DiseaseRepository implements IDiseaseRepository {
                         tempCubeSpatial.removeFromParent();
                     }
                 }
-            });
+            }
         }
     }
 

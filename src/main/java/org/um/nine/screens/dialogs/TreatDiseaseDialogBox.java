@@ -40,11 +40,6 @@ public class TreatDiseaseDialogBox extends BaseAppState {
         this.player = null;
     }
 
-    public float getStandardScale() {
-        int height = getApplication().getCamera().getHeight();
-        return height / 720f;
-    }
-
     @Override
     protected void initialize(Application application) {
         window = new Container();
@@ -96,8 +91,9 @@ public class TreatDiseaseDialogBox extends BaseAppState {
         super.update(tpf);
 
         if (heartbeat) {
-            this.setEnabled(false);
-            initialize(gameRepository.getApp());
+//            this.setEnabled(false);
+//            initialize(gameRepository.getApp());
+            renderItems();
 
             heartbeat = false;
         }

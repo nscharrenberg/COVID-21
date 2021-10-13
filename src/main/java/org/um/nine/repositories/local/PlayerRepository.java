@@ -401,9 +401,10 @@ public class PlayerRepository implements IPlayerRepository {
 
         treatDiseaseDialogBox.setPlayer(player);
         treatDiseaseDialogBox.setCity(city);
-        treatDiseaseDialogBox.setHeartbeat(true);
         gameRepository.getApp().getStateManager().attach(treatDiseaseDialogBox);
         treatDiseaseDialogBox.setEnabled(true);
+        treatDiseaseDialogBox.setHeartbeat(true);
+        System.out.println("Treat Disease");
     }
 
     @Override
