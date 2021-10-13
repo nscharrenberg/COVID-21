@@ -56,6 +56,7 @@ public class ContingencyPlannerState extends BaseAppState  {
     public void update(float tpf){
         super.update(tpf);
         if(heartbeat){
+            this.setEnabled(false);
             info();
             heartbeat=false;
         }

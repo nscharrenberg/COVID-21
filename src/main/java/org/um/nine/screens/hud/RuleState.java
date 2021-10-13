@@ -98,7 +98,7 @@ public class RuleState extends BaseAppState {
         Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
         size.addLocal(0, 0, 100);
         window.setLocalTranslation(size);
-        window.setLocalScale(Util.getStandardScale(window));
+        window.setLocalScale(Util.getStandardScale(window).mult(0.2f));
     }
 
     @Override
@@ -106,6 +106,7 @@ public class RuleState extends BaseAppState {
         super.update(tpf);
 
         if (heartbeat) {
+            this.setEnabled(false);
             initialize(gameRepository.getApp());
 
             this.heartbeat = false;
