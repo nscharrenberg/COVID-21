@@ -184,7 +184,8 @@ public class PlayerRepository implements IPlayerRepository {
             return false;
         }).findFirst().orElse(null);
 
-        // If player doesn't have city card of his current city, it can't make this move.
+        // If player doesn't have city card of his current city, it can't make this
+        // move.
         if (pc == null) {
             throw new InvalidMoveException(city, player);
         }
@@ -199,13 +200,12 @@ public class PlayerRepository implements IPlayerRepository {
             throw new InvalidMoveException(city, player);
         }
 
-        if(player.getCity().getResearchStation() == null){
+        if (player.getCity().getResearchStation() == null) {
             throw new InvalidMoveException(city, player);
-        }
-        else if (city.getResearchStation() == null) {
-            if(!player.getRole().getName().equals("Operations Expert"))
+        } else if (city.getResearchStation() == null) {
+            if (!player.getRole().getName().equals("Operations Expert"))
                 throw new InvalidMoveException(city, player);
-            else{
+            else {
                 gameRepository.getApp().getStateManager().attach(discardCardDialog);
                 discardCardDialog.setCurrentPlayer(currentPlayer);
                 discardCardDialog.setHeartbeat(true);
@@ -218,9 +218,9 @@ public class PlayerRepository implements IPlayerRepository {
         drive(player, city, false);
     }
 
-
     @Override
-    public void verifyExternalMove(Player instigator, Player target, City city, boolean accept) throws InvalidMoveException, ExternalMoveNotAcceptedException {
+    public void verifyExternalMove(Player instigator, Player target, City city, boolean accept)
+            throws InvalidMoveException, ExternalMoveNotAcceptedException {
         if (instigator.equals(target)) {
             drive(instigator, city);
             return;
@@ -237,11 +237,11 @@ public class PlayerRepository implements IPlayerRepository {
      * @return null if the turn has ended otherwise the RoundState of the turn
      */
     @Override
-    public RoundState nextState(RoundState currentState){
+    public RoundState nextState(RoundState currentState) {
         if (currentState == null) {
             this.currentRoundState = RoundState.ACTION;
             return RoundState.ACTION;
-        } else if (currentState == RoundState.ACTION){
+        } else if (currentState == RoundState.ACTION) {
             actionsLeft--;
             if (actionsLeft == 0) {
                 actionsLeft = 4;
@@ -251,19 +251,20 @@ public class PlayerRepository implements IPlayerRepository {
 
             this.currentRoundState = RoundState.ACTION;
             return RoundState.ACTION;
-        } else if (currentState == RoundState.DRAW){
+        } else if (currentState == RoundState.DRAW) {
             drawLeft--;
-            if (drawLeft == 0){
+            if (drawLeft == 0) {
                 drawLeft = 2;
                 this.currentRoundState = RoundState.INFECT;
                 return RoundState.INFECT;
             }
             this.currentRoundState = RoundState.DRAW;
             return RoundState.DRAW;
-        } else if (currentState == RoundState.INFECT){
+        } else if (currentState == RoundState.INFECT) {
             infectionLeft--;
-            if (infectionLeft == 0){
-                infectionLeft = Objects.requireNonNull(diseaseRepository.getInfectionRate().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
+            if (infectionLeft == 0) {
+                infectionLeft = Objects.requireNonNull(diseaseRepository.getInfectionRate().stream()
+                        .filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
                 this.currentRoundState = null;
                 nextPlayer();
                 return null;
@@ -366,11 +367,13 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         RoleAction action = RoleAction.GIVE_PLAYER_CITY_CARD;
-        if (player.getRole().actions(action) && boardRepository.getSelectedRoleAction().equals(action) && !boardRepository.getUsedActions().contains(action)) {
+        if (player.getRole().actions(action) && boardRepository.getSelectedRoleAction().equals(action)
+                && !boardRepository.getUsedActions().contains(action)) {
             boardRepository.getUsedActions().add(action);
         } else {
             if (!player.getCity().equals(city)) {
-                DialogBoxState dialog = new DialogBoxState("Only able to share knowledge on the city the player is currently at.");
+                DialogBoxState dialog = new DialogBoxState(
+                        "Only able to share knowledge on the city the player is currently at.");
                 gameRepository.getApp().getStateManager().attach(dialog);
                 dialog.setEnabled(true);
                 return;
@@ -408,7 +411,10 @@ public class PlayerRepository implements IPlayerRepository {
     }
 
     @Override
-    public void action(ActionType type) throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException, CityAlreadyHasResearchStationException, NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
+    public void action(ActionType type) throws InvalidMoveException, NoActionSelectedException,
+            ResearchStationLimitException, CityAlreadyHasResearchStationException, NoCubesLeftException,
+            NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
+        boolean skipClicked = false;
         if (currentRoundState == null) {
             nextState(null);
         }
@@ -421,21 +427,23 @@ public class PlayerRepository implements IPlayerRepository {
             City city = boardRepository.getSelectedCity();
             Player player = currentPlayer;
 
-            if(type == null){
+            if (type == null) {
                 type = ActionType.NO_ACTION;
-            }else if(boardRepository.getSelectedRoleAction() == null){
+            } else if (boardRepository.getSelectedRoleAction() == null) {
                 boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
             }
 
-            if (boardRepository.getSelectedRoleAction().equals(RoleAction.TAKE_ANY_DISCARED_EVENT)){
+            if (boardRepository.getSelectedRoleAction().equals(RoleAction.TAKE_ANY_DISCARED_EVENT)) {
                 gameRepository.getApp().getStateManager().attach(contingencyPlannerState);
                 contingencyPlannerState.setHeartbeat(true);
                 contingencyPlannerState.setEnabled(true);
                 boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
-            } else if ( boardRepository.getSelectedRoleAction().equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY) || type.equals(ActionType.SHUTTLE)) {
+            } else if (boardRepository.getSelectedRoleAction()
+                    .equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY) || type.equals(ActionType.SHUTTLE)) {
                 shuttle(player, city);
                 boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
-            } else if (boardRepository.getSelectedRoleAction().equals(RoleAction.BUILD_RESEARCH_STATION) || type.equals(ActionType.BUILD_RESEARCH_STATION)) {
+            } else if (boardRepository.getSelectedRoleAction().equals(RoleAction.BUILD_RESEARCH_STATION)
+                    || type.equals(ActionType.BUILD_RESEARCH_STATION)) {
                 cityRepository.addResearchStation(city, player);
                 boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
             } else if (type.equals(ActionType.DRIVE)) {
@@ -444,11 +452,12 @@ public class PlayerRepository implements IPlayerRepository {
                 direct(player, city);
             } else if (type.equals(ActionType.CHARTER_FLIGHT)) {
                 charter(player, city);
-            }  else if (type.equals(ActionType.TREAT_DISEASE)) {
+            } else if (type.equals(ActionType.TREAT_DISEASE)) {
                 treat(player, city);
 
                 return;
-            } else if (type.equals(ActionType.SHARE_KNOWLEDGE) || boardRepository.getSelectedRoleAction().equals(RoleAction.GIVE_PLAYER_CITY_CARD)) {
+            } else if (type.equals(ActionType.SHARE_KNOWLEDGE)
+                    || boardRepository.getSelectedRoleAction().equals(RoleAction.GIVE_PLAYER_CITY_CARD)) {
                 share(player, city);
                 boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
                 return;
@@ -465,9 +474,14 @@ public class PlayerRepository implements IPlayerRepository {
                 discoverCureDialogBox.setEnabled(true);
 
                 return;
+            } else if (type.equals(ActionType.SKIP_ACTION)) {
+                skipClicked = true;
+                nextState(currentRoundState);
             }
-
-            nextState(currentRoundState);
+            if (!skipClicked) {
+                nextState(currentRoundState);
+            }
+            skipClicked = false;
         } else if (currentRoundState.equals(RoundState.DRAW)) {
             cardRepository.drawPlayCard();
 
@@ -500,4 +514,3 @@ public class PlayerRepository implements IPlayerRepository {
         infectionLeft = 2;
     }
 }
-
