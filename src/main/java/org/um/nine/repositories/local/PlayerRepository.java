@@ -60,6 +60,9 @@ public class PlayerRepository implements IPlayerRepository {
     private ShareCityCardDialogBox shareCityCardDialogBox;
 
     @Inject
+    private PlayerInfoState playerInfoState;
+
+    @Inject
     private RenderManager renderManager;
 
     @Inject
@@ -402,12 +405,11 @@ public class PlayerRepository implements IPlayerRepository {
             return;
         }
 
+        gameRepository.getApp().getStateManager().attach(treatDiseaseDialogBox);
         treatDiseaseDialogBox.setPlayer(player);
         treatDiseaseDialogBox.setCity(city);
-        gameRepository.getApp().getStateManager().attach(treatDiseaseDialogBox);
-        treatDiseaseDialogBox.setEnabled(true);
         treatDiseaseDialogBox.setHeartbeat(true);
-        System.out.println("Treat Disease");
+        treatDiseaseDialogBox.setEnabled(true);
     }
 
     @Override
@@ -500,6 +502,8 @@ public class PlayerRepository implements IPlayerRepository {
                 action(null);
             }
         }
+
+        playerInfoState.setHeartbeat(true);
     }
 
     @Override

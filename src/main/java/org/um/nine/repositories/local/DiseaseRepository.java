@@ -229,8 +229,8 @@ public class DiseaseRepository implements IDiseaseRepository {
         }
 
         if (cures.get(disease.getColor()).isDiscovered() || pawn.getRole().events(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR)) {
-            for (Iterator<Disease> it = city.getCubes().iterator(); it.hasNext();) {
-                Disease cube = it.next();
+            for (int i = city.getCubes().size()-1; i == 0; i--) {
+                Disease cube = city.getCubes().get(i);
 
                 if (cube.getColor().equals(disease.getColor())) {
                     String tempCubeName = cube.toString();

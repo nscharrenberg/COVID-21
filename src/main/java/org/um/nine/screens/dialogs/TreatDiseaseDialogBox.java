@@ -91,10 +91,9 @@ public class TreatDiseaseDialogBox extends BaseAppState {
         super.update(tpf);
 
         if (heartbeat) {
-//            this.setEnabled(false);
-//            initialize(gameRepository.getApp());
-            renderItems();
-
+            this.setEnabled(false);
+            initialize(gameRepository.getApp());
+            this.setEnabled(true);
             heartbeat = false;
         }
     }
