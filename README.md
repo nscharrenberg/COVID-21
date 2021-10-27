@@ -125,12 +125,14 @@ The game code is to not be used in other projects, unless explicit permission ha
 
 ## Known Issues
 
-* Dispatcher role missing
 * Event Cards Missing
-* Fullscreen crash (do not fix or remove)
-* Overlapping menu items (do not fix)
-* Items off-screen with smaller resolutions.(do not fix or remove)
-* Lines that go from e.g Tokyo to San Fransisco go across the map, instead of wrapping over edges. (do not fix)
-* Settings screen has duplicate resolution options in the dropdown. (do not fix)
-* There is a 5th player in the config menu visible? (It only adds a new player when you click the ADD button, and when you click on "Add" for player 5 you get an error, thus you only have 4 players)
-* Infection cubes not getting removed visually after treating. (unique identifiers required to fix)
+* There is a 5th player in the config menu visible? (It only adds a new player when you click the ADD button, and when you click on "Add" for player 5 you get an error, thus you only have 4 players) -> Prossible fix: Add check in "Add" function in configuration screen to ensure a 5th player will not be entered (rendered).
+* Infection cubes not getting removed visually after treating. (unique identifiers required to fix) -> Possible fix: Instead of using the index of the array for it's naming when rendering, so utilize an identifier (ID) which should not change while it's placed in a city (or not at all throughout the game, your choice). So when rendering it'll take that name instead of the index of an array.
+
+## Do Not Fix (or fix at very last)
+* Dispatcher role missing
+* Fullscreen crash 
+* Overlapping menu items 
+* Items off-screen with smaller resolutions.
+* Lines that go from e.g Tokyo to San Fransisco go across the map, instead of wrapping over edges.
+* Settings screen has duplicate resolution options in the dropdown.
