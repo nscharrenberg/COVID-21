@@ -10,8 +10,6 @@ import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
-import org.um.nine.repositories.local.CardRepository;
-import org.um.nine.screens.dialogs.PrognosisEventDialog;
 import org.um.nine.utils.Util;
 
 public class OptionHudState extends BaseAppState  {
@@ -38,12 +36,6 @@ public class OptionHudState extends BaseAppState  {
 
     @Inject
     private RuleState ruleState;
-
-    @Inject
-    private PrognosisEventDialog prognosisEventDialog;
-
-    @Inject
-    private CardRepository cardRepository;
 
     @Override
     protected void initialize(Application application) {
@@ -87,15 +79,6 @@ public class OptionHudState extends BaseAppState  {
             playerInfoState.setEnabled(true);
         });
         cardsButton.setInsets(new Insets3f(2, 2, 0, 2));
-
-        Button event_cards = window.addChild(new Button("Event cards"));
-        event_cards.addClickCommands(button -> {
-            //TODO Change to do event card stuff instead of prognosis event. Also fix position
-            getStateManager().attach(prognosisEventDialog);
-            prognosisEventDialog.setEnabled(true);
-            prognosisEventDialog.setHeartbeat(true);
-        });
-        event_cards.setInsets(new Insets3f(2, 2, 0, 2));
 
         Button rulesButton = window.addChild(new Button("Show Rules"));
         rulesButton.addClickCommands(button -> {

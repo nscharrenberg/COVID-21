@@ -18,7 +18,9 @@ import org.um.nine.screens.hud.PlayerInfoState;
 import org.um.nine.utils.cardmanaging.CityCardReader;
 import org.um.nine.utils.cardmanaging.Shuffle;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Stack;
 
 public class CardRepository implements ICardRepository {
     @Inject
@@ -97,19 +99,6 @@ public class CardRepository implements ICardRepository {
 
         diseaseRepository.infect(infectionCard.getCity().getColor(), infectionCard.getCity());
         this.infectionDiscardPile.push(infectionCard);
-    }
-
-    @Override
-    public ArrayList<InfectionCard> getTopCards(){
-        ArrayList<InfectionCard> top = new ArrayList<>();
-        for(int i = 0; i < 6; i++){
-            try{
-                top.add(infectionDeck.pop());
-            }catch(EmptyStackException e){
-                System.out.println("Not enough infection cards");
-            }
-        }
-        return top;
     }
 
     @Override
