@@ -2,8 +2,8 @@ package org.um.nine.domain.cards.events;
 
 import org.um.nine.domain.cards.EventCard;
 
-public class GovernmentGrandEvent extends EventCard {
-    public GovernmentGrandEvent() {
+public class GovernmentGrantEvent extends EventCard {
+    public GovernmentGrantEvent() {
         super("Government Grand", "Add 1 research station to any city (no city card needed)");
     }
 

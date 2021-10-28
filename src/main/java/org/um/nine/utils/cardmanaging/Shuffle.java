@@ -52,7 +52,7 @@ public class Shuffle {
 
     public static Stack<PlayerCard> buildPlayerDeck(Difficulty difficultyLevel, HashMap<String,City> cities, HashMap<String, Player> players){
         Stack<PlayerCard> deck = new Stack<>();
-        deck.push(new GovernmentGrandEvent());
+        deck.push(new GovernmentGrantEvent());
         deck.push(new PrognosisEvent());
         deck.push(new AirliftEvent());
         deck.push(new QuietNightEvent());

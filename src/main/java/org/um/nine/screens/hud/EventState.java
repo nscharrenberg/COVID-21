@@ -32,13 +32,17 @@ public class EventState extends BaseAppState {
     protected void initialize(Application application) {
         window = new Container();
 
-        window.setBackground(new QuadBackgroundComponent(ColorRGBA.White));
-
-        Label eventText = window.addChild(new Label("Available event cards"), 1, 0);
+        Label eventText = window.addChild(new Label("Available event cards: "), 1, 0);
         eventText.setInsets(new Insets3f(10, 10, 0, 10));
-        eventText.setColor(ColorRGBA.Red);
 
         window.addChild(eventText);
+
+        Button closeBtn = new Button("Close");
+        closeBtn.addClickCommands(c -> {
+            this.setEnabled(false);
+        });
+        closeBtn.setInsets(new Insets3f(10, 10, 0, 10));
+        window.addChild(closeBtn, 0, 1);
 
         Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
         size.addLocal(0, 0, 100);
