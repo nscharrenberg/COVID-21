@@ -39,6 +39,7 @@ public class GuiceConfiguration extends AbstractModule {
     private final ContingencyPlannerState contingencyPlannerState = new ContingencyPlannerState();
     private final GameEndState gameEndState = new GameEndState();
     private final PrognosisEventDialog prognosisEventDialog = new PrognosisEventDialog();
+    private final EventState eventState = new EventState();
 
     @Override
     protected void configure() {
@@ -68,5 +69,6 @@ public class GuiceConfiguration extends AbstractModule {
         bind(ContingencyPlannerState.class).toInstance(contingencyPlannerState);
         bind(GameEndState.class).toInstance(gameEndState);
         bind(PrognosisEventDialog.class).toInstance(prognosisEventDialog);
+        bind(EventState.class).toInstance(eventState);
     }
 }

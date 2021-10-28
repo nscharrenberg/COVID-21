@@ -6,6 +6,7 @@ import com.jme3.app.state.BaseAppState;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
+import org.junit.jupiter.api.IndicativeSentencesGeneration;
 import org.um.nine.Game;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
@@ -44,6 +45,9 @@ public class OptionHudState extends BaseAppState  {
 
     @Inject
     private CardRepository cardRepository;
+
+    @Inject
+    private EventState eventState;
 
     @Override
     protected void initialize(Application application) {
@@ -90,10 +94,9 @@ public class OptionHudState extends BaseAppState  {
 
         Button event_cards = window.addChild(new Button("Event cards"));
         event_cards.addClickCommands(button -> {
-            //TODO Change to do event card stuff instead of prognosis event. Also fix position
-            getStateManager().attach(prognosisEventDialog);
-            prognosisEventDialog.setEnabled(true);
-            prognosisEventDialog.setHeartbeat(true);
+            getStateManager().attach(eventState);
+            eventState.setEnabled(true);
+            eventState.setHeartbeat(true);
         });
         event_cards.setInsets(new Insets3f(2, 2, 0, 2));
 
