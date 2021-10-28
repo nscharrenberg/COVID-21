@@ -135,6 +135,6 @@ The game code is to not be used in other projects, unless explicit permission ha
 * Dispatcher role missing
 * Fullscreen crash 
 * Overlapping menu items 
-* Items off-screen with smaller resolutions.
+* Items off-screen with smaller resolutions. (and apparently multiple monitors)
 * Lines that go from e.g Tokyo to San Fransisco go across the map, instead of wrapping over edges.
 * Settings screen has duplicate resolution options in the dropdown.
