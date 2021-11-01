@@ -8,6 +8,7 @@ import org.um.nine.domain.InfectionRateMarker;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.screens.dialogs.DispatcherDialog;
 import org.um.nine.screens.dialogs.PrognosisEventDialog;
+import org.um.nine.screens.dialogs.ResilientPopulationDialog;
 
 import java.util.List;
 
@@ -48,4 +49,6 @@ public interface IBoardRepository {
     ICardRepository getCardRepository();
 
     PrognosisEventDialog getPrognosisEventDialog();
+
+    ResilientPopulationDialog getResilientPopulationDialog();
 }

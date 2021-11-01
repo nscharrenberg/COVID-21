@@ -42,6 +42,7 @@ public class GuiceConfiguration extends AbstractModule {
     private final PrognosisEventDialog prognosisEventDialog = new PrognosisEventDialog();
     private final EventState eventState = new EventState();
     private final DispatcherDialog dispatcherDialog = new DispatcherDialog();
+    private final ResilientPopulationDialog resilientPopulationDialog = new ResilientPopulationDialog();
 
     @Override
     protected void configure() {

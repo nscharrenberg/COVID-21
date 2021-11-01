@@ -15,6 +15,7 @@ import org.um.nine.domain.cards.events.AirliftEvent;
 import org.um.nine.repositories.local.CardRepository;
 import org.um.nine.screens.dialogs.DispatcherDialog;
 import org.um.nine.screens.dialogs.PrognosisEventDialog;
+import org.um.nine.screens.dialogs.ResilientPopulationDialog;
 import org.um.nine.utils.Util;
 
 public class OptionHudState extends BaseAppState  {
@@ -52,7 +53,7 @@ public class OptionHudState extends BaseAppState  {
     private EventState eventState;
 
     @Inject
-    private DispatcherDialog dispatcherDialog;
+    private ResilientPopulationDialog resilientPopulationDialog;
 
     @Override
     protected void initialize(Application application) {
