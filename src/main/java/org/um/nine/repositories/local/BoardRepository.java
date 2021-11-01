@@ -17,7 +17,9 @@ import org.um.nine.domain.InfectionRateMarker;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
 import org.um.nine.screens.dialogs.DiscardCardDialog;
+import org.um.nine.screens.dialogs.DispatcherDialog;
 import org.um.nine.screens.dialogs.GameEndState;
+import org.um.nine.screens.dialogs.PrognosisEventDialog;
 import org.um.nine.screens.hud.ContingencyPlannerState;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
@@ -62,6 +64,12 @@ public class BoardRepository implements IBoardRepository {
 
     @Inject
     private GameEndState gameEndState;
+
+    @Inject
+    private DispatcherDialog dispatcherDialog;
+
+    @Inject
+    private PrognosisEventDialog prognosisEventDialog;
 
     @Override
     public void preload() {
@@ -270,5 +278,25 @@ public class BoardRepository implements IBoardRepository {
         cardRepository.cleanup();
         cityRepository.cleanup();
         diseaseRepository.cleanup();
+    }
+
+    @Override
+    public DispatcherDialog getDispatcherDialog() {
+        return dispatcherDialog;
+    }
+
+    @Override
+    public IGameRepository getGameRepository() {
+        return gameRepository;
+    }
+
+    @Override
+    public ICardRepository getCardRepository() {
+        return cardRepository;
+    }
+
+    @Override
+    public PrognosisEventDialog getPrognosisEventDialog() {
+        return prognosisEventDialog;
     }
 }

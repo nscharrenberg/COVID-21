@@ -1,5 +1,7 @@
 package org.um.nine.domain.cards;
 
+import org.um.nine.contracts.repositories.IBoardRepository;
+
 public abstract class EventCard extends PlayerCard {
     private String text;
 
@@ -8,7 +10,7 @@ public abstract class EventCard extends PlayerCard {
         this.text = text;
     }
 
-    public abstract void event();
+    public abstract void event(IBoardRepository boardRepository);
 
     public String getText() {
         return text;

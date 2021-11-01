@@ -6,6 +6,8 @@ import org.um.nine.domain.City;
 import org.um.nine.domain.Difficulty;
 import org.um.nine.domain.InfectionRateMarker;
 import org.um.nine.domain.roles.RoleAction;
+import org.um.nine.screens.dialogs.DispatcherDialog;
+import org.um.nine.screens.dialogs.PrognosisEventDialog;
 
 import java.util.List;
 
@@ -38,4 +40,12 @@ public interface IBoardRepository {
     void resetRound();
 
     void cleanup();
+
+    DispatcherDialog getDispatcherDialog();
+
+    IGameRepository getGameRepository();
+
+    ICardRepository getCardRepository();
+
+    PrognosisEventDialog getPrognosisEventDialog();
 }

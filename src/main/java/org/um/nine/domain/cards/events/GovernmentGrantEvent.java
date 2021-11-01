@@ -1,5 +1,6 @@
 package org.um.nine.domain.cards.events;
 
+import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.domain.cards.EventCard;
 
 public class GovernmentGrantEvent extends EventCard {
@@ -8,7 +9,7 @@ public class GovernmentGrantEvent extends EventCard {
     }
 
     @Override
-    public void event() {
+    public void event(IBoardRepository boardRepository) {
         // TODO: Add research station to the city that was selected by the player.
         // TODO: Move the card to the discard pile.
     }

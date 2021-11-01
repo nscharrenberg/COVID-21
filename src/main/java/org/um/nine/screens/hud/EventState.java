@@ -9,6 +9,7 @@ import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
 import org.um.nine.Game;
+import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.IGameRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.cards.EventCard;
@@ -24,6 +25,9 @@ public class EventState extends BaseAppState {
 
     @Inject
     private IPlayerRepository playerRepository;
+
+    @Inject
+    private IBoardRepository boardRepository;
 
     private boolean heartbeat = false;
 
@@ -44,6 +48,23 @@ public class EventState extends BaseAppState {
         closeBtn.setInsets(new Insets3f(10, 10, 0, 10));
         window.addChild(closeBtn, 0, 1);
 
+        LinkedList<Button> blist = new LinkedList<>();
+        playerRepository.getPlayers().values().forEach(player -> {
+            player.getHandCards().forEach(c -> {
+                if(c instanceof EventCard){
+                    Button b = new Button(c.getName());
+                    b.addClickCommands(command -> {
+                        ((EventCard) c).event(boardRepository);
+                        player.getHandCards().remove(c);
+                        blist.forEach(button -> window.removeChild(b));
+                        setEnabled(false);
+                    });
+                    blist.add(b);
+                    window.addChild(b);
+                }
+            });
+        });
+
         Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
         size.addLocal(0, 0, 100);
         window.setLocalTranslation(size);
@@ -54,29 +75,16 @@ public class EventState extends BaseAppState {
     public void update(float tpf){
         super.update(tpf);
         if(heartbeat){
-            renderInfo();
-
+            this.setEnabled(false);
+            window.clearChildren();
+            initialize(gameRepository.getApp());
+            this.setEnabled(true);
             heartbeat=false;
         }
     }
 
     private void renderInfo() {
-        LinkedList<Button> blist = new LinkedList<>();
-        playerRepository.getPlayers().values().forEach(player -> {
-            player.getHandCards().forEach(c -> {
-                if(c instanceof EventCard){
-                    Button b = new Button(c.getName());
-                    b.addClickCommands(command -> {
-                        ((EventCard) c).event();
-                        player.getHandCards().remove(c);
-                        blist.forEach(button -> window.removeChild(b));
-                        setEnabled(false);
-                    });
-                    blist.add(b);
-                    window.addChild(b);
-                }
-            });
-        });
+
 
     }
 
