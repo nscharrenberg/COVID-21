@@ -71,6 +71,9 @@ public class PlayerRepository implements IPlayerRepository {
     @Inject
     private ContingencyPlannerState contingencyPlannerState;
 
+    @Inject
+    private DispatcherDialog dispatcherDialog;
+
     public HashMap<String, Player> getPlayers() {
         return players;
     }
@@ -444,7 +447,16 @@ public class PlayerRepository implements IPlayerRepository {
                     .equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY) || type.equals(ActionType.SHUTTLE)) {
                 shuttle(player, city);
                 boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
-            } else if (boardRepository.getSelectedRoleAction().equals(RoleAction.BUILD_RESEARCH_STATION)
+            } else if (boardRepository.getSelectedRoleAction().equals(RoleAction.MOVE_ANY_PAWN_TO_CITY_WITH_OTHER_PAWN)) {
+                if(player.getRole().getName().equals("Dispatcher")){
+                    gameRepository.getApp().getStateManager().attach(dispatcherDialog);
+                    dispatcherDialog.setEnabled(true);
+                    dispatcherDialog.setHeartbeat(true);
+                }else{
+                    throw new InvalidMoveException(city, player);
+                }
+                boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
+            }if (boardRepository.getSelectedRoleAction().equals(RoleAction.BUILD_RESEARCH_STATION)
                     || type.equals(ActionType.BUILD_RESEARCH_STATION)) {
                 cityRepository.addResearchStation(city, player);
                 boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);

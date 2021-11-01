@@ -2,6 +2,7 @@ package org.um.nine.config;
 
 import com.google.inject.AbstractModule;
 import org.um.nine.contracts.repositories.*;
+import org.um.nine.domain.roles.DispatcherRole;
 import org.um.nine.repositories.local.*;
 import org.um.nine.screens.ConfigurationState;
 import org.um.nine.screens.MainMenuState;
@@ -40,6 +41,7 @@ public class GuiceConfiguration extends AbstractModule {
     private final GameEndState gameEndState = new GameEndState();
     private final PrognosisEventDialog prognosisEventDialog = new PrognosisEventDialog();
     private final EventState eventState = new EventState();
+    private final DispatcherDialog dispatcherDialog = new DispatcherDialog();
 
     @Override
     protected void configure() {
@@ -70,5 +72,6 @@ public class GuiceConfiguration extends AbstractModule {
         bind(GameEndState.class).toInstance(gameEndState);
         bind(PrognosisEventDialog.class).toInstance(prognosisEventDialog);
         bind(EventState.class).toInstance(eventState);
+        bind(DispatcherDialog.class).toInstance(dispatcherDialog);
     }
 }

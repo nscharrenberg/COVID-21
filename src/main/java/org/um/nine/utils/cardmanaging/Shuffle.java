@@ -16,7 +16,7 @@ public class Shuffle {
 
     /**
      * Shuffles the deck and then splitting the deck in the amount of difficulty.
-     * Those get a epidemic card added and then shuffled again.
+     * Those get an epidemic card added and then shuffled again.
      * @return a shuffled deck of cards including difficulty*epidemic cards mixed in every quarter
      */
     public static Stack<PlayerCard> difficultyShuffle(Difficulty difficulty, Stack<PlayerCard> deck){
@@ -50,6 +50,13 @@ public class Shuffle {
     }
 
 
+    /**
+     * Builds the player deck for the game.
+     * @param difficultyLevel is the level of difficulty
+     * @param cities are all the cities
+     * @param players are all the players
+     * @return a complete deck, already shuffled
+     */
     public static Stack<PlayerCard> buildPlayerDeck(Difficulty difficultyLevel, HashMap<String,City> cities, HashMap<String, Player> players){
         Stack<PlayerCard> deck = new Stack<>();
         deck.push(new GovernmentGrantEvent());
