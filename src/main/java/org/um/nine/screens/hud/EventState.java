@@ -48,19 +48,22 @@ public class EventState extends BaseAppState {
         closeBtn.setInsets(new Insets3f(10, 10, 0, 10));
         window.addChild(closeBtn, 0, 1);
 
-        LinkedList<Button> blist = new LinkedList<>();
+        LinkedList<Label> blist = new LinkedList<>();
         playerRepository.getPlayers().values().forEach(player -> {
             player.getHandCards().forEach(c -> {
                 if(c instanceof EventCard){
                     Button b = new Button(c.getName());
+                    Label l = new Label(((EventCard) c).getText());
                     b.addClickCommands(command -> {
                         ((EventCard) c).event(boardRepository);
                         player.getHandCards().remove(c);
-                        blist.forEach(button -> window.removeChild(b));
+                        blist.forEach(label -> window.removeChild(label));
                         setEnabled(false);
                     });
                     blist.add(b);
+                    blist.add(l);
                     window.addChild(b);
+                    window.addChild(l);
                 }
             });
         });
