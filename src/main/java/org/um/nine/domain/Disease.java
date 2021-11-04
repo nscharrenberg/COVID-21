@@ -8,13 +8,14 @@ public class Disease {
     private int number;
     private static int cubeNumber;
 
-    static{
-        cubeNumber++;
-    }
-
     public Disease(ColorRGBA color) {
+        cubeNumber++;
+        if(cubeNumber>=96) {
+            System.out.println();
+        }
         this.color = color;
         number = cubeNumber;
+        System.out.println("cubeNumber: "+cubeNumber);
     }
 
     public ColorRGBA getColor() {
@@ -42,7 +43,7 @@ public class Disease {
         sb.append(this.getColor().toString());
         sb.append("-");
         sb.append(number);
-
+        System.out.println(cubeNumber + " " + number + " from tostring");
         return sb.toString();
     }
 }

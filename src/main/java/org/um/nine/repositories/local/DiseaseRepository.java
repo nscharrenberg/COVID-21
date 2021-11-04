@@ -33,10 +33,6 @@ public class DiseaseRepository implements IDiseaseRepository {
     @Inject
     private GameEndState gameEndState;
 
-    public DiseaseRepository() {
-        reset();
-    }
-
     @Override
     public List<InfectionRateMarker> getInfectionRate() {
         return infectionRate;
@@ -221,7 +217,7 @@ public class DiseaseRepository implements IDiseaseRepository {
         Spatial cubeSpatial = gameRepository.getApp().getRootNode().getChild(cubeName);
 
         if (cures.get(disease.getColor()).isDiscovered() || pawn.getRole().events(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR)) {
-            for (int i = city.getCubes().size()-1; i == 0; i--) {
+            for (int i = city.getCubes().size()-1; i >= 0; i--) {
                 Disease cube = city.getCubes().get(i);
 
                 if (cube.getColor().equals(disease.getColor())) {
