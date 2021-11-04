@@ -43,7 +43,7 @@ public class GuiceConfiguration extends AbstractModule {
     private final EventState eventState = new EventState();
     private final DispatcherDialog dispatcherDialog = new DispatcherDialog();
     private final ResilientPopulationDialog resilientPopulationDialog = new ResilientPopulationDialog();
-
+    private final GovernmentGrantDialog governmentGrantDialog= new GovernmentGrantDialog();
     @Override
     protected void configure() {
         bind(IGameRepository.class).toInstance(gameRepository);
@@ -74,5 +74,6 @@ public class GuiceConfiguration extends AbstractModule {
         bind(PrognosisEventDialog.class).toInstance(prognosisEventDialog);
         bind(EventState.class).toInstance(eventState);
         bind(DispatcherDialog.class).toInstance(dispatcherDialog);
+        bind(GovernmentGrantDialog.class).toInstance(governmentGrantDialog);
     }
 }

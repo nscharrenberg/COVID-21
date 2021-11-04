@@ -7,6 +7,7 @@ import org.um.nine.domain.Difficulty;
 import org.um.nine.domain.InfectionRateMarker;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.screens.dialogs.DispatcherDialog;
+import org.um.nine.screens.dialogs.GovernmentGrantDialog;
 import org.um.nine.screens.dialogs.PrognosisEventDialog;
 import org.um.nine.screens.dialogs.ResilientPopulationDialog;
 
@@ -51,4 +52,6 @@ public interface IBoardRepository {
     PrognosisEventDialog getPrognosisEventDialog();
 
     ResilientPopulationDialog getResilientPopulationDialog();
+
+    GovernmentGrantDialog getGovernmentGrantDialog();
 }

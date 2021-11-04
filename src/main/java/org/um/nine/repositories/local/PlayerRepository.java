@@ -74,6 +74,8 @@ public class PlayerRepository implements IPlayerRepository {
     @Inject
     private DispatcherDialog dispatcherDialog;
 
+    private GovernmentGrantDialog governmentGrantDialog;
+
     public HashMap<String, Player> getPlayers() {
         return players;
     }

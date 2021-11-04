@@ -71,6 +71,9 @@ public class BoardRepository implements IBoardRepository {
     @Inject
     private ResilientPopulationDialog resilientPopulationDialog;
 
+    @Inject
+    private GovernmentGrantDialog governmentGrantDialog;
+
     @Override
     public void preload() {
         this.difficulty = Difficulty.NORMAL;
@@ -304,4 +307,6 @@ public class BoardRepository implements IBoardRepository {
     public ResilientPopulationDialog getResilientPopulationDialog() {
         return resilientPopulationDialog;
     }
+
+    public GovernmentGrantDialog getGovernmentGrantDialog() { return governmentGrantDialog; }
 }
