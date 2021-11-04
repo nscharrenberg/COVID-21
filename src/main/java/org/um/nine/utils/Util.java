@@ -19,6 +19,6 @@ public class Util {
     }
 
     public static Vector3f getStandardScale(Container container) {
-        return container.getWorldScale().mult(1.5f);
+        return container.getWorldScale();
     }
 }
