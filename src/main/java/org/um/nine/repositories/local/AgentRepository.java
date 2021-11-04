@@ -1,16 +1,22 @@
 package org.um.nine.repositories.local;
 
+import com.google.inject.Inject;
 import org.um.nine.agents.baseline.BaselineAgent;
 import org.um.nine.agents.reinforcement.ReinforcementAgent;
 import org.um.nine.contracts.repositories.IAgentRepository;
 
 public class AgentRepository implements IAgentRepository {
-    private final BaselineAgent baselineAgent;
-    private final ReinforcementAgent reinforcementAgent;
 
-    public AgentRepository(){
-        this.baselineAgent = new BaselineAgent();
-        this.reinforcementAgent = new ReinforcementAgent();
+
+    @Inject
+    private BaselineAgent baselineAgent;
+    @Inject
+    private ReinforcementAgent reinforcementAgent;
+
+    @Inject
+    public AgentRepository(BaselineAgent baselineAgent, ReinforcementAgent reinforcementAgent){
+        this.baselineAgent = baselineAgent;
+        this.reinforcementAgent = reinforcementAgent;
     }
 
 

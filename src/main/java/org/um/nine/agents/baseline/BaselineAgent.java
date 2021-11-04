@@ -16,8 +16,11 @@ import java.util.stream.Collectors;
 
 public class BaselineAgent {
 
+
+
     @Inject
     private IPlayerRepository playerRepository;
+
 
 
 
@@ -92,7 +95,9 @@ public class BaselineAgent {
                         sameColorCard.entrySet().forEach(System.out::println);
                     }
                 }
-                case 5 -> playerRepository.share(player,player.getCity());
+                case 5 -> {
+                    //playerRepository.share(player,player.getCity());
+                }
                 default -> { }
             }
         } catch (InvalidMoveException e) {
