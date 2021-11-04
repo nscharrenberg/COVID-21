@@ -331,10 +331,7 @@ public class PlayerRepository implements IPlayerRepository {
         setCurrentPlayer(this.playerOrder.peek());
 
         boardRepository.resetRound();
-
-        if (this.getCurrentPlayer().isBot()){
-            this.agentDecision();
-        }
+        this.agentDecision();
     }
 
     @Override
@@ -526,13 +523,11 @@ public class PlayerRepository implements IPlayerRepository {
 
     @Override
     public void agentDecision() {
-        try {
-            drive(currentPlayer,currentPlayer.getCity().getNeighbors().get(0));
-            drive(currentPlayer,currentPlayer.getCity().getNeighbors().get(0));
-            drive(currentPlayer,currentPlayer.getCity().getNeighbors().get(0));
-            drive(currentPlayer,currentPlayer.getCity().getNeighbors().get(0));
-        } catch (InvalidMoveException e) {
-            e.printStackTrace();
-        }
+        if (!this.getCurrentPlayer().isBot()) return;
+        this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
+        this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
+        this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
+        this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
+
     }
 }
