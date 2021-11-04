@@ -8,7 +8,6 @@ import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.*;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.PlayerCard;
-import org.um.nine.domain.cards.events.AirliftEvent;
 import org.um.nine.domain.roles.*;
 import org.um.nine.exceptions.*;
 import org.um.nine.screens.dialogs.*;
@@ -18,7 +17,6 @@ import org.um.nine.screens.hud.PlayerInfoState;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class PlayerRepository implements IPlayerRepository {
     private HashMap<String, Player> players;
@@ -70,6 +68,10 @@ public class PlayerRepository implements IPlayerRepository {
 
     @Inject
     private ContingencyPlannerState contingencyPlannerState;
+
+    @Inject
+    private IAgentRepository agentRepository;
+
 
     public HashMap<String, Player> getPlayers() {
         return players;
@@ -329,6 +331,10 @@ public class PlayerRepository implements IPlayerRepository {
         setCurrentPlayer(this.playerOrder.peek());
 
         boardRepository.resetRound();
+
+        if (this.getCurrentPlayer().isBot()){
+            this.agentDecision();
+        }
     }
 
     @Override
@@ -516,5 +522,17 @@ public class PlayerRepository implements IPlayerRepository {
         actionsLeft = 4;
         drawLeft = 2;
         infectionLeft = 2;
+    }
+
+    @Override
+    public void agentDecision() {
+        try {
+            drive(currentPlayer,currentPlayer.getCity().getNeighbors().get(0));
+            drive(currentPlayer,currentPlayer.getCity().getNeighbors().get(0));
+            drive(currentPlayer,currentPlayer.getCity().getNeighbors().get(0));
+            drive(currentPlayer,currentPlayer.getCity().getNeighbors().get(0));
+        } catch (InvalidMoveException e) {
+            e.printStackTrace();
+        }
     }
 }
