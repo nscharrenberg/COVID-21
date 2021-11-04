@@ -4,8 +4,6 @@ import com.jme3.app.Application;
 import com.jme3.math.Vector3f;
 import com.simsilica.lemur.Container;
 
-import java.awt.*;
-
 public class Util {
     public static Vector3f calculateMenusize(Application application, Container container) {
         return calculateMenusize(application, container, 1.5f);
@@ -19,6 +17,6 @@ public class Util {
     }
 
     public static Vector3f getStandardScale(Container container) {
-        return container.getWorldScale();
+        return container.getWorldScale().mult(1f);
     }
 }

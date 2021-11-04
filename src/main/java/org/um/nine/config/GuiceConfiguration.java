@@ -20,6 +20,7 @@ public class GuiceConfiguration extends AbstractModule {
     private final IDiseaseRepository diseaseRepository = new DiseaseRepository();
     private final RenderManager renderManager = new RenderManager();
     private final IEpidemicRepository epidemicRepository = new EpidemicRepository();
+    private final IAgentRepository agentRepository= new AgentRepository();
 
     // Screens
     private final MainMenuState mainMenuState = new MainMenuState();
@@ -49,6 +50,7 @@ public class GuiceConfiguration extends AbstractModule {
         bind(IDiseaseRepository.class).toInstance(diseaseRepository);
         bind(RenderManager.class).toInstance(renderManager);
         bind(IEpidemicRepository.class).toInstance(epidemicRepository);
+        bind(IAgentRepository.class).toInstance(agentRepository);
 
         bind(MainMenuState.class).toInstance(mainMenuState);
         bind(SettingsState.class).toInstance(settingsState);

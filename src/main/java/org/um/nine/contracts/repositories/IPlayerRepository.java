@@ -51,4 +51,6 @@ public interface IPlayerRepository {
     void action(ActionType type) throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException, CityAlreadyHasResearchStationException, NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
 
     void cleanup();
+
+    void agentDecision();
 }
