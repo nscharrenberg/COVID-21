@@ -5,9 +5,13 @@ import com.jme3.math.ColorRGBA;
 public class Disease {
     private ColorRGBA color;
     private City city;
+    private int number;
+    private static int cubeNumber;
 
     public Disease(ColorRGBA color) {
+        cubeNumber++;
         this.color = color;
+        number = cubeNumber;
     }
 
     public ColorRGBA getColor() {
@@ -34,8 +38,8 @@ public class Disease {
         sb.append("-");
         sb.append(this.getColor().toString());
         sb.append("-");
-        sb.append(city.getCubes().indexOf(this));
-
+        sb.append(number);
+        
         return sb.toString();
     }
 }

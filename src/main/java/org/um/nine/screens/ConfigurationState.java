@@ -154,7 +154,9 @@ public class ConfigurationState extends BaseAppState {
 
             playerRepository.addPlayer(new Player(name, isBot));
 
-            createPlayer(playerRepository.getPlayers().size());
+            if(playerRepository.getPlayers().size()<4) {
+                createPlayer(playerRepository.getPlayers().size());
+            }
         } catch (PlayerLimitException e) {
             DialogBoxState dialog = new DialogBoxState(e.getMessage());
             getStateManager().attach(dialog);
