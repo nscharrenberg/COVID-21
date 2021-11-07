@@ -103,8 +103,6 @@ public class CardRepository implements ICardRepository {
 
     @Override
     public void buildDecks(){
-
-
         this.playerDeck = Shuffle.buildPlayerDeck(boardRepository.getDifficulty(), cityRepository.getCities(), playerRepository.getPlayers());
         infectionDeck = CityCardReader.generateInfectionDeck(cityRepository.getCities().values().toArray(new City[0]));
         infectionDiscardPile = new Stack<>();
