@@ -15,14 +15,9 @@ import java.util.stream.Collectors;
 
 
 public class BaselineAgent {
-
-
-
+    
     @Inject
     private IPlayerRepository playerRepository;
-
-
-
 
     public boolean moveToCity(Player currentPlayer, City target) throws InvalidMoveException {
         if (currentPlayer.getCity().getName().equals(target.getName())) return true;
