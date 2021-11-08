@@ -34,6 +34,10 @@
             <url>https://repo1.maven.org/maven2/</url>
         </repository>
         <repository>
+            <id>mvnrepository</id>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
+        <repository>
             <id>jcenter</id>
             <name>jcenter</name>
             <url>https://jcenter.bintray.com</url>
@@ -107,6 +111,11 @@
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-native</artifactId>
             <version>${dl4j-master.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.kostaskougios</groupId>
+            <artifactId>cloning</artifactId>
+            <version>1.10.3</version>
         </dependency>
     </dependencies>
 </project>
