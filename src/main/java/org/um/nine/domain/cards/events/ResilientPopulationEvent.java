@@ -16,5 +16,6 @@ public class ResilientPopulationEvent extends EventCard {
         boardRepository.getGameRepository().getApp().getStateManager().attach(resilientPopulationDialog);
         resilientPopulationDialog.setEnabled(true);
         resilientPopulationDialog.setHeartbeat(true);
+        boardRepository.getCardRepository().getEventDiscardPile().add(this);
     }
 }
