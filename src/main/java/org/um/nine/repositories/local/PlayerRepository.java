@@ -507,6 +507,11 @@ public class PlayerRepository implements IPlayerRepository {
     }
 
     @Override
+    public Queue<Player> getPlayerOrder() {
+        return playerOrder;
+    }
+
+    @Override
     public void cleanup() {
         playerOrder = null;
         players = null;

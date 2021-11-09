@@ -7,6 +7,7 @@ import org.um.nine.domain.RoundState;
 import org.um.nine.exceptions.*;
 
 import java.util.HashMap;
+import java.util.Queue;
 
 public interface IPlayerRepository {
     void addPlayer(Player player) throws PlayerLimitException;
@@ -51,4 +52,6 @@ public interface IPlayerRepository {
     void action(ActionType type) throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException, CityAlreadyHasResearchStationException, NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
 
     void cleanup();
+
+    Queue<Player> getPlayerOrder();
 }

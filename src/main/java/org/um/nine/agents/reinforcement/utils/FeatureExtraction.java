@@ -4,10 +4,12 @@ import com.rits.cloning.Cloner;
 import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Marker;
+import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.InfectionCard;
 import org.um.nine.domain.cards.PlayerCard;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FeatureExtraction {
     private IBoardRepository boardRepository;
@@ -72,11 +74,21 @@ public class FeatureExtraction {
     }
 
     private void extractPlayerFeatures() {
+        this.playerOrder = playerRepository.getPlayerOrder().stream().map(Player::getName).collect(Collectors.toCollection(LinkedList::new));
 
+        playerRepository.getPlayers().forEach((n, p) -> {
+            this.playerCardInHands.put(n, p.getHandCards());
+            this.playerRole.put(n, p.getRole().getName());
+        });
     }
 
     private void extractDiseaseFeatures() {
+        diseaseRepository.getCures().forEach((k, v) -> {
+            this.curedDiseasesOnBoard.put(k.toString(), v.isDiscovered());
 
+            // TODO: Add logic to check if disease is eradicated.
+            this.cureEradicated.put(k.toString(), false);
+        });
     }
 
     private void extractCardFeatures() {
@@ -98,5 +110,73 @@ public class FeatureExtraction {
             });
             this.diseasesOnCity.put(k, cubesPerColor);
         });
+    }
+
+    public HashMap<String, HashMap<String, Integer>> getDiseasesOnCity() {
+        return diseasesOnCity;
+    }
+
+    public HashMap<String, Boolean> getResearchStationOnCity() {
+        return researchStationOnCity;
+    }
+
+    public HashMap<String, Integer> getPlayersOnCity() {
+        return playersOnCity;
+    }
+
+    public HashMap<String, List<String>> getAdjacentCities() {
+        return adjacentCities;
+    }
+
+    public String getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public Queue<String> getPlayerOrder() {
+        return playerOrder;
+    }
+
+    public HashMap<String, String> getPlayerRole() {
+        return playerRole;
+    }
+
+    public HashMap<String, List<PlayerCard>> getPlayerCardInHands() {
+        return playerCardInHands;
+    }
+
+    public HashMap<String, Integer> getDiseaseCubesOnBoard() {
+        return diseaseCubesOnBoard;
+    }
+
+    public HashMap<String, Boolean> getCuredDiseasesOnBoard() {
+        return curedDiseasesOnBoard;
+    }
+
+    public HashMap<String, Boolean> getCureEradicated() {
+        return cureEradicated;
+    }
+
+    public int getPlayerCount() {
+        return playerCount;
+    }
+
+    public int getNumberOfResearchStationsOnBoard() {
+        return numberOfResearchStationsOnBoard;
+    }
+
+    public int getOutbreakRate() {
+        return outbreakRate;
+    }
+
+    public int getInfectionRate() {
+        return infectionRate;
+    }
+
+    public Stack<InfectionCard> getInfectionDiscardPile() {
+        return infectionDiscardPile;
+    }
+
+    public LinkedList<PlayerCard> getEventDiscardPile() {
+        return eventDiscardPile;
     }
 }
