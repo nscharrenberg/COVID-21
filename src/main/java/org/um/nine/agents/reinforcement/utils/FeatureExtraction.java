@@ -13,8 +13,7 @@ import java.util.stream.Collectors;
 public class FeatureExtraction {
     private State state;
 
-    // TODO: Game Difficulty
-    // TODO: Cards left on the pile
+    private int difficulty;
 
     // City Features
     private HashMap<String, HashMap<String, Integer>> diseasesOnCity = new HashMap<>();
@@ -42,6 +41,9 @@ public class FeatureExtraction {
     // Card Features
     private Stack<InfectionCard> infectionDiscardPile = new Stack<>();
     private LinkedList<PlayerCard> eventDiscardPile = new LinkedList<>();
+    private int playerCardsCount;
+    private int infectionCardsCount;
+    private int infectionCardDiscardCount;
 
     public FeatureExtraction(State state) {
         this.state = state;
@@ -59,6 +61,7 @@ public class FeatureExtraction {
         this.playerCount = state.getPlayerRepository().getPlayers().size();
         state.getDiseaseRepository().getOutbreakMarker().stream().filter(Marker::isCurrent).findFirst().ifPresent(outbreakMarker -> this.outbreakRate = outbreakMarker.getId());
         state.getDiseaseRepository().getInfectionRate().stream().filter(Marker::isCurrent).findFirst().ifPresent(infectionRateMarker -> this.infectionRate = infectionRateMarker.getId());
+        this.difficulty = state.getBoardRepository().getDifficulty().getCount();
     }
 
     private void extractPlayerFeatures() {
@@ -82,6 +85,10 @@ public class FeatureExtraction {
     private void extractCardFeatures() {
         this.eventDiscardPile = state.getCardRepository().getEventDiscardPile();
         this.infectionDiscardPile = state.getCardRepository().getInfectionDiscardPile();
+        this.playerCardsCount = state.getCardRepository().getPlayerDeck().size();
+        this.infectionCardsCount = state.getCardRepository().getInfectionDeck().size();
+        this.infectionCardDiscardCount = state.getCardRepository().getInfectionDiscardPile().size();
+
     }
 
     private void extractCityFeatures() {
@@ -166,5 +173,21 @@ public class FeatureExtraction {
 
     public LinkedList<PlayerCard> getEventDiscardPile() {
         return eventDiscardPile;
+    }
+
+    public int getDifficulty() {
+        return difficulty;
+    }
+
+    public int getPlayerCardsCount() {
+        return playerCardsCount;
+    }
+
+    public int getInfectionCardsCount() {
+        return infectionCardsCount;
+    }
+
+    public int getInfectionCardDiscardCount() {
+        return infectionCardDiscardCount;
     }
 }
