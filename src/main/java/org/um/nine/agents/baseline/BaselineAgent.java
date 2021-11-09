@@ -70,7 +70,7 @@ public class BaselineAgent {
                     PlayerCard toMove = player.getHandCards().stream().filter(c -> c instanceof CityCard).findFirst().orElse(null);
                     if (toMove != null) {
                         City next = ((CityCard) toMove).getCity();
-                        playerRepository.shuttle(player, next);
+                        playerRepository.charter(player, next);
                         System.out.println("Agent shuttled to "+ next.getName());
                     }
                 }
@@ -82,6 +82,7 @@ public class BaselineAgent {
                 }
                 case 3 -> {
                     //TODO : USE ROLE ACTION IMPLEMENTATION
+                    System.out.println("Not implemented yet");
                 }
                 case 4 -> {
                     var sameColorCard = player.getHandCards().stream().filter(c -> c instanceof CityCard).collect(Collectors.groupingBy(c -> ((CityCard)c).getCity().getColor()));
@@ -89,9 +90,11 @@ public class BaselineAgent {
                         //TODO: add discover cure of the color
                         sameColorCard.entrySet().forEach(System.out::println);
                     }
+                    System.out.println("Not implemented yet");
                 }
                 case 5 -> {
                     //playerRepository.share(player,player.getCity());
+                    System.out.println("Not implemented yet");
                 }
                 default -> { }
             }

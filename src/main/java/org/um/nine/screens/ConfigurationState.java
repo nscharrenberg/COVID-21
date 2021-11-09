@@ -125,7 +125,7 @@ public class ConfigurationState extends BaseAppState {
         subPanel.addChild(item, 3, 0);
 
         Button addBtn = new Button("Add");
-        addBtn.addClickCommands(c -> addPlayer(item.getText(), botEnabled.isEnabled()));
+        addBtn.addClickCommands(c -> addPlayer(item.getText(), botEnabled.isChecked()));
         subPanel.addChild(addBtn, 1, 1);
         if (count == 2) {
             count = 0;
@@ -137,9 +137,6 @@ public class ConfigurationState extends BaseAppState {
 
     private Checkbox isBot(int i) {
         Checkbox item = window.addChild(new Checkbox("is AI"));
-        // TODO: Mark this player as a bot
-//        item.getModel().setChecked(getApplication().getContext().getSettings().isFullscreen());
-
         return item;
     }
 

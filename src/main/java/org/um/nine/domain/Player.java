@@ -92,7 +92,10 @@ public class Player {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("player-");
+        if(isBot)
+            sb.append("bot-");
+        else
+            sb.append("player-");
         sb.append(getName());
         sb.append("-");
         sb.append(role.getName());

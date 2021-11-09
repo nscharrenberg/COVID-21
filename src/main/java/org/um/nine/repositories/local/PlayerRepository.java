@@ -249,7 +249,6 @@ public class PlayerRepository implements IPlayerRepository {
         } else if (currentState == RoundState.ACTION) {
             actionsLeft--;
             if (actionsLeft == 0) {
-                actionsLeft = 4;
                 this.currentRoundState = RoundState.DRAW;
                 return RoundState.DRAW;
             }
@@ -259,7 +258,6 @@ public class PlayerRepository implements IPlayerRepository {
         } else if (currentState == RoundState.DRAW) {
             drawLeft--;
             if (drawLeft == 0) {
-                drawLeft = 2;
                 this.currentRoundState = RoundState.INFECT;
                 return RoundState.INFECT;
             }
@@ -331,7 +329,6 @@ public class PlayerRepository implements IPlayerRepository {
         setCurrentPlayer(this.playerOrder.peek());
 
         boardRepository.resetRound();
-        this.agentDecision();
     }
 
     @Override
@@ -424,89 +421,104 @@ public class PlayerRepository implements IPlayerRepository {
             nextState(null);
         }
 
-        if (currentRoundState.equals(RoundState.ACTION)) {
-            if (type == null && boardRepository.getSelectedRoleAction() == null) {
-                throw new NoActionSelectedException();
-            }
-
-            City city = boardRepository.getSelectedCity();
-            Player player = currentPlayer;
-
-            if (type == null) {
-                type = ActionType.NO_ACTION;
-            } else if (boardRepository.getSelectedRoleAction() == null) {
-                boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
-            }
-
-            if (boardRepository.getSelectedRoleAction().equals(RoleAction.TAKE_ANY_DISCARED_EVENT)) {
-                gameRepository.getApp().getStateManager().attach(contingencyPlannerState);
-                contingencyPlannerState.setHeartbeat(true);
-                contingencyPlannerState.setEnabled(true);
-                boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
-            } else if (boardRepository.getSelectedRoleAction()
-                    .equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY) || type.equals(ActionType.SHUTTLE)) {
-                shuttle(player, city);
-                boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
-            } else if (boardRepository.getSelectedRoleAction().equals(RoleAction.BUILD_RESEARCH_STATION)
-                    || type.equals(ActionType.BUILD_RESEARCH_STATION)) {
-                cityRepository.addResearchStation(city, player);
-                boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
-            } else if (type.equals(ActionType.DRIVE)) {
-                drive(player, city);
-            } else if (type.equals(ActionType.DIRECT_FLIGHT)) {
-                direct(player, city);
-            } else if (type.equals(ActionType.CHARTER_FLIGHT)) {
-                charter(player, city);
-            } else if (type.equals(ActionType.TREAT_DISEASE)) {
-                treat(player, city);
-
-                return;
-            } else if (type.equals(ActionType.SHARE_KNOWLEDGE)
-                    || boardRepository.getSelectedRoleAction().equals(RoleAction.GIVE_PLAYER_CITY_CARD)) {
-                share(player, city);
-                boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
-                return;
-            } else if (type.equals(ActionType.DISCOVER_CURE)) {
-                if (!player.getCity().equals(city)) {
-                    DialogBoxState dialog = new DialogBoxState("Only able to discover cure in players current city");
-                    gameRepository.getApp().getStateManager().attach(dialog);
-                    dialog.setEnabled(true);
-                    return;
+        if(!currentPlayer.isBot()){
+            if (currentRoundState.equals(RoundState.ACTION)) {
+                if (type == null && boardRepository.getSelectedRoleAction() == null) {
+                    throw new NoActionSelectedException();
                 }
 
-                discoverCureDialogBox.setPlayer(player);
-                gameRepository.getApp().getStateManager().attach(discoverCureDialogBox);
-                discoverCureDialogBox.setEnabled(true);
+                City city = boardRepository.getSelectedCity();
+                Player player = currentPlayer;
 
-                return;
-            } else if (type.equals(ActionType.SKIP_ACTION)) {
-                skipClicked = true;
+                if (type == null) {
+                    type = ActionType.NO_ACTION;
+                } else if (boardRepository.getSelectedRoleAction() == null) {
+                    boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
+                }
+
+                if (boardRepository.getSelectedRoleAction().equals(RoleAction.TAKE_ANY_DISCARED_EVENT)) {
+                    gameRepository.getApp().getStateManager().attach(contingencyPlannerState);
+                    contingencyPlannerState.setHeartbeat(true);
+                    contingencyPlannerState.setEnabled(true);
+                    boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
+                } else if (boardRepository.getSelectedRoleAction()
+                        .equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY) || type.equals(ActionType.SHUTTLE)) {
+                    shuttle(player, city);
+                    boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
+                } else if (boardRepository.getSelectedRoleAction().equals(RoleAction.BUILD_RESEARCH_STATION)
+                        || type.equals(ActionType.BUILD_RESEARCH_STATION)) {
+                    cityRepository.addResearchStation(city, player);
+                    boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
+                } else if (type.equals(ActionType.DRIVE)) {
+                    drive(player, city);
+                } else if (type.equals(ActionType.DIRECT_FLIGHT)) {
+                    direct(player, city);
+                } else if (type.equals(ActionType.CHARTER_FLIGHT)) {
+                    charter(player, city);
+                } else if (type.equals(ActionType.TREAT_DISEASE)) {
+                    treat(player, city);
+
+                    return;
+                } else if (type.equals(ActionType.SHARE_KNOWLEDGE)
+                        || boardRepository.getSelectedRoleAction().equals(RoleAction.GIVE_PLAYER_CITY_CARD)) {
+                    share(player, city);
+                    boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
+                    return;
+                } else if (type.equals(ActionType.DISCOVER_CURE)) {
+                    if (!player.getCity().equals(city)) {
+                        DialogBoxState dialog = new DialogBoxState("Only able to discover cure in players current city");
+                        gameRepository.getApp().getStateManager().attach(dialog);
+                        dialog.setEnabled(true);
+                        return;
+                    }
+
+                    discoverCureDialogBox.setPlayer(player);
+                    gameRepository.getApp().getStateManager().attach(discoverCureDialogBox);
+                    discoverCureDialogBox.setEnabled(true);
+
+                    return;
+                } else if (type.equals(ActionType.SKIP_ACTION)) {
+                    skipClicked = true;
+                    nextState(currentRoundState);
+                }
+                if (!skipClicked) {
+                    nextState(currentRoundState);
+                }
+                skipClicked = false;
+            } else if (currentRoundState.equals(RoundState.DRAW)) {
+                cardRepository.drawPlayCard();
+
                 nextState(currentRoundState);
-            }
-            if (!skipClicked) {
+                if (drawLeft >= 0) {
+
+                    action(null);
+                }
+
+            } else if (currentRoundState.equals(RoundState.INFECT)) {
+                cardRepository.drawInfectionCard();
+
                 nextState(currentRoundState);
+                if (infectionLeft >= 0) {
+                    boardRepository.setSelectedRoleAction(null);
+                    action(null);
+                }
             }
-            skipClicked = false;
-        } else if (currentRoundState.equals(RoundState.DRAW)) {
+
+            playerInfoState.setHeartbeat(true);
+        }
+        else{
+            agentDecision();
             cardRepository.drawPlayCard();
-
             nextState(currentRoundState);
-            if (drawLeft >= 0) {
-
-                action(null);
-            }
-
-        } else if (currentRoundState.equals(RoundState.INFECT)) {
+            cardRepository.drawPlayCard();
+            nextState(currentRoundState);
             cardRepository.drawInfectionCard();
-
             nextState(currentRoundState);
-            if (infectionLeft >= 0) {
-                boardRepository.setSelectedRoleAction(null);
-                action(null);
-            }
+            cardRepository.drawInfectionCard();
+            nextState(currentRoundState);
+            boardRepository.setSelectedRoleAction(null);
         }
 
-        playerInfoState.setHeartbeat(true);
     }
 
     @Override
@@ -523,11 +535,9 @@ public class PlayerRepository implements IPlayerRepository {
 
     @Override
     public void agentDecision() {
-        if (!this.getCurrentPlayer().isBot()) return;
-        this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
-        this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
-        this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
-        this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
-
+        while(actionsLeft > 0) {
+            this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
+            nextState(currentRoundState);
+        }
     }
 }
