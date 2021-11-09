@@ -43,6 +43,10 @@ public class Replay {
         return this.timeline.get(timestamp);
     }
 
+    /**
+     * Grab the current state
+     * @return the current state on the timeline
+     */
     public State getCurrentState() {
         if (currentIndex == null) {
             return null;
@@ -51,12 +55,14 @@ public class Replay {
         try {
             return this.timeline.get(currentIndex);
         } catch (IndexOutOfBoundsException e) {
-            // just return NULL value if the currentIndex doesn't exist.
-            currentIndex++;
             return null;
         }
     }
 
+    /**
+     * Go to the next state of the timeline
+     * @return the next state on the timeline
+     */
     public State nextState() {
         State found = this.timeline.get(currentIndex);
         currentIndex++;
