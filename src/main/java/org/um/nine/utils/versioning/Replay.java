@@ -2,12 +2,14 @@ package org.um.nine.utils.versioning;
 
 import org.um.nine.contracts.repositories.*;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Replay {
-    private int timestamp = 1;
     private String version;
-    private HashMap<Integer, State> timeline;
+    private List<State> timeline = new ArrayList<>();
+    private Integer currentIndex = null;
 
     public Replay(String version) {
         this.version = version;
@@ -21,11 +23,11 @@ public class Replay {
         this.version = version;
     }
 
-    public HashMap<Integer, State> getTimeline() {
-        return timeline;
+    public List<State> getTimeline() {
+        return Collections.unmodifiableList(timeline);
     }
 
-    public void setTimeline(HashMap<Integer, State> timeline) {
+    public void setTimeline(List<State> timeline) {
         this.timeline = timeline;
     }
 
@@ -34,12 +36,31 @@ public class Replay {
     }
 
     private void addToTimeline(State state) {
-        this.timeline.put(timestamp, state);
-
-        timestamp++;
+        this.timeline.add(state);
     }
 
     public State findState(Integer timestamp) {
         return this.timeline.get(timestamp);
+    }
+
+    public State getCurrentState() {
+        if (currentIndex == null) {
+            return null;
+        }
+
+        try {
+            return this.timeline.get(currentIndex);
+        } catch (IndexOutOfBoundsException e) {
+            // just return NULL value if the currentIndex doesn't exist.
+            currentIndex++;
+            return null;
+        }
+    }
+
+    public State nextState() {
+        State found = this.timeline.get(currentIndex);
+        currentIndex++;
+
+        return found;
     }
 }
