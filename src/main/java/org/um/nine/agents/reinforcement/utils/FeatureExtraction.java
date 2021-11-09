@@ -1,24 +1,20 @@
 package org.um.nine.agents.reinforcement.utils;
 
-import com.rits.cloning.Cloner;
-import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Marker;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.InfectionCard;
 import org.um.nine.domain.cards.PlayerCard;
+import org.um.nine.utils.versioning.State;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class FeatureExtraction {
-    private IBoardRepository boardRepository;
-    private ICardRepository cardRepository;
-    private ICityRepository cityRepository;
-    private IDiseaseRepository diseaseRepository;
-    private IEpidemicRepository epidemicRepository;
-    private IGameRepository gameRepository;
-    private IPlayerRepository playerRepository;
+    private State state;
+
+    // TODO: Game Difficulty
+    // TODO: Cards left on the pile
 
     // City Features
     private HashMap<String, HashMap<String, Integer>> diseasesOnCity = new HashMap<>();
@@ -45,18 +41,10 @@ public class FeatureExtraction {
 
     // Card Features
     private Stack<InfectionCard> infectionDiscardPile = new Stack<>();
-    private LinkedList<PlayerCard> eventDiscardPile;
+    private LinkedList<PlayerCard> eventDiscardPile = new LinkedList<>();
 
-    public FeatureExtraction(IBoardRepository boardRepository, ICardRepository cardRepository, ICityRepository cityRepository, IDiseaseRepository diseaseRepository, IEpidemicRepository epidemicRepository, IGameRepository gameRepository, IPlayerRepository playerRepository) {
-        Cloner cloner = new Cloner();
-
-        this.boardRepository = cloner.deepClone(boardRepository);
-        this.cardRepository = cloner.deepClone(cardRepository);
-        this.cityRepository = cloner.deepClone(cityRepository);
-        this.diseaseRepository = cloner.deepClone(diseaseRepository);
-        this.epidemicRepository = cloner.deepClone(epidemicRepository);
-        this.gameRepository = cloner.deepClone(gameRepository);
-        this.playerRepository = cloner.deepClone(playerRepository);
+    public FeatureExtraction(State state) {
+        this.state = state;
     }
 
     public void extract() {
@@ -68,22 +56,22 @@ public class FeatureExtraction {
     }
 
     private void extractBoardFeatures() {
-        this.playerCount = playerRepository.getPlayers().size();
-        diseaseRepository.getOutbreakMarker().stream().filter(Marker::isCurrent).findFirst().ifPresent(outbreakMarker -> this.outbreakRate = outbreakMarker.getId());
-        diseaseRepository.getInfectionRate().stream().filter(Marker::isCurrent).findFirst().ifPresent(infectionRateMarker -> this.infectionRate = infectionRateMarker.getId());
+        this.playerCount = state.getPlayerRepository().getPlayers().size();
+        state.getDiseaseRepository().getOutbreakMarker().stream().filter(Marker::isCurrent).findFirst().ifPresent(outbreakMarker -> this.outbreakRate = outbreakMarker.getId());
+        state.getDiseaseRepository().getInfectionRate().stream().filter(Marker::isCurrent).findFirst().ifPresent(infectionRateMarker -> this.infectionRate = infectionRateMarker.getId());
     }
 
     private void extractPlayerFeatures() {
-        this.playerOrder = playerRepository.getPlayerOrder().stream().map(Player::getName).collect(Collectors.toCollection(LinkedList::new));
+        this.playerOrder = state.getPlayerRepository().getPlayerOrder().stream().map(Player::getName).collect(Collectors.toCollection(LinkedList::new));
 
-        playerRepository.getPlayers().forEach((n, p) -> {
+        state.getPlayerRepository().getPlayers().forEach((n, p) -> {
             this.playerCardInHands.put(n, p.getHandCards());
             this.playerRole.put(n, p.getRole().getName());
         });
     }
 
     private void extractDiseaseFeatures() {
-        diseaseRepository.getCures().forEach((k, v) -> {
+        state.getDiseaseRepository().getCures().forEach((k, v) -> {
             this.curedDiseasesOnBoard.put(k.toString(), v.isDiscovered());
 
             // TODO: Add logic to check if disease is eradicated.
@@ -92,12 +80,12 @@ public class FeatureExtraction {
     }
 
     private void extractCardFeatures() {
-        this.eventDiscardPile = cardRepository.getEventDiscardPile();
-        this.infectionDiscardPile = cardRepository.getInfectionDiscardPile();
+        this.eventDiscardPile = state.getCardRepository().getEventDiscardPile();
+        this.infectionDiscardPile = state.getCardRepository().getInfectionDiscardPile();
     }
 
     private void extractCityFeatures() {
-        this.cityRepository.getCities().forEach((k, v) -> {
+        this.state.getCityRepository().getCities().forEach((k, v) -> {
             this.researchStationOnCity.put(k, v.getResearchStation() != null);
             this.playersOnCity.put(k, v.getPawns().size());
             this.adjacentCities.put(k, v.getNeighbors().stream().map(City::getName).toList());
