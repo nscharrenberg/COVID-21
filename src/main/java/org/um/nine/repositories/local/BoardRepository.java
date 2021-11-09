@@ -205,7 +205,7 @@ public class BoardRepository implements IBoardRepository {
     public void setSelectedRoleAction(RoleAction selectedRoleAction) {
         this.selectedRoleAction = selectedRoleAction;
 
-        if (optionHudState != null) {
+        if (optionHudState != null && optionHudState.getWindow() != null) {
             Label tempLbl = (Label) optionHudState.getWindow().getChild("currentRoleActionNameLbl");
 
             if (tempLbl != null) {
@@ -238,7 +238,7 @@ public class BoardRepository implements IBoardRepository {
     public void setSelectedPlayerAction(ActionType selectedPlayerAction) {
         this.selectedPlayerAction = selectedPlayerAction;
 
-        if (optionHudState != null) {
+        if (optionHudState != null && optionHudState.getWindow()!= null) {
             Label tempLbl = (Label) optionHudState.getWindow().getChild("currentActionNameLbl");
 
             if (tempLbl != null) {
