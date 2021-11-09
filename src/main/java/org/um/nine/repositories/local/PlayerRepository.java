@@ -185,7 +185,6 @@ public class PlayerRepository implements IPlayerRepository {
             if (c instanceof CityCard cc) {
                 return cc.getCity().equals(player.getCity());
             }
-
             return false;
         }).findFirst().orElse(null);
 
