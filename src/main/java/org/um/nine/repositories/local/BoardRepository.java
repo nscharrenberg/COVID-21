@@ -21,11 +21,15 @@ import org.um.nine.screens.dialogs.GameEndState;
 import org.um.nine.screens.hud.ContingencyPlannerState;
 import org.um.nine.screens.hud.OptionHudState;
 import org.um.nine.utils.managers.RenderManager;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class BoardRepository implements IBoardRepository {
+    private String version;
     private Geometry board;
     private City selectedCity;
     private RoleAction selectedRoleAction = null;
@@ -110,6 +114,11 @@ public class BoardRepository implements IBoardRepository {
         }
 
         playerRepository.decidePlayerOrder();
+
+        this.createNewVersion();
+        BitmapFont myFont = gameRepository.getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
+        renderManager.renderText("Playing Version: " + this.version, new Vector3f(-1000, 500, 10),ColorRGBA.White,"version-title-label",20,myFont);
+
         playerRepository.nextPlayer();
     }
 
@@ -270,5 +279,21 @@ public class BoardRepository implements IBoardRepository {
         cardRepository.cleanup();
         cityRepository.cleanup();
         diseaseRepository.cleanup();
+    }
+
+    private void createNewVersion() {
+        DateFormat df = new SimpleDateFormat("yyyyMMddkkmmss");
+        df.setTimeZone(TimeZone.getTimeZone("GMT"));
+        this.version = df.format(new Date());
+    }
+
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    @Override
+    public void setVersion(String version) {
+        this.version = version;
     }
 }

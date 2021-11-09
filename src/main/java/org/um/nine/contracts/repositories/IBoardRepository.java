@@ -38,4 +38,8 @@ public interface IBoardRepository {
     void resetRound();
 
     void cleanup();
+
+    String getVersion();
+
+    void setVersion(String version);
 }
