@@ -142,10 +142,17 @@ public class BaselineAgent {
         boardRepository.setSelectedPlayerAction(selectedAction == null? ActionType.SKIP_ACTION : selectedAction);
         boardRepository.setSelectedRoleAction(roleAction == null ? RoleAction.NO_ACTION : roleAction);
         try {
+            System.out.println(boardRepository.getSelectedRoleAction());
+            System.out.println(boardRepository.getSelectedPlayerAction());
+            if (boardRepository.getSelectedRoleAction().equals(RoleAction.GIVE_PLAYER_CITY_CARD))
+                boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
             playerRepository.action(boardRepository.getSelectedPlayerAction());
         } catch (InvalidMoveException | NoActionSelectedException | ResearchStationLimitException | CityAlreadyHasResearchStationException | NoCubesLeftException | NoDiseaseOrOutbreakPossibleDueToEvent | GameOverException e) {
             e.printStackTrace();
         }
+        boardRepository.setSelectedCity(null);
+        boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
+        boardRepository.setSelectedPlayerAction(ActionType.NO_ACTION);
 
     }
 }

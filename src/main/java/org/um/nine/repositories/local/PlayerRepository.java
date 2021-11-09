@@ -185,7 +185,6 @@ public class PlayerRepository implements IPlayerRepository {
             if (c instanceof CityCard cc) {
                 return cc.getCity().equals(player.getCity());
             }
-
             return false;
         }).findFirst().orElse(null);
 
@@ -487,7 +486,8 @@ public class PlayerRepository implements IPlayerRepository {
                 nextState(currentRoundState);
             }
             skipClicked = false;
-        } else if (currentRoundState.equals(RoundState.DRAW)) {
+        }
+        if (currentRoundState.equals(RoundState.DRAW)) {
             cardRepository.drawPlayCard();
 
             nextState(currentRoundState);
@@ -523,11 +523,16 @@ public class PlayerRepository implements IPlayerRepository {
 
     @Override
     public void agentDecision() {
-        if (!this.getCurrentPlayer().isBot()) return;
-        this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
-        this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
-        this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
-        this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
 
+        if (this.getCurrentPlayer().isBot()) this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
+        if (this.getCurrentPlayer().isBot()) this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
+        if (this.getCurrentPlayer().isBot()) this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
+        if (this.getCurrentPlayer().isBot()) this.agentRepository.baselineAgent().randomAction(getCurrentPlayer());
+        this.nextState(currentRoundState);
+        try{
+            action(null);
+        } catch (NoCubesLeftException | NoActionSelectedException | NoDiseaseOrOutbreakPossibleDueToEvent | GameOverException | ResearchStationLimitException | InvalidMoveException | CityAlreadyHasResearchStationException e) {
+            e.printStackTrace();
+        }
     }
 }
