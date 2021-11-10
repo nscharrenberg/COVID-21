@@ -190,4 +190,8 @@ public class FeatureExtraction {
     public int getInfectionCardDiscardCount() {
         return infectionCardDiscardCount;
     }
+
+    public State getState() {
+        return state;
+    }
 }
