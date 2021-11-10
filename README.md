@@ -123,7 +123,7 @@ The game code is to not be used in other projects, unless explicit permission ha
 * [Lemur](https://github.com/jMonkeyEngine-Contributions/Lemur)
 * [Google Gson](https://github.com/google/gson)
 
-## Known Issues
+## Known Issues (todo: update)
 
 * Event Cards Missing
 * There is a 5th player in the config menu visible? (It only adds a new player when you click the ADD button, and when you click on "Add" for player 5 you get an error, thus you only have 4 players) -> Prossible fix: Add check in "Add" function in configuration screen to ensure a 5th player will not be entered (rendered).
