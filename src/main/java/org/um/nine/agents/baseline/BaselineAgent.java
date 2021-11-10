@@ -3,6 +3,7 @@ package org.um.nine.agents.baseline;
 import com.google.inject.Inject;
 import org.um.nine.contracts.repositories.IBoardRepository;
 import org.um.nine.contracts.repositories.ICityRepository;
+import org.um.nine.contracts.repositories.IDiseaseRepository;
 import org.um.nine.contracts.repositories.IPlayerRepository;
 import org.um.nine.domain.ActionType;
 import org.um.nine.domain.City;
@@ -28,7 +29,10 @@ public class BaselineAgent {
     @Inject
     private ICityRepository cityRepository;
 
+    @Inject
+    private IDiseaseRepository diseaseRepository;
 
+    private boolean DEBUG = true;
 
     public boolean moveToCity(Player currentPlayer, City target) throws InvalidMoveException {
         if (currentPlayer.getCity().getName().equals(target.getName())) return true;
@@ -71,17 +75,15 @@ public class BaselineAgent {
 
         ActionType selectedAction = null;
         RoleAction roleAction = null;
-        System.out.println(random);
-
             switch (random) {
                 case 0 -> {
-                    City next = player.getCity().getNeighbors().get(0);
+                    City next = player.getCity().getNeighbors().get(new Random().nextInt(player.getCity().getNeighbors().size()-1));
                     try{
                         playerRepository.drive(player, next, true);
                     }catch(Exception e){
                         e.printStackTrace();
                     }
-                    System.out.println("Agent moving to "+ next.getName());
+                    if(DEBUG) System.out.println("Agent moving to "+ next.getName());
                 }
                 case 1 -> {
                     PlayerCard toMove = player.getHandCards().stream().filter(c -> c instanceof CityCard).findFirst().orElse(null);
@@ -93,7 +95,11 @@ public class BaselineAgent {
                             e.printStackTrace();
                         }
                     }
-                    System.out.println("charter");
+                    else {
+                        randomAction(player);
+                        if(DEBUG) System.out.println("FAILED");
+                    }
+                    if(DEBUG) System.out.println("charter to " + ((CityCard) toMove).getCity().getName());
                 }
                 case  2 -> {
                     CityCard cityCard = (CityCard) player.getHandCards().stream().filter(c -> c instanceof CityCard).findFirst().orElse(null);
@@ -105,22 +111,32 @@ public class BaselineAgent {
                             e.printStackTrace();
                         }
                     }
-                    System.out.println("direct");
+                    else {
+                        randomAction(player);
+                        if(DEBUG) System.out.println("FAILED");
+                    }
+                    if(DEBUG) System.out.println("direct to " + cityCard.getCity().getName());
                 }
                 case 3 -> {
+                    String name = null;
                     if (cityRepository.getCities().values().stream().filter(c -> c.getResearchStation()!= null).count() >=2 &&
                             player.getCity().getResearchStation() != null){
                         City city = cityRepository.getCities().values().stream().filter( c-> c.getResearchStation() != null && !c.equals(player.getCity())).findFirst().orElse(null);
                         if (city!= null){
                             boardRepository.setSelectedCity(city);
                             try{
+                                name = city.getName();
                                 playerRepository.shuttle(player, city);
                             }catch(Exception e){
                                 e.printStackTrace();
                             }
                         }
                     }
-                    System.out.println("shuttle");
+                    else {
+                        randomAction(player);
+                        if(DEBUG) System.out.println("FAILED");
+                    }
+                    if(DEBUG) System.out.println("shuttle to " + name);
                 }
                 case 4 -> {
                     if (player.getCity().getResearchStation() == null && player.getHandCards().stream().filter(c -> {
@@ -133,19 +149,29 @@ public class BaselineAgent {
                             e.printStackTrace();
                         }
                     }
-                    System.out.println("researchStation");
+                    else {
+                        randomAction(player);
+                        if(DEBUG) System.out.println("FAILED");
+                    }
+                    if(DEBUG) System.out.println("researchStation");
                 }
                 case 5 -> {
                     if (!player.getCity().getCubes().isEmpty()) {
-                        //TODO implement disease treating for bots
-                        boardRepository.setSelectedCity(player.getCity());
-                        selectedAction = ActionType.TREAT_DISEASE;
+                        try{
+                            diseaseRepository.treat(player, player.getCity(), player.getCity().getCubes().get(0));
+                        } catch (NoCityCardToTreatDiseaseException e) {
+                            e.printStackTrace();
+                        }
                     }
-                    System.out.println("treat");
+                    else {
+                        randomAction(player);
+                        if(DEBUG) System.out.println("FAILED");
+                    }
+                    if(DEBUG) System.out.println("treat in " + player.getCity().getName());
                 }
                 case 6 -> {
                     //TODO : implement share knowledge automatic approval
-                    System.out.println("share");
+                    if(DEBUG) System.out.println("share");
                 }
                 case 7 -> {
                     var sameColorCard = player.getHandCards().stream().filter(c -> c instanceof CityCard).collect(Collectors.groupingBy(c -> ((CityCard)c).getCity().getColor()));
@@ -153,18 +179,22 @@ public class BaselineAgent {
                         sameColorCard.entrySet().forEach(System.out::println);
                         selectedAction = ActionType.DISCOVER_CURE;
                     }
-                    System.out.println("discoverCure");
+                    else {
+                        randomAction(player);
+                        if(DEBUG) System.out.println("FAILED");
+                    }
+                    if(DEBUG) System.out.println("discoverCure");
                 }
                 case 8 -> {
                     for (RoleAction r : RoleAction.values()){
                         if (player.getRole().actions(r))
                             roleAction = r;
                     }
-                    System.out.println("roleaction");
+                    if(DEBUG) System.out.println("roleaction");
                 }
                 default -> {
                     selectedAction = ActionType.SKIP_ACTION;
-                    System.out.println("Skip");
+                    if(DEBUG) System.out.println("Skip");
                 }
             }
         boardRepository.setSelectedPlayerAction(selectedAction == null? ActionType.SKIP_ACTION : selectedAction);

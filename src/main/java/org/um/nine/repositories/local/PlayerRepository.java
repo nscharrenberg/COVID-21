@@ -183,7 +183,7 @@ public class PlayerRepository implements IPlayerRepository {
 
         PlayerCard pc = player.getHandCards().stream().filter(c -> {
             if (c instanceof CityCard cc) {
-                return cc.getCity().equals(player.getCity());
+                return cc.getCity().equals(city);
             }
             return false;
         }).findFirst().orElse(null);
