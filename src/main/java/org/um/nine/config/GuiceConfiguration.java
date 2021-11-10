@@ -10,6 +10,7 @@ import org.um.nine.screens.SettingsState;
 import org.um.nine.screens.dialogs.*;
 import org.um.nine.screens.hud.*;
 import org.um.nine.utils.managers.RenderManager;
+import org.um.nine.utils.versioning.ReplayManager;
 
 public class GuiceConfiguration extends AbstractModule {
     private final IGameRepository gameRepository = new GameRepository();
@@ -39,6 +40,9 @@ public class GuiceConfiguration extends AbstractModule {
     private final ContingencyPlannerState contingencyPlannerState = new ContingencyPlannerState();
     private final GameEndState gameEndState = new GameEndState();
 
+    // Replay Functionality
+    private final ReplayManager replayManager = new ReplayManager();
+
     @Override
     protected void configure() {
         bind(IGameRepository.class).toInstance(gameRepository);
@@ -66,5 +70,7 @@ public class GuiceConfiguration extends AbstractModule {
         bind(DiscardCardDialog.class).toInstance(discardCardDialog);
         bind(ContingencyPlannerState.class).toInstance(contingencyPlannerState);
         bind(GameEndState.class).toInstance(gameEndState);
+
+        bind(ReplayManager.class).toInstance(replayManager);
     }
 }
