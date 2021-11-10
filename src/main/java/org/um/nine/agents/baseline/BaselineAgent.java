@@ -99,7 +99,7 @@ public class BaselineAgent {
                         randomAction(player);
                         if(DEBUG) System.out.println("FAILED");
                     }
-                    if(DEBUG) System.out.println("charter to " + ((CityCard) toMove).getCity().getName());
+                    if(DEBUG && toMove != null) System.out.println("charter to " + ((CityCard) toMove).getCity().getName());
                 }
                 case  2 -> {
                     CityCard cityCard = (CityCard) player.getHandCards().stream().filter(c -> c instanceof CityCard).findFirst().orElse(null);
