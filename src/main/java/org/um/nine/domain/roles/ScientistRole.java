@@ -17,6 +17,12 @@ public class ScientistRole extends Role {
     }
 
     @Override
+    public List<RoleAction> actions() {
+        ArrayList<RoleAction> events = new ArrayList<>();
+        return events;
+    }
+
+    @Override
     public boolean events(RoleEvent key) {
         return key.equals(RoleEvent.DISCOVER_CURE_FOUR_CARDS);
     }
