@@ -521,6 +521,26 @@ public class PlayerRepository implements IPlayerRepository {
     }
 
     @Override
+    public void roleAction(RoleAction roleAction, Player player){
+        try{
+            if (roleAction.equals(RoleAction.TAKE_ANY_DISCARED_EVENT)) {
+                gameRepository.getApp().getStateManager().attach(contingencyPlannerState);
+                contingencyPlannerState.setHeartbeat(true);
+                contingencyPlannerState.setEnabled(true);
+            } else if (roleAction.equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY)) {
+                int random = new Random().nextInt(cityRepository.getCities().size());
+                shuttle(player, cityRepository.getCities().get(random-1));
+            } else if (roleAction.equals(RoleAction.BUILD_RESEARCH_STATION)){
+                cityRepository.addResearchStation(player.getCity(), player);
+            }
+            //TODO add dispatcher stuff once event cards are merged in
+
+        } catch (ResearchStationLimitException | InvalidMoveException | CityAlreadyHasResearchStationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void cleanup() {
         playerOrder = null;
         players = null;

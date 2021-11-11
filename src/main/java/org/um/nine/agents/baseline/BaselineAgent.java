@@ -14,6 +14,8 @@ import org.um.nine.domain.roles.MedicRole;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -77,6 +79,7 @@ public class BaselineAgent {
         RoleAction roleAction = null;
             switch (random) {
                 case 0 -> {
+                    if(DEBUG) System.out.println("move");
                     City next = player.getCity().getNeighbors().get(new Random().nextInt(player.getCity().getNeighbors().size()-1));
                     try{
                         playerRepository.drive(player, next, true);
@@ -86,8 +89,10 @@ public class BaselineAgent {
                     if(DEBUG) System.out.println("Agent moving to "+ next.getName());
                 }
                 case 1 -> {
+                    if(DEBUG) System.out.println("charter");
                     PlayerCard toMove = player.getHandCards().stream().filter(c -> c instanceof CityCard).findFirst().orElse(null);
                     if (toMove != null) {
+                        if(DEBUG && toMove != null) System.out.println("charter to " + ((CityCard) toMove).getCity().getName());
                         City next = ((CityCard) toMove).getCity();
                         try{
                             playerRepository.charter(player, ((CityCard) toMove).getCity());
@@ -96,14 +101,15 @@ public class BaselineAgent {
                         }
                     }
                     else {
-                        randomAction(player);
                         if(DEBUG) System.out.println("FAILED");
+                        randomAction(player);
                     }
-                    if(DEBUG && toMove != null) System.out.println("charter to " + ((CityCard) toMove).getCity().getName());
                 }
                 case  2 -> {
+                    if(DEBUG) System.out.println("direct");
                     CityCard cityCard = (CityCard) player.getHandCards().stream().filter(c -> c instanceof CityCard).findFirst().orElse(null);
                     if (cityCard!= null){
+                        if(DEBUG) System.out.println("direct to " + cityCard.getCity().getName());
                         boardRepository.setSelectedCity(cityCard.getCity());
                         try{
                             playerRepository.direct(player, cityCard.getCity());
@@ -112,17 +118,18 @@ public class BaselineAgent {
                         }
                     }
                     else {
-                        randomAction(player);
                         if(DEBUG) System.out.println("FAILED");
+                        randomAction(player);
                     }
-                    if(DEBUG) System.out.println("direct to " + cityCard.getCity().getName());
                 }
                 case 3 -> {
                     String name = null;
+                    if(DEBUG) System.out.print("shuttle");
                     if (cityRepository.getCities().values().stream().filter(c -> c.getResearchStation()!= null).count() >=2 &&
                             player.getCity().getResearchStation() != null){
                         City city = cityRepository.getCities().values().stream().filter( c-> c.getResearchStation() != null && !c.equals(player.getCity())).findFirst().orElse(null);
                         if (city!= null){
+                            if(DEBUG) System.out.println(" to " + city.getName());
                             boardRepository.setSelectedCity(city);
                             try{
                                 name = city.getName();
@@ -133,12 +140,12 @@ public class BaselineAgent {
                         }
                     }
                     else {
-                        randomAction(player);
                         if(DEBUG) System.out.println("FAILED");
+                        randomAction(player);
                     }
-                    if(DEBUG) System.out.println("shuttle to " + name);
                 }
                 case 4 -> {
+                    if(DEBUG) System.out.println("researchStation");
                     if (player.getCity().getResearchStation() == null && player.getHandCards().stream().filter(c -> {
                         if (c instanceof CityCard card) return card.getCity().equals(player.getCity());
                         return false;
@@ -150,12 +157,12 @@ public class BaselineAgent {
                         }
                     }
                     else {
-                        randomAction(player);
                         if(DEBUG) System.out.println("FAILED");
+                        randomAction(player);
                     }
-                    if(DEBUG) System.out.println("researchStation");
                 }
                 case 5 -> {
+                    if(DEBUG) System.out.println("treat in " + player.getCity().getName());
                     if (!player.getCity().getCubes().isEmpty()) {
                         try{
                             diseaseRepository.treat(player, player.getCity(), player.getCity().getCubes().get(0));
@@ -164,10 +171,9 @@ public class BaselineAgent {
                         }
                     }
                     else {
-                        randomAction(player);
                         if(DEBUG) System.out.println("FAILED");
+                        randomAction(player);
                     }
-                    if(DEBUG) System.out.println("treat in " + player.getCity().getName());
                 }
                 case 6 -> {
                     //TODO : implement share knowledge automatic approval
@@ -175,22 +181,27 @@ public class BaselineAgent {
                 }
                 case 7 -> {
                     var sameColorCard = player.getHandCards().stream().filter(c -> c instanceof CityCard).collect(Collectors.groupingBy(c -> ((CityCard)c).getCity().getColor()));
+                    if(DEBUG) System.out.println("discoverCure");
                     if (sameColorCard.values().size()>=5 || (player.getRole() instanceof MedicRole) && sameColorCard.values().size() >=4) {
                         sameColorCard.entrySet().forEach(System.out::println);
                         selectedAction = ActionType.DISCOVER_CURE;
                     }
                     else {
-                        randomAction(player);
                         if(DEBUG) System.out.println("FAILED");
+                        randomAction(player);
                     }
-                    if(DEBUG) System.out.println("discoverCure");
                 }
                 case 8 -> {
-                    for (RoleAction r : RoleAction.values()){
-                        if (player.getRole().actions(r))
-                            roleAction = r;
-                    }
                     if(DEBUG) System.out.println("roleaction");
+                    List<RoleAction> l = player.getRole().actions();
+                    if(l.size() == 0){
+                        System.out.println("FAILED");
+                        randomAction(player);
+                    }
+                    else{
+                        int rnd = new Random().nextInt(l.size());
+                        playerRepository.roleAction(l.get(rnd),player);
+                    }
                 }
                 default -> {
                     selectedAction = ActionType.SKIP_ACTION;

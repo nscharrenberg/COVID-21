@@ -17,6 +17,13 @@ public class ContingencyPlannerRole extends Role {
     }
 
     @Override
+    public List<RoleAction> actions() {
+        ArrayList<RoleAction> events = new ArrayList<>();
+        events.add(RoleAction.TAKE_ANY_DISCARED_EVENT);
+        return events;
+    }
+
+    @Override
     public boolean events(RoleEvent key) {
         return key.equals(RoleEvent.USE_STORED_EVENT_CARD);
     }

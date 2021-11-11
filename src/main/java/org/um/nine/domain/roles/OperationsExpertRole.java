@@ -18,6 +18,14 @@ public class OperationsExpertRole extends Role {
     }
 
     @Override
+    public List<RoleAction> actions() {
+        ArrayList<RoleAction> events = new ArrayList<>();
+        events.add(RoleAction.BUILD_RESEARCH_STATION);
+        events.add(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY);
+        return events;
+    }
+
+    @Override
     public boolean events(RoleEvent key) {
         return false;
     }
