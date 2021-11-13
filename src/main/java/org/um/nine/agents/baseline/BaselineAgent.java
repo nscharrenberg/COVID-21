@@ -176,8 +176,15 @@ public class BaselineAgent {
                     }
                 }
                 case 6 -> {
-                    //TODO : implement share knowledge automatic approval
                     if(DEBUG) System.out.println("share");
+                    var sameCityCard = player.getHandCards().stream().filter(c -> c instanceof CityCard && ((CityCard) c).getCity().equals(player.getCity())).collect(Collectors.groupingBy(c -> ((CityCard)c).getCity().getColor()));
+                    if(sameCityCard.isEmpty() || player.getCity().getPawns().size() <= 1){
+                        if(DEBUG) System.out.println("FAILED");
+                        randomAction(player);
+                    }
+                    else{
+                        playerRepository.share(player, player.getCity());
+                    }
                 }
                 case 7 -> {
                     var sameColorCard = player.getHandCards().stream().filter(c -> c instanceof CityCard).collect(Collectors.groupingBy(c -> ((CityCard)c).getCity().getColor()));
