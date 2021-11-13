@@ -117,5 +117,21 @@
             <artifactId>cloning</artifactId>
             <version>1.10.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>rl4j</artifactId>
+            <version>1.0.0-M1.1</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>rl4j-api</artifactId>
+            <version>1.0.0-M1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>rl4j-core</artifactId>
+            <version>1.0.0-M1.1</version>
+        </dependency>
     </dependencies>
 </project>
