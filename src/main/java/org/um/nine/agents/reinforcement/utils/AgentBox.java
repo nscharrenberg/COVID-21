@@ -1,15 +1,11 @@
 package org.um.nine.agents.reinforcement.utils;
 
 import com.jme3.math.ColorRGBA;
-import org.datavec.api.writable.Text;
 import org.deeplearning4j.rl4j.space.Encodable;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.um.nine.domain.City;
 import org.um.nine.domain.roles.*;
-import org.um.nine.screens.hud.ContingencyPlannerState;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
