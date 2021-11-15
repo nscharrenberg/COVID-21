@@ -4,6 +4,8 @@ import com.jme3.math.ColorRGBA;
 import org.deeplearning4j.rl4j.space.Encodable;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.um.nine.domain.cards.CityCard;
+import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.roles.*;
 
 import java.util.HashMap;
@@ -21,7 +23,8 @@ public class AgentBox implements Encodable {
     private static final int RESEARCH_STATION_ON_CITY = CITY_COUNT + 4;
     private static final int PLAYER_ONE_LOCATION = CITY_COUNT + 5;
     private static final int PLAYER_ROLES = CITY_COUNT + 9;
-    private static final int GLOBAL_INFO = CITY_COUNT + 10;
+    private static final int CARDS_IN_HANDS = CITY_COUNT + 10;
+    private static final int GLOBAL_INFO = CITY_COUNT + 13;
 
     private static final int PLAYER_TURN = 0;
     private static final int INFECTION_COUNT = 1;
@@ -51,16 +54,6 @@ public class AgentBox implements Encodable {
 
     @Override
     public INDArray getData() {
-        // This would be a matrix of appr. 5.3k cells (which wouldn't be desirable)
-        //           | 48 cities | 4 diseases | research station | 4 players | roles  | global
-        // 48 cities |           |            |                  |             p1     | inf count
-        //                                                                     p2     | player count
-        //                                                                     p3     | difficulty level
-        //                                                                     p4     | # of research stations on board
-        //                                                                            | player cards count
-        //                                                                            | Infections cards count
-        //                                                                            | Infections discard cards count
-        // 48 rows (each city), 112 columns, as specified above.
        INDArray temp = Nd4j.zeros(48, 112);
 
        List<String> sortedCities = features.getCities().stream().sorted().collect(Collectors.toList());
@@ -70,9 +63,6 @@ public class AgentBox implements Encodable {
 
             // Pass along neighbors
             HashMap<String, Integer> diseases = features.getDiseasesOnCity().get(cityName);
-
-            // Column 1 - Neighbouring cities
-
 
             // Column 2 - Red Disease Cube Count per city
             temp.put(i, RED_DISEASE_CUBES_ON_CITY, diseases.get(ColorRGBA.Red.toString()));
@@ -103,6 +93,23 @@ public class AgentBox implements Encodable {
                     break;
                 }
             }
+
+            // Column 12 to 15 - Cards in Hand
+            index = 0;
+            for (Map.Entry<String, List<PlayerCard>> entry : features.getPlayerCardInHands().entrySet()) {
+                List<PlayerCard> cards = entry.getValue();
+
+                if (cards.stream().anyMatch(v -> v.getName().equals(cityName))) {
+                    temp.put(i, CARDS_IN_HANDS + index, 1);
+                }
+
+                index++;
+
+                // Only allow up to 4 players. Enforcing to ensure fixed length matrix.
+                if (index == 4) {
+                    break;
+                }
+            }
         }
 
         int index = 0;
@@ -118,7 +125,7 @@ public class AgentBox implements Encodable {
             }
         }
 
-        // Column 12 - Global Information
+        // Column 16 - Global Information
         temp.put(PLAYER_TURN, GLOBAL_INFO, features.getPlayerId().get(features.getCurrentPlayer()));
         temp.put(INFECTION_COUNT, GLOBAL_INFO, features.getInfectionRate());
         temp.put(OUTBREAK_COUNT, GLOBAL_INFO, features.getOutbreakRate());
