@@ -7,9 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ResearcherRole extends Role {
+    public static String NAME = "Researcher";
 
     public ResearcherRole() {
-        super("Researcher", ColorRGBA.Brown);
+        super(NAME, ColorRGBA.Brown);
     }
 
     @Override

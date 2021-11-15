@@ -7,8 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QuarantineSpecialistRole extends Role {
+    public static String NAME = "Quarantine Specialist";
     public QuarantineSpecialistRole() { //dark green
-        super("Quarantine Specialist", ColorRGBA.fromRGBA255(56,119,0,1));
+        super(NAME, ColorRGBA.fromRGBA255(56,119,0,1));
     }
 
     @Override

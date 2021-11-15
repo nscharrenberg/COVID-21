@@ -7,8 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DispatcherRole extends Role {
+    public static String NAME = "Dispatcher";
     public DispatcherRole() {
-        super("Dispatcher", ColorRGBA.Magenta);
+        super(NAME, ColorRGBA.Magenta);
     }
 
     @Override

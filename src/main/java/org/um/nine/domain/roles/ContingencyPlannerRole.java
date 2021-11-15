@@ -7,8 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ContingencyPlannerRole extends Role {
+    public static String NAME = "Contingency Planner";
     public ContingencyPlannerRole() {
-        super("Contingency Planner", ColorRGBA.Cyan);
+        super(NAME, ColorRGBA.Cyan);
     }
 
     @Override

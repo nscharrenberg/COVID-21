@@ -8,12 +8,15 @@ import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.utils.versioning.State;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class FeatureExtraction {
     private State state;
 
     private int difficulty;
+
+    private List<String> cities = new ArrayList<>();
 
     // City Features
     private HashMap<String, HashMap<String, Integer>> diseasesOnCity = new HashMap<>();
@@ -25,6 +28,8 @@ public class FeatureExtraction {
     private String currentPlayer;
     private Queue<String> playerOrder = new LinkedList<>();
     private HashMap<String, String> playerRole = new HashMap<>();
+    private HashMap<String, String> playerCity = new HashMap<>();
+    private HashMap<String, Integer> playerId = new HashMap<>();
     private HashMap<String, List<PlayerCard>> playerCardInHands = new HashMap<>();
 
     // Disease Features
@@ -67,9 +72,14 @@ public class FeatureExtraction {
     private void extractPlayerFeatures() {
         this.playerOrder = state.getPlayerRepository().getPlayerOrder().stream().map(Player::getName).collect(Collectors.toCollection(LinkedList::new));
 
+        AtomicInteger id = new AtomicInteger(1);
         state.getPlayerRepository().getPlayers().forEach((n, p) -> {
             this.playerCardInHands.put(n, p.getHandCards());
             this.playerRole.put(n, p.getRole().getName());
+            this.playerCity.put(n, p.getCity().getName());
+            this.playerId.put(n, id.intValue());
+
+            id.getAndIncrement();
         });
     }
 
@@ -93,6 +103,7 @@ public class FeatureExtraction {
 
     private void extractCityFeatures() {
         this.state.getCityRepository().getCities().forEach((k, v) -> {
+            this.cities.add(k);
             this.researchStationOnCity.put(k, v.getResearchStation() != null);
             this.playersOnCity.put(k, v.getPawns().size());
             this.adjacentCities.put(k, v.getNeighbors().stream().map(City::getName).toList());
@@ -193,5 +204,17 @@ public class FeatureExtraction {
 
     public State getState() {
         return state;
+    }
+
+    public List<String> getCities() {
+        return cities;
+    }
+
+    public HashMap<String, String> getPlayerCity() {
+        return playerCity;
+    }
+
+    public HashMap<String, Integer> getPlayerId() {
+        return playerId;
     }
 }

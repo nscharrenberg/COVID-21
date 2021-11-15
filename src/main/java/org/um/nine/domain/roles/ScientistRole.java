@@ -7,8 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ScientistRole extends Role {
+    public static String NAME = "Scientist";
     public ScientistRole() {
-        super("Scientist", ColorRGBA.White);
+        super(NAME, ColorRGBA.White);
     }
 
     @Override

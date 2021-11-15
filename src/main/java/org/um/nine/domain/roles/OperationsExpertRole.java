@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OperationsExpertRole extends Role {
-
+    public static String NAME = "Operations Expert";
     public OperationsExpertRole() { //light green
-        super("Operations Expert", ColorRGBA.fromRGBA255(136, 255, 47, 1));
+        super(NAME, ColorRGBA.fromRGBA255(136, 255, 47, 1));
     }
 
     @Override
