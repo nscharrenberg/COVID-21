@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AgentBox implements Encodable {
+    public static int FEATURE_COUNT = 14;
+
     private static final int CITY_COUNT = 0;
     private static final int NEIGHBOURING_CITY_INDEX = 0;
     private static final int RED_DISEASE_CUBES_ON_CITY = CITY_COUNT;
@@ -24,7 +26,7 @@ public class AgentBox implements Encodable {
     private static final int PLAYER_ONE_LOCATION = CITY_COUNT + 5;
     private static final int PLAYER_ROLES = CITY_COUNT + 9;
     private static final int CARDS_IN_HANDS = CITY_COUNT + 10;
-    private static final int GLOBAL_INFO = CITY_COUNT + 13;
+    private static final int GLOBAL_INFO = CITY_COUNT + 14;
 
     private static final int PLAYER_TURN = 0;
     private static final int INFECTION_COUNT = 1;
@@ -44,7 +46,7 @@ public class AgentBox implements Encodable {
 
     @Override
     public double[] toArray() {
-        return new double[0];
+       return getData().toDoubleVector();
     }
 
     @Override

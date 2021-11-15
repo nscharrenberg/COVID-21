@@ -1,5 +1,9 @@
 package org.um.nine.domain.roles;
 
+import org.um.nine.domain.ActionType;
+
+import java.util.List;
+
 public enum RoleAction {
     MOVE_ANY_PAWN_TO_CITY_WITH_OTHER_PAWN("As an action, move any pawn to a city with another pawn."),
     GIVE_PLAYER_CITY_CARD("As an action, you may give (or a player can take) any City card from your hand. You must both be in the same city. The card does not have to match the city you are in"),
@@ -15,6 +19,14 @@ public enum RoleAction {
     private final String name;
 
     public String getName() {
+        return name;
+    }
+
+    public static final List<RoleAction> VALUES = List.of(values());
+    public static final int SIZE = VALUES.size();
+
+    @Override
+    public String toString() {
         return name;
     }
 }

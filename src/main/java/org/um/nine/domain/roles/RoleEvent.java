@@ -1,5 +1,9 @@
 package org.um.nine.domain.roles;
 
+import org.um.nine.domain.ActionType;
+
+import java.util.List;
+
 public enum RoleEvent {
     PREVENT_DISEASE_OR_OUTBREAK("Prevent disease cube placements (and outbreaks) in the city you are in and all cities connected to it"),
     MOVE_OTHER_PLAYER("Move another player's pawn as if it were yours"),
@@ -17,4 +21,12 @@ public enum RoleEvent {
     public String getName() {
         return name;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    public static final List<RoleEvent> VALUES = List.of(values());
+    public static final int SIZE = VALUES.size();
 }

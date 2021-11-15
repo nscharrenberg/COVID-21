@@ -1,5 +1,7 @@
 package org.um.nine.domain;
 
+import java.util.List;
+
 public enum ActionType {
     DRIVE(0, "Move your pawn to any adjacent city."),
     DIRECT_FLIGHT(1, "Discard a city card and move your pawn to the discarded city card."),
@@ -27,4 +29,12 @@ public enum ActionType {
     public String getDescription() {
         return description;
     }
+
+    @Override
+    public String toString() {
+        return description;
+    }
+
+    public static final List<ActionType> VALUES = List.of(values());
+    public static final int SIZE = VALUES.size();
 }
