@@ -4,10 +4,10 @@ import org.um.nine.domain.ActionType;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.RoundState;
+import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
 
 import java.util.HashMap;
-import java.util.Queue;
 
 public interface IPlayerRepository {
     void addPlayer(Player player) throws PlayerLimitException;
@@ -51,7 +51,9 @@ public interface IPlayerRepository {
 
     void action(ActionType type) throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException, CityAlreadyHasResearchStationException, NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
 
+    void roleAction(RoleAction roleAction, Player player);
+
     void cleanup();
 
-    Queue<Player> getPlayerOrder();
+    void agentDecision();
 }

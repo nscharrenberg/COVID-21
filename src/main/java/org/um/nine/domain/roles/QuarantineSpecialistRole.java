@@ -17,6 +17,12 @@ public class QuarantineSpecialistRole extends Role {
     }
 
     @Override
+    public List<RoleAction> actions() {
+        ArrayList<RoleAction> events = new ArrayList<>();
+        return events;
+    }
+
+    @Override
     public boolean events(RoleEvent key) {
         return key.equals(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK);
     }

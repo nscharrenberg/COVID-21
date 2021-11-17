@@ -17,6 +17,13 @@ public class DispatcherRole extends Role {
     }
 
     @Override
+    public List<RoleAction> actions() {
+        ArrayList<RoleAction> events = new ArrayList<>();
+        events.add(RoleAction.MOVE_ANY_PAWN_TO_CITY_WITH_OTHER_PAWN);
+        return events;
+    }
+
+    @Override
     public boolean events(RoleEvent key) {
         return key.equals(RoleEvent.MOVE_OTHER_PLAYER);
     }

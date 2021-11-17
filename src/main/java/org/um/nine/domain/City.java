@@ -2,10 +2,10 @@ package org.um.nine.domain;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import org.um.nine.exceptions.OutbreakException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class City {
     private String name;
@@ -174,4 +174,15 @@ public class City {
 
         return sb.toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        City city = (City) o;
+
+        return Objects.equals(name, city.name);
+    }
+
 }

@@ -18,6 +18,12 @@ public class MedicRole extends Role {
     }
 
     @Override
+    public List<RoleAction> actions() {
+        ArrayList<RoleAction> events = new ArrayList<>();
+        return events;
+    }
+
+    @Override
     public boolean events(RoleEvent key) {
         return key.equals(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR)
                 || key.equals(RoleEvent.AUTO_REMOVE_CUBES_OF_CURED_DISEASE);
