@@ -1,6 +1,8 @@
 package org.um.nine.config;
 
 import com.google.inject.AbstractModule;
+import org.um.nine.agents.baseline.BaselineAgent;
+import org.um.nine.agents.reinforcement.ReinforcementAgent;
 import org.um.nine.contracts.repositories.*;
 import org.um.nine.repositories.local.*;
 import org.um.nine.screens.ConfigurationState;
@@ -20,6 +22,8 @@ public class GuiceConfiguration extends AbstractModule {
     private final IDiseaseRepository diseaseRepository = new DiseaseRepository();
     private final RenderManager renderManager = new RenderManager();
     private final IEpidemicRepository epidemicRepository = new EpidemicRepository();
+    private final IAgentRepository agentRepository= new AgentRepository( new BaselineAgent(), new ReinforcementAgent());
+
 
     // Screens
     private final MainMenuState mainMenuState = new MainMenuState();
@@ -49,6 +53,11 @@ public class GuiceConfiguration extends AbstractModule {
         bind(IDiseaseRepository.class).toInstance(diseaseRepository);
         bind(RenderManager.class).toInstance(renderManager);
         bind(IEpidemicRepository.class).toInstance(epidemicRepository);
+        bind(IAgentRepository.class).toInstance(agentRepository);
+        bind(BaselineAgent.class).toInstance(agentRepository.baselineAgent());
+        bind(ReinforcementAgent.class).toInstance(agentRepository.reinforcementAgent());
+
+
 
         bind(MainMenuState.class).toInstance(mainMenuState);
         bind(SettingsState.class).toInstance(settingsState);

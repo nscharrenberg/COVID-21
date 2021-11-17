@@ -21,6 +21,8 @@ public abstract class Role {
      */
     public abstract boolean actions(RoleAction key);
 
+    public abstract List<RoleAction> actions();
+
     /**
      * Perform role events that a user has no power over.
      * e.g. Prevent disease cube placements (and outbreaks) in the city you are in and all cities connected to it.
