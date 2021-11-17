@@ -8,6 +8,7 @@ import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
 
 import java.util.HashMap;
+import java.util.Queue;
 
 public interface IPlayerRepository {
     void addPlayer(Player player) throws PlayerLimitException;
@@ -52,6 +53,8 @@ public interface IPlayerRepository {
     void action(ActionType type) throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException, CityAlreadyHasResearchStationException, NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
 
     void roleAction(RoleAction roleAction, Player player);
+
+    Queue<Player> getPlayerOrder();
 
     void cleanup();
 

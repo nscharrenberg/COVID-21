@@ -118,6 +118,7 @@ public class ConfigurationState extends BaseAppState {
         subPanel.addChild(new Label("Player " + (i+1)), 1, 0);
 
         Checkbox botEnabled = isBot(i);
+        botEnabled.setChecked(false);
         subPanel.addChild(botEnabled, 2, 0);
 
         TextField item = new TextField("Player " + i);

@@ -102,5 +102,10 @@
             <artifactId>guice-assistedinject</artifactId>
             <version>5.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.kostaskougios</groupId>
+            <artifactId>cloning</artifactId>
+            <version>1.10.3</version>
+        </dependency>
     </dependencies>
 </project>

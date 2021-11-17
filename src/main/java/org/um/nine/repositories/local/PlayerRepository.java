@@ -419,6 +419,7 @@ public class PlayerRepository implements IPlayerRepository {
         if (currentRoundState == null) {
             nextState(null);
         }
+        System.out.println(currentRoundState);
 
         if(!currentPlayer.isBot()){
             if (currentRoundState.equals(RoundState.ACTION)) {
