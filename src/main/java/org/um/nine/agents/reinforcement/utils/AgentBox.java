@@ -7,6 +7,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.roles.*;
+import org.um.nine.utils.versioning.State;
 
 import java.util.HashMap;
 import java.util.List;
@@ -164,5 +165,97 @@ public class AgentBox implements Encodable {
     @Override
     public Encodable dup() {
         return null;
+    }
+
+    public static int getFeatureCount() {
+        return FEATURE_COUNT;
+    }
+
+    public static int getCityCount() {
+        return CITY_COUNT;
+    }
+
+    public static int getNeighbouringCityIndex() {
+        return NEIGHBOURING_CITY_INDEX;
+    }
+
+    public static int getRedDiseaseCubesOnCity() {
+        return RED_DISEASE_CUBES_ON_CITY;
+    }
+
+    public static int getBlackDiseaseCubesOnCity() {
+        return BLACK_DISEASE_CUBES_ON_CITY;
+    }
+
+    public static int getBlueDiseaseCubesOnCity() {
+        return BLUE_DISEASE_CUBES_ON_CITY;
+    }
+
+    public static int getYellowDiseaseCubesOnCity() {
+        return YELLOW_DISEASE_CUBES_ON_CITY;
+    }
+
+    public static int getResearchStationOnCity() {
+        return RESEARCH_STATION_ON_CITY;
+    }
+
+    public static int getPlayerOneLocation() {
+        return PLAYER_ONE_LOCATION;
+    }
+
+    public static int getPlayerRoles() {
+        return PLAYER_ROLES;
+    }
+
+    public static int getCardsInHands() {
+        return CARDS_IN_HANDS;
+    }
+
+    public static int getGlobalInfo() {
+        return GLOBAL_INFO;
+    }
+
+    public static int getPlayerTurn() {
+        return PLAYER_TURN;
+    }
+
+    public static int getInfectionCount() {
+        return INFECTION_COUNT;
+    }
+
+    public static int getOutbreakCount() {
+        return OUTBREAK_COUNT;
+    }
+
+    public static int getPlayerCount() {
+        return PLAYER_COUNT;
+    }
+
+    public static int getDifficultyLevel() {
+        return DIFFICULTY_LEVEL;
+    }
+
+    public static int getTotalResearchStations() {
+        return TOTAL_RESEARCH_STATIONS;
+    }
+
+    public static int getPlayerCardCount() {
+        return PLAYER_CARD_COUNT;
+    }
+
+    public static int getInfectionCardCount() {
+        return INFECTION_CARD_COUNT;
+    }
+
+    public static int getInfectionDiscardCardCount() {
+        return INFECTION_DISCARD_CARD_COUNT;
+    }
+
+    public FeatureExtraction getFeatures() {
+        return features;
+    }
+
+    public State getState() {
+        return this.features.getState();
     }
 }

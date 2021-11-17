@@ -12,7 +12,8 @@ public enum ActionType {
     SHARE_KNOWLEDGE(6,
             "Exchange the city card of your current city with another player that is in the same city as you. (or vise versa"),
     DISCOVER_CURE(7, "Use 5 city cards of the same color to discover a cure. (must be on a research station)"),
-    NO_ACTION(8, "No action chosen!"), SKIP_ACTION(9, "Use this to skip an action");
+    NO_ACTION(8, "No action chosen!"),
+    SKIP_ACTION(9, "Use this to skip an action");
 
     private final int id;
     private final String description;

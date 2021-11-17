@@ -10,7 +10,7 @@ public enum RoleAction {
     TAKE_ANY_DISCARED_EVENT("As an action, take any discarded Event card and store it for future use."),
     BUILD_RESEARCH_STATION("As an action, build a research station in the city you are in (no city card needed)"),
     MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY("Once per turn as an action, move from a research station to any city by discarding any city card"),
-    NO_ACTION("No action chosen!");
+    NO_ACTION("No role action chosen!");
 
     RoleAction(String name) {
         this.name = name;

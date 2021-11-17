@@ -8,7 +8,6 @@ import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.*;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.PlayerCard;
-import org.um.nine.domain.cards.events.AirliftEvent;
 import org.um.nine.domain.roles.*;
 import org.um.nine.exceptions.*;
 import org.um.nine.screens.dialogs.*;
@@ -18,7 +17,6 @@ import org.um.nine.screens.hud.PlayerInfoState;
 import org.um.nine.utils.managers.RenderManager;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class PlayerRepository implements IPlayerRepository {
     private HashMap<String, Player> players;

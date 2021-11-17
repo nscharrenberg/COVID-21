@@ -98,7 +98,6 @@ public class BoardRepository implements IBoardRepository {
         }
 
         renderBoard();
-
         renderCureSection();
         renderOutbreakSection();
         renderInfectionSection();
