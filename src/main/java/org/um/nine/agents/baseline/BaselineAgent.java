@@ -186,7 +186,9 @@ public class BaselineAgent {
                         randomAction(player);
                     }
                     else{
-                        playerRepository.share(player, player.getCity());
+                        player.getHandCards().remove((PlayerCard) sameCityCard);
+                        int rnd = new Random().nextInt(player.getCity().getPawns().size()-1);
+                        player.getCity().getPawns().get(rnd).addCard((PlayerCard) sameCityCard);
                     }
                 }
                 case 7 -> {
@@ -238,8 +240,12 @@ public class BaselineAgent {
                 }
             } else if (roleAction.equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY)) {
                 if(player.getCity().getResearchStation() != null){
-                    int random = new Random().nextInt(cityRepository.getCities().size()-1);
-                    playerRepository.shuttle(player, cityRepository.getCities().get(random));
+                    int random = new Random().nextInt(cityRepository.getCities().values().size()-1);
+                    ArrayList<City> cities = new ArrayList<>();
+                    cityRepository.getCities().values().forEach(c -> {
+                        cities.add(c);
+                    });
+                    playerRepository.shuttle(player, cities.get(random));
                 }
                 else{
                     if(DEBUG) System.out.println("Move from research station anywhere - FAILED");
@@ -256,7 +262,7 @@ public class BaselineAgent {
             }
             //TODO add dispatcher stuff once event cards are merged in
 
-        } catch (ResearchStationLimitException | InvalidMoveException | CityAlreadyHasResearchStationException e) {
+        } catch (ResearchStationLimitException | InvalidMoveException | CityAlreadyHasResearchStationException | NoCityCardToBuildResearchStation e) {
             e.printStackTrace();
         }
     }

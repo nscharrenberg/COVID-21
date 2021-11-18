@@ -12,6 +12,7 @@ import org.um.nine.domain.cards.PlayerCard;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.CityAlreadyHasResearchStationException;
 import org.um.nine.exceptions.InvalidMoveException;
+import org.um.nine.exceptions.NoCityCardToBuildResearchStation;
 import org.um.nine.exceptions.ResearchStationLimitException;
 import org.um.nine.utils.cardmanaging.CityCardReader;
 import org.um.nine.utils.managers.RenderManager;
@@ -50,7 +51,7 @@ public class CityRepository implements ICityRepository {
     }
 
     @Override
-    public void addResearchStation(City city, Player player) throws ResearchStationLimitException, CityAlreadyHasResearchStationException, InvalidMoveException {
+    public void addResearchStation(City city, Player player) throws ResearchStationLimitException, CityAlreadyHasResearchStationException, InvalidMoveException, NoCityCardToBuildResearchStation {
         if (city.getResearchStation() != null) {
             throw new CityAlreadyHasResearchStationException();
         }
@@ -61,7 +62,7 @@ public class CityRepository implements ICityRepository {
 
         RoleAction action = RoleAction.BUILD_RESEARCH_STATION;
         if (player!= null){
-            if (player.getRole().actions(action) && boardRepository.getSelectedRoleAction().equals(action) && !boardRepository.getUsedActions().contains(action)) {
+            if (player.getRole().actions(action) && boardRepository.getSelectedRoleAction() != null && boardRepository.getSelectedRoleAction().equals(action) && !boardRepository.getUsedActions().contains(action)) {
                 boardRepository.getUsedActions().add(action);
             } else {
                 PlayerCard pc = player.getHandCards().stream().filter(c -> {
@@ -74,7 +75,7 @@ public class CityRepository implements ICityRepository {
 
                 // If player doesn't have city card of his current city, it can't make this move.
                 if (pc == null) {
-                    throw new InvalidMoveException(city, player);
+                    throw new NoCityCardToBuildResearchStation(player);
                 }
 
                 player.getHandCards().remove(pc);
@@ -109,7 +110,7 @@ public class CityRepository implements ICityRepository {
         renderCities();
         try {
             addResearchStation(cities.get("Atlanta"), null);
-        } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException | InvalidMoveException e) {
+        } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException | InvalidMoveException | NoCityCardToBuildResearchStation e) {
             e.printStackTrace();
         }
 
