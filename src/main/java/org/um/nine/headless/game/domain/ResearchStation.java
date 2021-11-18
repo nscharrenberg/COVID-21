@@ -5,11 +5,14 @@ public class ResearchStation {
     private int id;
     private City city;
 
-    public ResearchStation(City city) {
+    public ResearchStation() {
         this.id = INCREMENT;
-        this.city = city;
-
         INCREMENT++;
+    }
+
+    public ResearchStation(City city) {
+        this();
+        this.city = city;
     }
 
     public int getId() {

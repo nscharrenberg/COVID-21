@@ -16,9 +16,9 @@ import java.util.HashMap;
 import java.util.Stack;
 
 public class CityUtils {
-    public HashMap<String, City> reader(String path) {
+    public static HashMap<String, City> reader(String path) {
         JsonParser parser = new JsonParser();
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path);
+        InputStream inputStream = CityUtils.class.getClassLoader().getResourceAsStream(path);
         Reader reader = new InputStreamReader(inputStream);
         JsonElement JElRoot = parser.parse(reader);
         JsonObject JORoot = JElRoot.getAsJsonObject();

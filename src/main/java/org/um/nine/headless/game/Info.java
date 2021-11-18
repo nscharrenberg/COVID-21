@@ -1,6 +1,6 @@
 package org.um.nine.headless.game;
 
-public class Game {
+public class Info {
     public static final String APP_TITLE = "COVID-21 The Game";
     public static final int RESEARCH_STATION_THRESHOLD = 6;
     public static final int PLAYER_THRESHOLD = 4;

@@ -1,6 +1,10 @@
 package org.um.nine.headless.game.domain;
 
 import com.jme3.math.Vector3f;
+import org.um.nine.headless.game.domain.cards.CityCard;
+import org.um.nine.headless.game.domain.cards.PlayerCard;
+import org.um.nine.headless.game.domain.roles.RoleEvent;
+import org.um.nine.headless.game.exceptions.UnableToDiscoverCureException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,6 +114,21 @@ public class City {
         disease.setCity(this);
 
         return true;
+    }
+
+    public void removeCube(Disease cube) {
+        this.cubes.remove(cube);
+        cube.setCity(null);
+    }
+
+    public void removeCube(Color color) {
+        Disease cube = this.cubes.stream().filter(c -> c.getColor().equals(color)).findFirst().orElse(null);
+
+        if (cube == null) {
+            return;
+        }
+
+        removeCube(cube);
     }
 
     /**

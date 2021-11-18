@@ -97,6 +97,20 @@ public class Player {
         this.hand = hand;
     }
 
+    public void addHand(PlayerCard card) {
+        if (this.hand == null) {
+            this.hand = new ArrayList<>();
+        }
+
+        this.hand.add(card);
+        card.setPlayer(this);
+    }
+
+    public void removeHand(PlayerCard card) {
+        this.hand.remove(card);
+        card.setPlayer(null);
+    }
+
     @Override
     public String toString() {
         return (isBot ? "bot-" : "player-") +

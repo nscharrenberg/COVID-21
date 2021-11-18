@@ -4,15 +4,15 @@ public class OutbreakMarker extends Marker {
     private static int INCREMENT = 0;
     private Color color;
 
-    public OutbreakMarker(int id, Color color) {
-        super(id);
+    public OutbreakMarker(Color color) {
+        super(INCREMENT);
         this.color = color;
 
         INCREMENT++;
     }
 
-    public OutbreakMarker(int id, boolean isCurrent, Color color) {
-        super(id, isCurrent);
+    public OutbreakMarker(Color color, boolean isCurrent) {
+        super(INCREMENT, isCurrent);
         this.color = color;
 
         INCREMENT++;

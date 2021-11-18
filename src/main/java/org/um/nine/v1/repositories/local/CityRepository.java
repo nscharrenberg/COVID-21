@@ -112,7 +112,6 @@ public class CityRepository implements ICityRepository {
         } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException | InvalidMoveException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override

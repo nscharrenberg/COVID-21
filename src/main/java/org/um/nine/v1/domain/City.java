@@ -2,6 +2,7 @@ package org.um.nine.v1.domain;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import org.um.nine.headless.game.domain.Color;
 
 import java.util.ArrayList;
 import java.util.List;

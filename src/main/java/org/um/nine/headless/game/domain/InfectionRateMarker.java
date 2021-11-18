@@ -5,15 +5,15 @@ public class InfectionRateMarker extends Marker {
     private int count;
     private int[] draws = {2, 2, 2, 3, 3, 4, 4};
 
-    public InfectionRateMarker(int id, int count) {
-        super(id);
+    public InfectionRateMarker(int count) {
+        super(INCREMENT);
         this.count = count;
 
         INCREMENT++;
     }
 
-    public InfectionRateMarker(int id, boolean isCurrent, int count) {
-        super(id, isCurrent);
+    public InfectionRateMarker(int count, boolean isCurrent) {
+        super(INCREMENT, isCurrent);
         this.count = count;
 
         INCREMENT++;
