@@ -1,10 +1,10 @@
 package org.um.nine.agents.baseline;
 
 import com.google.inject.Inject;
-import org.um.nine.contracts.repositories.IBoardRepository;
-import org.um.nine.contracts.repositories.ICityRepository;
-import org.um.nine.contracts.repositories.IDiseaseRepository;
-import org.um.nine.contracts.repositories.IPlayerRepository;
+import org.apache.tools.ant.taskdefs.modules.Link;
+import org.checkerframework.checker.units.qual.A;
+import org.junit.jupiter.api.IndicativeSentencesGeneration;
+import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.ActionType;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Player;
@@ -15,6 +15,7 @@ import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -33,6 +34,9 @@ public class BaselineAgent {
 
     @Inject
     private IDiseaseRepository diseaseRepository;
+
+    @Inject
+    private ICardRepository cardRepository;
 
     private boolean DEBUG = true;
 
@@ -90,20 +94,19 @@ public class BaselineAgent {
                 }
                 case 1 -> {
                     if(DEBUG) System.out.println("charter");
-                    PlayerCard toMove = player.getHandCards().stream().filter(c -> c instanceof CityCard).findFirst().orElse(null);
-                    if (toMove != null) {
-                        if(DEBUG && toMove != null) System.out.println("charter to " + ((CityCard) toMove).getCity().getName());
-                        City next = ((CityCard) toMove).getCity();
-                        try{
-                            playerRepository.charter(player, ((CityCard) toMove).getCity());
-                        }catch(Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-                    else {
+                    int rnd = new Random().nextInt(cityRepository.getCities().size()-1);
+                    ArrayList<City> temp = new ArrayList<>();
+                    cityRepository.getCities().values().forEach(c -> {
+                        temp.add(c);
+                    });
+                    if(DEBUG) System.out.println("charter to " + temp.get(rnd));
+                    try{
+                        playerRepository.charter(player, temp.get(rnd));
+                    }catch(Exception e){
                         if(DEBUG) System.out.println("FAILED");
                         randomAction(player);
                     }
+
                 }
                 case  2 -> {
                     if(DEBUG) System.out.println("direct");
@@ -207,7 +210,7 @@ public class BaselineAgent {
                     }
                     else{
                         int rnd = new Random().nextInt(l.size());
-                        playerRepository.roleAction(l.get(rnd),player);
+                        roleAction(l.get(rnd),player);
                     }
                 }
                 default -> {
@@ -218,6 +221,32 @@ public class BaselineAgent {
         boardRepository.setSelectedPlayerAction(selectedAction == null? ActionType.SKIP_ACTION : selectedAction);
         boardRepository.setSelectedRoleAction(roleAction == null ? RoleAction.NO_ACTION : roleAction);
 
+    }
+
+    public void roleAction(RoleAction roleAction, Player player){
+        try{
+            if (roleAction.equals(RoleAction.TAKE_ANY_DISCARED_EVENT)) {
+                LinkedList<PlayerCard> ecards = cardRepository.getEventDiscardPile();
+                if(ecards.size() > 0){
+                    int random = new Random().nextInt(ecards.size()-1);
+                    player.addCard(ecards.get(random));
+                    ecards.remove(random);
+                }
+                else{
+                    if(DEBUG) System.out.println("FAILED");
+                    randomAction(player);
+                }
+            } else if (roleAction.equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY)) {
+                int random = new Random().nextInt(cityRepository.getCities().size()-1);
+                playerRepository.shuttle(player, cityRepository.getCities().get(random));
+            } else if (roleAction.equals(RoleAction.BUILD_RESEARCH_STATION)){
+                cityRepository.addResearchStation(player.getCity(), player);
+            }
+            //TODO add dispatcher stuff once event cards are merged in
+
+        } catch (ResearchStationLimitException | InvalidMoveException | CityAlreadyHasResearchStationException e) {
+            e.printStackTrace();
+        }
     }
 }
 

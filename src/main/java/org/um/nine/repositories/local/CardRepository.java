@@ -6,6 +6,7 @@ import org.um.nine.Info;
 import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.City;
 import org.um.nine.domain.Disease;
+import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.EpidemicCard;
 import org.um.nine.domain.cards.InfectionCard;
 import org.um.nine.domain.cards.PlayerCard;
@@ -20,6 +21,7 @@ import org.um.nine.utils.cardmanaging.Shuffle;
 
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Random;
 import java.util.Stack;
 
 public class CardRepository implements ICardRepository {
@@ -83,12 +85,21 @@ public class CardRepository implements ICardRepository {
             return;
         }
 
-        playerRepository.getCurrentPlayer().addCard(drawn);
-        if(playerRepository.getCurrentPlayer().getHandCards().size() > Info.HAND_LIMIT) {
-            discardCardDialog.setCurrentPlayer(playerRepository.getCurrentPlayer());
-            gameRepository.getApp().getStateManager().attach(discardCardDialog);
-            discardCardDialog.setHeartbeat(true);
-            discardCardDialog.setEnabled(true);
+        Player player = playerRepository.getCurrentPlayer();
+        player.addCard(drawn);
+        if(player.getHandCards().size() > Info.HAND_LIMIT) {
+            if(player.isBot()){
+                while(player.getHandCards().size() > 7){
+                    int rnd = new Random().nextInt(player.getHandCards().size()-1);
+                    player.discard(player.getHandCards().get(rnd));
+                }
+            }
+            else{
+                discardCardDialog.setCurrentPlayer(player);
+                gameRepository.getApp().getStateManager().attach(discardCardDialog);
+                discardCardDialog.setHeartbeat(true);
+                discardCardDialog.setEnabled(true);
+            }
         }
         playerInfoState.setHeartbeat(true);
     }

@@ -183,7 +183,7 @@ public class PlayerRepository implements IPlayerRepository {
 
         PlayerCard pc = player.getHandCards().stream().filter(c -> {
             if (c instanceof CityCard cc) {
-                return cc.getCity().equals(city);
+                return cc.getCity().equals(player.getCity());
             }
             return false;
         }).findFirst().orElse(null);
@@ -518,26 +518,6 @@ public class PlayerRepository implements IPlayerRepository {
             boardRepository.setSelectedRoleAction(null);
         }
 
-    }
-
-    @Override
-    public void roleAction(RoleAction roleAction, Player player){
-        try{
-            if (roleAction.equals(RoleAction.TAKE_ANY_DISCARED_EVENT)) {
-                gameRepository.getApp().getStateManager().attach(contingencyPlannerState);
-                contingencyPlannerState.setHeartbeat(true);
-                contingencyPlannerState.setEnabled(true);
-            } else if (roleAction.equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY)) {
-                int random = new Random().nextInt(cityRepository.getCities().size());
-                shuttle(player, cityRepository.getCities().get(random-1));
-            } else if (roleAction.equals(RoleAction.BUILD_RESEARCH_STATION)){
-                cityRepository.addResearchStation(player.getCity(), player);
-            }
-            //TODO add dispatcher stuff once event cards are merged in
-
-        } catch (ResearchStationLimitException | InvalidMoveException | CityAlreadyHasResearchStationException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
