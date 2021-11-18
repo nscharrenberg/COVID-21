@@ -1,36 +1,39 @@
 package org.um.nine.headless.game;
 
+import org.um.nine.headless.game.contracts.repositories.*;
 import org.um.nine.headless.game.repositories.*;
 
 public class FactoryProvider {
-    private static final DiseaseRepository diseaseRepository = new DiseaseRepository();
-    private static final BoardRepository boardRepository = new BoardRepository();
-    private static final CityRepository cityRepository = new CityRepository();
-    private static final CardRepository cardRepository = new CardRepository();
-    private static final EpidemicRepository epidemicRepository = new EpidemicRepository();
-    private static final PlayerRepository playerRepository = new PlayerRepository();
+    private static final IDiseaseRepository diseaseRepository = new DiseaseRepository();
+    private static final IBoardRepository boardRepository = new BoardRepository();
+    private static final ICityRepository cityRepository = new CityRepository();
+    private static final ICardRepository cardRepository = new CardRepository();
+    private static final IEpidemicRepository epidemicRepository = new EpidemicRepository();
+    private static final IPlayerRepository playerRepository = new PlayerRepository();
 
-    public static DiseaseRepository getDiseaseRepository() {
+    private FactoryProvider() {}
+
+    public static IDiseaseRepository getDiseaseRepository() {
         return diseaseRepository;
     }
 
-    public static BoardRepository getBoardRepository() {
+    public static IBoardRepository getBoardRepository() {
         return boardRepository;
     }
 
-    public static CityRepository getCityRepository() {
+    public static ICityRepository getCityRepository() {
         return cityRepository;
     }
 
-    public static CardRepository getCardRepository() {
+    public static ICardRepository getCardRepository() {
         return cardRepository;
     }
 
-    public static EpidemicRepository getEpidemicRepository() {
+    public static IEpidemicRepository getEpidemicRepository() {
         return epidemicRepository;
     }
 
-    public static PlayerRepository getPlayerRepository() {
+    public static IPlayerRepository getPlayerRepository() {
         return playerRepository;
     }
 }

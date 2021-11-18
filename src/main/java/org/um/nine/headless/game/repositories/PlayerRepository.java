@@ -2,6 +2,8 @@ package org.um.nine.headless.game.repositories;
 
 import org.um.nine.headless.game.FactoryProvider;
 import org.um.nine.headless.game.Info;
+import org.um.nine.headless.game.contracts.repositories.IBoardRepository;
+import org.um.nine.headless.game.contracts.repositories.IPlayerRepository;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
@@ -10,7 +12,7 @@ import org.um.nine.headless.game.exceptions.*;
 
 import java.util.*;
 
-public class PlayerRepository {
+public class PlayerRepository implements IPlayerRepository {
     private static int ACTION_COUNT = 4;
     private static int DRAW_COUNT = 2;
     private static int INFECTION_COUNT = 2;
@@ -25,6 +27,7 @@ public class PlayerRepository {
     private int drawLeft = DRAW_COUNT;
     private int infectionLeft = INFECTION_COUNT;
 
+    @Override
     public void reset() {
         this.players = new HashMap<>();
         this.currentPlayer = null;
@@ -46,6 +49,7 @@ public class PlayerRepository {
         Collections.shuffle(availableRoles);
     }
 
+    @Override
     public void drive(Player player, City city, boolean careAboutNeighbors) throws InvalidMoveException {
         if (player.getCity().equals(city) || ((!player.getCity().getNeighbors().contains(city) && careAboutNeighbors))) {
             throw new InvalidMoveException(city, player);
@@ -66,10 +70,12 @@ public class PlayerRepository {
         }
     }
 
+    @Override
     public void drive(Player player, City city) throws InvalidMoveException {
         drive(player, city, true);
     }
 
+    @Override
     public void direct(Player player, City city) throws InvalidMoveException {
         if (player.getCity().equals(city)) {
             throw new InvalidMoveException(city, player);
@@ -105,6 +111,7 @@ public class PlayerRepository {
         drive(player, city, false);
     }
 
+    @Override
     public void charter(Player player, City city) throws InvalidMoveException {
         if (player.getCity().equals(city)) {
             throw new InvalidMoveException(city, player);
@@ -137,6 +144,7 @@ public class PlayerRepository {
         drive(player, city, false);
     }
 
+    @Override
     public void shuttle(Player player, City city) throws InvalidMoveException {
         if (player.getCity().equals(city)) {
             throw new InvalidMoveException(city, player);
@@ -156,6 +164,7 @@ public class PlayerRepository {
         drive(player, city, false);
     }
 
+    @Override
     public RoundState nextTurn() {
         return nextTurn(this.currentRoundState);
     }
@@ -165,6 +174,7 @@ public class PlayerRepository {
      * @param currentState
      * @return
      */
+    @Override
     public RoundState nextTurn(RoundState currentState) {
         if (currentState == null || currentState == RoundState.ACTION) {
             if (currentState == null) {
@@ -206,6 +216,7 @@ public class PlayerRepository {
         throw new IllegalStateException();
     }
 
+    @Override
     public void treat(Player player, City city, Color color) throws Exception {
         if (player.getCity().equals(city)) {
             throw new Exception("Only able to treat disease in players current city");
@@ -219,6 +230,7 @@ public class PlayerRepository {
         nextTurn(this.currentRoundState);
     }
 
+    @Override
     public void share(Player player, Player target, City city, PlayerCard card) throws Exception {
         if (city.getPawns().size() <= 1) {
             throw new Exception("Can not share when you are the only pawn in the city");
@@ -248,6 +260,7 @@ public class PlayerRepository {
         nextTurn(this.currentRoundState);
     }
 
+    @Override
     public void buildResearchStation(Player player, City city) throws Exception {
         if (city.getResearchStation() != null) {
             throw new CityAlreadyHasResearchStationException();
@@ -281,6 +294,7 @@ public class PlayerRepository {
         FactoryProvider.getCityRepository().addResearchStation(city);
     }
 
+    @Override
     public void playerAction(ActionType type, Objects... args) throws Exception {
         if (currentRoundState == null) {
             nextTurn(null);
@@ -299,7 +313,7 @@ public class PlayerRepository {
                 return;
             }
 
-            BoardRepository boardRepository = FactoryProvider.getBoardRepository();
+            IBoardRepository boardRepository = FactoryProvider.getBoardRepository();
 
             if (boardRepository.getSelectedRoleAction().equals(RoleAction.TAKE_ANY_DISCARED_EVENT)) {
                 if (args.length <= 0) {
@@ -407,6 +421,7 @@ public class PlayerRepository {
         }
     }
 
+    @Override
     public void nextPlayer() {
         Player nextPlayer = this.playerOrder.poll();
 
@@ -416,12 +431,14 @@ public class PlayerRepository {
         resetRound();
     }
 
+    @Override
     public void resetRound() {
         this.drawLeft = DRAW_COUNT;
         this.infectionLeft = INFECTION_COUNT;
         this.actionsLeft = ACTION_COUNT;
     }
 
+    @Override
     public void decidePlayerOrder() {
         this.playerOrder = new LinkedList<>();
 
@@ -444,13 +461,15 @@ public class PlayerRepository {
         });
     }
 
+    @Override
     public void assignRoleToPlayer(Player player) {
         Role role = availableRoles.pop();
 
         player.setRole(role);
     }
 
-    public void roleAction(RoleAction roleAction, Player player) {
+    @Override
+    public void roleAction(RoleAction roleAction, Player player) throws Exception {
         if (roleAction.equals(RoleAction.TAKE_ANY_DISCARED_EVENT)) {
 
         } else if (roleAction.equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY)) {
@@ -460,67 +479,82 @@ public class PlayerRepository {
         }
     }
 
-
+    @Override
     public HashMap<String, Player> getPlayers() {
         return players;
     }
 
+    @Override
     public void setPlayers(HashMap<String, Player> players) {
         this.players = players;
     }
 
+    @Override
     public Stack<Role> getAvailableRoles() {
         return availableRoles;
     }
 
+    @Override
     public void setAvailableRoles(Stack<Role> availableRoles) {
         this.availableRoles = availableRoles;
     }
 
+    @Override
     public Player getCurrentPlayer() {
         return currentPlayer;
     }
 
+    @Override
     public void setCurrentPlayer(Player currentPlayer) {
         this.currentPlayer = currentPlayer;
     }
 
+    @Override
     public Queue<Player> getPlayerOrder() {
         return playerOrder;
     }
 
+    @Override
     public void setPlayerOrder(Queue<Player> playerOrder) {
         this.playerOrder = playerOrder;
     }
 
+    @Override
     public RoundState getCurrentRoundState() {
         return currentRoundState;
     }
 
+    @Override
     public void setCurrentRoundState(RoundState currentRoundState) {
         this.currentRoundState = currentRoundState;
     }
 
+    @Override
     public int getActionsLeft() {
         return actionsLeft;
     }
 
+    @Override
     public void setActionsLeft(int actionsLeft) {
         this.actionsLeft = actionsLeft;
     }
 
+    @Override
     public int getDrawLeft() {
         return drawLeft;
     }
 
+    @Override
     public void setDrawLeft(int drawLeft) {
         this.drawLeft = drawLeft;
     }
 
+    @Override
     public int getInfectionLeft() {
         return infectionLeft;
     }
 
+    @Override
     public void setInfectionLeft(int infectionLeft) {
         this.infectionLeft = infectionLeft;
     }

@@ -2,6 +2,7 @@ package org.um.nine.headless.game.repositories;
 
 import org.um.nine.headless.game.FactoryProvider;
 import org.um.nine.headless.game.Info;
+import org.um.nine.headless.game.contracts.repositories.ICardRepository;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Disease;
 import org.um.nine.headless.game.domain.Player;
@@ -18,7 +19,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Stack;
 
-public class CardRepository {
+public class CardRepository implements ICardRepository {
     private Stack<PlayerCard> playerDeck;
     private LinkedList<PlayerCard> eventDiscardPile;
     private Stack<InfectionCard> infectionDeck;
@@ -28,6 +29,7 @@ public class CardRepository {
         reset();
     }
 
+    @Override
     public void reset() {
         this.playerDeck = new Stack<>();
         this.infectionDeck = new Stack<>();
@@ -35,6 +37,7 @@ public class CardRepository {
         this.eventDiscardPile = new LinkedList<>();
     }
 
+    @Override
     public void drawPlayerCard(PlayerCard... toDiscard) {
         PlayerCard drawn = this.playerDeck.pop();
 
@@ -58,6 +61,7 @@ public class CardRepository {
         }
     }
 
+    @Override
     public void drawInfectionCard() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         InfectionCard infectionCard = this.infectionDeck.pop();
 
@@ -65,6 +69,7 @@ public class CardRepository {
         this.infectionDiscardPile.push(infectionCard);
     }
 
+    @Override
     public void buildDecks() {
         this.playerDeck = CardUtils.buildPlayerDeck(FactoryProvider.getBoardRepository().getDifficulty(), FactoryProvider.getCityRepository().getCities(), FactoryProvider.getPlayerRepository().getPlayers());
         this.infectionDeck = CityUtils.generateInfectionDeck(FactoryProvider.getCityRepository().getCities().values().toArray(new City[0]));
@@ -92,34 +97,42 @@ public class CardRepository {
         }
     }
 
+    @Override
     public Stack<PlayerCard> getPlayerDeck() {
         return playerDeck;
     }
 
+    @Override
     public void setPlayerDeck(Stack<PlayerCard> playerDeck) {
         this.playerDeck = playerDeck;
     }
 
+    @Override
     public LinkedList<PlayerCard> getEventDiscardPile() {
         return eventDiscardPile;
     }
 
+    @Override
     public void setEventDiscardPile(LinkedList<PlayerCard> eventDiscardPile) {
         this.eventDiscardPile = eventDiscardPile;
     }
 
+    @Override
     public Stack<InfectionCard> getInfectionDeck() {
         return infectionDeck;
     }
 
+    @Override
     public void setInfectionDeck(Stack<InfectionCard> infectionDeck) {
         this.infectionDeck = infectionDeck;
     }
 
+    @Override
     public Stack<InfectionCard> getInfectionDiscardPile() {
         return infectionDiscardPile;
     }
 
+    @Override
     public void setInfectionDiscardPile(Stack<InfectionCard> infectionDiscardPile) {
         this.infectionDiscardPile = infectionDiscardPile;
     }
