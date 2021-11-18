@@ -88,7 +88,7 @@ public class CardRepository implements ICardRepository {
 
                 for (int k = i; k > 0; k--) {
                     try {
-                        FactoryProvider.getDiseaseRepository().infect(d.getColor(), d.getCity());
+                        FactoryProvider.getDiseaseRepository().infect(d.getColor(), c.getCity());
                     } catch (NoDiseaseOrOutbreakPossibleDueToEvent | NoCubesLeftException | GameOverException noDiseaseOrOutbreakPossibleDueToEvent) {
                         noDiseaseOrOutbreakPossibleDueToEvent.printStackTrace();
                     }

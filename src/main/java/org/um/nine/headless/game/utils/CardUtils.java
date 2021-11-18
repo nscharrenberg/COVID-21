@@ -1,5 +1,6 @@
 package org.um.nine.headless.game.utils;
 
+import org.um.nine.headless.game.FactoryProvider;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.Player;
@@ -75,9 +76,9 @@ public class CardUtils {
         for (Player p : players.values()) {
             for (int i = 0; i< amountCards; i++){
                 PlayerCard card = initialDeck.pop();
-                p.addCard(card);
+                p.addHand(card);
                 if (card.equals(max_pop_cityCard)) {
-                    // TODO: set current player
+                    FactoryProvider.getPlayerRepository().setCurrentPlayer(p);
                 }
             }
         }

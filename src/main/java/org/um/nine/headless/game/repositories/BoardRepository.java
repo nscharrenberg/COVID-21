@@ -21,7 +21,7 @@ public class BoardRepository implements IBoardRepository {
     @Override
     public void start() {
         resetRound();
-        FactoryProvider.getCityRepository().reset();
+        reset();
 
         City atlanta = FactoryProvider.getCityRepository().getCities().get(Info.START_CITY);
         FactoryProvider.getPlayerRepository().getPlayers().forEach((k, p) -> {
@@ -91,7 +91,15 @@ public class BoardRepository implements IBoardRepository {
         selectedPlayerAction = null;
         selectedRoleAction = null;
         usedActions = new ArrayList<>();
+        difficulty = Difficulty.NORMAL;
 
         FactoryProvider.getPlayerRepository().resetRound();
+    }
+
+    public void reset() {
+        FactoryProvider.getPlayerRepository().reset();
+        FactoryProvider.getDiseaseRepository().reset();
+        FactoryProvider.getCityRepository().reset();
+        FactoryProvider.getPlayerRepository().reset();
     }
 }

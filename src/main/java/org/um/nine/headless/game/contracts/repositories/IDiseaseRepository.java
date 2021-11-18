@@ -10,38 +10,38 @@ import java.util.Map;
 
 public interface IDiseaseRepository {
     default void initMarkers() {
-        this.infectionRates.add(new InfectionRateMarker(2, true));
-        this.infectionRates.add(new InfectionRateMarker(2));
-        this.infectionRates.add(new InfectionRateMarker(2));
-        this.infectionRates.add(new InfectionRateMarker(3));
-        this.infectionRates.add(new InfectionRateMarker(3));
-        this.infectionRates.add(new InfectionRateMarker(4));
-        this.infectionRates.add(new InfectionRateMarker(4));
+        getInfectionRates().add(new InfectionRateMarker(2, true));
+        getInfectionRates().add(new InfectionRateMarker(2));
+        getInfectionRates().add(new InfectionRateMarker(2));
+        getInfectionRates().add(new InfectionRateMarker(3));
+        getInfectionRates().add(new InfectionRateMarker(3));
+        getInfectionRates().add(new InfectionRateMarker(4));
+        getInfectionRates().add(new InfectionRateMarker(4));
 
-        this.outbreakMarkers.add(new OutbreakMarker(Color.WHITE, true));
-        this.outbreakMarkers.add(new OutbreakMarker(Color.RED_1));
-        this.outbreakMarkers.add(new OutbreakMarker(Color.RED_2));
-        this.outbreakMarkers.add(new OutbreakMarker(Color.RED_3));
-        this.outbreakMarkers.add(new OutbreakMarker(Color.RED_4));
-        this.outbreakMarkers.add(new OutbreakMarker(Color.RED_5));
-        this.outbreakMarkers.add(new OutbreakMarker(Color.RED_6));
-        this.outbreakMarkers.add(new OutbreakMarker(Color.RED_7));
-        this.outbreakMarkers.add(new OutbreakMarker(Color.RED_8));
+        getOutbreakMarkers().add(new OutbreakMarker(Color.WHITE, true));
+        getOutbreakMarkers().add(new OutbreakMarker(Color.RED_1));
+        getOutbreakMarkers().add(new OutbreakMarker(Color.RED_2));
+        getOutbreakMarkers().add(new OutbreakMarker(Color.RED_3));
+        getOutbreakMarkers().add(new OutbreakMarker(Color.RED_4));
+        getOutbreakMarkers().add(new OutbreakMarker(Color.RED_5));
+        getOutbreakMarkers().add(new OutbreakMarker(Color.RED_6));
+        getOutbreakMarkers().add(new OutbreakMarker(Color.RED_7));
+        getOutbreakMarkers().add(new OutbreakMarker(Color.RED_8));
     }
 
     default void initCures() {
-        this.cures.put(Color.RED, new Cure(Color.RED));
-        this.cures.put(Color.BLACK, new Cure(Color.BLACK));
-        this.cures.put(Color.BLUE, new Cure(Color.BLUE));
-        this.cures.put(Color.YELLOW, new Cure(Color.YELLOW));
+        getCures().put(Color.RED, new Cure(Color.RED));
+        getCures().put(Color.BLACK, new Cure(Color.BLACK));
+        getCures().put(Color.BLUE, new Cure(Color.BLUE));
+        getCures().put(Color.YELLOW, new Cure(Color.YELLOW));
     }
 
     default void initCubes() {
         for (int i = 0; i < 24; i++) {
-            this.cubes.get(Color.RED).add(new Disease(Color.RED));
-            this.cubes.get(Color.BLACK).add(new Disease(Color.BLACK));
-            this.cubes.get(Color.BLUE).add(new Disease(Color.BLUE));
-            this.cubes.get(Color.YELLOW).add(new Disease(Color.YELLOW));
+            getCubes().get(Color.RED).add(new Disease(Color.RED));
+            getCubes().get(Color.BLACK).add(new Disease(Color.BLACK));
+            getCubes().get(Color.BLUE).add(new Disease(Color.BLUE));
+            getCubes().get(Color.YELLOW).add(new Disease(Color.YELLOW));
         }
     }
 
@@ -86,7 +86,7 @@ public interface IDiseaseRepository {
     default void checkIfAllCured() throws GameWonException {
         boolean eradicated = true;
 
-        for (Map.Entry<Color, Cure> entry : cures.entrySet()) {
+        for (Map.Entry<Color, Cure> entry : getCures().entrySet()) {
             if (!entry.getValue().isDiscovered()) {
                 eradicated = false;
                 break;

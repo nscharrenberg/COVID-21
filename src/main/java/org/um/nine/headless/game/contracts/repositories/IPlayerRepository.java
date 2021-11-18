@@ -4,6 +4,7 @@ import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.RoleAction;
 import org.um.nine.headless.game.exceptions.InvalidMoveException;
+import org.um.nine.headless.game.exceptions.PlayerLimitException;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -76,4 +77,6 @@ public interface IPlayerRepository {
     int getInfectionLeft();
 
     void setInfectionLeft(int infectionLeft);
+
+    void createPlayer(String name, boolean isBot) throws PlayerLimitException;
 }

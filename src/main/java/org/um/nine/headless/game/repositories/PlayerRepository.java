@@ -17,7 +17,7 @@ public class PlayerRepository implements IPlayerRepository {
     private static int DRAW_COUNT = 2;
     private static int INFECTION_COUNT = 2;
 
-    private HashMap<String, Player> players;
+    private HashMap<String, Player> players = new HashMap<>();
     private Stack<Role> availableRoles;
     private Player currentPlayer;
     private Queue<Player> playerOrder;
@@ -27,9 +27,12 @@ public class PlayerRepository implements IPlayerRepository {
     private int drawLeft = DRAW_COUNT;
     private int infectionLeft = INFECTION_COUNT;
 
+    public PlayerRepository() {
+        reset();
+    }
+
     @Override
     public void reset() {
-        this.players = new HashMap<>();
         this.currentPlayer = null;
         this.currentRoundState = null;
 
@@ -315,7 +318,7 @@ public class PlayerRepository implements IPlayerRepository {
 
             IBoardRepository boardRepository = FactoryProvider.getBoardRepository();
 
-            if (boardRepository.getSelectedRoleAction().equals(RoleAction.TAKE_ANY_DISCARED_EVENT)) {
+            if (boardRepository.getSelectedRoleAction() != null && boardRepository.getSelectedRoleAction().equals(RoleAction.TAKE_ANY_DISCARED_EVENT)) {
                 if (args.length <= 0) {
                     throw new Exception("You need to select an event Card from the discard pile.");
                 }
@@ -335,11 +338,11 @@ public class PlayerRepository implements IPlayerRepository {
                 } catch (Exception e) {
                     throw new Exception("You need to select an event Card from the discard pile.");
                 }
-            } else if (boardRepository.getSelectedRoleAction()
+            } else if (boardRepository.getSelectedRoleAction() != null && boardRepository.getSelectedRoleAction()
                         .equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY) || type.equals(ActionType.SHUTTLE)) {
                 shuttle(player, city);
                 FactoryProvider.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
-            } else if (boardRepository.getSelectedRoleAction().equals(RoleAction.BUILD_RESEARCH_STATION)
+            } else if (boardRepository.getSelectedRoleAction() != null && boardRepository.getSelectedRoleAction().equals(RoleAction.BUILD_RESEARCH_STATION)
                         || type.equals(ActionType.BUILD_RESEARCH_STATION)) {
                 buildResearchStation(player, city);
                 FactoryProvider.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
@@ -365,7 +368,7 @@ public class PlayerRepository implements IPlayerRepository {
                 }
 
             } else if (type.equals(ActionType.SHARE_KNOWLEDGE)
-                    || FactoryProvider.getBoardRepository().getSelectedRoleAction().equals(RoleAction.GIVE_PLAYER_CITY_CARD)) {
+                    || boardRepository.getSelectedRoleAction() != null && FactoryProvider.getBoardRepository().getSelectedRoleAction().equals(RoleAction.GIVE_PLAYER_CITY_CARD)) {
                 if (args.length <= 0) {
                     throw new Exception("You need to provide the player to negotiate with, the card you want, and whether you are giving that card.");
                 }
@@ -419,6 +422,15 @@ public class PlayerRepository implements IPlayerRepository {
                 playerAction(null);
             }
         }
+    }
+
+    public void createPlayer(String name, boolean isBot) throws PlayerLimitException {
+        if (this.players.size() + 1 > Info.PLAYER_THRESHOLD) {
+            throw new PlayerLimitException();
+        }
+
+        Player player = new Player(name, isBot);
+        this.players.put(name, player);
     }
 
     @Override
