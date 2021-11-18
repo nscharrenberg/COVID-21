@@ -414,7 +414,7 @@ public class PlayerRepository implements IPlayerRepository {
     @Override
     public void action(ActionType type) throws InvalidMoveException, NoActionSelectedException,
             ResearchStationLimitException, CityAlreadyHasResearchStationException, NoCubesLeftException,
-            NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
+            NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException, NoCityCardToBuildResearchStation {
         boolean skipClicked = false;
         if (currentRoundState == null) {
             nextState(null);

@@ -89,7 +89,7 @@ public class BoardRepository implements IBoardRepository {
 
         try {
             cityRepository.addResearchStation(atlanta, null);
-        } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException | InvalidMoveException e) {
+        } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException | InvalidMoveException | NoCityCardToBuildResearchStation e) {
             e.printStackTrace();
         }
 

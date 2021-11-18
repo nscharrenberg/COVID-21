@@ -53,7 +53,7 @@ public class RoleActionState extends BaseAppState  {
                 if(type.equals(RoleAction.BUILD_RESEARCH_STATION)||type.equals(RoleAction.TAKE_ANY_DISCARED_EVENT)){
                     try {
                         playerRepository.action(null);
-                    } catch (InvalidMoveException | NoDiseaseOrOutbreakPossibleDueToEvent | NoActionSelectedException | ResearchStationLimitException | CityAlreadyHasResearchStationException | NoCubesLeftException | GameOverException e) {
+                    } catch (InvalidMoveException | NoDiseaseOrOutbreakPossibleDueToEvent | NoActionSelectedException | ResearchStationLimitException | CityAlreadyHasResearchStationException | NoCubesLeftException | GameOverException | NoCityCardToBuildResearchStation e) {
                         e.printStackTrace();
                     }
                 }

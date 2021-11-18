@@ -49,7 +49,7 @@ public interface IPlayerRepository {
 
     void treat(Player player, City city);
 
-    void action(ActionType type) throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException, CityAlreadyHasResearchStationException, NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
+    void action(ActionType type) throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException, CityAlreadyHasResearchStationException, NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException, NoCityCardToBuildResearchStation;
 
     void cleanup();
 

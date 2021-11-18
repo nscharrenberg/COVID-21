@@ -173,7 +173,7 @@ public class InputManager {
         if(boardRepository.getSelectedCity() != null) {
             try {
                 playerRepository.action(boardRepository.getSelectedPlayerAction());
-            } catch (InvalidMoveException | NoActionSelectedException | ResearchStationLimitException | CityAlreadyHasResearchStationException | NoCubesLeftException | NoDiseaseOrOutbreakPossibleDueToEvent | GameOverException e) {
+            } catch (InvalidMoveException | NoActionSelectedException | ResearchStationLimitException | CityAlreadyHasResearchStationException | NoCubesLeftException | NoDiseaseOrOutbreakPossibleDueToEvent | GameOverException | NoCityCardToBuildResearchStation e) {
                 DialogBoxState dialog = new DialogBoxState(e.getMessage());
                 gameRepository.getApp().getStateManager().attach(dialog);
                 dialog.setEnabled(true);
