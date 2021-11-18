@@ -233,14 +233,26 @@ public class BaselineAgent {
                     ecards.remove(random);
                 }
                 else{
-                    if(DEBUG) System.out.println("FAILED");
+                    if(DEBUG) System.out.println("Take event card - FAILED");
                     randomAction(player);
                 }
             } else if (roleAction.equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY)) {
-                int random = new Random().nextInt(cityRepository.getCities().size()-1);
-                playerRepository.shuttle(player, cityRepository.getCities().get(random));
+                if(player.getCity().getResearchStation() != null){
+                    int random = new Random().nextInt(cityRepository.getCities().size()-1);
+                    playerRepository.shuttle(player, cityRepository.getCities().get(random));
+                }
+                else{
+                    if(DEBUG) System.out.println("Move from research station anywhere - FAILED");
+                    randomAction(player);
+                }
             } else if (roleAction.equals(RoleAction.BUILD_RESEARCH_STATION)){
-                cityRepository.addResearchStation(player.getCity(), player);
+                if(player.getCity().getResearchStation() == null){
+                    cityRepository.addResearchStation(player.getCity(), player);
+                }
+                else{
+                    if(DEBUG) System.out.println("Build research station - FAILED");
+                    randomAction(player);
+                }
             }
             //TODO add dispatcher stuff once event cards are merged in
 
