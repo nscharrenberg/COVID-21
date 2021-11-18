@@ -31,6 +31,9 @@ public class PlayerRepository implements IPlayerRepository {
         reset();
     }
 
+    /**
+     * Resets state to its original data
+     */
     @Override
     public void reset() {
         this.currentPlayer = null;
@@ -52,6 +55,15 @@ public class PlayerRepository implements IPlayerRepository {
         Collections.shuffle(availableRoles);
     }
 
+    /**
+     * Move a player to an adjacent city of its current city.
+     * Note 1: Only moves over adjacent edges when "careAboutNeighbors" is true, and freely move around when its false.
+     * Note 2: When player has AUTO_REMOVE_CUBES_OF_CURED_DISEASE permission, it'll remove all cubes when the player reaches that city and a cure has been found.
+     * @param player - the player to move
+     * @param city - the city the player wants to move to
+     * @param careAboutNeighbors - whether or not we can freely move or have to keep edges into account
+     * @throws InvalidMoveException - thrown when the move is invalid
+     */
     @Override
     public void drive(Player player, City city, boolean careAboutNeighbors) throws InvalidMoveException {
         if (player.getCity().equals(city) || ((!player.getCity().getNeighbors().contains(city) && careAboutNeighbors))) {
@@ -78,6 +90,15 @@ public class PlayerRepository implements IPlayerRepository {
         drive(player, city, true);
     }
 
+    /**
+     * Discard a city card to move to the city named on the card
+     * Note 1: We do not direct flight when we are are on a research station.
+     * Note 2: We do not direct flight when we are moving to an adjacent city
+     * Note 3: We do not direct flight when the player does not have the city card in its hand
+     * @param player - the player to move
+     * @param city - the city the player wants to go to
+     * @throws InvalidMoveException - thrown when the player does not have the card
+     */
     @Override
     public void direct(Player player, City city) throws InvalidMoveException {
         if (player.getCity().equals(city)) {
@@ -114,6 +135,15 @@ public class PlayerRepository implements IPlayerRepository {
         drive(player, city, false);
     }
 
+    /**
+     * Discard the city card that matches the city the player is in to move to any city
+     * Note 1: We do not charter flight when we are are on a research station.
+     * Note 2: We do not charter flight when we are moving to an adjacent city
+     * Note 3: We do not charter flight when the player does not have the city card in its hand
+     * @param player - the player to move
+     * @param city - the city the player wants to go to
+     * @throws InvalidMoveException - thrown when the player does not have the card
+     */
     @Override
     public void charter(Player player, City city) throws InvalidMoveException {
         if (player.getCity().equals(city)) {
@@ -147,6 +177,14 @@ public class PlayerRepository implements IPlayerRepository {
         drive(player, city, false);
     }
 
+    /**
+     * Move from a city with a research station to any other city that has a research station.
+     * Note 1: Invalid move when you are trying to to shuttle from or to a city without a research station
+     * Note 2: Operations expert can move to any city from a research station
+     * @param player - the player to move
+     * @param city - the city the player wants to go to
+     * @throws InvalidMoveException - thrown when the player does not have the card
+     */
     @Override
     public void shuttle(Player player, City city) throws InvalidMoveException {
         if (player.getCity().equals(city)) {
@@ -219,6 +257,13 @@ public class PlayerRepository implements IPlayerRepository {
         throw new IllegalStateException();
     }
 
+    /**
+     * Try to treat a disease
+     * @param player - the player that wants to treat a disease
+     * @param city - the city to treat the disease in
+     * @param color - The color of the disease to treat
+     * @throws Exception - Thrown when a disease couldn't be treated
+     */
     @Override
     public void treat(Player player, City city, Color color) throws Exception {
         if (player.getCity().equals(city)) {

@@ -18,6 +18,10 @@ public class BoardRepository implements IBoardRepository {
     private List<RoleAction> usedActions = new ArrayList<>();
     private Difficulty difficulty;
 
+    /**
+     * Starts the Game Logic by loading in all the necessary data such as:
+     * Loading cities, Assigning Roles, Distributing Cards, Infecting Cities, deciding first player
+     */
     @Override
     public void start() {
         resetRound();
@@ -34,6 +38,7 @@ public class BoardRepository implements IBoardRepository {
         FactoryProvider.getPlayerRepository().decidePlayerOrder();
         FactoryProvider.getPlayerRepository().nextPlayer();
     }
+
 
     @Override
     public City getSelectedCity() {
@@ -85,6 +90,9 @@ public class BoardRepository implements IBoardRepository {
         this.difficulty = difficulty;
     }
 
+    /**
+     * Resets all the state information back to it's original state for this round
+     */
     @Override
     public void resetRound() {
         selectedCity = null;
@@ -96,6 +104,9 @@ public class BoardRepository implements IBoardRepository {
         FactoryProvider.getPlayerRepository().resetRound();
     }
 
+    /**
+     * Reset the whole game state
+     */
     public void reset() {
         FactoryProvider.getPlayerRepository().reset();
         FactoryProvider.getDiseaseRepository().reset();

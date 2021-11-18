@@ -29,6 +29,9 @@ public class CardRepository implements ICardRepository {
         reset();
     }
 
+    /**
+     * Reset the card states back to its original empty values
+     */
     @Override
     public void reset() {
         this.playerDeck = new Stack<>();
@@ -37,6 +40,12 @@ public class CardRepository implements ICardRepository {
         this.eventDiscardPile = new LinkedList<>();
     }
 
+    /**
+     * Draw a player card and give it to the current player
+     * When the hand limit is reached one of the cards must be discarded.
+     * @param toDiscard - The card to discard when exceeding the limit,
+     *                  if nothing is given then the card just drawn will be discarded
+     */
     @Override
     public void drawPlayerCard(PlayerCard... toDiscard) {
         PlayerCard drawn = this.playerDeck.pop();
@@ -61,6 +70,12 @@ public class CardRepository implements ICardRepository {
         }
     }
 
+    /**
+     * Draw an infection Card and infect cities
+     * @throws NoCubesLeftException - Thrown when no cubes of the correlating infection card are left.
+     * @throws NoDiseaseOrOutbreakPossibleDueToEvent - Thrown when a cube can't be place due to an event
+     * @throws GameOverException - Thrown when the player lost the game
+     */
     @Override
     public void drawInfectionCard() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         InfectionCard infectionCard = this.infectionDeck.pop();
@@ -69,6 +84,9 @@ public class CardRepository implements ICardRepository {
         this.infectionDiscardPile.push(infectionCard);
     }
 
+    /**
+     * Build the Deck by giving players their cards, and infecting cities (initial setup)
+     */
     @Override
     public void buildDecks() {
         this.playerDeck = CardUtils.buildPlayerDeck(FactoryProvider.getBoardRepository().getDifficulty(), FactoryProvider.getCityRepository().getCities(), FactoryProvider.getPlayerRepository().getPlayers());

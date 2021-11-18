@@ -42,12 +42,18 @@ public class CityRepository implements ICityRepository {
         city.setResearchStation(new ResearchStation());
     }
 
+    /**
+     * Import cities from JSON file
+     */
     @Override
     public void preload() {
         cleanup();
         this.cities = CityUtils.reader("Cards/CityCards.json");
     }
 
+    /**
+     * Reset the state back to its original state
+     */
     @Override
     public void reset() {
         cleanup();
@@ -61,6 +67,9 @@ public class CityRepository implements ICityRepository {
         }
     }
 
+    /**
+     * Clear all data
+     */
     @Override
     public void cleanup() {
         this.cities = new HashMap<>();

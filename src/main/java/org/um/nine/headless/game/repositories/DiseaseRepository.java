@@ -25,6 +25,10 @@ public class DiseaseRepository implements IDiseaseRepository {
         this.cures = new HashMap<>();
     }
 
+    /**
+     * "Move" the outbreak marker to the next position.
+     * @throws GameOverException - Thrown when its trying to exceed the last marker.
+     */
     @Override
     public void nextOutbreak() throws GameOverException {
         OutbreakMarker marker = this.outbreakMarkers.stream().filter(Marker::isCurrent).findFirst().orElse(null);
@@ -44,6 +48,10 @@ public class DiseaseRepository implements IDiseaseRepository {
         nextMarker.setCurrent(true);
     }
 
+    /**
+     * "Move" the infection marker to the next position.
+     * Once it hits the end it'll stay at that position for the rest of the game. (even though it shouldn't ever hit this)
+     */
     @Override
     public void nextInfectionMarker() {
         InfectionRateMarker marker = this.infectionRates.stream().filter(Marker::isCurrent).findFirst().orElse(null);
@@ -56,6 +64,7 @@ public class DiseaseRepository implements IDiseaseRepository {
         marker.setCurrent(false);
         InfectionRateMarker nextMarker = this.infectionRates.stream().filter(v -> v.getId() == marker.getId() + 1).findFirst().orElse(null);
 
+        // Just incase something went wrong and we are exceeding our markers
         if (nextMarker == null) {
             return;
         }
@@ -63,6 +72,16 @@ public class DiseaseRepository implements IDiseaseRepository {
         nextMarker.setCurrent(true);
     }
 
+    /**
+     * Try to infect a city
+     * Note 1: It wont infect when a player has the PREVENT_DISEASE_OR_OUTBREAK role permission
+     * Note 2: It will cause an outbreak when the 4th block is being added
+     * @param color - the color of the disease to remove
+     * @param city - the city to remove a disease from
+     * @throws NoDiseaseOrOutbreakPossibleDueToEvent - Thrown when a cube can't be place due to an event
+     * @throws NoCubesLeftException - Thrown when no cubes of the correlating infection card are left.
+     * @throws GameOverException - Thrown when the player lost the game
+     */
     @Override
     public void infect(Color color, City city) throws NoDiseaseOrOutbreakPossibleDueToEvent, NoCubesLeftException, GameOverException {
         if (cures.get(color).isDiscovered()
@@ -98,6 +117,13 @@ public class DiseaseRepository implements IDiseaseRepository {
         }
     }
 
+    /**
+     * Treat a Disease
+     * Note: If the pawn has a REMOVE_ALL_CUBES_OF_A_COLOR role permission it'll remove all cubes with that color.
+     * @param pawn - The pawn that is trying to treat the disease
+     * @param city - The City that contains the disease
+     * @param color - the color of the disease it should treat
+     */
     @Override
     public void treat(Player pawn, City city, Color color) {
         if (cures.get(color).isDiscovered()
@@ -116,6 +142,15 @@ public class DiseaseRepository implements IDiseaseRepository {
         city.removeCube(color);
     }
 
+    /**
+     * Try to discover a cure and discard the required cards.
+     * Note 1: When a pawn has the DISCOVER_CURE_FOUR_CARDS role permission it'll only need 4 cards of the same color
+     * Note 2: Only cures it when the pawn has sufficient cards of cure color (5 for normal player, 4 if permission)
+     * @param pawn - The pawn that is trying to discover the cure
+     * @param cure - the cure that the pawn is trying to discover
+     * @throws UnableToDiscoverCureException - Thrown when the pawn isn't able to find a cure
+     * @throws GameWonException - Thrown when all cures have been discovered
+     */
     @Override
     public void discoverCure(Player pawn, Cure cure) throws UnableToDiscoverCureException, GameWonException {
         if (pawn.getCity().getResearchStation() == null) {
@@ -152,6 +187,9 @@ public class DiseaseRepository implements IDiseaseRepository {
         throw new UnableToDiscoverCureException(cure);
     }
 
+    /**
+     * Resets the state back to its original data
+     */
     @Override
     public void reset() {
         this.infectionRates = new ArrayList<>();
