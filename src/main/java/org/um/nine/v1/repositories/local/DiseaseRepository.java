@@ -296,9 +296,6 @@ public class DiseaseRepository implements IDiseaseRepository {
             }
         }
 
-        if (!eradicated) {
-            return;
-        }
 
         gameRepository.getApp().getStateManager().attach(gameEndState);
         gameEndState.setMessage("All cures discovered. You Win!");

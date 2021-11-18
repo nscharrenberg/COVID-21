@@ -81,14 +81,6 @@ public class Player {
         isBot = bot;
     }
 
-    public void addCard(PlayerCard card) {
-        this.hand.add(card);
-    }
-
-    public void discard(PlayerCard card) {
-        this.hand.remove(card);
-    }
-
     public List<PlayerCard> getHand() {
         return hand;
     }
@@ -106,7 +98,7 @@ public class Player {
         card.setPlayer(this);
     }
 
-    public void removeHand(PlayerCard card) {
+    public void discard(PlayerCard card) {
         this.hand.remove(card);
         card.setPlayer(null);
     }

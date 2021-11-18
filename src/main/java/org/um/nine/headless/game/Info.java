@@ -6,4 +6,5 @@ public class Info {
     public static final int PLAYER_THRESHOLD = 4;
     public static final int OUTBREAK_THRESHOLD = 3;
     public static final int HAND_LIMIT = 7;
+    public static final String START_CITY = "Atlanta";
 }

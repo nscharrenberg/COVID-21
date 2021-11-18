@@ -4,10 +4,7 @@ import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.RoleEvent;
-import org.um.nine.headless.game.exceptions.GameOverException;
-import org.um.nine.headless.game.exceptions.NoCubesLeftException;
-import org.um.nine.headless.game.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
-import org.um.nine.headless.game.exceptions.UnableToDiscoverCureException;
+import org.um.nine.headless.game.exceptions.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -131,7 +128,6 @@ public class DiseaseRepository {
         found.setCity(city);
         if(!city.addCube(found)) {
             initOutbreak(city, found);
-            return;
         }
     }
 
@@ -180,15 +176,13 @@ public class DiseaseRepository {
         city.removeCube(color);
     }
 
-    public void discoverCure(Player pawn, Cure cure) throws UnableToDiscoverCureException, GameOverException {
+    public void discoverCure(Player pawn, Cure cure) throws UnableToDiscoverCureException, GameWonException {
         if (pawn.getCity().getResearchStation() == null) {
             throw new UnableToDiscoverCureException(cure);
         }
 
         ArrayList<PlayerCard> pc = pawn.getHand().stream().filter(c -> {
-            if (c instanceof CityCard) {
-                CityCard cc = (CityCard) c;
-
+            if (c instanceof CityCard cc) {
                 return cc.getCity().getColor().equals(cure.getColor());
             }
 
@@ -217,7 +211,7 @@ public class DiseaseRepository {
         throw new UnableToDiscoverCureException(cure);
     }
 
-    private void checkIfAllCured() throws GameOverException {
+    private void checkIfAllCured() throws GameWonException {
         boolean eradicated = true;
 
         for (Map.Entry<Color, Cure> entry : cures.entrySet()) {
@@ -231,7 +225,7 @@ public class DiseaseRepository {
             return;
         }
 
-        throw new GameOverException();
+        throw new GameWonException();
     }
 
     public void reset() {
@@ -247,5 +241,37 @@ public class DiseaseRepository {
         initCubes();
         initCures();
         initMarkers();
+    }
+
+    public List<InfectionRateMarker> getInfectionRates() {
+        return infectionRates;
+    }
+
+    public void setInfectionRates(List<InfectionRateMarker> infectionRates) {
+        this.infectionRates = infectionRates;
+    }
+
+    public List<OutbreakMarker> getOutbreakMarkers() {
+        return outbreakMarkers;
+    }
+
+    public void setOutbreakMarkers(List<OutbreakMarker> outbreakMarkers) {
+        this.outbreakMarkers = outbreakMarkers;
+    }
+
+    public HashMap<Color, Cure> getCures() {
+        return cures;
+    }
+
+    public void setCures(HashMap<Color, Cure> cures) {
+        this.cures = cures;
+    }
+
+    public HashMap<Color, List<Disease>> getCubes() {
+        return cubes;
+    }
+
+    public void setCubes(HashMap<Color, List<Disease>> cubes) {
+        this.cubes = cubes;
     }
 }

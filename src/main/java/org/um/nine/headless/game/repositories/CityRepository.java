@@ -1,5 +1,6 @@
 package org.um.nine.headless.game.repositories;
 
+import org.um.nine.headless.game.Info;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.ResearchStation;
 import org.um.nine.headless.game.exceptions.ResearchStationLimitException;
@@ -48,7 +49,7 @@ public class CityRepository {
         preload();
 
         try {
-            this.addResearchStation(cities.get("Atlanta"));
+            this.addResearchStation(cities.get(Info.START_CITY));
         } catch (Exception e) {
             e.printStackTrace();
         }

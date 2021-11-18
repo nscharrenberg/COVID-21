@@ -6,10 +6,7 @@ import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.*;
-import org.um.nine.headless.game.exceptions.CityAlreadyHasResearchStationException;
-import org.um.nine.headless.game.exceptions.InvalidMoveException;
-import org.um.nine.headless.game.exceptions.NoActionSelectedException;
-import org.um.nine.headless.game.exceptions.ResearchStationLimitException;
+import org.um.nine.headless.game.exceptions.*;
 
 import java.util.*;
 
@@ -159,6 +156,10 @@ public class PlayerRepository {
         drive(player, city, false);
     }
 
+    public RoundState nextTurn() {
+        return nextTurn(this.currentRoundState);
+    }
+
     /**
      * Check what the next turn is for the player
      * @param currentState
@@ -191,7 +192,7 @@ public class PlayerRepository {
             infectionLeft--;
 
             if (infectionLeft <= 0) {
-                infectionLeft = Objects.requireNonNull(FactoryProvider.getDiseaseRepository().getInfectionRate().stream().filter(org.um.nine.v1.domain.Marker::isCurrent).findFirst().orElse(null)).getCount();
+                infectionLeft = Objects.requireNonNull(FactoryProvider.getDiseaseRepository().getInfectionRates().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
 
                 this.currentRoundState = null;
                 nextPlayer();
@@ -218,7 +219,7 @@ public class PlayerRepository {
         nextTurn(this.currentRoundState);
     }
 
-    public void share(Player player, Player target, City city, PlayerCard card, boolean giveCard) throws Exception {
+    public void share(Player player, Player target, City city, PlayerCard card) throws Exception {
         if (city.getPawns().size() <= 1) {
             throw new Exception("Can not share when you are the only pawn in the city");
         }
@@ -231,23 +232,19 @@ public class PlayerRepository {
             throw new Exception("Only able to share knowledge on the city the player is currently at.");
         }
 
-        if (giveCard) {
-            if (!currentPlayer.getHand().contains(card)) {
-                throw new Exception(currentPlayer.getName() + " does not have a card to share");
-            }
-
-            currentPlayer.removeHand(card);
+        if (player.getHand().contains(card)) {
+            player.discard(card);
             target.addHand(card);
             nextTurn(this.currentRoundState);
             return;
         }
 
         if (!target.getHand().contains(card)) {
-            throw new Exception(target.getName() + " does not have a card to share");
+            throw new UnableToShareKnowledgeException(city, player, target);
         }
 
-        target.removeHand(card);
-        currentPlayer.addHand(card);
+        target.discard(card);
+        player.addHand(card);
         nextTurn(this.currentRoundState);
     }
 
@@ -284,7 +281,7 @@ public class PlayerRepository {
         FactoryProvider.getCityRepository().addResearchStation(city);
     }
 
-    public void playerAction(ActionType type) throws NoActionSelectedException {
+    public void playerAction(ActionType type, Objects... args) throws Exception {
         if (currentRoundState == null) {
             nextTurn(null);
         }
@@ -305,32 +302,91 @@ public class PlayerRepository {
             BoardRepository boardRepository = FactoryProvider.getBoardRepository();
 
             if (boardRepository.getSelectedRoleAction().equals(RoleAction.TAKE_ANY_DISCARED_EVENT)) {
+                if (args.length <= 0) {
+                    throw new Exception("You need to select an event Card from the discard pile.");
+                }
 
+                Object found = args[0];
+
+                try {
+                    PlayerCard card = (PlayerCard) found;
+
+                    if (!FactoryProvider.getCardRepository().getEventDiscardPile().contains(card)) {
+                        throw new Exception("You need to select an event Card from the discard pile.");
+                    }
+
+                    FactoryProvider.getCardRepository().getEventDiscardPile().remove(card);
+                    player.addHand(card);
+                    nextTurn();
+                } catch (Exception e) {
+                    throw new Exception("You need to select an event Card from the discard pile.");
+                }
             } else if (boardRepository.getSelectedRoleAction()
                         .equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY) || type.equals(ActionType.SHUTTLE)) {
-
+                shuttle(player, city);
+                FactoryProvider.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
             } else if (boardRepository.getSelectedRoleAction().equals(RoleAction.BUILD_RESEARCH_STATION)
                         || type.equals(ActionType.BUILD_RESEARCH_STATION)) {
-
+                buildResearchStation(player, city);
+                FactoryProvider.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
             } else if (type.equals(ActionType.DRIVE)) {
-
+                drive(player, city);
             } else if (type.equals(ActionType.DIRECT_FLIGHT)) {
-
+                direct(player, city);
             } else if (type.equals(ActionType.CHARTER_FLIGHT)) {
-
+                charter(player, city);
             } else if (type.equals(ActionType.TREAT_DISEASE)) {
+                if (args.length <= 0) {
+                    throw new Exception("You need to provide the disease to treat.");
+                }
 
-            } else if (type.equals(ActionType.SHARE_KNOWLEDGE)) {
+                Object found = args[0];
+
+                try {
+                    Color color = (Color) found;
+                    treat(player, city, color);
+                    nextTurn();
+                } catch (Exception e) {
+                    throw new Exception("You need to provide the disease to treat.");
+                }
+
+            } else if (type.equals(ActionType.SHARE_KNOWLEDGE)
+                    || FactoryProvider.getBoardRepository().getSelectedRoleAction().equals(RoleAction.GIVE_PLAYER_CITY_CARD)) {
+                if (args.length <= 0) {
+                    throw new Exception("You need to provide the player to negotiate with, the card you want, and whether you are giving that card.");
+                }
+
+                Object targetObj = args[0];
+                Object cardObj = args[1];
+
+                try {
+                    Player target = (Player) targetObj;
+                    PlayerCard card = (PlayerCard) cardObj;
+                    share(player, target, city, card);
+                    nextTurn();
+                    FactoryProvider.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
+                } catch (Exception e) {
+                    throw new Exception("You need to provide the player to negotiate with, the card you want, and whether you are giving that card.");
+                }
 
             } else if (type.equals(ActionType.DISCOVER_CURE)) {
+                if (args.length <= 0) {
+                    throw new Exception("You need to select a cure to discover.");
+                }
 
+                Object found = args[0];
+
+                try {
+                    Cure cure = (Cure) found;
+                    FactoryProvider.getDiseaseRepository().discoverCure(player, cure);
+                    nextTurn();
+                } catch (Exception e) {
+                    throw new Exception("You need to select a cure to discover");
+                }
             } else if (type.equals(ActionType.SKIP_ACTION)) {
-
+                // TODO: Skip all remaining turns
+                nextTurn();
             }
-
-
-
-
         } else if (currentRoundState.equals(RoundState.DRAW)) {
             FactoryProvider.getCardRepository().drawPlayerCard();
 

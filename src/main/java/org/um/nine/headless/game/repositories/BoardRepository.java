@@ -1,6 +1,7 @@
 package org.um.nine.headless.game.repositories;
 
 import org.um.nine.headless.game.FactoryProvider;
+import org.um.nine.headless.game.Info;
 import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Difficulty;
@@ -20,10 +21,16 @@ public class BoardRepository {
         resetRound();
         FactoryProvider.getCityRepository().reset();
 
-        // TODO: Init Players
-        // TODO: Build Decks
-        // TODO: Decide player orders
-        // TODO: Set first players turn
+        City atlanta = FactoryProvider.getCityRepository().getCities().get(Info.START_CITY);
+        FactoryProvider.getPlayerRepository().getPlayers().forEach((k, p) -> {
+            FactoryProvider.getPlayerRepository().assignRoleToPlayer(p);
+
+            atlanta.addPawn(p);
+        });
+
+        FactoryProvider.getCardRepository().buildDecks();
+        FactoryProvider.getPlayerRepository().decidePlayerOrder();
+        FactoryProvider.getPlayerRepository().nextPlayer();
     }
 
     public City getSelectedCity() {
