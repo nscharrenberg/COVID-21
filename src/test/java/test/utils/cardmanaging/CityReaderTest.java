@@ -2,8 +2,8 @@ package test.utils.cardmanaging;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.um.nine.domain.City;
-import org.um.nine.utils.cardmanaging.CityCardReader;
+import org.um.nine.v1.domain.City;
+import org.um.nine.v1.utils.cardmanaging.CityCardReader;
 
 import java.util.HashMap;
 
