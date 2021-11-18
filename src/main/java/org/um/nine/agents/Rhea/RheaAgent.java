@@ -1,6 +1,7 @@
 package org.um.nine.agents.Rhea;
 
 import org.um.nine.domain.ActionType;
+import org.um.nine.utils.versioning.State;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -91,7 +92,7 @@ public class RheaAgent {
             if (! st.isGameOver())
                 st.advance(action_mapping.get(individual.actions[i]));
         }
-        individual.fitness = heuristic.evaluateState(st);
+        individual.fitness = heuristic.evaluateState((State)st);
         return individual.fitness;
     }
 

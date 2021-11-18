@@ -1,5 +1,7 @@
 package org.um.nine.agents.Rhea;
 
+import org.um.nine.utils.versioning.State;
+
 public interface StateHeuristic {
-    double evaluateState(StateObservation state);
+    double evaluateState(State state);
 }

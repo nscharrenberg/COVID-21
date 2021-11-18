@@ -1,9 +1,13 @@
 package org.um.nine.utils.versioning;
 
 import com.rits.cloning.Cloner;
+import org.um.nine.agents.Rhea.StateObservation;
 import org.um.nine.contracts.repositories.*;
+import org.um.nine.domain.ActionType;
 
-public class State {
+import java.util.List;
+
+public class State implements StateObservation {
     private IBoardRepository boardRepository;
     private ICardRepository cardRepository;
     private ICityRepository cityRepository;
@@ -50,5 +54,32 @@ public class State {
 
     public IPlayerRepository getPlayerRepository() {
         return playerRepository;
+    }
+
+
+    @Override
+    public List<ActionType> getAvailableActions() {
+        return null;
+    }
+
+    @Override
+    public boolean isGameOver() {
+        return false;
+    }
+
+    @Override
+    public void advance(ActionType action) {
+
+    }
+
+    @Override
+    public StateObservation copy() {
+        return new State(this.boardRepository,
+                this.cardRepository,
+                this.cityRepository,
+                this.diseaseRepository,
+                this.epidemicRepository,
+                this.gameRepository,
+                this.playerRepository);
     }
 }
