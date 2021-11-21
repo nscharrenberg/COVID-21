@@ -8,6 +8,8 @@ import org.um.nine.headless.game.domain.roles.RoleAction;
 import java.util.List;
 
 public interface IBoardRepository {
+    void preload();
+
     void start();
 
     City getSelectedCity();

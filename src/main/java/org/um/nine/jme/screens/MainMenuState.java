@@ -2,13 +2,14 @@ package org.um.nine.jme.screens;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
-import com.simsilica.lemur.Container;
-import com.simsilica.lemur.GuiGlobals;
-import com.simsilica.lemur.Insets3f;
-import com.simsilica.lemur.Label;
+import com.simsilica.lemur.*;
+import org.um.nine.headless.game.FactoryProvider;
 import org.um.nine.headless.game.Info;
 import org.um.nine.jme.JmeGame;
+import org.um.nine.jme.JmeMain;
+import org.um.nine.jme.utils.MenuUtils;
 
 public class MainMenuState extends BaseAppState {
     private Container window;
@@ -21,6 +22,29 @@ public class MainMenuState extends BaseAppState {
         title.setFontSize(32);
         title.setFont(application.getAssetManager().loadFont("fonts/covid2.fnt"));
         title.setInsets(new Insets3f(10, 10, 0, 10));
+
+        playButton();
+        quitButton(application);
+
+        Vector3f size = MenuUtils.calculateMenusize(JmeMain.getGameRepository().getApp(), window);
+        size.addLocal(0, 0, 100);
+        window.setLocalTranslation(size);
+        window.setLocalScale(MenuUtils.getStandardScale(window));
+    }
+
+    private void playButton() {
+        Button menuButton = window.addChild(new Button("Play"));
+        menuButton.addClickCommands(button -> {
+            getStateManager().attach(new ConfigurationState());
+            setEnabled(false);
+        });
+        menuButton.setInsets(new Insets3f(10, 10, 0, 10));
+    }
+
+    private void quitButton(Application application) {
+        Button menuButton = window.addChild(new Button("Quit Game"));
+        menuButton.addClickCommands(button -> application.stop());
+        menuButton.setInsets(new Insets3f(10, 10, 10, 10));
     }
 
     @Override

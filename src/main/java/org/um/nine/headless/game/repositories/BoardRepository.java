@@ -18,6 +18,12 @@ public class BoardRepository implements IBoardRepository {
     private List<RoleAction> usedActions = new ArrayList<>();
     private Difficulty difficulty;
 
+    @Override
+    public void preload() {
+        this.difficulty = Difficulty.NORMAL;
+        reset();
+    }
+
     /**
      * Starts the Game Logic by loading in all the necessary data such as:
      * Loading cities, Assigning Roles, Distributing Cards, Infecting Cities, deciding first player
