@@ -131,4 +131,12 @@ public class GameRepository {
     public void setApp(JmeGame app) {
         this.app = app;
     }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
 }
