@@ -1,4 +1,4 @@
-package org.um.nine.v1.screens.dialogs;
+package org.um.nine.jme.screens;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
@@ -7,8 +7,8 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
-import org.um.nine.v1.Game;
-import org.um.nine.v1.utils.Util;
+import org.um.nine.jme.JmeGame;
+import org.um.nine.jme.utils.MenuUtils;
 
 public class DialogBoxState extends BaseAppState {
     private Container window;
@@ -36,10 +36,10 @@ public class DialogBoxState extends BaseAppState {
         window.addChild(descriptionText);
         window.addChild(menuButton);
 
-        Vector3f size = Util.calculateMenusize(application, window);
+        Vector3f size = MenuUtils.calculateMenusize(application, window);
         size.addLocal(0, 0, 100);
         window.setLocalTranslation(size);
-        window.setLocalScale(Util.getStandardScale(window));
+        window.setLocalScale(MenuUtils.getStandardScale(window));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class DialogBoxState extends BaseAppState {
 
     @Override
     protected void onEnable() {
-        Node gui = ((Game)getApplication()).getGuiNode();
+        Node gui = ((JmeGame)getApplication()).getGuiNode();
         gui.attachChild(window);
         GuiGlobals.getInstance().requestFocus(window);
     }

@@ -3,6 +3,7 @@ package org.um.nine.v1.repositories.local;
 import com.google.inject.Inject;
 import com.jme3.scene.Spatial;
 import com.simsilica.lemur.Label;
+import org.um.nine.jme.screens.DialogBoxState;
 import org.um.nine.v1.Info;
 import org.um.nine.v1.contracts.repositories.*;
 import org.um.nine.v1.domain.*;

@@ -17,7 +17,7 @@ import org.um.nine.v1.contracts.repositories.IGameRepository;
 import org.um.nine.v1.contracts.repositories.IPlayerRepository;
 import org.um.nine.v1.exceptions.*;
 import org.um.nine.v1.screens.PauseMenu;
-import org.um.nine.v1.screens.dialogs.DialogBoxState;
+import org.um.nine.jme.screens.DialogBoxState;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
