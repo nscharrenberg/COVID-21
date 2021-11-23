@@ -70,7 +70,7 @@ public class StateEvaluation {
                 getCures().values().forEach(cure -> {
                    sA[0] += At.abilityCure(state,cure) + (0.3 * Nd);
                 });
-        return sA[0] /4 /1.3;
+        return sA[0] /4 * 1.3;
     };
 
 
