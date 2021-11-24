@@ -38,13 +38,14 @@ public class PathFinder {
 
 
     public void findWalkingDistanceFromCity(GCity currentCity, int dist){
+
         if (dist == 0) {
             currentCity.nActionsWalking = dist;
         }
         currentCity.visited = true;
         for (City c : currentCity.city.getNeighbors()){
             GCity gc = findGCity(c);
-            if (!gc.visited && gc.nActionsWalking == -1){
+            if (!gc.visited){
                 if (dist+1 <= 4) gc.nActionsWalking = dist+1;
             }
         }
@@ -57,7 +58,7 @@ public class PathFinder {
 
 
     }
-    public class GCity {
+    public static class GCity {
         public City city;
         private boolean visited;
         public int nActionsWalking;
