@@ -2,6 +2,7 @@ package org.um.nine.headless.game.repositories;
 
 import org.um.nine.headless.game.FactoryProvider;
 import org.um.nine.headless.game.Info;
+import org.um.nine.headless.game.agents.Log;
 import org.um.nine.headless.game.contracts.repositories.IBoardRepository;
 import org.um.nine.headless.game.contracts.repositories.IPlayerRepository;
 import org.um.nine.headless.game.domain.*;
@@ -27,6 +28,9 @@ public class PlayerRepository implements IPlayerRepository {
     private int drawLeft = DRAW_COUNT;
     private int infectionLeft = INFECTION_COUNT;
 
+    private Log log = new Log();
+    private boolean logged = false;
+
     public PlayerRepository() {
         reset();
     }
@@ -36,6 +40,8 @@ public class PlayerRepository implements IPlayerRepository {
      */
     @Override
     public void reset() {
+        this.log = new Log();
+
         this.currentPlayer = null;
         this.currentRoundState = null;
 
@@ -82,6 +88,13 @@ public class PlayerRepository implements IPlayerRepository {
                     }
                 }
             });
+        }
+
+        if(!logged){
+            log.addStep(" drive to " + city.getName());
+        }
+        else{
+            logged = false;
         }
     }
 
@@ -132,6 +145,8 @@ public class PlayerRepository implements IPlayerRepository {
 
         player.getHand().remove(pc);
 
+        log.addStep(" direct to " + city.getName());
+        logged = true;
         drive(player, city, false);
     }
 
@@ -174,6 +189,9 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         player.getHand().remove(pc);
+
+        log.addStep(" charter to " + city.getName());
+        logged = true;
         drive(player, city, false);
     }
 
@@ -202,6 +220,8 @@ public class PlayerRepository implements IPlayerRepository {
 
         }
 
+        log.addStep(" shuttle to " + city.getName());
+        logged = true;
         drive(player, city, false);
     }
 
@@ -275,6 +295,7 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         FactoryProvider.getDiseaseRepository().treat(player, city, color);
+        log.addStep(" treat in " + city.getName());
         nextTurn(this.currentRoundState);
     }
 
@@ -305,6 +326,8 @@ public class PlayerRepository implements IPlayerRepository {
 
         target.discard(card);
         player.addHand(card);
+
+        log.addStep(" shared " + city.getName() + " with " + target.getName());
         nextTurn(this.currentRoundState);
     }
 
@@ -339,6 +362,7 @@ public class PlayerRepository implements IPlayerRepository {
             player.getHand().remove(pc);
         }
 
+        log.addStep(" build research station in " + city.getName());
         FactoryProvider.getCityRepository().addResearchStation(city);
     }
 
