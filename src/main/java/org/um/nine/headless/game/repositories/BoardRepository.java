@@ -105,7 +105,6 @@ public class BoardRepository implements IBoardRepository {
         selectedPlayerAction = null;
         selectedRoleAction = null;
         usedActions = new ArrayList<>();
-        difficulty = Difficulty.NORMAL;
 
         FactoryProvider.getPlayerRepository().resetRound();
     }
