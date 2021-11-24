@@ -40,6 +40,10 @@ class PathFinderTest {
         }
 
         for (PathFinder.GCity gc : x.costGraph){
+            if (gc.nActionsWalking > 4) System.out.println("CITY: "+gc.city.getName() +" : "+ gc.nActionsWalking);
+        }
+
+        for (PathFinder.GCity gc : x.costGraph){
             if (gc.nActionsWalking == -1) System.out.println(gc.city.getName() +" : "+ gc.nActionsWalking);
         }
     }

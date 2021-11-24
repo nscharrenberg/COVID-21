@@ -6,11 +6,14 @@ import org.um.nine.headless.game.domain.City;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Integer.MAX_VALUE;
+
 
 public class PathFinder {
 
     private IState state;
     public List<GCity> costGraph;
+    public List<GCity> visitedCities;
 
     public PathFinder(IState state){
         this.state = state;
@@ -24,40 +27,41 @@ public class PathFinder {
     public void evaluateCostGraph(){
         GCity currentCity = null;
         for (GCity gc : this.costGraph){
-            if (gc.city.equals(this.state.getPlayerRepository().getCurrentPlayer().getCity()))
+            if (gc.city.equals(this.state.getPlayerRepository().getCurrentPlayer().getCity())) {
                 currentCity = gc;
+                break;
+            }
         }
-        int dist = 0;
-        if (currentCity != null) findWalkingDistanceFromCity(currentCity, dist);
 
+        if (currentCity != null) {
+            visitedCities = new ArrayList<>();
+            currentCity.nActionsWalking = 0;
+            visitedCities.add(currentCity);
+            int dist = 1;
+
+            for (int i = 0; i < visitedCities.size(); i++) {
+                currentCity = visitedCities.get(i);
+                dist = currentCity.nActionsWalking < 4 ? currentCity.nActionsWalking+1 : MAX_VALUE;
+                setNeighbourWalkingDistances(currentCity, dist);
+            }
+
+        }
     }
 
     private GCity findGCity(City c){
         return this.costGraph.stream().filter(gCity -> gCity.city.equals(c)).findFirst().orElse(null);
     }
 
-
-    public void findWalkingDistanceFromCity(GCity currentCity, int dist){
-
-        if (dist == 0) {
-            currentCity.nActionsWalking = dist;
-        }
-        currentCity.visited = true;
+    public void setNeighbourWalkingDistances(GCity currentCity, int dist){
         for (City c : currentCity.city.getNeighbors()){
             GCity gc = findGCity(c);
-            if (!gc.visited){
-                if (dist+1 <= 4) gc.nActionsWalking = dist+1;
+            if (gc.nActionsWalking == -1){
+                gc.nActionsWalking = dist;
+                visitedCities.add(gc);
             }
         }
-
-
-        for (City c : currentCity.city.getNeighbors()) {
-            GCity gc = findGCity(c);
-            if (!gc.visited) findWalkingDistanceFromCity(gc, dist+1);
-        }
-
-
     }
+
     public static class GCity {
         public City city;
         private boolean visited;
