@@ -2,7 +2,8 @@ package org.um.nine.headless.agents.utils.actions;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.um.nine.headless.agents.utils.IState;
 import org.um.nine.headless.agents.utils.State;
 import org.um.nine.headless.game.FactoryProvider;
@@ -12,6 +13,7 @@ class PathFinderTest {
 
 
     private IState state;
+    private PathFinder x;
 
     @BeforeEach
     void setUp() {
@@ -29,44 +31,43 @@ class PathFinderTest {
             e.printStackTrace();
         }
         this.state = new State().getClonedState();
+        x = new PathFinder(this.state);
 
     }
 
-    @Test
-    @DisplayName("evaluateWalkingCostGraph")
-    void evaluateWalkingCostGraph() {
-        PathFinder x = new PathFinder(this.state);
-        x.evaluateWalkingCostGraph(x.getCurrentCity());
-        x.evaluateShuttleCostGraph();
-
-        for (int i = 0; i<= 4; i++){
-            for (PathFinder.GCity gc : x.costGraph){
-                if (gc.nActionsWalking == i){
-                    System.out.println(gc.city.getName() +" : "+ gc.nActionsWalking);
+    @ParameterizedTest
+    @ValueSource(booleans = {false,false,false,false})
+    @DisplayName("FindWalkingDistanceFromCity")
+    void testCostGraph(boolean testWalking, boolean testShuttleFlight,  boolean testDirectFlight, boolean testCharterFlight) {
+        if (testWalking){
+            x.evaluateCostGraphWalking();
+            for (int i = 0; i<= 4; i++) {
+                for (PathFinder.GCity gc : x.costGraph){
+                    if (gc.nActionsWalking == i){
+                        System.out.println(gc.city.getName() +" : "+ gc.nActionsWalking);
+                    }
                 }
             }
-        }
-        for (PathFinder.GCity gc : x.costGraph){
-            if (gc.nActionsWalking > 4 || gc.nActionsWalking < 0)
-                System.out.println("{"+gc.city.getName() +" : - }");
-        }
-
-        for (PathFinder.GCity gc : x.costGraph){
-            if (gc.nActionsShuttle != -1){
-                System.out.println(gc.city.getName() +" : "+ gc.nActionsShuttle);
+            for (PathFinder.GCity gc : x.costGraph){
+                if (gc.nActionsWalking > 4 || gc.nActionsWalking < 0)
+                    System.out.println("{"+gc.city.getName() +" : - }");
             }
+
+
+
+            if (testShuttleFlight){
+                x.evaluateCostGraphShuttleFlight();
+                for (PathFinder.GCity gc : x.costGraph){
+                    if (gc.nActionsShuttle != -1){
+                        System.out.println(gc.city.getName() +" : "+ gc.nActionsShuttle);
+                    }
+                }
+            }
+
+
         }
-
-    }
-
-
-    @Test
-    @DisplayName("FindWalkingDistanceFromCity")
-    void FindWalkingDistanceFromCity() {
-        boolean testWalking = false;
-        boolean testDirectFlight = false;
-        boolean testCharterFlight = true;
         if(testDirectFlight){
+            x.evaluateCostGraphDirectFlight();
             System.out.println(state.getPlayerRepository().getCurrentPlayer().getHand().toString());
 
             for (PathFinder.GCity gc : x.costGraph) {
@@ -74,6 +75,7 @@ class PathFinderTest {
             }
         }
         if(testCharterFlight){
+            x.evaluateCostGraphCharterFlight();
             System.out.println(state.getPlayerRepository().getCurrentPlayer().getHand().toString());
             for (PathFinder.GCity gc : x.costGraph) {
                 System.out.println(gc.city.getName() + " : " + gc.nActionsCharterFlight.toString());

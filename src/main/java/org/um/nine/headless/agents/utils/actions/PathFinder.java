@@ -3,7 +3,6 @@ package org.um.nine.headless.agents.utils.actions;
 import org.um.nine.headless.agents.utils.IState;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.cards.CityCard;
-import org.um.nine.headless.game.domain.cards.EventCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 
 import java.util.ArrayList;
@@ -28,32 +27,25 @@ public class PathFinder {
 
     }
 
+    public void evaluateCostGraph(){
+        this.evaluateCostGraphWalking();
+        this.evaluateCostGraphShuttleFlight();
+        this.evaluateCostGraphDirectFlight();
+        this.evaluateCostGraphCharterFlight();
+    }
 
     public GCity getCurrentCity(){
         return this.costGraph.stream().filter(gc-> gc.city.equals(this.state.getPlayerRepository().getCurrentPlayer().getCity())).findFirst().orElse(null);
     }
-    public void evaluateCostGraph() {
-        GCity currentCity = null;
-        for (GCity gc : this.costGraph) {
-            if (gc.city.equals(this.state.getPlayerRepository().getCurrentPlayer().getCity())) {
-                currentCity = gc;
-                break;
-            }
-        }
 
-        evaluateCostGraphWalking(currentCity, 0);
-        evaluateCostGraphDirectFlight(currentCity);
-        evaluateCostGraphCharterFlight(currentCity, false);
 
-    }
-
-    private void evaluateCostGraphWalking(GCity currentCity, int dist) {
+    public void evaluateCostGraphWalking() {
+        GCity currentCity = getCurrentCity();
+        int dist = 0;
         if (currentCity != null) {
             visitedCities = new ArrayList<>();
             currentCity.nActionsWalking = dist;
             visitedCities.add(currentCity);
-            dist++;
-
             for (int i = 0; i < visitedCities.size(); i++) {
                 currentCity = visitedCities.get(i);
                 dist = currentCity.nActionsWalking < 4 ? currentCity.nActionsWalking + 1 : MAX_VALUE;
@@ -62,14 +54,14 @@ public class PathFinder {
         }
     }
 
-    private void evaluateCostGraphDirectFlight(GCity currentCity) {
-        List<CityCard> citiesInHand = new ArrayList<CityCard>();
+    public void evaluateCostGraphDirectFlight() {
+        List<CityCard> citiesInHand = new ArrayList<>();
         for (PlayerCard pc : state.getPlayerRepository().getCurrentPlayer().getHand()) {
             if (pc instanceof CityCard) citiesInHand.add((CityCard) pc);
         }
 
         for (GCity gc : this.costGraph) {
-            gc.setNActionsDirectFlight(new ArrayList<Integer>(Collections.nCopies(citiesInHand.size(), -1)));
+            gc.setNActionsDirectFlight(new ArrayList<>(Collections.nCopies(citiesInHand.size(), -1)));
         }
 
         for (int i = 0; i < citiesInHand.size(); i++) {
@@ -78,33 +70,31 @@ public class PathFinder {
         }
     }
 
-    private void evaluateCostGraphPostDirectFlight(GCity currentCity, int dist, int cityCardIndex) {
-        if (currentCity != null) {
+    private void evaluateCostGraphPostDirectFlight(GCity city, int dist, int cityCardIndex) {
+        if (city != null) {
             visitedCities = new ArrayList<>();
-            currentCity.nActionsDirectFlight.set(cityCardIndex, dist);
-            visitedCities.add(currentCity);
-            dist++;
+            city.nActionsDirectFlight.set(cityCardIndex, dist);
+            visitedCities.add(city);
 
             for (int i = 0; i < visitedCities.size(); i++) {
-                currentCity = visitedCities.get(i);
-                int currentDist = currentCity.nActionsDirectFlight.get(cityCardIndex);
+                city = visitedCities.get(i);
+                int currentDist = city.nActionsDirectFlight.get(cityCardIndex);
                 dist = currentDist < 4 ? currentDist + 1 : MAX_VALUE;
-                setNeighbourDirectFlightDistances(currentCity, dist, cityCardIndex);
+                setNeighbourDirectFlightDistances(city, dist, cityCardIndex);
             }
         }
     }
 
-    private void evaluateCostGraphCharterFlight(GCity currentCity, boolean rerunWalking) {
-        if (rerunWalking) {
-            evaluateCostGraphWalking(currentCity, 0);
-        }
-        List<CityCard> citiesInHand = new ArrayList<CityCard>();
+
+    //Assume walking cost graph has been evaluated
+    public void evaluateCostGraphCharterFlight() {
+        List<CityCard> citiesInHand = new ArrayList<>();
         for (PlayerCard pc : state.getPlayerRepository().getCurrentPlayer().getHand()) {
             if (pc instanceof CityCard) citiesInHand.add((CityCard) pc);
         }
 
         for (GCity gc : costGraph) {
-            gc.setNActionsCharterFlight(new ArrayList<Integer>(Collections.nCopies(citiesInHand.size(), -1)));
+            gc.setNActionsCharterFlight(new ArrayList<>(Collections.nCopies(citiesInHand.size(), -1)));
         }
 
         for (int i = 0; i < citiesInHand.size(); i++) {
@@ -132,8 +122,8 @@ public class PathFinder {
     }
 
     //Assume walking cost graph has been evaluated
-    //Assume there is only a sin
-    public void evaluateShuttleCostGraph() {
+    //Assume we reach the closest station then move to another on the map
+    public void evaluateCostGraphShuttleFlight() {
         GCity closestStation = this.costGraph.stream().
                 filter(gc -> gc.city.getResearchStation() != null &&
                         gc.nActionsWalking < 4).
@@ -192,6 +182,8 @@ public class PathFinder {
             }
         }
     }
+
+
 
     public static class GCity {
         public City city;

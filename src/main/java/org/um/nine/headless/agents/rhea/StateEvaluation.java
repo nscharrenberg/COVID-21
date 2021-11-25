@@ -4,6 +4,7 @@ import org.um.nine.headless.game.domain.Color;
 import org.um.nine.headless.game.domain.Cure;
 import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.cards.CityCard;
+import org.um.nine.headless.game.domain.roles.Scientist;
 
 import static com.google.common.primitives.Doubles.min;
 
@@ -46,10 +47,8 @@ public class StateEvaluation {
      * @return 4 if the role is Scientist, else 5
      */
     public int Cd (Player player){
-        //TODO: missing scientist role
-        //if (player.getRole() instanceof ScientistRole) return 4;
-        //else return 5;
-        return 5;
+        if (player.getRole() instanceof Scientist) return 4;
+        else return 5;
     }
 
 

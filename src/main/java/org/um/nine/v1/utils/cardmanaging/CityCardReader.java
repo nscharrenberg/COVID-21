@@ -1,6 +1,9 @@
 package org.um.nine.v1.utils.cardmanaging;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import org.um.nine.v1.domain.City;
@@ -16,6 +19,7 @@ import java.util.HashMap;
 import java.util.Stack;
 
 public class CityCardReader {
+
     public HashMap<String, City> cityReader(String path) {
         JsonParser parser = new JsonParser();
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path);

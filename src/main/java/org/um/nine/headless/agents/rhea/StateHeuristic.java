@@ -15,7 +15,7 @@ public interface StateHeuristic {
         return evaluateState(state);
     }
 
-    default double evaluateFitness_penalize(IState state){
+    default double evaluateFitnessPenalize(IState state){
         if (state.gameOver()){
             if (state.isVictory()) return 1;
             return cp * evaluateState(state) ;
