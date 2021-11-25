@@ -63,7 +63,22 @@ class PathFinderTest {
     @Test
     @DisplayName("FindWalkingDistanceFromCity")
     void FindWalkingDistanceFromCity() {
+        boolean testWalking = false;
+        boolean testDirectFlight = false;
+        boolean testCharterFlight = true;
+        if(testDirectFlight){
+            System.out.println(state.getPlayerRepository().getCurrentPlayer().getHand().toString());
 
+            for (PathFinder.GCity gc : x.costGraph) {
+                System.out.println(gc.city.getName() + " : " + gc.nActionsDirectFlight.toString());
+            }
+        }
+        if(testCharterFlight){
+            System.out.println(state.getPlayerRepository().getCurrentPlayer().getHand().toString());
+            for (PathFinder.GCity gc : x.costGraph) {
+                System.out.println(gc.city.getName() + " : " + gc.nActionsCharterFlight.toString());
+            }
+        }
 
     }
 }
