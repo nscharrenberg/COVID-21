@@ -13,7 +13,8 @@ class PathFinderTest {
     @DisplayName("EvaluateCostGraph")
     void EvaluateCostGraph() {
         boolean testWalking = false;
-        boolean testDirectFlight = true;
+        boolean testDirectFlight = false;
+        boolean testCharterFlight = true;
         initializeGame();
 
         IState state = new State().getClonedState();
@@ -59,6 +60,12 @@ class PathFinderTest {
 
             for (PathFinder.GCity gc : x.costGraph) {
                 System.out.println(gc.city.getName() + " : " + gc.nActionsDirectFlight.toString());
+            }
+        }
+        if(testCharterFlight){
+            System.out.println(state.getPlayerRepository().getCurrentPlayer().getHand().toString());
+            for (PathFinder.GCity gc : x.costGraph) {
+                System.out.println(gc.city.getName() + " : " + gc.nActionsCharterFlight.toString());
             }
         }
     }
