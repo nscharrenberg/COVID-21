@@ -1,9 +1,14 @@
 package org.um.nine.headless.agents.utils.actions;
 
+import com.sun.jna.platform.unix.X11;
 import org.um.nine.headless.agents.utils.IState;
 import org.um.nine.headless.game.domain.City;
+import org.um.nine.headless.game.domain.cards.CityCard;
+import org.um.nine.headless.game.domain.cards.EventCard;
+import org.um.nine.headless.game.domain.cards.PlayerCard;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static java.lang.Integer.MAX_VALUE;
@@ -15,7 +20,7 @@ public class PathFinder {
     public List<GCity> costGraph;
     public List<GCity> visitedCities;
 
-    public PathFinder(IState state){
+    public PathFinder(IState state) {
         this.state = state;
         costGraph = new ArrayList<>();
         for (City c : this.state.getCityRepository().getCities().values())
@@ -23,40 +28,109 @@ public class PathFinder {
     }
 
 
-
-    public void evaluateCostGraph(){
+    public void evaluateCostGraph() {
         GCity currentCity = null;
-        for (GCity gc : this.costGraph){
+        for (GCity gc : this.costGraph) {
             if (gc.city.equals(this.state.getPlayerRepository().getCurrentPlayer().getCity())) {
                 currentCity = gc;
                 break;
             }
         }
 
+        evaluateCostGraphWalking(currentCity, 0);
+        evaluateCostGraphDirectFlight(currentCity);
+        evaluateCostGraphCharterFlight(currentCity, false);
+
+    }
+
+    private void evaluateCostGraphWalking(GCity currentCity, int dist) {
         if (currentCity != null) {
             visitedCities = new ArrayList<>();
-            currentCity.nActionsWalking = 0;
+            currentCity.nActionsWalking = dist;
             visitedCities.add(currentCity);
-            int dist = 1;
+            dist++;
 
             for (int i = 0; i < visitedCities.size(); i++) {
                 currentCity = visitedCities.get(i);
-                dist = currentCity.nActionsWalking < 4 ? currentCity.nActionsWalking+1 : MAX_VALUE;
+                dist = currentCity.nActionsWalking < 4 ? currentCity.nActionsWalking + 1 : MAX_VALUE;
                 setNeighbourWalkingDistances(currentCity, dist);
             }
-
         }
     }
 
-    private GCity findGCity(City c){
+    private void evaluateCostGraphDirectFlight(GCity currentCity) {
+        List<CityCard> citiesInHand = new ArrayList<CityCard>();
+        for (PlayerCard pc : state.getPlayerRepository().getCurrentPlayer().getHand()) {
+            if (pc instanceof CityCard) citiesInHand.add((CityCard) pc);
+        }
+
+        for (GCity gc : this.costGraph) {
+            gc.setNActionsDirectFlight(new ArrayList<Integer>(Collections.nCopies(citiesInHand.size(), -1)));
+        }
+
+        for (int i = 0; i < citiesInHand.size(); i++) {
+            //we fly to cityCard destination and start walking from there
+            evaluateCostGraphPostDirectFlight(findGCity(citiesInHand.get(i).getCity()), 1, i);
+        }
+    }
+
+    private void evaluateCostGraphPostDirectFlight(GCity currentCity, int dist, int cityCardIndex) {
+        if (currentCity != null) {
+            visitedCities = new ArrayList<>();
+            currentCity.nActionsDirectFlight.set(cityCardIndex, dist);
+            visitedCities.add(currentCity);
+            dist++;
+
+            for (int i = 0; i < visitedCities.size(); i++) {
+                currentCity = visitedCities.get(i);
+                int currentDist = currentCity.nActionsDirectFlight.get(cityCardIndex);
+                dist = currentDist < 4 ? currentDist + 1 : MAX_VALUE;
+                setNeighbourDirectFlightDistances(currentCity, dist, cityCardIndex);
+            }
+        }
+    }
+
+    private void evaluateCostGraphCharterFlight(GCity currentCity, boolean rerunWalking) {
+        if (rerunWalking) {
+            evaluateCostGraphWalking(currentCity, 0);
+        }
+        List<CityCard> citiesInHand = new ArrayList<CityCard>();
+        for (PlayerCard pc : state.getPlayerRepository().getCurrentPlayer().getHand()) {
+            if (pc instanceof CityCard) citiesInHand.add((CityCard) pc);
+        }
+
+        for (GCity gc : costGraph) {
+            gc.setNActionsCharterFlight(new ArrayList<Integer>(Collections.nCopies(citiesInHand.size(), -1)));
+        }
+
+        for (int i = 0; i < citiesInHand.size(); i++) {
+            GCity city = findGCity(citiesInHand.get(i).getCity());
+
+            for (GCity gc : costGraph) {
+                gc.nActionsCharterFlight.set(i, city.nActionsWalking <= 3 ? city.nActionsWalking + 1 : MAX_VALUE);
+            }
+        }
+    }
+
+    private GCity findGCity(City c) {
         return this.costGraph.stream().filter(gCity -> gCity.city.equals(c)).findFirst().orElse(null);
     }
 
-    public void setNeighbourWalkingDistances(GCity currentCity, int dist){
-        for (City c : currentCity.city.getNeighbors()){
+    public void setNeighbourWalkingDistances(GCity currentCity, int dist) {
+        for (City c : currentCity.city.getNeighbors()) {
             GCity gc = findGCity(c);
-            if (gc.nActionsWalking == -1){
+            if (gc.nActionsWalking == -1) {
                 gc.nActionsWalking = dist;
+                visitedCities.add(gc);
+            }
+        }
+    }
+
+    public void setNeighbourDirectFlightDistances(GCity currentCity, int dist, int cityCardIndex) {
+        for (City c : currentCity.city.getNeighbors()) {
+            GCity gc = findGCity(c);
+            if (gc.nActionsDirectFlight.get(cityCardIndex) == -1) {
+                gc.nActionsDirectFlight.set(cityCardIndex, dist);
                 visitedCities.add(gc);
             }
         }
@@ -64,13 +138,21 @@ public class PathFinder {
 
     public static class GCity {
         public City city;
-        private boolean visited;
         public int nActionsWalking;
-        public GCity(City city){
+        public List<Integer> nActionsDirectFlight; //different value depending on which city card you use
+        public List<Integer> nActionsCharterFlight; //different value depending on which city card you use
+
+        public GCity(City city) {
             this.city = city;
             this.nActionsWalking = -1;
-            this.visited = false;
         }
 
+        public void setNActionsDirectFlight(List<Integer> nActionsDirectFlight) {
+            this.nActionsDirectFlight = nActionsDirectFlight;
+        }
+
+        public void setNActionsCharterFlight(List<Integer> nActionsCharterFlight) {
+            this.nActionsCharterFlight = nActionsCharterFlight;
+        }
     }
 }
