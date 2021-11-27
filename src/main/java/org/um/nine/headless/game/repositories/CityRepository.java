@@ -61,6 +61,7 @@ public class CityRepository implements ICityRepository {
         preload();
 
         try {
+
             this.addResearchStation(cities.get(Info.START_CITY));
         } catch (Exception e) {
             e.printStackTrace();

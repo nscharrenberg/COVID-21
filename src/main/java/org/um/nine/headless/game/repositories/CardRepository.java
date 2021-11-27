@@ -107,8 +107,11 @@ public class CardRepository implements ICardRepository {
                 for (int k = i; k > 0; k--) {
                     try {
                         FactoryProvider.getDiseaseRepository().infect(d.getColor(), c.getCity());
-                    } catch (NoDiseaseOrOutbreakPossibleDueToEvent | NoCubesLeftException | GameOverException noDiseaseOrOutbreakPossibleDueToEvent) {
+                    } catch (NoCubesLeftException | GameOverException noDiseaseOrOutbreakPossibleDueToEvent) {
                         noDiseaseOrOutbreakPossibleDueToEvent.printStackTrace();
+                    } catch (NoDiseaseOrOutbreakPossibleDueToEvent noDiseaseOrOutbreakPossibleDueToEvent) {
+                        System.err.println("Prevented a disease from being added or outbreak from happening in " +
+                                noDiseaseOrOutbreakPossibleDueToEvent.getCity());
                     }
                 }
             }
