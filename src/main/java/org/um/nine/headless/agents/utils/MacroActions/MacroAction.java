@@ -31,7 +31,7 @@ public interface MacroAction {
         public String toString() {
              String s = "";
              s += standingActions().stream().map(StandingAction::toString).collect(Collectors.toList());
-             s += movingActions().stream().map(MovingAction::toString).collect(Collectors.toList());
+             s += "\t\t" + movingActions().stream().map(MovingAction::toString).collect(Collectors.toList());
              return s;
         }
     }

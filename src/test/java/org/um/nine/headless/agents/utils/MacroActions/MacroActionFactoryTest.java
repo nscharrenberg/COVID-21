@@ -15,8 +15,8 @@ class MacroActionFactoryTest {
     @Test
     @DisplayName("getMacroActions")
     void getMacroActions() {
-        MacroActionFactory.evaluateState(this.state);
-        var macroActions = MacroActionFactory.getMacroActions();
+        MacroActionFactory.init(this.state);
+        var macroActions = MacroActionFactory.buildMacroActions(this.state, MacroActionFactory.MacroType.Treat3);
         System.out.println("Current city : "+this.state.getPlayerRepository().getCurrentPlayer().getCity().getName());
         for (MacroAction ma : macroActions){
             System.out.println(ma);

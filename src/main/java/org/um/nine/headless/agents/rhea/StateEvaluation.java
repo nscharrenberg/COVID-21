@@ -14,7 +14,7 @@ public class StateEvaluation {
     /**
      * Ability to find a cure based on it being already discovered or not
      */
-    public Ability At = (state,cure) -> {
+    public static Ability At = (state,cure) -> {
         if (state.getDiseaseRepository().
                 getCures().values()
                 .stream().filter(c -> c.getColor().
@@ -28,7 +28,7 @@ public class StateEvaluation {
      * Ability to discover a cure based on the number of cards of that color in hand
      * Will evaluate over 5 cards, 4 if the role of the current player is Scientist role
      */
-    public Ability Ac = (state, cure) -> {
+    public static Ability Ac = (state, cure) -> {
         Player p = state.getPlayerRepository().getCurrentPlayer();
         double hpt = p.getHand().
                 stream().filter(pc ->
@@ -46,7 +46,7 @@ public class StateEvaluation {
      * @param player the player with the role
      * @return 4 if the role is Scientist, else 5
      */
-    public int Cd (Player player){
+    public static int Cd (Player player){
         if (player.getRole() instanceof Scientist) return 4;
         else return 5;
     }
@@ -55,7 +55,7 @@ public class StateEvaluation {
     /**
      * Evaluate the state based on the number of cures discovered
      */
-    public StateHeuristic Fod = state -> (double) state.getDiseaseRepository()
+    public static StateHeuristic Fod = state -> (double) state.getDiseaseRepository()
             .getCures().values()
             .stream().filter(Cure::isDiscovered)
             .count() /4;
@@ -65,7 +65,7 @@ public class StateEvaluation {
      * Evaluate the state based on the number of cures discovered and the ability to cure
      * a disease based on the number of cards in hand
      */
-    public StateHeuristic FoA = state -> {
+    public static StateHeuristic FoA = state -> {
 
         final double [] sA = new double[]{0};
         double Nd = (double) state.getDiseaseRepository()
@@ -96,7 +96,7 @@ public class StateEvaluation {
     /**
      * Evaluate the state based on the minimum number of diseases of each color
      */
-    public StateHeuristic Fcm = state -> {
+    public static StateHeuristic Fcm = state -> {
         double red, blue, black, yellow;
         red = state.getDiseaseRepository().getCubes().get(Color.RED).size()/24.;
         blue = state.getDiseaseRepository().getCubes().get(Color.BLUE).size()/24.;
@@ -109,7 +109,7 @@ public class StateEvaluation {
     /**
      * Evaluate the state based on the number of diseases placed on the map
      */
-    public StateHeuristic Fcp = state -> {
+    public static StateHeuristic Fcp = state -> {
         final double[] p = new double[]{0};
         state.getDiseaseRepository()
                 .getCubes().values()
@@ -121,7 +121,7 @@ public class StateEvaluation {
     /**
      *  Evaluate the state based on the number of outbreaks occured
      */
-    public StateHeuristic Fb = state -> {
+    public static StateHeuristic Fb = state -> {
         final int [] b = new int[]{0};
         state.getDiseaseRepository().getOutbreakMarkers().forEach(outbreakMarker -> {
             if (outbreakMarker.isCurrent())
