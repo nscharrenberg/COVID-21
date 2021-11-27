@@ -49,13 +49,13 @@ class PathFinderTest {
             pathFinder.evaluateCostGraphWalking();
             for (int i = 0; i<= 4; i++) {
                 for (PathFinder.GCity gc : pathFinder.getCostGraph()){
-                    if (gc.walkingActionDepth == i){
-                        System.out.println(gc.city.getName() +" : "+ gc.walkingActionDepth);
+                    if (gc.walkingPath.walkingActionDepth == i){
+                        System.out.println(gc.city.getName() +" : "+ gc.walkingPath.walkingActionDepth);
                     }
                 }
             }
             for (PathFinder.GCity gc : pathFinder.getCostGraph()){
-                if (gc.walkingActionDepth > 4 || gc.walkingActionDepth < 0)
+                if (gc.walkingPath.walkingActionDepth > 4 || gc.walkingPath.walkingActionDepth < 0)
                     System.out.println("{"+gc.city.getName() +" : - }");
             }
 
@@ -64,8 +64,8 @@ class PathFinderTest {
             if (testShuttleFlight){
                 pathFinder.evaluateCostGraphShuttleFlight();
                 for (PathFinder.GCity gc : pathFinder.getCostGraph()){
-                    if (gc.shuttleActionDepth != -1){
-                        System.out.println(gc.city.getName() +" : "+ gc.shuttleActionDepth);
+                    if (gc.shuttlePath.shuttleActionDepth != -1){
+                        System.out.println(gc.city.getName() +" : "+ gc.shuttlePath.shuttleActionDepth);
                     }
                 }
             }
@@ -100,6 +100,7 @@ class PathFinderTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("GetShortestPath")
     void getShortestPath(){
         FactoryProvider.getCityRepository().getCities().
@@ -107,4 +108,6 @@ class PathFinderTest {
                         System.out.println(c.getName() + " : " + pathFinder.shortestPath(c)));
 
     }
+
+
 }

@@ -4,4 +4,8 @@ import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
 
 public record StandingAction(ActionType action, City applyTo) {
+    @Override
+    public String toString() {
+        return "{" + action.getName() +" ("+ applyTo.getName() +")}";
+    }
 }
