@@ -9,7 +9,7 @@ public enum ActionType {
     TREAT_DISEASE(5, "Treat Disease", "Remove 1 disease cube from your current city."),
     SHARE_KNOWLEDGE(6, "Share Knowledge",
                             "Exchange the city card of your current city with another player that is in the same city as you. (or vise versa"),
-    DISCOVER_CURE(7, "Discover Cure", "Use 5 city cards of the same color to discover a cure. (must be on a research station)"),
+    DISCOVER_CURE(7, "Discover CureMacro", "Use 5 city cards of the same color to discover a cure. (must be on a research station)"),
     NO_ACTION(8, "No Action", "No action chosen!"),
     SKIP_ACTION(9, "Skip Turn", "Use this to skip an action");
 

@@ -1,5 +1,6 @@
 package org.um.nine.headless.game.contracts.repositories;
 
+import org.um.nine.headless.agents.utils.IState;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.RoleAction;
@@ -12,6 +13,8 @@ import java.util.Queue;
 import java.util.Stack;
 
 public interface IPlayerRepository {
+    IPlayerRepository setState(IState initialState);
+
     void reset();
 
     void drive(Player player, City city, boolean careAboutNeighbors) throws InvalidMoveException;
@@ -79,4 +82,5 @@ public interface IPlayerRepository {
     void setInfectionLeft(int infectionLeft);
 
     void createPlayer(String name, boolean isBot) throws PlayerLimitException;
+
 }

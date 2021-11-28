@@ -4,8 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.um.nine.headless.agents.utils.IState;
 import org.um.nine.headless.agents.utils.State;
 import org.um.nine.headless.game.FactoryProvider;
@@ -34,61 +32,12 @@ class PathFinderTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.state = new State().getClonedState();
+        this.state = new State().getClonedState(FactoryProvider.getInitialState());
         pathFinder = new PathFinder.Descriptor(this.state);
 
     }
 
 
-    @Disabled
-    @ParameterizedTest
-    @ValueSource(booleans = {false,false,false,false})
-    @DisplayName("FindWalkingDistanceFromCity")
-    void testCostGraph(boolean testWalking, boolean testShuttleFlight,  boolean testDirectFlight, boolean testCharterFlight) {
-        if (testWalking){
-            pathFinder.evaluateCostGraphWalking();
-            for (int i = 0; i<= 4; i++) {
-                for (PathFinder.GCity gc : pathFinder.getCostGraph()){
-                    if (gc.walkingPath.walkingActionDepth == i){
-                        System.out.println(gc.city.getName() +" : "+ gc.walkingPath.walkingActionDepth);
-                    }
-                }
-            }
-            for (PathFinder.GCity gc : pathFinder.getCostGraph()){
-                if (gc.walkingPath.walkingActionDepth > 4 || gc.walkingPath.walkingActionDepth < 0)
-                    System.out.println("{"+gc.city.getName() +" : - }");
-            }
-
-
-
-            if (testShuttleFlight){
-                pathFinder.evaluateCostGraphShuttleFlight();
-                for (PathFinder.GCity gc : pathFinder.getCostGraph()){
-                    if (gc.shuttlePath.shuttleActionDepth != -1){
-                        System.out.println(gc.city.getName() +" : "+ gc.shuttlePath.shuttleActionDepth);
-                    }
-                }
-            }
-
-
-        }
-        if(testDirectFlight){
-            pathFinder.evaluateCostGraphDirectFlight();
-            System.out.println(state.getPlayerRepository().getCurrentPlayer().getHand().toString());
-
-            for (PathFinder.GCity gc : pathFinder.getCostGraph()) {
-                System.out.println(gc.city.getName() + " : " + gc.directFlightActionsDepthList.toString());
-            }
-        }
-        if(testCharterFlight){
-            pathFinder.evaluateCostGraphCharterFlight();
-            System.out.println(state.getPlayerRepository().getCurrentPlayer().getHand().toString());
-            for (PathFinder.GCity gc : pathFinder.getCostGraph()) {
-                System.out.println(gc.city.getName() + " : " + gc.charterFlightActionsDepthList.toString());
-            }
-        }
-
-    }
 
     @Test
     @Disabled

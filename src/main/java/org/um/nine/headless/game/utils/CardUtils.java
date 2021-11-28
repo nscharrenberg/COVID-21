@@ -1,6 +1,6 @@
 package org.um.nine.headless.game.utils;
 
-import org.um.nine.headless.game.FactoryProvider;
+import org.um.nine.headless.game.contracts.repositories.IPlayerRepository;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.Player;
@@ -44,7 +44,7 @@ public class CardUtils {
         return shuffled;
     }
 
-    public static Stack<PlayerCard> buildPlayerDeck(Difficulty difficulty, HashMap<String, City> cities, HashMap<String, Player> players) {
+    public static Stack<PlayerCard> buildPlayerDeck(IPlayerRepository playerRepository, Difficulty difficulty, HashMap<String, City> cities, HashMap<String, Player> players) {
         Stack<PlayerCard> deck = new Stack<>();
         deck.push(new GovernmentGrandEvent());
         deck.push(new PrognosisEvent());
@@ -78,7 +78,7 @@ public class CardUtils {
                 PlayerCard card = initialDeck.pop();
                 p.addHand(card);
                 if (card.equals(max_pop_cityCard)) {
-                    FactoryProvider.getPlayerRepository().setCurrentPlayer(p);
+                    playerRepository.setCurrentPlayer(p);
                 }
             }
         }

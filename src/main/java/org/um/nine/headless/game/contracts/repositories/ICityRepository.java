@@ -1,5 +1,6 @@
 package org.um.nine.headless.game.contracts.repositories;
 
+import org.um.nine.headless.agents.utils.IState;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.ResearchStation;
 
@@ -22,4 +23,6 @@ public interface ICityRepository {
     List<ResearchStation> getResearchStations();
 
     void setResearchStations(List<ResearchStation> researchStations);
+
+    ICityRepository setState(IState initialState);
 }

@@ -16,8 +16,10 @@ class MacroActionFactoryTest {
     @DisplayName("getMacroActions")
     void getMacroActions() {
         MacroActionFactory.init(this.state);
-        var macroActions = MacroActionFactory.buildMacroActions(this.state, MacroActionFactory.MacroType.Treat3);
+        var macroActions = MacroActionFactory.buildAllMacroActions();
+
         System.out.println("Current city : "+this.state.getPlayerRepository().getCurrentPlayer().getCity().getName());
+
         for (MacroAction ma : macroActions){
             System.out.println(ma);
         }
@@ -39,7 +41,7 @@ class MacroActionFactoryTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.state = new State().getClonedState();
+        this.state = new State().getClonedState(FactoryProvider.getInitialState());
     }
 
 

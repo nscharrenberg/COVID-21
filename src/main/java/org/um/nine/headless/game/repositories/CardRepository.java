@@ -1,6 +1,6 @@
 package org.um.nine.headless.game.repositories;
 
-import org.um.nine.headless.game.FactoryProvider;
+import org.um.nine.headless.agents.utils.IState;
 import org.um.nine.headless.game.Info;
 import org.um.nine.headless.game.contracts.repositories.ICardRepository;
 import org.um.nine.headless.game.domain.City;
@@ -24,7 +24,13 @@ public class CardRepository implements ICardRepository {
     private LinkedList<PlayerCard> eventDiscardPile;
     private Stack<InfectionCard> infectionDeck;
     private Stack<InfectionCard> infectionDiscardPile;
+    private IState state;
 
+    @Override
+    public CardRepository setState(IState state){
+        this.state = state;
+        return this;
+    }
     public CardRepository() {
         reset();
     }
@@ -51,11 +57,11 @@ public class CardRepository implements ICardRepository {
         PlayerCard drawn = this.playerDeck.pop();
 
         if (drawn instanceof EpidemicCard) {
-            FactoryProvider.getEpidemicRepository().action();
+            this.state.getEpidemicRepository().action();
             return;
         }
 
-        Player currentPlayer = FactoryProvider.getPlayerRepository().getCurrentPlayer();
+        Player currentPlayer = this.state.getPlayerRepository().getCurrentPlayer();
 
         if (currentPlayer.getHand().size() >= Info.HAND_LIMIT) {
             if (toDiscard.length <= 0) {
@@ -80,7 +86,7 @@ public class CardRepository implements ICardRepository {
     public void drawInfectionCard() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         InfectionCard infectionCard = this.infectionDeck.pop();
 
-        FactoryProvider.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
+        this.state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
         this.infectionDiscardPile.push(infectionCard);
     }
 
@@ -89,8 +95,8 @@ public class CardRepository implements ICardRepository {
      */
     @Override
     public void buildDecks() {
-        this.playerDeck = CardUtils.buildPlayerDeck(FactoryProvider.getBoardRepository().getDifficulty(), FactoryProvider.getCityRepository().getCities(), FactoryProvider.getPlayerRepository().getPlayers());
-        this.infectionDeck = CityUtils.generateInfectionDeck(FactoryProvider.getCityRepository().getCities().values().toArray(new City[0]));
+        this.playerDeck = CardUtils.buildPlayerDeck(this.state.getPlayerRepository(),this.state.getBoardRepository().getDifficulty(), this.state.getCityRepository().getCities(), this.state.getPlayerRepository().getPlayers());
+        this.infectionDeck = CityUtils.generateInfectionDeck(this.state.getCityRepository().getCities().values().toArray(new City[0]));
         this.infectionDiscardPile = new Stack<>();
         Collections.shuffle(this.infectionDeck);
 
@@ -106,7 +112,7 @@ public class CardRepository implements ICardRepository {
 
                 for (int k = i; k > 0; k--) {
                     try {
-                        FactoryProvider.getDiseaseRepository().infect(d.getColor(), c.getCity());
+                        this.state.getDiseaseRepository().infect(d.getColor(), c.getCity());
                     } catch (NoCubesLeftException | GameOverException noDiseaseOrOutbreakPossibleDueToEvent) {
                         noDiseaseOrOutbreakPossibleDueToEvent.printStackTrace();
                     } catch (NoDiseaseOrOutbreakPossibleDueToEvent noDiseaseOrOutbreakPossibleDueToEvent) {

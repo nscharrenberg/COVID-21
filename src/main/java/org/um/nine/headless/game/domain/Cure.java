@@ -36,7 +36,7 @@ public class Cure {
 
     @Override
     public String toString() {
-        return "Cure{" +
+        return "CureMacro{" +
                 "id=" + id +
                 ", color=" + color.getName() +
                 ", discovered=" + discovered +

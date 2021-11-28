@@ -1,5 +1,6 @@
 package org.um.nine.headless.game.repositories;
 
+import org.um.nine.headless.agents.utils.IState;
 import org.um.nine.headless.game.Info;
 import org.um.nine.headless.game.contracts.repositories.ICityRepository;
 import org.um.nine.headless.game.domain.City;
@@ -14,6 +15,7 @@ import java.util.List;
 public class CityRepository implements ICityRepository {
     private HashMap<String, City> cities;
     private List<ResearchStation> researchStations;
+    private IState state;
 
     public CityRepository() {
         cleanup();
@@ -85,5 +87,11 @@ public class CityRepository implements ICityRepository {
     @Override
     public void setResearchStations(List<ResearchStation> researchStations) {
         this.researchStations = researchStations;
+    }
+
+    @Override
+    public ICityRepository setState(IState initialState) {
+        this.state = initialState;
+        return this;
     }
 }

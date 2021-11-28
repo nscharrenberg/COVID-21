@@ -35,9 +35,7 @@ public class PathFinder {
         this.evaluateCostGraphCharterFlight();
         return this;
     }
-
-
-    public void evaluateCostGraphWalking() {
+    private void evaluateCostGraphWalking() {
         GCity currentCity = getCurrentCity();
         int dist = 0;
         if (currentCity != null) {
@@ -51,8 +49,7 @@ public class PathFinder {
             }
         }
     }
-    //Assume walking cost graph has been evaluated
-    public void evaluateCostGraphCharterFlight() {
+    private void evaluateCostGraphCharterFlight() {
         List<CityCard> citiesInHand = new ArrayList<>();
         for (PlayerCard pc : state.getPlayerRepository().getCurrentPlayer().getHand()) {
             if (pc instanceof CityCard) citiesInHand.add((CityCard) pc);
@@ -70,7 +67,7 @@ public class PathFinder {
             }
         }
     }
-    public void evaluateCostGraphDirectFlight() {
+    private void evaluateCostGraphDirectFlight() {
         List<CityCard> citiesInHand = new ArrayList<>();
         for (PlayerCard pc : state.getPlayerRepository().getCurrentPlayer().getHand()) {
             if (pc instanceof CityCard) citiesInHand.add((CityCard) pc);
@@ -99,9 +96,7 @@ public class PathFinder {
             }
         }
     }
-    //Assume walking cost graph has been evaluated
-    //Assume we reach the closest station then move to another on the map
-    public void evaluateCostGraphShuttleFlight() {
+    private void evaluateCostGraphShuttleFlight() {
         GCity closestStation = this.costGraph.stream().
                 filter(gc -> gc.city.getResearchStation() != null &&
                         gc.walkingPath.walkingActionDepth <= 3).
@@ -125,8 +120,6 @@ public class PathFinder {
 
         }
     }
-
-
     private void evaluateCostGraphPostShuttleFlight(GCity city, int dist) {
         visitedCities = new ArrayList<>();
 
@@ -142,20 +135,6 @@ public class PathFinder {
                 setNeighbourPostShuttleDistance(city, dist);
             }
         }
-    }
-
-
-
-
-
-    public GCity getCurrentCity() {
-        return this.costGraph.stream().filter(gc-> gc.city.equals(this.state.getPlayerRepository().getCurrentPlayer().getCity())).findFirst().orElse(null);
-    }
-    public GCity findGCity(City c) {
-        return this.costGraph.stream().filter(gCity -> gCity.city.equals(c)).findFirst().orElse(null);
-    }
-    public List<GCity> getCostGraph() {
-        return costGraph;
     }
     private void setNeighbourWalkingDistances(GCity currentCity, int dist) {
         for (City c : currentCity.city.getNeighbors()){
@@ -186,28 +165,25 @@ public class PathFinder {
             }
         }
     }
+    public GCity getCurrentCity() {
+        return this.costGraph.stream().filter(gc-> gc.city.equals(this.state.getPlayerRepository().getCurrentPlayer().getCity())).findFirst().orElse(null);
+    }
+    public GCity findGCity(City c) {
+        return this.costGraph.stream().filter(gCity -> gCity.city.equals(c)).findFirst().orElse(null);
+    }
+    public List<GCity> getCostGraph() {
+        return costGraph;
+    }
 
 
     /**
      * Everything on this instance is based on the current city given in the state at the initialization
      */
     public static class Descriptor extends PathFinder {
-
         public Descriptor(IState state) {
             super(state);
-            this.evaluateCostGraph();
-        }
-
-        public Descriptor evaluateCostGraph() {
             super.evaluateCostGraph();
-            return this;
         }
-
-        /**
-         * builds the path to get to the current city by walking
-         * @param gc the city to be evaluated (will be the last step of the path
-         * @return A Tuple with key the path build so far and value the last city visited (first city in the path)
-         */
         public String buildWalkPathString(GCity gc, int walkingActionDepth) {
             StringBuilder walkPath = null;
             if (gc.walkingPath.walking!= null&& (walkingActionDepth<=4) && (walkingActionDepth>0)){
@@ -233,11 +209,6 @@ public class PathFinder {
             }
             return actions;
         }
-        /**
-         * builds the path to get to the current city by walking after shuttle flight
-         * @param gc the city to be evaluated , will be the last step of the path
-         * @return A Tuple with key the path build so far and value the last city visited (first city in the path)
-         */
         public Map.Entry<String, GCity> buildWalkPathPostShuttleString(GCity gc, int walkingActionDepth) {
             StringBuilder walkPath = null;
             if (gc.shuttlePath.postShuttleWalking!= null){
@@ -265,11 +236,6 @@ public class PathFinder {
             }
             return Map.entry(actions, gc);
         }
-        /**
-         * String description of the shuttle path from current city to shuttle and afterwards
-         * @param gc the city to be evaluated , will be the last step of the path
-         * @return a String description of the path
-         */
         public String buildShuttlePathString(GCity gc) {
             String shuttlePath = null;
             if (gc.shuttlePath.shuttleActionDepth>0 && gc.shuttlePath.shuttleActionDepth<=3){
@@ -294,24 +260,18 @@ public class PathFinder {
             }
             return shuttlePath;
         }
-        /**
-         * Info string description per city
-         * @param city the city to be described
-         * @return walking path and shuttling path combined
-         */
         public String getCityInfo(City city) {
             GCity gc = findGCity(city);
-            // walking path   <-w- is walking arrow
+            //walking path   <-w- is walking arrow
             String walkPath = buildWalkPathString(gc, gc.walkingPath.walkingActionDepth);
             //shuttle path  <-s- is shuttle arrow
             String shuttlePath = buildShuttlePathString(gc);
             return "{ " + gc.city.getName() + "\n\twalk path: " + walkPath + "\n\tshuttle path: " + shuttlePath + " \n}";
         }
-
         public List<MovingAction> shortestPath(City toCity) {
             GCity dest = findGCity(toCity);
             if (getCurrentCity().city.equals(dest.city)) return new ArrayList<>();
-            List<MovingAction> walking = new ArrayList<>(), shuttling = new ArrayList<>();
+            List<MovingAction> walking =dest.shortestWalkingPath, shuttling = dest.shortestShuttlingPath;
             if (dest.shortestWalkingPath == null) walking = dest.shortestWalkingPath = buildWalkPathList(dest, dest.walkingPath.walkingActionDepth);
             if (dest.shortestShuttlingPath == null) shuttling = dest.shortestShuttlingPath =  buildShuttlePathList(dest);
             if (walking.isEmpty() && shuttling.isEmpty()) return new ArrayList<>();
@@ -326,30 +286,24 @@ public class PathFinder {
         public MovingAction postShuttleWalking;
         public int shuttleActionDepth;
     }
-
     public static class WalkingPath {
         public MovingAction walking;
         public int walkingActionDepth;
     }
-
     public static class GCity {
         public City city;
         public ShuttlePath shuttlePath = new ShuttlePath();
         public WalkingPath walkingPath = new WalkingPath();
         public List<Integer> directFlightActionsDepthList, charterFlightActionsDepthList; //different value depending on which city card you use
-
         public List<MovingAction> shortestWalkingPath, shortestShuttlingPath;
-
         public GCity(City city) {
             this.city = city;
             this.walkingPath.walkingActionDepth = -1;
             this.shuttlePath.shuttleActionDepth = -1;
         }
-
         private void setNActionsDirectFlight(List<Integer> nActionsDirectFlight) {
             this.directFlightActionsDepthList = nActionsDirectFlight;
         }
-
         private void setNActionsCharterFlight(List<Integer> nActionsCharterFlight) {
             this.charterFlightActionsDepthList = nActionsCharterFlight;
         }

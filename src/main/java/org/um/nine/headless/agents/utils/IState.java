@@ -1,7 +1,6 @@
 package org.um.nine.headless.agents.utils;
 
 import com.rits.cloning.Cloner;
-import org.um.nine.headless.game.FactoryProvider;
 import org.um.nine.headless.game.contracts.repositories.*;
 
 public interface IState {
@@ -21,15 +20,15 @@ public interface IState {
 
     boolean isVictory();
 
-    default IState getClonedState() {
+    default IState getClonedState(IState state) {
         Cloner cloner = new Cloner();
         return new State(
-                cloner.deepClone(FactoryProvider.getDiseaseRepository()),
-                cloner.deepClone(FactoryProvider.getPlayerRepository()),
-                cloner.deepClone(FactoryProvider.getCardRepository()),
-                cloner.deepClone(FactoryProvider.getCityRepository()),
-                cloner.deepClone(FactoryProvider.getEpidemicRepository()),
-                cloner.deepClone(FactoryProvider.getBoardRepository())
+                cloner.deepClone(state.getDiseaseRepository()),
+                cloner.deepClone(state.getPlayerRepository()),
+                cloner.deepClone(state.getCardRepository()),
+                cloner.deepClone(state.getCityRepository()),
+                cloner.deepClone(state.getEpidemicRepository()),
+                cloner.deepClone(state.getBoardRepository())
         );
     }
 

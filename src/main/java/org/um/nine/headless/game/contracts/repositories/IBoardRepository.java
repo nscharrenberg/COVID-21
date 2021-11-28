@@ -1,13 +1,17 @@
 package org.um.nine.headless.game.contracts.repositories;
 
+import org.um.nine.headless.agents.utils.IState;
 import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.roles.RoleAction;
+import org.um.nine.headless.game.repositories.BoardRepository;
 
 import java.util.List;
 
 public interface IBoardRepository {
+    BoardRepository setState(IState state);
+
     void preload();
 
     void start();

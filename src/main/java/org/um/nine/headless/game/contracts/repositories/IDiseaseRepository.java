@@ -1,5 +1,6 @@
 package org.um.nine.headless.game.contracts.repositories;
 
+import org.um.nine.headless.agents.utils.IState;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.exceptions.*;
 
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface IDiseaseRepository {
+    IDiseaseRepository setState( IState state);
     default void initMarkers() {
         getInfectionRates().add(new InfectionRateMarker(2, true));
         getInfectionRates().add(new InfectionRateMarker(2));

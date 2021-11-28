@@ -1,6 +1,6 @@
 package org.um.nine.headless.game.repositories;
 
-import org.um.nine.headless.game.FactoryProvider;
+import org.um.nine.headless.agents.utils.IState;
 import org.um.nine.headless.game.Info;
 import org.um.nine.headless.game.contracts.repositories.IBoardRepository;
 import org.um.nine.headless.game.domain.ActionType;
@@ -17,7 +17,15 @@ public class BoardRepository implements IBoardRepository {
     private ActionType selectedPlayerAction;
     private List<RoleAction> usedActions = new ArrayList<>();
     private Difficulty difficulty;
+    private IState state;
 
+    @Override
+    public BoardRepository setState(IState state){
+        this.state = state;
+        return this;
+    }
+    
+    
     @Override
     public void preload() {
         this.difficulty = Difficulty.NORMAL;
@@ -33,16 +41,16 @@ public class BoardRepository implements IBoardRepository {
         resetRound();
         reset();
 
-        City atlanta = FactoryProvider.getCityRepository().getCities().get(Info.START_CITY);
-        FactoryProvider.getPlayerRepository().getPlayers().forEach((k, p) -> {
-            FactoryProvider.getPlayerRepository().assignRoleToPlayer(p);
+        City atlanta = this.state.getCityRepository().getCities().get(Info.START_CITY);
+        this.state.getPlayerRepository().getPlayers().forEach((k, p) -> {
+            this.state.getPlayerRepository().assignRoleToPlayer(p);
 
             atlanta.addPawn(p);
         });
 
-        FactoryProvider.getCardRepository().buildDecks();
-        FactoryProvider.getPlayerRepository().decidePlayerOrder();
-        FactoryProvider.getPlayerRepository().nextPlayer();
+        this.state.getCardRepository().buildDecks();
+        this.state.getPlayerRepository().decidePlayerOrder();
+        this.state.getPlayerRepository().nextPlayer();
     }
 
 
@@ -106,16 +114,16 @@ public class BoardRepository implements IBoardRepository {
         selectedRoleAction = null;
         usedActions = new ArrayList<>();
 
-        FactoryProvider.getPlayerRepository().resetRound();
+        this.state.getPlayerRepository().resetRound();
     }
 
     /**
      * Reset the whole game state
      */
     public void reset() {
-        FactoryProvider.getPlayerRepository().reset();
-        FactoryProvider.getDiseaseRepository().reset();
-        FactoryProvider.getCityRepository().reset();
-        FactoryProvider.getPlayerRepository().reset();
+        this.state.getPlayerRepository().reset();
+        this.state.getDiseaseRepository().reset();
+        this.state.getCityRepository().reset();
+        this.state.getPlayerRepository().reset();
     }
 }

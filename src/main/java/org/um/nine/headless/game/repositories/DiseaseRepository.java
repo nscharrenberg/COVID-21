@@ -1,5 +1,6 @@
 package org.um.nine.headless.game.repositories;
 
+import org.um.nine.headless.agents.utils.IState;
 import org.um.nine.headless.game.contracts.repositories.IDiseaseRepository;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
@@ -13,16 +14,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DiseaseRepository implements IDiseaseRepository {
+
     private List<InfectionRateMarker> infectionRates;
     private List<OutbreakMarker> outbreakMarkers;
     private HashMap<Color, Cure> cures;
     private HashMap<Color, List<Disease>> cubes;
+    private IState state;
 
     public DiseaseRepository() {
         this.infectionRates = new ArrayList<>();
         this.outbreakMarkers = new ArrayList<>();
         this.cubes = new HashMap<>();
         this.cures = new HashMap<>();
+    }
+    public DiseaseRepository setState(IState state){
+        this.state = state;
+        return this;
     }
 
     /**

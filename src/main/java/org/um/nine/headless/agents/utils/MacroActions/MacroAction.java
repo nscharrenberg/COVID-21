@@ -13,6 +13,12 @@ public interface MacroAction {
         return new MacroAction() {
             @Override public List<MovingAction> movingActions() {return ma;}
             @Override public List<StandingAction> standingActions() {return sa;}
+            @Override public String toString() {
+                String s = "";
+                s += standingActions().stream().map(StandingAction::toString).collect(Collectors.toList());
+                s += "\t\t" + movingActions().stream().map(MovingAction::toString).collect(Collectors.toList());
+                return s;
+            }
         };
     }
 
