@@ -17,7 +17,7 @@ public class RheaAgent {
     private Individual[] population, nextPop;
     private int NUM_INDIVIDUALS;
     private int N_ACTIONS;
-    private HashMap<Integer, ActionType>action_mapping;
+    private HashMap<Integer, ActionType> action_mapping;
     private final Random randomGenerator;
     private int nIterates = 0;
     private boolean keepIterating = true;

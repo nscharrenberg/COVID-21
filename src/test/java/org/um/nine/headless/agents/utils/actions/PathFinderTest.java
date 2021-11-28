@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.um.nine.headless.agents.utils.IState;
 import org.um.nine.headless.agents.utils.State;
 import org.um.nine.headless.game.FactoryProvider;
-import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Difficulty;
 
 class PathFinderTest {
@@ -35,17 +34,6 @@ class PathFinderTest {
         this.state = new State().getClonedState(FactoryProvider.getInitialState());
         pathFinder = new PathFinder.Descriptor(this.state);
 
-    }
-
-
-
-    @Test
-    @Disabled
-    @DisplayName("GetCityInfo")
-    void GetCityInfo() {
-        for (City city : FactoryProvider.getCityRepository().getCities().values()){
-            System.out.println(pathFinder.getCityInfo(city));
-        }
     }
 
     @Test

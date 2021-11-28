@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class Individual implements Comparable<Individual>{
 
-    protected final int[] actions; // actions in individual. length of individual = actions.length
+    protected final int[] actions; //actions in individual. length of individual = actions.length
     private final int nAllowedActions; // number of legal actions
     protected double fitness;
     private final Random gen;

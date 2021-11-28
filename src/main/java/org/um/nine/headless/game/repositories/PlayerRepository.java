@@ -31,6 +31,7 @@ public class PlayerRepository implements IPlayerRepository {
     public PlayerRepository() {
         reset();
     }
+
     public PlayerRepository setState(IState state) {
         this.state = state;
         return this;
