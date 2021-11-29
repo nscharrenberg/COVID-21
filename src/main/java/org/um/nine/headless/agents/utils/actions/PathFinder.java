@@ -1,8 +1,8 @@
 package org.um.nine.headless.agents.utils.actions;
 
+import org.um.nine.headless.agents.rhea.StateEvaluation;
 import org.um.nine.headless.agents.utils.IState;
-import org.um.nine.headless.game.domain.ActionType;
-import org.um.nine.headless.game.domain.City;
+import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 
@@ -49,27 +49,49 @@ public class PathFinder {
     }
     private void evaluateCostGraphCharterFlight() {
         List<CityCard> citiesInHand = new ArrayList<>();
-        for (PlayerCard pc : state.getPlayerRepository().getCurrentPlayer().getHand()) {
+        Player p = state.getPlayerRepository().getCurrentPlayer();
+        for (PlayerCard pc : p.getHand()) {
             if (pc instanceof CityCard) citiesInHand.add((CityCard) pc);
         }
 
-        for (GCity gc : costGraph) {
-            gc.setNActionsCharterFlight(new ArrayList<>(Collections.nCopies(citiesInHand.size(), -1)));
-        }
+        removeValuableCards(p, citiesInHand);
 
+        int bestCard = 0;
+        int currentMin = MAX_VALUE;
+        //find the closest valid city
         for (int i = 0; i < citiesInHand.size(); i++) {
             GCity city = findGCity(citiesInHand.get(i).getCity());
+            if (city.walkingPath.walkingActionDepth < currentMin) {
+                currentMin = city.walkingPath.walkingActionDepth;
+                bestCard = i;
+            }
+        }
 
-            for (GCity gc : costGraph) {
-                gc.charterFlightActionsDepthList.set(i, city.walkingPath.walkingActionDepth <= 3 ? city.walkingPath.walkingActionDepth + 1 : MAX_VALUE);
+        for (GCity gc : costGraph) {
+            gc.charterFlightPath.discardedCard = citiesInHand.get(bestCard);
+            gc.charterFlightPath.charterFlightActionDepth = currentMin + 1 <= 4 ? currentMin + 1 : MAX_VALUE;
+        }
+    }
+
+    public void removeValuableCards(Player p, List<CityCard> cities) {
+        for (int i = 0; i < cities.size(); i++) {
+            Color c = cities.get(i).getCity().getColor();
+            if (!state.getDiseaseRepository().getCures().get(c).isDiscovered() &&
+                    p.equals(getMaxAcPlayer(c))) {
+                cities.remove(i);
+                i--;
             }
         }
     }
     private void evaluateCostGraphDirectFlight() {
         List<CityCard> citiesInHand = new ArrayList<>();
-        for (PlayerCard pc : state.getPlayerRepository().getCurrentPlayer().getHand()) {
+        Player p = state.getPlayerRepository().getCurrentPlayer();
+        for (PlayerCard pc : p.getHand()) {
             if (pc instanceof CityCard) citiesInHand.add((CityCard) pc);
         }
+
+        // remove city cards that would reduce chance of curing disease when discarded
+        removeValuableCards(p, citiesInHand);
 
         for (GCity gc : this.costGraph) {
             gc.setNActionsDirectFlight(new ArrayList<>(Collections.nCopies(citiesInHand.size(), -1)));
@@ -77,9 +99,25 @@ public class PathFinder {
 
         for (int i = 0; i < citiesInHand.size(); i++) {
             //we fly to cityCard destination and start walking from there
-            evaluateCostGraphPostDirectFlight(findGCity(citiesInHand.get(i).getCity()),  i);
+            evaluateCostGraphPostDirectFlight(findGCity(citiesInHand.get(i).getCity()), i);
+        }
+
+        //after evaluating the distances for all cities and available cards we pick the card with the shortest path
+        for (GCity gc : this.costGraph) {
+            int bestCard = 0;
+            int currentMin = MAX_VALUE;
+            for (int i = 0; i < gc.directFlightActionsDepthList.size(); i++) {
+                int dist = gc.directFlightActionsDepthList.get(i);
+                if (dist < currentMin) {
+                    currentMin = dist;
+                    bestCard = i;
+                }
+            }
+            gc.directFlightPath.discardedCard = citiesInHand.get(bestCard);
+            gc.directFlightPath.directFlightActionDepth = currentMin;
         }
     }
+
     private void evaluateCostGraphPostDirectFlight(GCity city, int cityCardIndex) {
         if (city != null) {
             visitedCities.clear();
@@ -99,31 +137,32 @@ public class PathFinder {
                 filter(gc -> gc.city.getResearchStation() != null &&
                         gc.walkingPath.walkingActionDepth <= 3).
 
-                        findFirst().orElse(null);
+                findFirst().orElse(null);
 
         //must have done 3 actions at most to get to the closest research station
         //shuttle will spend one action
 
-        if (closestStation!= null) {
+        if (closestStation != null) {
             List<GCity> shuttleCities = this.costGraph.stream().
-                    filter(gc -> gc.city.getResearchStation() != null && ! gc.city.equals(closestStation.city)).
+                    filter(gc -> gc.city.getResearchStation() != null && !gc.city.equals(closestStation.city)).
                     collect(Collectors.toList());
-
 
 
             for (GCity shuttleCity : shuttleCities) {
                 shuttleCity.shuttlePath.shuttle = new MovingAction(ActionType.SHUTTLE, closestStation.city, shuttleCity.city);
-                evaluateCostGraphPostShuttleFlight(shuttleCity,closestStation.walkingPath.walkingActionDepth+1);
+                evaluateCostGraphPostShuttleFlight(shuttleCity, closestStation.walkingPath.walkingActionDepth + 1);
             }
 
         }
     }
+
+
     private void evaluateCostGraphPostShuttleFlight(GCity city, int dist) {
         visitedCities.clear();
 
         // if by shuttling from another city we get there in less actions :
 
-        if (city.shuttlePath.shuttleActionDepth== -1 || dist < city.shuttlePath.shuttleActionDepth) {  //shuttleActionDepth starts at -1
+        if (city.shuttlePath.shuttleActionDepth == -1 || dist < city.shuttlePath.shuttleActionDepth) {  //shuttleActionDepth starts at -1
             city.shuttlePath.shuttleActionDepth = dist;
             visitedCities.add(city);
             for (int i = 0; i < visitedCities.size(); i++) {
@@ -134,8 +173,10 @@ public class PathFinder {
             }
         }
     }
+
+
     private void setNeighbourWalkingDistances(GCity currentCity, int dist) {
-        for (City c : currentCity.city.getNeighbors()){
+        for (City c : currentCity.city.getNeighbors()) {
             GCity gc = findGCity(c);
             if (gc.walkingPath.walkingActionDepth == -1) {
                 gc.walkingPath.walkingActionDepth = dist;
@@ -144,16 +185,18 @@ public class PathFinder {
             }
         }
     }
+
     private void setNeighbourPostShuttleDistance(GCity currentCity, int dist) {
         for (City c : currentCity.city.getNeighbors()) {
             GCity gc = findGCity(c);
             if (gc.shuttlePath.shuttleActionDepth == -1 || dist < gc.shuttlePath.shuttleActionDepth) {
                 gc.shuttlePath.shuttleActionDepth = dist;
-                gc.shuttlePath.postShuttleWalking = new MovingAction(ActionType.DRIVE,currentCity.city, gc.city);
+                gc.shuttlePath.postShuttleWalking = new MovingAction(ActionType.DRIVE, currentCity.city, gc.city);
                 visitedCities.add(gc);
             }
         }
     }
+
     private void setNeighbourDirectFlightDistances(GCity currentCity, int dist, int cityCardIndex) {
         for (City c : currentCity.city.getNeighbors()) {
             GCity gc = findGCity(c);
@@ -170,6 +213,29 @@ public class PathFinder {
         return this.costGraph.stream().filter(gCity -> gCity.city.equals(c)).findFirst().orElse(null);
     }
 
+    private Player getMaxAcPlayer(Color t) {
+        double maxAc = 0;
+        Player maxP = null;
+        for (Player p : state.getPlayerRepository().getPlayerOrder()) {
+            double ac = Ac(p, t);
+            maxAc = Math.max(maxAc, ac);
+            maxP = p;
+        }
+        return maxP;
+    }
+
+    private double Ac(Player p, Color t) {
+        double hpt = p.getHand().
+                stream().filter(pc ->
+                pc instanceof CityCard cc &&
+                        cc.getCity().getColor()
+                                .equals(t)).
+                count();
+        double cd = StateEvaluation.Cd(p);
+        if (hpt >= cd) return 1;
+        else return hpt / cd;
+    }
+
 
     /**
      * Everything on this instance is based on the current city given in the state at the initialization
@@ -181,9 +247,9 @@ public class PathFinder {
         }
         public List<MovingAction> buildWalkPath(GCity gc, int walkingActionDepth) {
             List<MovingAction> actions = new ArrayList<>();
-            if (gc.walkingPath.walking!= null&& (walkingActionDepth<=4) && (walkingActionDepth>0)){
-                for (int i = 0; i <  walkingActionDepth; i++){
-                    actions.add(new MovingAction(ActionType.DRIVE,gc.walkingPath.walking.fromCity(),gc.city));
+            if (gc.walkingPath.walking != null && (walkingActionDepth <= 4) && (walkingActionDepth > 0)) {
+                for (int i = 0; i < walkingActionDepth; i++) {
+                    actions.add(new MovingAction(ActionType.DRIVE, gc.walkingPath.walking.fromCity(), gc.city));
                     gc = findGCity(gc.walkingPath.walking.fromCity());
                 }
             }
@@ -192,8 +258,8 @@ public class PathFinder {
         public Map.Entry<List<MovingAction>, GCity> buildWalkPathPostShuttle(GCity gc, int walkingActionDepth) {
             List<MovingAction> actions = new ArrayList<>();
             if (gc.shuttlePath.postShuttleWalking != null) {
-                for (int i = 0; i< walkingActionDepth; i++){
-                    if (gc.shuttlePath.shuttle!= null) break;
+                for (int i = 0; i < walkingActionDepth; i++) {
+                    if (gc.shuttlePath.shuttle != null) break;
                     actions.add(new MovingAction(ActionType.DRIVE, gc.shuttlePath.postShuttleWalking.fromCity(), gc.city));
                     gc = findGCity(gc.shuttlePath.postShuttleWalking.fromCity());
                 }
@@ -239,22 +305,37 @@ public class PathFinder {
         public MovingAction walking;
         public int walkingActionDepth;
     }
+
+    public static class DirectFlightPath {
+        public MovingAction directFlight;
+        public int directFlightActionDepth;
+        public CityCard discardedCard;
+    }
+
+    public static class CharterFlightPath {
+        public MovingAction charterFlight;
+        public int charterFlightActionDepth;
+        public CityCard discardedCard;
+    }
+
     public static class GCity {
         public City city;
         public ShuttlePath shuttlePath = new ShuttlePath();
         public WalkingPath walkingPath = new WalkingPath();
-        public List<Integer> directFlightActionsDepthList, charterFlightActionsDepthList; //different value depending on which city card you use
+        public DirectFlightPath directFlightPath = new DirectFlightPath();
+        public CharterFlightPath charterFlightPath = new CharterFlightPath();
+        public List<Integer> directFlightActionsDepthList; //different value depending on which city card you use
+
         public List<MovingAction> shortestWalkingPath, shortestShuttlingPath;
+
         public GCity(City city) {
             this.city = city;
             this.walkingPath.walkingActionDepth = -1;
             this.shuttlePath.shuttleActionDepth = -1;
         }
+
         private void setNActionsDirectFlight(List<Integer> nActionsDirectFlight) {
             this.directFlightActionsDepthList = nActionsDirectFlight;
-        }
-        private void setNActionsCharterFlight(List<Integer> nActionsCharterFlight) {
-            this.charterFlightActionsDepthList = nActionsCharterFlight;
         }
     }
 
