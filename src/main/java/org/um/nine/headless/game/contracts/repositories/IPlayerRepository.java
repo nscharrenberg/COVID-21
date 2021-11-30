@@ -1,5 +1,6 @@
 package org.um.nine.headless.game.contracts.repositories;
 
+import org.um.nine.headless.game.agents.Log;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.RoleAction;
@@ -79,4 +80,6 @@ public interface IPlayerRepository {
     void setInfectionLeft(int infectionLeft);
 
     void createPlayer(String name, boolean isBot) throws PlayerLimitException;
+
+    Log getLog();
 }

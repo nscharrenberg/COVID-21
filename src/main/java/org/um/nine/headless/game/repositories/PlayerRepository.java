@@ -91,7 +91,7 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         if(!logged){
-            log.addStep(" drive to " + city.getName());
+            log.addStep(" drive to " + city.getName(), city);
         }
         else{
             logged = false;
@@ -145,7 +145,7 @@ public class PlayerRepository implements IPlayerRepository {
 
         player.getHand().remove(pc);
 
-        log.addStep(" direct to " + city.getName());
+        log.addStep(" direct to " + city.getName(), city);
         logged = true;
         drive(player, city, false);
     }
@@ -168,11 +168,13 @@ public class PlayerRepository implements IPlayerRepository {
         // No need to charter when neighbouring city
         if (player.getCity().getNeighbors().contains(city)) {
             drive(player, city);
+            return; //todo needs to be fixed in main code
         }
 
         // No need to charter when both cities have research station
         if (player.getCity().getResearchStation() != null && city.getResearchStation() != null) {
             drive(player, city);
+            return; //todo needs to be fixed in main code
         }
 
         PlayerCard pc = player.getHand().stream().filter(c -> {
@@ -190,7 +192,7 @@ public class PlayerRepository implements IPlayerRepository {
 
         player.getHand().remove(pc);
 
-        log.addStep(" charter to " + city.getName());
+        log.addStep(" charter to " + city.getName(), city);
         logged = true;
         drive(player, city, false);
     }
@@ -220,7 +222,7 @@ public class PlayerRepository implements IPlayerRepository {
 
         }
 
-        log.addStep(" shuttle to " + city.getName());
+        log.addStep(" shuttle to " + city.getName(), city);
         logged = true;
         drive(player, city, false);
     }
@@ -286,7 +288,7 @@ public class PlayerRepository implements IPlayerRepository {
      */
     @Override
     public void treat(Player player, City city, Color color) throws Exception {
-        if (player.getCity().equals(city)) {
+        if (!player.getCity().equals(city)) {
             throw new Exception("Only able to treat disease in players current city");
         }
 
@@ -295,7 +297,7 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         FactoryProvider.getDiseaseRepository().treat(player, city, color);
-        log.addStep(" treat in " + city.getName());
+        log.addStep(" treat in " + city.getName(), city);
         nextTurn(this.currentRoundState);
     }
 
@@ -327,7 +329,7 @@ public class PlayerRepository implements IPlayerRepository {
         target.discard(card);
         player.addHand(card);
 
-        log.addStep(" shared " + city.getName() + " with " + target.getName());
+        log.addStep(" shared " + city.getName() + " with " + target.getName(), city);
         nextTurn(this.currentRoundState);
     }
 
@@ -362,7 +364,7 @@ public class PlayerRepository implements IPlayerRepository {
             player.getHand().remove(pc);
         }
 
-        log.addStep(" build research station in " + city.getName());
+        log.addStep(" build research station in " + city.getName(), city);
         FactoryProvider.getCityRepository().addResearchStation(city);
     }
 
@@ -638,5 +640,10 @@ public class PlayerRepository implements IPlayerRepository {
     @Override
     public void setInfectionLeft(int infectionLeft) {
         this.infectionLeft = infectionLeft;
+    }
+
+    @Override
+    public Log getLog(){
+        return log;
     }
 }
