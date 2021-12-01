@@ -1,12 +1,14 @@
 package org.um.nine.agents.baseline;
 
 import com.google.inject.Inject;
+import com.jme3.math.ColorRGBA;
 import org.apache.tools.ant.taskdefs.modules.Link;
 import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.IndicativeSentencesGeneration;
 import org.um.nine.contracts.repositories.*;
 import org.um.nine.domain.ActionType;
 import org.um.nine.domain.City;
+import org.um.nine.domain.Cure;
 import org.um.nine.domain.Player;
 import org.um.nine.domain.cards.CityCard;
 import org.um.nine.domain.cards.PlayerCard;
@@ -14,10 +16,10 @@ import org.um.nine.domain.roles.MedicRole;
 import org.um.nine.domain.roles.RoleAction;
 import org.um.nine.exceptions.*;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 
@@ -194,9 +196,58 @@ public class BaselineAgent {
                 case 7 -> {
                     var sameColorCard = player.getHandCards().stream().filter(c -> c instanceof CityCard).collect(Collectors.groupingBy(c -> ((CityCard)c).getCity().getColor()));
                     if(DEBUG) System.out.println("discoverCure");
-                    if (sameColorCard.values().size()>=5 || (player.getRole() instanceof MedicRole) && sameColorCard.values().size() >=4) {
-                        sameColorCard.entrySet().forEach(System.out::println);
-                        selectedAction = ActionType.DISCOVER_CURE;
+                    AtomicInteger red = new AtomicInteger();
+                    AtomicInteger black = new AtomicInteger();
+                    AtomicInteger blue = new AtomicInteger();
+                    AtomicInteger yellow = new AtomicInteger();
+                    sameColorCard.forEach((color, playerCards) -> {
+                        if (ColorRGBA.Red.equals(color)) {
+                            red.getAndIncrement();
+                        } else if (ColorRGBA.Black.equals(color)) {
+                            black.getAndIncrement();
+                        } else if (ColorRGBA.Blue.equals(color)) {
+                            blue.getAndIncrement();
+                        } else if (ColorRGBA.Yellow.equals(color)) {
+                            yellow.getAndIncrement();
+                        }
+                    });
+                    ColorRGBA color = ColorRGBA.Pink;
+                    boolean curable = false;
+                    if(red.get() >= 5|| (player.getRole() instanceof MedicRole) && red.get() >=4){
+                        curable = true;
+                        color = ColorRGBA.Red;
+                    }else if(black.get() >= 5|| (player.getRole() instanceof MedicRole) && black.get() >=4){
+                        curable = true;
+                        color = ColorRGBA.Black;
+                    }else if(blue.get() >= 5|| (player.getRole() instanceof MedicRole) && blue.get() >=4){
+                        curable = true;
+                        color = ColorRGBA.Blue;
+                    }else if(yellow.get() >= 5|| (player.getRole() instanceof MedicRole) && yellow.get() >=4){
+                        curable = true;
+                        color = ColorRGBA.Yellow;
+                    }
+
+                    if (curable) {
+                        if(DEBUG) System.out.println(color);
+                        ColorRGBA finalColor = color;
+                        Optional<Cure> cure = diseaseRepository.getCures().values().stream().filter(c -> {
+                            if(c.getColor().equals(finalColor)){
+                                return true;
+                            }
+                            return false;
+                        }).findFirst();
+                        if(cure.isPresent()){
+                            try {
+                                diseaseRepository.discoverCure(player,cure.get());
+                            } catch (UnableToDiscoverCureException e) {
+                                if(DEBUG) System.out.println("FAILED");
+                                randomAction(player);
+                            }
+                        }
+                        else {
+                            if(DEBUG) System.out.println("FAILED");
+                            randomAction(player);
+                        }
                     }
                     else {
                         if(DEBUG) System.out.println("FAILED");
