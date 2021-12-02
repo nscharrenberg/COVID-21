@@ -1,7 +1,7 @@
 package org.um.nine.headless.agents.rhea;
 
-import org.um.nine.headless.agents.utils.IState;
-import org.um.nine.headless.game.domain.ActionType;
+import org.um.nine.headless.game.domain.actions.ActionType;
+import org.um.nine.headless.game.domain.state.IState;
 
 import java.util.ArrayList;
 import java.util.Arrays;

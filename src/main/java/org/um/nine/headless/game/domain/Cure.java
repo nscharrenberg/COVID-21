@@ -11,7 +11,7 @@ public class Cure {
         this.color = color;
         this.discovered = false;
 
-        INCREMENT++;
+        INCREMENT = INCREMENT > 3? 0 : INCREMENT+1;
     }
 
     public int getId() {

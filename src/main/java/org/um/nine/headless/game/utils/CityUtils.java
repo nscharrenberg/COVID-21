@@ -1,7 +1,10 @@
 package org.um.nine.headless.game.utils;
 
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.jme3.math.Vector3f;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Color;
@@ -33,20 +36,11 @@ public class CityUtils {
             Color color = Color.ORANGE;
 
             switch (colorName) {
-                case "Blue":
-                    color = Color.BLUE;
-                    break;
-                case "Black":
-                    color = Color.BLACK;
-                    break;
-                case "Red":
-                    color = Color.RED;
-                    break;
-                case "Yellow":
-                    color = Color.YELLOW;
-                    break;
-                default:
-                    System.out.println("Invalid Color Provided in " + name);
+                case "Blue" -> color = Color.BLUE;
+                case "Black" -> color = Color.BLACK;
+                case "Red" -> color = Color.RED;
+                case "Yellow" -> color = Color.YELLOW;
+                default -> System.out.println("Invalid Color Provided in " + name);
             }
 
             int population = JOCity.getAsJsonPrimitive("population").getAsInt();

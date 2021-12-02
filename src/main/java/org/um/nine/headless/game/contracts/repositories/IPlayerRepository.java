@@ -1,14 +1,14 @@
 package org.um.nine.headless.game.contracts.repositories;
 
-import org.um.nine.headless.agents.utils.IState;
 import org.um.nine.headless.game.domain.*;
+import org.um.nine.headless.game.domain.actions.ActionType;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.RoleAction;
+import org.um.nine.headless.game.domain.state.IState;
 import org.um.nine.headless.game.exceptions.InvalidMoveException;
 import org.um.nine.headless.game.exceptions.PlayerLimitException;
 
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.Stack;
 
@@ -37,7 +37,7 @@ public interface IPlayerRepository {
 
     void buildResearchStation(Player player, City city) throws Exception;
 
-    void playerAction(ActionType type, Objects... args) throws Exception;
+    void playerAction(ActionType type, Object... args) throws Exception;
 
     void nextPlayer();
 

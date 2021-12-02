@@ -1,13 +1,14 @@
 package org.um.nine.headless.game.repositories;
 
-import org.um.nine.headless.agents.utils.IState;
-import org.um.nine.headless.game.Info;
+import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.contracts.repositories.IBoardRepository;
 import org.um.nine.headless.game.contracts.repositories.IPlayerRepository;
 import org.um.nine.headless.game.domain.*;
+import org.um.nine.headless.game.domain.actions.ActionType;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.*;
+import org.um.nine.headless.game.domain.state.IState;
 import org.um.nine.headless.game.exceptions.*;
 
 import java.util.*;
@@ -32,6 +33,7 @@ public class PlayerRepository implements IPlayerRepository {
         reset();
     }
 
+    @Override
     public PlayerRepository setState(IState state) {
         this.state = state;
         return this;
@@ -213,7 +215,7 @@ public class PlayerRepository implements IPlayerRepository {
 
     @Override
     public RoundState nextTurn() {
-        return nextTurn(this.currentRoundState);
+        return this.nextTurn(this.currentRoundState);
     }
 
     /**
@@ -223,40 +225,25 @@ public class PlayerRepository implements IPlayerRepository {
      */
     @Override
     public RoundState nextTurn(RoundState currentState) {
-        if (currentState == null || currentState == RoundState.ACTION) {
-            if (currentState == null) {
-                this.currentRoundState = RoundState.ACTION;
-            }
-
+        if (currentState == null) {
+            this.currentRoundState = RoundState.ACTION;
+            return this.currentRoundState;
+        }
+        if (currentState == RoundState.ACTION) {
             actionsLeft--;
-
-            if (actionsLeft <= 0) {
-                this.currentRoundState = RoundState.DRAW;
-                return this.currentRoundState;
-            }
-
+            if (actionsLeft <= 0) this.currentRoundState = RoundState.DRAW;
             return this.currentRoundState;
         } else if (currentState == RoundState.DRAW) {
             drawLeft--;
-
-            if (drawLeft <= 0) {
-                this.currentRoundState = RoundState.INFECT;
-                return this.currentRoundState;
-            }
-
+            if (drawLeft <= 0) this.currentRoundState = RoundState.INFECT;
             return this.currentRoundState;
         } else if (currentState == RoundState.INFECT) {
             infectionLeft--;
-
             if (infectionLeft <= 0) {
                 infectionLeft = Objects.requireNonNull(this.state.getDiseaseRepository().getInfectionRates().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
-
                 this.currentRoundState = null;
-                nextPlayer();
-
-                return this.currentRoundState;
+                this.nextPlayer();
             }
-
             return this.currentRoundState;
         }
 
@@ -272,7 +259,7 @@ public class PlayerRepository implements IPlayerRepository {
      */
     @Override
     public void treat(Player player, City city, Color color) throws Exception {
-        if (player.getCity().equals(city)) {
+        if (!player.getCity().equals(city)) {
             throw new Exception("Only able to treat disease in players current city");
         }
 
@@ -281,7 +268,6 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         this.state.getDiseaseRepository().treat(player, city, color);
-        nextTurn(this.currentRoundState);
     }
 
     @Override
@@ -301,7 +287,6 @@ public class PlayerRepository implements IPlayerRepository {
         if (player.getHand().contains(card)) {
             player.discard(card);
             target.addHand(card);
-            nextTurn(this.currentRoundState);
             return;
         }
 
@@ -311,16 +296,15 @@ public class PlayerRepository implements IPlayerRepository {
 
         target.discard(card);
         player.addHand(card);
-        nextTurn(this.currentRoundState);
     }
 
     @Override
-    public void buildResearchStation(Player player, City city) throws Exception {
+    public void buildResearchStation(Player player, City city) throws Exception  {
         if (city.getResearchStation() != null) {
             throw new CityAlreadyHasResearchStationException();
         }
 
-        if ((this.state.getCityRepository().getResearchStations().size()) >= Info.RESEARCH_STATION_THRESHOLD) {
+        if ((this.state.getCityRepository().getResearchStations().size()) >= Settings.RESEARCH_STATION_THRESHOLD) {
             throw new ResearchStationLimitException();
         }
 
@@ -349,134 +333,116 @@ public class PlayerRepository implements IPlayerRepository {
     }
 
     @Override
-    public void playerAction(ActionType type, Objects... args) throws Exception {
-        if (currentRoundState == null) {
-            nextTurn(null);
-        }
-
+    public void playerAction(ActionType type, Object... args) throws Exception {
+        if (this.getCurrentRoundState() == null) this.nextTurn();
         if (currentRoundState.equals(RoundState.ACTION)) {
-            if (type == null && this.state.getBoardRepository().getSelectedRoleAction() == null) {
-                throw new NoActionSelectedException();
-            }
+            if (type == null) type = ActionType.NO_ACTION;
+            if (this.state.getBoardRepository().getSelectedRoleAction() == null) this.state.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
+            if (!type.equals(ActionType.SKIP_ACTION)) {
+                City city = this.state.getBoardRepository().getSelectedCity();
+                Player player = this.currentPlayer;
 
-            City city = this.state.getBoardRepository().getSelectedCity();
-            Player player = this.currentPlayer;
+                IBoardRepository boardRepository = this.state.getBoardRepository();
 
-            if (type == null) {
-                type = ActionType.NO_ACTION;
-                return;
-            }
-
-            IBoardRepository boardRepository = this.state.getBoardRepository();
-
-            if (boardRepository.getSelectedRoleAction() != null && boardRepository.getSelectedRoleAction().equals(RoleAction.TAKE_ANY_DISCARED_EVENT)) {
-                if (args.length <= 0) {
-                    throw new Exception("You need to select an event Card from the discard pile.");
-                }
-
-                Object found = args[0];
-
-                try {
-                    PlayerCard card = (PlayerCard) found;
-
-                    if (!this.state.getCardRepository().getEventDiscardPile().contains(card)) {
+                if (boardRepository.getSelectedRoleAction() != null && boardRepository.getSelectedRoleAction().equals(RoleAction.TAKE_ANY_DISCARED_EVENT)) {
+                    if (args.length == 0) {
                         throw new Exception("You need to select an event Card from the discard pile.");
                     }
 
-                    this.state.getCardRepository().getEventDiscardPile().remove(card);
-                    player.addHand(card);
-                    nextTurn();
-                } catch (Exception e) {
-                    throw new Exception("You need to select an event Card from the discard pile.");
+                    Object found = args[0];
+
+                    try {
+                        PlayerCard card = (PlayerCard) found;
+
+                        if (!this.state.getCardRepository().getEventDiscardPile().contains(card)) {
+                            throw new Exception("You need to select an event Card from the discard pile.");
+                        }
+
+                        this.state.getCardRepository().getEventDiscardPile().remove(card);
+                        player.addHand(card);
+                    } catch (Exception e) {
+                        throw new Exception("You need to select an event Card from the discard pile.");
+                    }
                 }
-            } else if (boardRepository.getSelectedRoleAction() != null && boardRepository.getSelectedRoleAction()
+                else if (boardRepository.getSelectedRoleAction() != null && boardRepository.getSelectedRoleAction()
                         .equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY) || type.equals(ActionType.SHUTTLE)) {
-                shuttle(player, city);
-                this.state.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
-            } else if (boardRepository.getSelectedRoleAction() != null && boardRepository.getSelectedRoleAction().equals(RoleAction.BUILD_RESEARCH_STATION)
-                        || type.equals(ActionType.BUILD_RESEARCH_STATION)) {
-                buildResearchStation(player, city);
-                this.state.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
-            } else if (type.equals(ActionType.DRIVE)) {
-                drive(player, city);
-            } else if (type.equals(ActionType.DIRECT_FLIGHT)) {
-                direct(player, city);
-            } else if (type.equals(ActionType.CHARTER_FLIGHT)) {
-                charter(player, city);
-            } else if (type.equals(ActionType.TREAT_DISEASE)) {
-                if (args.length <= 0) {
-                    throw new Exception("You need to provide the disease to treat.");
-                }
-
-                Object found = args[0];
-
-                try {
-                    Color color = (Color) found;
-                    treat(player, city, color);
-                    nextTurn();
-                } catch (Exception e) {
-                    throw new Exception("You need to provide the disease to treat.");
-                }
-
-            } else if (type.equals(ActionType.SHARE_KNOWLEDGE)
-                    || boardRepository.getSelectedRoleAction() != null && this.state.getBoardRepository().getSelectedRoleAction().equals(RoleAction.GIVE_PLAYER_CITY_CARD)) {
-                if (args.length <= 0) {
-                    throw new Exception("You need to provide the player to negotiate with, the card you want, and whether you are giving that card.");
-                }
-
-                Object targetObj = args[0];
-                Object cardObj = args[1];
-
-                try {
-                    Player target = (Player) targetObj;
-                    PlayerCard card = (PlayerCard) cardObj;
-                    share(player, target, city, card);
-                    nextTurn();
+                    shuttle(player, city);
                     this.state.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
-                } catch (Exception e) {
-                    throw new Exception("You need to provide the player to negotiate with, the card you want, and whether you are giving that card.");
                 }
-
-            } else if (type.equals(ActionType.DISCOVER_CURE)) {
-                if (args.length <= 0) {
-                    throw new Exception("You need to select a cure to discover.");
+                else if (boardRepository.getSelectedRoleAction() != null && boardRepository.getSelectedRoleAction().equals(RoleAction.BUILD_RESEARCH_STATION)
+                        || type.equals(ActionType.BUILD_RESEARCH_STATION)) {
+                    buildResearchStation(player, city);
+                    this.state.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
                 }
-
-                Object found = args[0];
-
-                try {
-                    Cure cure = (Cure) found;
-                    this.state.getDiseaseRepository().discoverCure(player, cure);
-                    nextTurn();
-                } catch (Exception e) {
-                    throw new Exception("You need to select a cure to discover");
+                else if (type.equals(ActionType.DRIVE)) drive(player, city);
+                else if (type.equals(ActionType.DIRECT_FLIGHT)) direct(player, city);
+                else if (type.equals(ActionType.CHARTER_FLIGHT)) charter(player, city);
+                else if (type.equals(ActionType.TREAT_DISEASE)) {
+                    if (args.length <= 0) {
+                        throw new Exception("You need to provide the disease to treat.");
+                    }
+                    Object found = args[0];
+                    try {
+                        Color color = (Color) found;
+                        treat(player, city, color);
+                    } catch (Exception e) {
+                        throw new Exception("You need to provide the disease to treat.");
+                    }
                 }
-            } else if (type.equals(ActionType.SKIP_ACTION)) {
-                // TODO: Skip all remaining turns
-                nextTurn();
+                else if (type.equals(ActionType.SHARE_KNOWLEDGE)
+                        || boardRepository.getSelectedRoleAction() != null &&
+                        this.state.getBoardRepository().getSelectedRoleAction().equals(RoleAction.GIVE_PLAYER_CITY_CARD)) {
+                    if (args.length <= 0) {
+                        throw new Exception("You need to provide the player to negotiate with, the card you want, and whether you are giving that card.");
+                    }
+
+                    Object targetObj = args[0];
+                    Object cardObj = args[1];
+
+                    try {
+                        Player target = (Player) targetObj;
+                        PlayerCard card = (PlayerCard) cardObj;
+                        share(player, target, city, card);
+                        this.state.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
+                    } catch (Exception e) {
+                        throw new Exception("You need to provide the player to negotiate with, the card you want, and whether you are giving that card.");
+                    }
+
+                }
+                else if (type.equals(ActionType.DISCOVER_CURE)) {
+                    if (args.length <= 0) {
+                        throw new Exception("You need to select a cure to discover.");
+                    }
+                    Object found = args[0];
+                    try {
+                        Cure cure = (Cure) found;
+                        this.state.getDiseaseRepository().discoverCure(player, cure);
+                    } catch (Exception e) {
+                        throw new Exception("You need to select a cure to discover");
+                    }
+                }
             }
-        } else if (currentRoundState.equals(RoundState.DRAW)) {
+           this.nextTurn();
+
+        }
+        else if (currentRoundState.equals(RoundState.DRAW)) {
             this.state.getCardRepository().drawPlayerCard();
-
-            nextTurn(currentRoundState);
-
+            this.nextTurn();
             if (drawLeft >= 0) {
-                playerAction(null);
+                this.playerAction(null);
             }
-        } else if (currentRoundState.equals(RoundState.INFECT)) {
+        }
+        else if (currentRoundState.equals(RoundState.INFECT)) {
             this.state.getCardRepository().drawInfectionCard();
-
-            nextTurn(currentRoundState);
-
-            if (infectionLeft >= 0) {
-                this.state.getBoardRepository().setSelectedRoleAction(null);
-                playerAction(null);
+            this.nextTurn();
+            if (infectionLeft >= 0 && currentRoundState!= null) {
+                this.playerAction(null);
             }
         }
     }
 
     public void createPlayer(String name, boolean isBot) throws PlayerLimitException {
-        if (this.players.size() + 1 > Info.PLAYER_THRESHOLD) {
+        if (this.players.size() + 1 > Settings.PLAYER_THRESHOLD) {
             throw new PlayerLimitException();
         }
 
@@ -489,9 +455,9 @@ public class PlayerRepository implements IPlayerRepository {
         Player nextPlayer = this.playerOrder.poll();
 
         this.playerOrder.add(nextPlayer);
-        setCurrentPlayer(this.playerOrder.peek());
+        this.setCurrentPlayer(this.playerOrder.peek());
 
-        resetRound();
+        this.resetRound();
     }
 
     @Override

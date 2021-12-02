@@ -1,4 +1,6 @@
-package org.um.nine.headless.game.domain;
+package org.um.nine.headless.game.domain.actions;
+
+import org.um.nine.headless.game.domain.City;
 
 public enum ActionType {
     DRIVE(0, "Drive", "Move your pawn to any adjacent city."),
@@ -33,5 +35,24 @@ public enum ActionType {
 
     public String getDescription() {
         return description;
+    }
+
+    public static record MovingAction (ActionType action, City fromCity, City toCity){
+        @Override
+        public String toString() {
+            String lbl = switch (action) {
+                case DRIVE -> "w";
+                case SHUTTLE -> "s";
+                default -> "?";
+            };
+            return "{" + toCity.getName() + " <-"+lbl+"- " + fromCity.getName() + "}";
+        }
+    }
+
+    public static record StandingAction(ActionType action, City applyTo) {
+        @Override
+        public String toString() {
+            return "{" + action.getName() +" ("+ applyTo.getName() +")}";
+        }
     }
 }

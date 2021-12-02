@@ -1,7 +1,6 @@
 package org.um.nine.headless.game.repositories;
 
-import org.um.nine.headless.agents.utils.IState;
-import org.um.nine.headless.game.Info;
+import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.contracts.repositories.ICardRepository;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Disease;
@@ -9,6 +8,7 @@ import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.cards.EpidemicCard;
 import org.um.nine.headless.game.domain.cards.InfectionCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
+import org.um.nine.headless.game.domain.state.IState;
 import org.um.nine.headless.game.exceptions.GameOverException;
 import org.um.nine.headless.game.exceptions.NoCubesLeftException;
 import org.um.nine.headless.game.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
@@ -53,7 +53,7 @@ public class CardRepository implements ICardRepository {
      *                  if nothing is given then the card just drawn will be discarded
      */
     @Override
-    public void drawPlayerCard(PlayerCard... toDiscard) {
+    public void drawPlayerCard(PlayerCard... toDiscard) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         PlayerCard drawn = this.playerDeck.pop();
 
         if (drawn instanceof EpidemicCard) {
@@ -63,7 +63,7 @@ public class CardRepository implements ICardRepository {
 
         Player currentPlayer = this.state.getPlayerRepository().getCurrentPlayer();
 
-        if (currentPlayer.getHand().size() >= Info.HAND_LIMIT) {
+        if (currentPlayer.getHand().size() >= Settings.HAND_LIMIT) {
             if (toDiscard.length <= 0) {
                 // Just discard the currently picked card
                 return;

@@ -1,7 +1,6 @@
 package org.um.nine.headless.game.repositories;
 
-import org.um.nine.headless.agents.utils.IState;
-import org.um.nine.headless.game.Info;
+import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.contracts.repositories.ICityRepository;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.ResearchStation;
@@ -15,10 +14,8 @@ import java.util.List;
 public class CityRepository implements ICityRepository {
     private HashMap<String, City> cities;
     private List<ResearchStation> researchStations;
-    private IState state;
-
     public CityRepository() {
-        cleanup();
+        reset();
     }
 
     @Override
@@ -42,6 +39,8 @@ public class CityRepository implements ICityRepository {
         }
 
         city.setResearchStation(new ResearchStation());
+        this.getResearchStations().add(city.getResearchStation());
+
     }
 
     /**
@@ -49,7 +48,6 @@ public class CityRepository implements ICityRepository {
      */
     @Override
     public void preload() {
-        cleanup();
         this.cities = CityUtils.reader("Cards/CityCards.json");
     }
 
@@ -59,12 +57,12 @@ public class CityRepository implements ICityRepository {
     @Override
     public void reset() {
         cleanup();
-
         preload();
 
         try {
+            for (String city : Settings.RS)
+                this.addResearchStation(this.getCities().get(city));
 
-            this.addResearchStation(cities.get(Info.START_CITY));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -87,11 +85,5 @@ public class CityRepository implements ICityRepository {
     @Override
     public void setResearchStations(List<ResearchStation> researchStations) {
         this.researchStations = researchStations;
-    }
-
-    @Override
-    public ICityRepository setState(IState initialState) {
-        this.state = initialState;
-        return this;
     }
 }

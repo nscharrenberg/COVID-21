@@ -7,7 +7,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import org.um.nine.headless.game.FactoryProvider;
+import org.um.nine.headless.game.GameStateFactory;
 import org.um.nine.headless.game.domain.Color;
 import org.um.nine.jme.JmeMain;
 import org.um.nine.jme.utils.managers.RenderManager;
@@ -18,10 +18,10 @@ public class VisualRepository {
     private RenderManager renderManager = new RenderManager();
 
     private void renderCureSection() {
-        renderManager.renderCureMarker(FactoryProvider.getDiseaseRepository().getCures().get(Color.RED), new Vector3f(100, 0, 0));
-        renderManager.renderCureMarker(FactoryProvider.getDiseaseRepository().getCures().get(Color.YELLOW), new Vector3f(50, 0, 0));
-        renderManager.renderCureMarker(FactoryProvider.getDiseaseRepository().getCures().get(Color.BLUE), new Vector3f(0, 0, 0));
-        renderManager.renderCureMarker(FactoryProvider.getDiseaseRepository().getCures().get(Color.BLACK), new Vector3f(-50, 0, 0));
+        renderManager.renderCureMarker(GameStateFactory.getInitialState().getDiseaseRepository().getCures().get(Color.RED), new Vector3f(100, 0, 0));
+        renderManager.renderCureMarker(GameStateFactory.getInitialState().getDiseaseRepository().getCures().get(Color.YELLOW), new Vector3f(50, 0, 0));
+        renderManager.renderCureMarker(GameStateFactory.getInitialState().getDiseaseRepository().getCures().get(Color.BLUE), new Vector3f(0, 0, 0));
+        renderManager.renderCureMarker(GameStateFactory.getInitialState().getDiseaseRepository().getCures().get(Color.BLACK), new Vector3f(-50, 0, 0));
     }
 
     private void renderOutbreakSection() {
@@ -36,7 +36,7 @@ public class VisualRepository {
             if ((i % 2) == 0) {
                 currentWidth = 0;
             }
-            renderManager.renderOutbreakStar(FactoryProvider.getDiseaseRepository().getOutbreakMarkers().get(i), new Vector3f(currentWidth, currentHeight, 0));
+            renderManager.renderOutbreakStar(GameStateFactory.getInitialState().getDiseaseRepository().getOutbreakMarkers().get(i), new Vector3f(currentWidth, currentHeight, 0));
             currentHeight = currentHeight - 30;
         }
     }
@@ -48,7 +48,7 @@ public class VisualRepository {
         int currentWidth = 0;
 
         for (int i = 0; i < 7; i++) {
-            renderManager.renderInfectionRateStar(FactoryProvider.getDiseaseRepository().getInfectionRates().get(i), new Vector3f(currentWidth, 0, 0));
+            renderManager.renderInfectionRateStar(GameStateFactory.getInitialState().getDiseaseRepository().getInfectionRates().get(i), new Vector3f(currentWidth, 0, 0));
             currentWidth = currentWidth + 30;
         }
     }

@@ -12,8 +12,8 @@ import com.jme3.scene.shape.Quad;
 import com.jme3.system.AppSettings;
 import com.simsilica.lemur.GuiGlobals;
 import com.simsilica.lemur.style.BaseStyles;
-import org.um.nine.headless.game.FactoryProvider;
-import org.um.nine.headless.game.Info;
+import org.um.nine.headless.game.GameStateFactory;
+import org.um.nine.headless.game.Settings;
 import org.um.nine.jme.JmeGame;
 import org.um.nine.jme.screens.MainMenuState;
 
@@ -26,7 +26,7 @@ public class GameRepository {
 
     public void init() {
         AppSettings settings = new AppSettings(true);
-        settings.setTitle(Info.APP_TITLE);
+        settings.setTitle(Settings.APP_TITLE);
         settings.setFrameRate(60);
 
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -72,7 +72,7 @@ public class GameRepository {
 //        inputManager.init();
 
         // Initiate Game Graphics
-        FactoryProvider.getBoardRepository().start();
+        GameStateFactory.getInitialState().getBoardRepository().start();
     }
 
     private void addAmbientLight() {

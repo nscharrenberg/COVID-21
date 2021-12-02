@@ -5,7 +5,7 @@ import com.jme3.app.state.BaseAppState;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
-import org.um.nine.headless.game.FactoryProvider;
+import org.um.nine.headless.game.GameStateFactory;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.exceptions.PlayerLimitException;
 import org.um.nine.jme.JmeGame;
@@ -18,7 +18,7 @@ public class ConfigurationState extends BaseAppState {
     @Override
     protected void initialize(Application application) {
         window = new Container();
-        FactoryProvider.getBoardRepository().preload();
+        GameStateFactory.getInitialState().getBoardRepository().preload();
 
         Label title = window.addChild(new Label("Game Configuration"), 0, 0);
         title.setFontSize(32);
@@ -42,7 +42,7 @@ public class ConfigurationState extends BaseAppState {
     private void startGame() {
         Button menuButton = window.addChild(new Button("Start Game"),0, 0);
         menuButton.addClickCommands(button -> {
-            if (FactoryProvider.getPlayerRepository().getPlayers().size() < 2) {
+            if (GameStateFactory.getInitialState().getPlayerRepository().getPlayers().size() < 2) {
                 DialogBoxState dialog = new DialogBoxState("The game can only start when there are at least 2 players.");
                 getStateManager().attach(dialog);
                 dialog.setEnabled(true);
@@ -86,17 +86,17 @@ public class ConfigurationState extends BaseAppState {
 
     private void addPlayer(String name, boolean isBot) {
         try {
-            if (FactoryProvider.getPlayerRepository().getPlayers().get(name) != null) {
+            if (GameStateFactory.getInitialState().getPlayerRepository().getPlayers().get(name) != null) {
                 DialogBoxState dialog = new DialogBoxState("The name of the player must be unique");
                 getStateManager().attach(dialog);
                 dialog.setEnabled(true);
                 return;
             }
 
-            FactoryProvider.getPlayerRepository().createPlayer(name, isBot);
+            GameStateFactory.getInitialState().getPlayerRepository().createPlayer(name, isBot);
 
-            if(FactoryProvider.getPlayerRepository().getPlayers().size()<4) {
-                createPlayer(FactoryProvider.getPlayerRepository().getPlayers().size());
+            if(GameStateFactory.getInitialState().getPlayerRepository().getPlayers().size()<4) {
+                createPlayer(GameStateFactory.getInitialState().getPlayerRepository().getPlayers().size());
             }
         } catch (PlayerLimitException e) {
             DialogBoxState dialog = new DialogBoxState(e.getMessage());
@@ -117,9 +117,9 @@ public class ConfigurationState extends BaseAppState {
         subPanel.setInsets(new Insets3f(10, 10, 0, 10));
         subPanel.addChild(item);
 
-        item.getSelectionModel().setSelection(FactoryProvider.getBoardRepository().getDifficulty() != null ? FactoryProvider.getBoardRepository().getDifficulty().getId() : Difficulty.NORMAL.getId());
+        item.getSelectionModel().setSelection(GameStateFactory.getInitialState().getBoardRepository().getDifficulty() != null ? GameStateFactory.getInitialState().getBoardRepository().getDifficulty().getId() : Difficulty.NORMAL.getId());
         item.addClickCommands(c -> {
-            FactoryProvider.getBoardRepository().setDifficulty(item.getSelectedItem());
+            GameStateFactory.getInitialState().getBoardRepository().setDifficulty(item.getSelectedItem());
         });
     }
 

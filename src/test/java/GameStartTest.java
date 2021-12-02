@@ -1,12 +1,12 @@
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.um.nine.headless.agents.utils.IState;
-import org.um.nine.headless.game.FactoryProvider;
-import org.um.nine.headless.game.Info;
-import org.um.nine.headless.game.domain.ActionType;
+import org.um.nine.headless.game.GameStateFactory;
+import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.Player;
+import org.um.nine.headless.game.domain.actions.ActionType;
+import org.um.nine.headless.game.domain.state.IState;
 
 public class GameStartTest {
 
@@ -14,7 +14,7 @@ public class GameStartTest {
     public void start_success() throws Exception {
         String playerOne = "Player 1";
         String playerTwo = "Player 2";
-        IState initialState = FactoryProvider.getInitialState();
+        IState initialState = GameStateFactory.createInitialState();
         initialState.getPlayerRepository().createPlayer(playerOne, false);
         initialState.getPlayerRepository().createPlayer(playerTwo, false);
         initialState.getBoardRepository().setDifficulty(Difficulty.EASY);
@@ -27,7 +27,7 @@ public class GameStartTest {
         Assertions.assertNotNull(playerOneClass.getRole());
         Assertions.assertNotNull(playerTwoClass.getRole());
 
-        City atlanta = initialState.getCityRepository().getCities().get(Info.START_CITY);
+        City atlanta = initialState.getCityRepository().getCities().get(Settings.START_CITY);
         Assertions.assertEquals(initialState.getPlayerRepository().getPlayers().get(playerOne).getCity(), atlanta);
         Assertions.assertEquals(initialState.getPlayerRepository().getPlayers().get(playerTwo).getCity(), atlanta);
 

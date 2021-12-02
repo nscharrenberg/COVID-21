@@ -10,8 +10,7 @@ import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import org.um.nine.headless.game.FactoryProvider;
-import org.um.nine.headless.game.exceptions.*;
+import org.um.nine.headless.game.GameStateFactory;
 import org.um.nine.jme.JmeMain;
 import org.um.nine.jme.screens.DialogBoxState;
 
@@ -113,15 +112,15 @@ public class InputManager {
 
         Geometry target = collisionResult.getGeometry();
 
-        FactoryProvider.getCityRepository().getCities().forEach((key, city) -> {
+        GameStateFactory.getInitialState().getCityRepository().getCities().forEach((key, city) -> {
 
             if (target.getName().equals(key)) {
-                FactoryProvider.getBoardRepository().setSelectedCity(FactoryProvider.getCityRepository().getCities().get(key));
+                GameStateFactory.getInitialState().getBoardRepository().setSelectedCity(GameStateFactory.getInitialState().getCityRepository().getCities().get(key));
                 return;
             }
 
             if (city.getResearchStation() != null && target.getName().equals(city.getResearchStation().toString())) {
-                FactoryProvider.getBoardRepository().setSelectedCity(FactoryProvider.getCityRepository().getCities().get(key));
+                GameStateFactory.getInitialState().getBoardRepository().setSelectedCity(GameStateFactory.getInitialState().getCityRepository().getCities().get(key));
                 return;
             }
 
@@ -135,7 +134,7 @@ public class InputManager {
             });
 
             if (found.get()) {
-                FactoryProvider.getBoardRepository().setSelectedCity(FactoryProvider.getCityRepository().getCities().get(key));
+                GameStateFactory.getInitialState().getBoardRepository().setSelectedCity(GameStateFactory.getInitialState().getCityRepository().getCities().get(key));
                 return;
             }
 
@@ -147,14 +146,14 @@ public class InputManager {
             });
 
             if (found.get()) {
-                FactoryProvider.getBoardRepository().setSelectedCity(FactoryProvider.getCityRepository().getCities().get(key));
+                GameStateFactory.getInitialState().getBoardRepository().setSelectedCity(GameStateFactory.getInitialState().getCityRepository().getCities().get(key));
                 return;
             }
         });
 
-        if(FactoryProvider.getBoardRepository().getSelectedCity() != null) {
+        if(GameStateFactory.getInitialState().getBoardRepository().getSelectedCity() != null) {
             try {
-                FactoryProvider.getPlayerRepository().playerAction(FactoryProvider.getBoardRepository().getSelectedPlayerAction());
+                GameStateFactory.getInitialState().getPlayerRepository().playerAction(GameStateFactory.getInitialState().getBoardRepository().getSelectedPlayerAction());
             } catch (Exception e) {
                 DialogBoxState dialog = new DialogBoxState(e.getMessage());
                 JmeMain.getGameRepository().getApp().getStateManager().attach(dialog);

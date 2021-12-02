@@ -1,7 +1,7 @@
 package org.um.nine.headless.game.contracts.repositories;
 
-import org.um.nine.headless.agents.utils.IState;
 import org.um.nine.headless.game.domain.cards.InfectionCard;
+import org.um.nine.headless.game.domain.state.IState;
 import org.um.nine.headless.game.exceptions.GameOverException;
 import org.um.nine.headless.game.exceptions.NoCubesLeftException;
 import org.um.nine.headless.game.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
@@ -18,28 +18,24 @@ public interface IEpidemicRepository {
         getState().getDiseaseRepository().nextInfectionMarker();
     }
 
-    default void infect() {
+    default void infect() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         for (int i = 0; i < 3; i++) {
             InfectionCard infectionCard = getState().getCardRepository().getInfectionDeck().pop();
             getState().getCardRepository().getInfectionDiscardPile().add(infectionCard);
 
             int amountCubes = infectionCard.getCity().getCubes().size();
 
-            try {
-                switch (amountCubes) {
-                    case 2 -> {
-                        getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
-                        getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
-                    }
-                    case 3 -> getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
-                    default -> {
-                        getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
-                        getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
-                        getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
-                    }
+            switch (amountCubes) {
+                case 2 -> {
+                    getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
+                    getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
                 }
-            } catch (NoCubesLeftException | NoDiseaseOrOutbreakPossibleDueToEvent | GameOverException e) {
-                e.printStackTrace();
+                case 3 -> getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
+                default -> {
+                    getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
+                    getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
+                    getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
+                }
             }
         }
     }
@@ -52,5 +48,5 @@ public interface IEpidemicRepository {
         getState().getCardRepository().setInfectionDiscardPile(new Stack<>());
     }
 
-    void action();
+    void action() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
 }
