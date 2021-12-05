@@ -13,6 +13,8 @@ import org.um.nine.headless.game.exceptions.*;
 
 import java.util.*;
 
+import static org.um.nine.headless.game.Settings.*;
+
 public class PlayerRepository implements IPlayerRepository {
     private static int ACTION_COUNT = 4;
     private static int DRAW_COUNT = 2;
@@ -29,9 +31,7 @@ public class PlayerRepository implements IPlayerRepository {
     private int infectionLeft = INFECTION_COUNT;
     private IState state;
 
-    public PlayerRepository() {
-        reset();
-    }
+    public PlayerRepository() {}
 
     @Override
     public PlayerRepository setState(IState state) {
@@ -51,16 +51,28 @@ public class PlayerRepository implements IPlayerRepository {
         this.drawLeft = DRAW_COUNT;
         this.infectionLeft = INFECTION_COUNT;
 
-        this.availableRoles = new Stack<>();
-        availableRoles.add(new ContingencyPlanner());
-        availableRoles.add(new Dispatcher());
-        availableRoles.add(new Medic());
-        availableRoles.add(new OperationsExpert());
-        availableRoles.add(new QuarantineSpecialist());
-        availableRoles.add(new Researcher());
-        availableRoles.add(new Scientist());
+        if (DEFAULT_INITIAL_STATE) {
+            DEFAULT_ROLES.forEach((k,v) -> {
+                Player p = new Player(k, true);
+                p.setRole(v);
+                this.getPlayers().put(k,p);
+            });
+        }
+        else {
+            //save some memory
+            //with ui players are initialised in game
+            this.availableRoles = new Stack<>();
+            availableRoles.add(new ContingencyPlanner());
+            availableRoles.add(new Dispatcher());
+            availableRoles.add(new Medic());
+            availableRoles.add(new OperationsExpert());
+            availableRoles.add(new QuarantineSpecialist());
+            availableRoles.add(new Researcher());
+            availableRoles.add(new Scientist());
 
-        Collections.shuffle(availableRoles);
+            Collections.shuffle(availableRoles);
+        }
+
     }
 
     /**
@@ -426,7 +438,10 @@ public class PlayerRepository implements IPlayerRepository {
 
         }
         else if (currentRoundState.equals(RoundState.DRAW)) {
-            this.state.getCardRepository().drawPlayerCard();
+            this.state.getCardRepository().drawPlayerCard(
+                    getCurrentPlayer().getHand().size() >= HAND_LIMIT ?
+                            this.state.getDiscardingCard() : new PlayerCard[]{}
+            );
             this.nextTurn();
             if (drawLeft >= 0) {
                 this.playerAction(null);

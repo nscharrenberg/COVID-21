@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Stack;
 
+import static org.um.nine.headless.game.Settings.DEFAULT_INITIAL_STATE;
+
 public class CardRepository implements ICardRepository {
     private Stack<PlayerCard> playerDeck;
     private LinkedList<PlayerCard> eventDiscardPile;
@@ -32,7 +34,6 @@ public class CardRepository implements ICardRepository {
         return this;
     }
     public CardRepository() {
-        reset();
     }
 
     /**
@@ -56,7 +57,9 @@ public class CardRepository implements ICardRepository {
     public void drawPlayerCard(PlayerCard... toDiscard) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         PlayerCard drawn = this.playerDeck.pop();
 
+        System.out.println(drawn);
         if (drawn instanceof EpidemicCard) {
+            System.out.println("EPIDEMIC");
             this.state.getEpidemicRepository().action();
             return;
         }
@@ -95,10 +98,19 @@ public class CardRepository implements ICardRepository {
      */
     @Override
     public void buildDecks() {
-        this.playerDeck = CardUtils.buildPlayerDeck(this.state.getPlayerRepository(),this.state.getBoardRepository().getDifficulty(), this.state.getCityRepository().getCities(), this.state.getPlayerRepository().getPlayers());
-        this.infectionDeck = CityUtils.generateInfectionDeck(this.state.getCityRepository().getCities().values().toArray(new City[0]));
+        if (DEFAULT_INITIAL_STATE) {
+            this.playerDeck = CardUtils.loadPlayerDeck(this.state.getCityRepository().getCities(), this.state.getPlayerRepository().getPlayers(), this.state.getPlayerRepository());
+            this.infectionDeck = CityUtils.loadInfectionDeck(this.state.getCityRepository().getCities());
+        }
+        else {
+            this.playerDeck = CardUtils.buildPlayerDeck(this.state.getPlayerRepository(),this.state.getBoardRepository().getDifficulty(), this.state.getCityRepository().getCities(), this.state.getPlayerRepository().getPlayers());
+            this.infectionDeck = CityUtils.generateInfectionDeck(this.state.getCityRepository().getCities().values().toArray(new City[0]));
+            Collections.shuffle(this.infectionDeck);
+        }
+
+
         this.infectionDiscardPile = new Stack<>();
-        Collections.shuffle(this.infectionDeck);
+
 
         // Set initial infection:
         // draw 3 cards 3 cubes, 3 cards 2 cubes, 3 cards 1 cube

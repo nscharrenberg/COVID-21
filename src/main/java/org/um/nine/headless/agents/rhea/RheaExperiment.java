@@ -1,11 +1,11 @@
 package org.um.nine.headless.agents.rhea;
 
-import org.um.nine.headless.agents.utils.Report;
 import org.um.nine.headless.game.Game;
 import org.um.nine.headless.game.domain.Color;
 import org.um.nine.headless.game.domain.Disease;
 import org.um.nine.headless.game.domain.actions.ActionType;
 import org.um.nine.headless.game.domain.actions.macro.MacroAction;
+import org.um.nine.headless.game.domain.actions.macro.MacroActionFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,22 +13,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static org.um.nine.headless.game.domain.actions.ActionType.SKIP_ACTION;
-
-public record RheaExperiment(List<Game> games, Report report) implements Experiment {
-
-    public static void main(String[] args) {
-        List<Game> games = List.of(new Game(true));
-        new RheaExperiment(games, null).runExperiment();
-    }
+public record RheaExperiment(Game game) {
 
     public void runExperiment() {
-        for (Game game : this.games()) {
-            while (game.onGoing()) {
-                MacroAction nextMacro = game.getCurrentState().getNextMacro();
-                game.getActionsHistory().add(nextMacro);
-                executeMacro(game,nextMacro);
-            }
+        while (game.onGoing()) {
+            MacroAction nextMacro = MacroActionFactory.getFirstMacros(game.getCurrentState());
+            game.getActionsHistory().add(nextMacro);
+            executeMacro(game,nextMacro);
         }
     }
 
@@ -43,7 +34,6 @@ public record RheaExperiment(List<Game> games, Report report) implements Experim
         executeRestOfActions(actionsLeft,game);
         System.out.println("=============================================");
     }
-
     public static int executeMovingActions(Game game, MacroAction nextMacro) {
         int actions = 0;
         for (ActionType.MovingAction action : nextMacro.movingActions()) {
@@ -81,14 +71,11 @@ public record RheaExperiment(List<Game> games, Report report) implements Experim
         return actions;
     }
     public static void executeRestOfActions(int actions, Game game) {
-        while (actions < 4) {
-            try {
-                game.getCurrentState().getPlayerRepository().playerAction(SKIP_ACTION);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            System.out.println("[" + SKIP_ACTION + "] -> " + game.getCurrentState().getBoardRepository().getSelectedCity());
-            actions++;
+        if (actions < 4){
+            MacroAction remaining = MacroActionFactory.findSuitableMacro(4-actions);
+            int nextActions = executeMovingActions(game,remaining);
+            nextActions = executeStandingActions(nextActions,game,remaining);
+            if (actions + nextActions != 4) throw new IllegalStateException("WTF?"+actions);
         }
         try {
             game.getCurrentState().getPlayerRepository().playerAction(null);
@@ -96,4 +83,6 @@ public record RheaExperiment(List<Game> games, Report report) implements Experim
             e.printStackTrace();
         }
     }
+
+
 }

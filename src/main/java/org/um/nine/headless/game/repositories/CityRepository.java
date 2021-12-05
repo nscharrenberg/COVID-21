@@ -15,7 +15,6 @@ public class CityRepository implements ICityRepository {
     private HashMap<String, City> cities;
     private List<ResearchStation> researchStations;
     public CityRepository() {
-        reset();
     }
 
     @Override

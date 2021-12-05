@@ -4,12 +4,17 @@ import com.rits.cloning.Cloner;
 import org.um.nine.headless.game.contracts.repositories.*;
 import org.um.nine.headless.game.domain.Color;
 import org.um.nine.headless.game.domain.Cure;
-import org.um.nine.headless.game.domain.actions.macro.MacroAction;
-import org.um.nine.headless.game.domain.actions.macro.MacroActionFactory;
+import org.um.nine.headless.game.domain.Player;
+import org.um.nine.headless.game.domain.cards.CityCard;
+import org.um.nine.headless.game.domain.cards.PlayerCard;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
-public interface IState extends Cloneable {
+import static org.um.nine.headless.agents.rhea.StateEvaluation.abilityCure;
+
+public interface IState {
     void setBoardRepository(IBoardRepository iBoardRepository);
 
     void setDiseaseRepository(IDiseaseRepository iDiseaseRepository);
@@ -33,10 +38,6 @@ public interface IState extends Cloneable {
     void setEpidemicRepository(IEpidemicRepository iEpidemicRepository);
 
     IEpidemicRepository getEpidemicRepository();
-
-    default MacroAction getNextMacro() {
-        return MacroActionFactory.init(this).getActions().get(0);
-    }
     default boolean isGameLost() {
         if (getDiseaseRepository().isGameOver()) return true;
 
@@ -63,6 +64,26 @@ public interface IState extends Cloneable {
             x.getEpidemicRepository().setState(x);
             return x;
         }
+    }
+
+    default PlayerCard[] getDiscardingCard() {
+        PlayerCard discarding = null;
+        Player player = getPlayerRepository().getCurrentPlayer();
+        List<PlayerCard> pc = new ArrayList<>(player.getHand());
+        for (int i=0; i< pc.size(); i++){
+            PlayerCard card = pc.get(0);
+            Color color = ((CityCard)card).getCity().getColor();
+            double at = abilityCure(color,pc,player);
+            pc.remove(card);
+            if (at == abilityCure(color,pc,player)){
+                discarding = card;
+            }
+        }
+        if (discarding == null) throw new IllegalStateException();
+
+        return new PlayerCard[]{discarding};
+
+
     }
 
 }

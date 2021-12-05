@@ -71,7 +71,7 @@ public class PathFinder {
         }
 
         for (GCity gc : costGraph) {
-            gc.charterFlightPath.discardedCard = citiesInHand.get(bestCard);
+            gc.charterFlightPath.discardedCard = citiesInHand.size()>0?citiesInHand.get(bestCard):null;
             gc.charterFlightPath.charterFlightActionDepth = currentMin + 1 <= 4 ? currentMin + 1 : MAX_VALUE;
         }
     }
@@ -116,7 +116,7 @@ public class PathFinder {
                     bestCard = i;
                 }
             }
-            gc.directFlightPath.discardedCard = citiesInHand.get(bestCard);
+            gc.directFlightPath.discardedCard = citiesInHand.size()>0?citiesInHand.get(bestCard):null;
             gc.directFlightPath.directFlightActionDepth = currentMin;
         }
     }

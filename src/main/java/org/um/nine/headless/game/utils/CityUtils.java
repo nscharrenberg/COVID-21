@@ -12,10 +12,10 @@ import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.InfectionCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.util.HashMap;
+import java.util.Objects;
+import java.util.Scanner;
 import java.util.Stack;
 
 public class CityUtils {
@@ -81,6 +81,25 @@ public class CityUtils {
         return cityDeck;
     }
 
+    public static Stack<InfectionCard> loadInfectionDeck(HashMap<String,City> cities){
+        Stack<InfectionCard> infectionDeck = new Stack<>();
+        try {
+            FileReader fr = new FileReader(
+                    Objects.requireNonNull(
+                            CityUtils.class.getClassLoader().getResource(
+                                    "Cards/InfectionDeck.txt")
+                    ).getFile()
+            );
+            Scanner sc = new Scanner(fr);
+            while(sc.hasNextLine()){
+                String s = sc.nextLine();
+                infectionDeck.push(new InfectionCard(cities.get(s)));
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return infectionDeck;
+    }
     public static Stack<InfectionCard> generateInfectionDeck(City[] cities) {
         Stack<InfectionCard> infectionDeck = new Stack<>();
 

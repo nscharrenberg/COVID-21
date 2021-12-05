@@ -11,6 +11,8 @@ import org.um.nine.headless.game.domain.state.IState;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.um.nine.headless.game.Settings.DEFAULT_INITIAL_STATE;
+
 public class BoardRepository implements IBoardRepository {
     private City selectedCity;
     private RoleAction selectedRoleAction;
@@ -28,8 +30,7 @@ public class BoardRepository implements IBoardRepository {
     
     @Override
     public void preload() {
-        this.difficulty = this.difficulty == null? Settings.DIFFICULTY: this.difficulty;
-        reset();
+        this.difficulty = this.difficulty == null? Settings.DEFAULT_DIFFICULTY : this.difficulty;
     }
 
     /**
@@ -40,10 +41,13 @@ public class BoardRepository implements IBoardRepository {
     public void start() {
         resetRound();
         reset();
-
+        this.difficulty = this.difficulty == null? Settings.DEFAULT_DIFFICULTY : this.difficulty;
         City atlanta = this.state.getCityRepository().getCities().get(Settings.START_CITY);
+
         this.state.getPlayerRepository().getPlayers().forEach((k, p) -> {
-            this.state.getPlayerRepository().assignRoleToPlayer(p);
+
+            if (!DEFAULT_INITIAL_STATE)
+                this.state.getPlayerRepository().assignRoleToPlayer(p);
 
             atlanta.addPawn(p);
         });
@@ -125,5 +129,6 @@ public class BoardRepository implements IBoardRepository {
         this.state.getDiseaseRepository().reset();
         this.state.getCityRepository().reset();
         this.state.getPlayerRepository().reset();
+        this.state.getCardRepository().reset();
     }
 }

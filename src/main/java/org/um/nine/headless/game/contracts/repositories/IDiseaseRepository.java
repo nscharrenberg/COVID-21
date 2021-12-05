@@ -54,7 +54,7 @@ public interface IDiseaseRepository {
 
     default void initOutbreak(City city, Disease disease) throws GameOverException {
         nextOutbreak();
-
+        System.out.println("OUTBREAK");
         List<City> previousOutbreaks = new ArrayList<>();
         List<City> neighbors = city.getNeighbors();
 

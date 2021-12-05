@@ -92,7 +92,7 @@ public class ConfigurationState extends BaseAppState {
                 dialog.setEnabled(true);
                 return;
             }
-
+            //TODO: in headless players are added by default settings
             GameStateFactory.getInitialState().getPlayerRepository().createPlayer(name, isBot);
 
             if(GameStateFactory.getInitialState().getPlayerRepository().getPlayers().size()<4) {

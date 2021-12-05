@@ -4,7 +4,11 @@ import org.um.nine.headless.game.domain.Color;
 import org.um.nine.headless.game.domain.Cure;
 import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.cards.CityCard;
+import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.Scientist;
+import org.um.nine.headless.game.domain.state.IState;
+
+import java.util.List;
 
 import static com.google.common.primitives.Doubles.min;
 
@@ -12,33 +16,47 @@ public class StateEvaluation {
 
 
     /**
-     * Ability to find a cure based on it being already discovered or not
-     */
-    public static Ability At = (state,cure) -> {
-        if (state.getDiseaseRepository().
-                getCures().values()
-                .stream().filter(c -> c.getColor().
-                        equals(cure.getColor()) && c.isDiscovered()).
-                findFirst().orElse(null) != null) return 1;
-
-        return 0;
-    };
-
-    /**
+     * A(c(t))
      * Ability to discover a cure based on the number of cards of that color in hand
      * Will evaluate over 5 cards, 4 if the role of the current player is Scientist role
      */
-    public static Ability Ac = (state, cure) -> {
-        Player p = state.getPlayerRepository().getCurrentPlayer();
-        double hpt = p.getHand().
-                stream().filter(pc ->
-                        pc instanceof CityCard cc &&
-                                cc.getCity().getColor()
-                                        .equals(cure.getColor())).
-                count();
+    public static double abilityCure(Color color, Player p) {
+        double hpt = sameColorCards(p.getHand(),color);
         double cd = Cd(p);
         if (hpt >= cd) return 1;
         else return hpt/cd;
+    }
+
+    public static double abilityCure(Color color, List<PlayerCard> cards, Player p) {
+        double hpt = sameColorCards(cards,color);
+        double cd = Cd(p);
+        if (hpt >= cd) return 1;
+        else return hpt/cd;
+    }
+
+    public static double sameColorCards(List<PlayerCard> cards, Color color){
+        return cards.stream().
+                filter(c-> c instanceof CityCard cc &&
+                        cc.getCity().getColor().equals(color)).
+                count();
+    }
+
+    /**
+     * A(t)
+     * Ability to find a cure based on it being already discovered or not
+     */
+    public static double abilityCure (IState state,Cure cure) {
+        if (cure.isDiscovered()) return 1;
+
+        //TODO : this is other players Ac ability to cure the disease.. without share knowledge
+        // this value is completely irrelevant
+        else return state.getPlayerRepository().
+                getPlayers().
+                values().
+                stream().
+                map(p -> abilityCure(cure.getColor(),p)).
+                max(Double::compareTo).
+                orElse(0d);
     };
 
     /**
@@ -75,7 +93,7 @@ public class StateEvaluation {
 
         state.getDiseaseRepository().
                 getCures().values().forEach(cure -> {
-                   sA[0] += At.abilityCure(state,cure) + (0.3 * Nd);
+                   sA[0] += abilityCure(state,cure) + (0.3 * Nd);
                 });
         return sA[0] /4 * 1.3;
     };

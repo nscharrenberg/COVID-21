@@ -20,7 +20,6 @@ public class DiseaseRepository implements IDiseaseRepository {
     private HashMap<Color, List<Disease>> cubes;
     private boolean gameOver;
     public DiseaseRepository() {
-        reset();
     }
 
     /**
