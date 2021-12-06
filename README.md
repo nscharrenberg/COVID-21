@@ -126,10 +126,9 @@ The game code is to not be used in other projects, unless explicit permission ha
 ## Known Issues
 
 * Event Cards Missing
-* There is a 5th player in the config menu visible? (It only adds a new player when you click the ADD button, and when you click on "Add" for player 5 you get an error, thus you only have 4 players) -> Prossible fix: Add check in "Add" function in configuration screen to ensure a 5th player will not be entered (rendered).
-* Infection cubes not getting removed visually after treating. (unique identifiers required to fix) -> Possible fix: Instead of using the index of the array for it's naming when rendering, so utilize an identifier (ID) which should not change while it's placed in a city (or not at all throughout the game, your choice). So when rendering it'll take that name instead of the index of an array.
-* Actions that can not be used are still used in the ACtion menu, they should not be available at all. remove them.
-* One of the pawns is fully white, this should get the corresponding color to it's role. (I think it's the only role with a custom color)
+* Actions that can not be used are still used in the Action menu, they should not be available at all. remove them.
+* Incomplete Graphics due to logic decoupling (caused in phase 2 - finish asap)
+* not fully functioning RHEA (caused in phase 2 - finish phase 3)
 
 ## Do Not Fix (or fix at very last)
 * Dispatcher role missing
