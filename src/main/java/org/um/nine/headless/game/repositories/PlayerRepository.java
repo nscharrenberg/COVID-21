@@ -2,6 +2,8 @@ package org.um.nine.headless.game.repositories;
 
 import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.game.Settings;
+import org.um.nine.headless.game.Info;
+import org.um.nine.headless.game.agents.Log;
 import org.um.nine.headless.game.contracts.repositories.IBoardRepository;
 import org.um.nine.headless.game.contracts.repositories.IPlayerRepository;
 import org.um.nine.headless.game.domain.*;
@@ -30,7 +32,12 @@ public class PlayerRepository implements IPlayerRepository {
     private int infectionLeft = INFECTION_COUNT;
     private IState state;
 
-    public PlayerRepository() {}
+    private Log log = new Log();
+    private boolean logged = false;
+
+    public PlayerRepository() {
+        reset();
+    }
 
     @Override
     public PlayerRepository setState(IState state) {
@@ -43,6 +50,8 @@ public class PlayerRepository implements IPlayerRepository {
      */
     @Override
     public void reset() {
+        this.log = new Log();
+
         this.currentPlayer = null;
         this.currentRoundState = null;
 
@@ -102,6 +111,13 @@ public class PlayerRepository implements IPlayerRepository {
                 }
             });
         }
+
+        if(!logged){
+            log.addStep(" drive to " + city.getName(), city);
+        }
+        else{
+            logged = false;
+        }
     }
 
     @Override
@@ -151,6 +167,8 @@ public class PlayerRepository implements IPlayerRepository {
 
         player.getHand().remove(pc);
 
+        log.addStep(" direct to " + city.getName(), city);
+        logged = true;
         drive(player, city, false);
     }
 
@@ -172,11 +190,13 @@ public class PlayerRepository implements IPlayerRepository {
         // No need to charter when neighbouring city
         if (player.getCity().getNeighbors().contains(city)) {
             drive(player, city);
+            return; //todo needs to be fixed in main code
         }
 
         // No need to charter when both cities have research station
         if (player.getCity().getResearchStation() != null && city.getResearchStation() != null) {
             drive(player, city);
+            return; //todo needs to be fixed in main code
         }
 
         PlayerCard pc = player.getHand().stream().filter(c -> {
@@ -193,6 +213,9 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         player.getHand().remove(pc);
+
+        log.addStep(" charter to " + city.getName(), city);
+        logged = true;
         drive(player, city, false);
     }
 
@@ -221,6 +244,8 @@ public class PlayerRepository implements IPlayerRepository {
 
         }
 
+        log.addStep(" shuttle to " + city.getName(), city);
+        logged = true;
         drive(player, city, false);
     }
 
@@ -279,6 +304,8 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         this.state.getDiseaseRepository().treat(player, city, color);
+        log.addStep(" treat in " + city.getName(), city);
+        nextTurn(this.currentRoundState);
     }
 
     @Override
@@ -307,6 +334,9 @@ public class PlayerRepository implements IPlayerRepository {
 
         target.discard(card);
         player.addHand(card);
+
+        log.addStep(" shared " + city.getName() + " with " + target.getName(), city);
+        nextTurn(this.currentRoundState);
     }
 
     @Override
@@ -341,6 +371,7 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         this.state.getCityRepository().addResearchStation(city);
+        log.addStep(" build research station in " + city.getName(), city);
     }
 
     @Override
@@ -600,5 +631,10 @@ public class PlayerRepository implements IPlayerRepository {
     @Override
     public void setInfectionLeft(int infectionLeft) {
         this.infectionLeft = infectionLeft;
+    }
+
+    @Override
+    public Log getLog(){
+        return log;
     }
 }
