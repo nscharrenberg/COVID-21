@@ -70,17 +70,20 @@ git clone git@github.com:nscharrenberg/COVID-21.git
 
 2. run `maven install` to install all required libraries
 
-3. run `maven compile` to run the game
+3. run `maven compile` to compile the game
 
-
+4. run `maven exec:java` to run the game.
 
 ## Usage
 
 Take a look at the "Show Rules" button when you started the game. (after you configured the game and press the "Start Game" button.
-
 or refer the COVID-21 docs, on the top of this read me.
-
 Additionally you could also take a look at the [Pandemic rules](https://images.zmangames.com/filer_public/53/ed/53edbee8-adfb-4715-899f-dd381e1420d7/zm7101_rules_web.pdf).
+
+Once the game starts you have a menu on the bottom left which you can use to gather information about the players or to select the actions you would want to use.
+After selecting an action or event to play you select the city you want to execute it on.
+Dialog boxes may popup asking you for some additional information (such as choosing the disease to cure), or general error messages for invalid moves.
+
 
 ## Roadmap
 
@@ -116,6 +119,7 @@ The game code is to not be used in other projects, unless explicit permission ha
 
 * [Google Guice](https://github.com/google/guice)
 * [Katharina Schneider](#)
+* [Chiara Sironi](#)
 * [Bill Gates](https://nl.wikipedia.org/wiki/Bill_Gates)
 * [Steve Jobs](https://nl.wikipedia.org/wiki/Steve_Jobs)
 * [Linus Torvalds](https://nl.wikipedia.org/wiki/Linus_Torvalds)
@@ -125,14 +129,17 @@ The game code is to not be used in other projects, unless explicit permission ha
 
 ## Known Issues
 
-* Event Cards Missing
-* There is a 5th player in the config menu visible? (It only adds a new player when you click the ADD button, and when you click on "Add" for player 5 you get an error, thus you only have 4 players) -> Prossible fix: Add check in "Add" function in configuration screen to ensure a 5th player will not be entered (rendered).
-* Infection cubes not getting removed visually after treating. (unique identifiers required to fix) -> Possible fix: Instead of using the index of the array for it's naming when rendering, so utilize an identifier (ID) which should not change while it's placed in a city (or not at all throughout the game, your choice). So when rendering it'll take that name instead of the index of an array.
-* Actions that can not be used are still used in the ACtion menu, they should not be available at all. remove them.
-* One of the pawns is fully white, this should get the corresponding color to it's role. (I think it's the only role with a custom color)
+* ~~Event Cards Missing~~
+* ~~There is a 5th player in the config menu visible? (It only adds a new player when you click the ADD button, and when you click on "Add" for player 5 you get an error, thus you only have 4 players) -> Prossible fix: Add check in "Add" function in configuration screen to ensure a 5th player will not be entered (rendered).~~
+* ~~Infection cubes not getting removed visually after treating. (unique identifiers required to fix) -> Possible fix: Instead of using the index of the array for it's naming when rendering, so utilize an identifier (ID) which should not change while it's placed in a city (or not at all throughout the game, your choice). So when rendering it'll take that name instead of the index of an array.~~
+* Actions that can not be used are still used in the Action menu, they should not be available at all. remove them.
+* ~~One of the pawns is fully white, this should get the corresponding color to it's role. (I think it's the only role with a custom color)~~
+* Missing GUI elements (due to forced refactor)
+* RHEA incomplete implementation
+* MCTS implementation missing
 
 ## Do Not Fix (or fix at very last)
-* Dispatcher role missing
+* ~~Dispatcher role missing~~
 * Fullscreen crash 
 * Overlapping menu items 
 * Items off-screen with smaller resolutions. (and apparently multiple monitors)
