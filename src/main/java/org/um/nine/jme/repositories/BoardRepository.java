@@ -46,7 +46,7 @@ public class BoardRepository {
 
         visualRepository.renderCities();
 
-        org.um.nine.v1.domain.City atlanta = cityRepository.getCities().get("Atlanta");
+        City atlanta = cityRepository.getCities().get("Atlanta");
         playerRepository.getPlayers().forEach((key, player) -> {
             playerRepository.assignRoleToPlayer(player);
 
