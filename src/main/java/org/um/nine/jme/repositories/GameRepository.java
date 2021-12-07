@@ -139,4 +139,14 @@ public class GameRepository {
     public void setSpeed(int speed) {
         this.speed = speed;
     }
+
+    public void cleanup() {
+        speed = 200;
+        //TODO add cleanup to everything
+        //GameStateFactory.getInitialState().getBoardRepository().cleanup();
+        backgroundGeom = null;
+        app.getRootNode().detachAllChildren();
+        app.restart();
+        create();
+    }
 }

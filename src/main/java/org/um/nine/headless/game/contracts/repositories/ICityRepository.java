@@ -1,6 +1,7 @@
 package org.um.nine.headless.game.contracts.repositories;
 
 import org.um.nine.headless.game.domain.City;
+import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.ResearchStation;
 
 import java.util.HashMap;
@@ -13,6 +14,8 @@ public interface ICityRepository {
     void setCities(HashMap<String, City> cities);
 
     void addResearchStation(City city) throws Exception;
+
+    void addResearchStation(City city, Player player) throws Exception;
 
     void preload();
 

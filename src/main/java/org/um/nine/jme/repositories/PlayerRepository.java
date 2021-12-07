@@ -5,12 +5,29 @@ import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.*;
 import org.um.nine.headless.game.exceptions.*;
+import org.um.nine.jme.screens.DialogBoxState;
+import org.um.nine.jme.screens.dialogs.DiscoverCureDialogBox;
+import org.um.nine.jme.screens.dialogs.TreatDiseaseDialogBox;
+import org.um.nine.jme.screens.hud.ContingencyPlannerState;
+import org.um.nine.jme.utils.JmeFactory;
 
 import java.util.*;
 
 public class PlayerRepository {
     public PlayerRepository() {
     }
+
+    private BoardRepository boardRepository = JmeFactory.getBoardRepository();
+
+    private ContingencyPlannerState contingencyPlannerState = JmeFactory.getContingencyPlannerState();
+
+    private GameRepository gameRepository = JmeFactory.getGameRepository();
+
+    private CityRepository cityRepository = JmeFactory.getCityRepository();
+
+    private TreatDiseaseDialogBox treatDiseaseDialogBox = JmeFactory.getTreatDiseaseDialogBox();
+
+    private DiscoverCureDialogBox discoverCureDialogBox = JmeFactory.getDiscoverCureDialogBox();
 
     /**
      * Resets state to its original data
@@ -112,7 +129,16 @@ public class PlayerRepository {
         GameStateFactory.getInitialState().getPlayerRepository().treat(player, city, color);
     }
 
-    public void share(Player player, Player target, City city, PlayerCard card) throws Exception {
+    public void treat(Player player, City city) throws Exception {
+        gameRepository.getApp().getStateManager().attach(treatDiseaseDialogBox);
+        treatDiseaseDialogBox.setPlayer(player);
+        treatDiseaseDialogBox.setCity(city);
+        treatDiseaseDialogBox.setHeartbeat(true);
+        treatDiseaseDialogBox.setEnabled(true);
+    }
+
+    public void share(Player player, Player target, City city) throws Exception {
+
         GameStateFactory.getInitialState().getPlayerRepository().share(player, target, city, card);
     }
 
@@ -180,6 +206,44 @@ public class PlayerRepository {
         GameStateFactory.getInitialState().getPlayerRepository().setPlayerOrder(playerOrder);
     }
 
+    public RoundState nextState(RoundState currentState) {
+        if (currentState == null) {
+            this.setCurrentRoundState(RoundState.ACTION);
+            return RoundState.ACTION;
+        } else if (currentState == RoundState.ACTION) {
+            setActionsLeft(getActionsLeft()-1);
+            if (getActionsLeft() == 0) {
+                this.setCurrentRoundState(RoundState.DRAW);
+                return RoundState.DRAW;
+            }
+
+            this.setCurrentRoundState(RoundState.ACTION);
+            return RoundState.ACTION;
+        } else if (currentState == RoundState.DRAW) {
+            setDrawLeft(getDrawLeft()-1);
+            if (getDrawLeft() == 0) {
+                this.setCurrentRoundState(RoundState.INFECT);
+                return RoundState.INFECT;
+            }
+            this.setCurrentRoundState(RoundState.DRAW);
+            return RoundState.DRAW;
+        } else if (currentState == RoundState.INFECT) {
+            setInfectionLeft(getInfectionLeft()-1);
+            if (getInfectionLeft() == 0) {
+                setInfectionLeft(Objects.requireNonNull(JmeFactory.getDiseaseRepository().getInfectionRates().stream()
+                        .filter(Marker::isCurrent).findFirst().orElse(null)).getCount());
+                this.setCurrentRoundState(null);
+                nextPlayer();
+                return null;
+            }
+
+            this.setCurrentRoundState(RoundState.INFECT);
+            return RoundState.INFECT;
+        }
+
+        throw new IllegalStateException();
+    }
+
     public RoundState getCurrentRoundState() {
         return GameStateFactory.getInitialState().getPlayerRepository().getCurrentRoundState();
     }
@@ -210,5 +274,121 @@ public class PlayerRepository {
 
     public void setInfectionLeft(int infectionLeft) {
         GameStateFactory.getInitialState().getPlayerRepository().setInfectionLeft(infectionLeft);
+    }
+
+    public void action(ActionType type) throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException,
+            CityAlreadyHasResearchStationException,NoCubesLeftException,
+            NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
+        boolean skipClicked = false;
+        if (getCurrentRoundState() == null) {
+            nextState(null);
+        }
+
+        if(!getCurrentPlayer().isBot()){
+            if (getCurrentRoundState().equals(RoundState.ACTION)) {
+                if (type == null && boardRepository.getSelectedRoleAction() == null) {
+                    throw new NoActionSelectedException();
+                }
+
+                City city = boardRepository.getSelectedCity();
+                Player player = getCurrentPlayer();
+
+                if (type == null) {
+                    type = ActionType.NO_ACTION;
+                } else if (boardRepository.getSelectedRoleAction() == null) {
+                    boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
+                }
+
+                if (boardRepository.getSelectedRoleAction().equals(RoleAction.TAKE_ANY_DISCARED_EVENT)) {
+                    gameRepository.getApp().getStateManager().attach(contingencyPlannerState);
+                    contingencyPlannerState.setHeartbeat(true);
+                    contingencyPlannerState.setEnabled(true);
+                    boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
+                } else if (boardRepository.getSelectedRoleAction()
+                        .equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY) || type.equals(ActionType.SHUTTLE)) {
+                    shuttle(player, city);
+                    boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
+                } else if (boardRepository.getSelectedRoleAction().equals(RoleAction.BUILD_RESEARCH_STATION)
+                        || type.equals(ActionType.BUILD_RESEARCH_STATION)) {
+                    try {
+                        cityRepository.addResearchStation(city, player);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
+                } else if (type.equals(ActionType.DRIVE)) {
+                    drive(player, city);
+                } else if (type.equals(ActionType.DIRECT_FLIGHT)) {
+                    direct(player, city);
+                } else if (type.equals(ActionType.CHARTER_FLIGHT)) {
+                    charter(player, city);
+                } else if (type.equals(ActionType.TREAT_DISEASE)) {
+                    try {
+                        treat(player, city);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    return;
+                } else if (type.equals(ActionType.SHARE_KNOWLEDGE)
+                        || boardRepository.getSelectedRoleAction().equals(RoleAction.GIVE_PLAYER_CITY_CARD)) {
+                    share(player, city);
+                    boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
+                    return;
+                } else if (type.equals(ActionType.DISCOVER_CURE)) {
+                    if (!player.getCity().equals(city)) {
+                        DialogBoxState dialog = new DialogBoxState("Only able to discover cure in players current city");
+                        gameRepository.getApp().getStateManager().attach(dialog);
+                        dialog.setEnabled(true);
+                        return;
+                    }
+
+                    discoverCureDialogBox.setPlayer(player);
+                    gameRepository.getApp().getStateManager().attach(discoverCureDialogBox);
+                    discoverCureDialogBox.setEnabled(true);
+
+                    return;
+                } else if (type.equals(ActionType.SKIP_ACTION)) {
+                    skipClicked = true;
+                    nextState(getCurrentRoundState());
+                }
+                if (!skipClicked) {
+                    nextState(getCurrentRoundState());
+                }
+                skipClicked = false;
+            } else if (getCurrentRoundState().equals(RoundState.DRAW)) {
+                cardRepository.drawPlayCard();
+
+                nextState(getCurrentRoundState());
+                if (getDrawLeft() >= 0) {
+
+                    action(null);
+                }
+
+            } else if (currentRoundState.equals(INFECT)) {
+                cardRepository.drawInfectionCard();
+
+                nextState(currentRoundState);
+                if (getInfectionLeft() >= 0) {
+                    boardRepository.setSelectedRoleAction(null);
+                    action(null);
+                }
+            }
+
+            playerInfoState.setHeartbeat(true);
+        }
+        else{
+            agentDecision();
+            cardRepository.drawPlayCard();
+            nextState(getCurrentRoundState());
+            cardRepository.drawPlayCard();
+            nextState(getCurrentRoundState());
+            cardRepository.drawInfectionCard();
+            nextState(getCurrentRoundState());
+            cardRepository.drawInfectionCard();
+            nextState(getCurrentRoundState());
+            boardRepository.setSelectedRoleAction(null);
+        }
+
     }
 }
