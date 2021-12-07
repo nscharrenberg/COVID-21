@@ -60,6 +60,7 @@ public class DiseaseRepository {
     public void infect(Color color, City city)
             throws NoDiseaseOrOutbreakPossibleDueToEvent, NoCubesLeftException, GameOverException {
         GameStateFactory.getInitialState().getDiseaseRepository().infect(color, city);
+        visualRepository.renderDisease(GameStateFactory.getInitialState().getDiseaseRepository().getDiseaseCube(), city.getCubePosition(GameStateFactory.getInitialState().getDiseaseRepository().getDiseaseCube()));
     }
 
     /**
