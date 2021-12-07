@@ -38,6 +38,7 @@ public class PlayerRepository {
     private PlayerInfoState playerInfoState = JmeFactory.getPlayerInfoState();
 
     private VisualRepository visualRepository = JmeFactory.getVisualRepository();
+
     /**
      * Resets state to its original data
      */
@@ -70,6 +71,7 @@ public class PlayerRepository {
      */
     public void drive(Player player, City city, boolean careAboutNeighbors) throws InvalidMoveException {
         GameStateFactory.getInitialState().getPlayerRepository().drive(player, city, careAboutNeighbors);
+        visualRepository.renderPlayer(player, city.getPawnPosition(player));
     }
 
     public void drive(Player player, City city) throws InvalidMoveException {
@@ -255,7 +257,7 @@ public class PlayerRepository {
             this.setCurrentRoundState(RoundState.ACTION);
             return RoundState.ACTION;
         } else if (currentState == RoundState.ACTION) {
-            setActionsLeft(getActionsLeft()-1);
+            setActionsLeft(getActionsLeft() - 1);
             if (getActionsLeft() == 0) {
                 this.setCurrentRoundState(RoundState.DRAW);
                 return RoundState.DRAW;
@@ -264,7 +266,7 @@ public class PlayerRepository {
             this.setCurrentRoundState(RoundState.ACTION);
             return RoundState.ACTION;
         } else if (currentState == RoundState.DRAW) {
-            setDrawLeft(getDrawLeft()-1);
+            setDrawLeft(getDrawLeft() - 1);
             if (getDrawLeft() == 0) {
                 this.setCurrentRoundState(RoundState.INFECT);
                 return RoundState.INFECT;
@@ -272,7 +274,7 @@ public class PlayerRepository {
             this.setCurrentRoundState(RoundState.DRAW);
             return RoundState.DRAW;
         } else if (currentState == RoundState.INFECT) {
-            setInfectionLeft(getInfectionLeft()-1);
+            setInfectionLeft(getInfectionLeft() - 1);
             if (getInfectionLeft() == 0) {
                 setInfectionLeft(Objects.requireNonNull(JmeFactory.getDiseaseRepository().getInfectionRates().stream()
                         .filter(Marker::isCurrent).findFirst().orElse(null)).getCount());
@@ -320,15 +322,16 @@ public class PlayerRepository {
         GameStateFactory.getInitialState().getPlayerRepository().setInfectionLeft(infectionLeft);
     }
 
-    public void action(ActionType type) throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException,
-            CityAlreadyHasResearchStationException,NoCubesLeftException,
+    public void action(ActionType type)
+            throws InvalidMoveException, NoActionSelectedException, ResearchStationLimitException,
+            CityAlreadyHasResearchStationException, NoCubesLeftException,
             NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         boolean skipClicked = false;
         if (getCurrentRoundState() == null) {
             nextState(null);
         }
 
-        if(!getCurrentPlayer().isBot()){
+        if (!getCurrentPlayer().isBot()) {
             if (getCurrentRoundState().equals(RoundState.ACTION)) {
                 if (type == null && boardRepository.getSelectedRoleAction() == null) {
                     throw new NoActionSelectedException();
@@ -349,7 +352,8 @@ public class PlayerRepository {
                     contingencyPlannerState.setEnabled(true);
                     boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
                 } else if (boardRepository.getSelectedRoleAction()
-                        .equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY) || type.equals(ActionType.SHUTTLE)) {
+                        .equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY)
+                        || type.equals(ActionType.SHUTTLE)) {
                     shuttle(player, city);
                     boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
                 } else if (boardRepository.getSelectedRoleAction().equals(RoleAction.BUILD_RESEARCH_STATION)
@@ -385,7 +389,8 @@ public class PlayerRepository {
                     return;
                 } else if (type.equals(ActionType.DISCOVER_CURE)) {
                     if (!player.getCity().equals(city)) {
-                        DialogBoxState dialog = new DialogBoxState("Only able to discover cure in players current city");
+                        DialogBoxState dialog = new DialogBoxState(
+                                "Only able to discover cure in players current city");
                         gameRepository.getApp().getStateManager().attach(dialog);
                         dialog.setEnabled(true);
                         return;
@@ -424,20 +429,20 @@ public class PlayerRepository {
             }
 
             playerInfoState.setHeartbeat(true);
-        }
-        else{
-            //TODO agentstuff
+        } else {
+            // TODO agentstuff
             /*
-            agentDecision();
-            cardRepository.drawPlayCard();
-            nextState(getCurrentRoundState());
-            cardRepository.drawPlayCard();
-            nextState(getCurrentRoundState());
-            cardRepository.drawInfectionCard();
-            nextState(getCurrentRoundState());
-            cardRepository.drawInfectionCard();
-            nextState(getCurrentRoundState());
-            boardRepository.setSelectedRoleAction(null);*/
+             * agentDecision();
+             * cardRepository.drawPlayCard();
+             * nextState(getCurrentRoundState());
+             * cardRepository.drawPlayCard();
+             * nextState(getCurrentRoundState());
+             * cardRepository.drawInfectionCard();
+             * nextState(getCurrentRoundState());
+             * cardRepository.drawInfectionCard();
+             * nextState(getCurrentRoundState());
+             * boardRepository.setSelectedRoleAction(null);
+             */
         }
 
     }
