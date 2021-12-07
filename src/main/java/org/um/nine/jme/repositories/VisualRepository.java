@@ -9,7 +9,9 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import org.um.nine.headless.agents.state.GameStateFactory;
 import org.um.nine.headless.game.domain.Color;
+import org.um.nine.headless.game.domain.Player;
 import org.um.nine.jme.JmeMain;
+import org.um.nine.jme.utils.JmeFactory;
 import org.um.nine.jme.utils.managers.RenderManager;
 
 public class VisualRepository {
@@ -17,14 +19,16 @@ public class VisualRepository {
 
     private final RenderManager renderManager = new RenderManager();
 
-    private void renderCureSection() {
+    private CityRepository cityRepository = JmeFactory.getCityRepository();
+
+    public void renderCureSection() {
         renderManager.renderCureMarker(GameStateFactory.getInitialState().getDiseaseRepository().getCures().get(Color.RED), new Vector3f(100, 0, 0));
         renderManager.renderCureMarker(GameStateFactory.getInitialState().getDiseaseRepository().getCures().get(Color.YELLOW), new Vector3f(50, 0, 0));
         renderManager.renderCureMarker(GameStateFactory.getInitialState().getDiseaseRepository().getCures().get(Color.BLUE), new Vector3f(0, 0, 0));
         renderManager.renderCureMarker(GameStateFactory.getInitialState().getDiseaseRepository().getCures().get(Color.BLACK), new Vector3f(-50, 0, 0));
     }
 
-    private void renderOutbreakSection() {
+    public void renderOutbreakSection() {
         BitmapFont myFont = JmeMain.getGameRepository().getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
         renderManager.renderText("Outbreaks",new Vector3f(-975, -175, 2), ColorRGBA.White,"outbreaks-title-label",20,myFont);
 
@@ -41,7 +45,7 @@ public class VisualRepository {
         }
     }
 
-    private void renderInfectionSection() {
+    public void renderInfectionSection() {
         BitmapFont myFont = JmeMain.getGameRepository().getApp().getAssetManager().loadFont("Interface/Fonts/Console.fnt");
         renderManager.renderText("Infection Rate",new Vector3f(-975, -75, 2),ColorRGBA.White,"infections-title-label",20,myFont);
 
@@ -66,7 +70,7 @@ public class VisualRepository {
         this.board = board;
     }
 
-    private void renderBoard() {
+    public void renderBoard() {
         Box worldBox = new Box(1000, 500, 1);
         board = new Geometry("World", worldBox);
         Material mat = new Material(JmeMain.getGameRepository().getApp().getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
@@ -78,5 +82,16 @@ public class VisualRepository {
         al.setColor(ColorRGBA.White.mult(3f));
         board.addLight(al);
         JmeMain.getGameRepository().getApp().getRootNode().attachChild(board);
+    }
+
+    public void renderCities() {
+        cityRepository.getCities().forEach((key, city) -> {
+            city.getNeighbors().forEach(neighbor -> renderManager.renderEdge(city, neighbor));
+            renderManager.renderCity(city);
+        });
+    }
+
+    public void renderPlayer(Player player, Vector3f vector3f){
+        renderManager.renderPlayer(player, vector3f);
     }
 }

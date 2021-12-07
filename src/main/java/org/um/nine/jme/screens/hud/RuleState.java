@@ -9,9 +9,10 @@ import com.simsilica.lemur.Button;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.Label;
 import com.simsilica.lemur.*;
-import org.um.nine.jme.screens.utils.Util;
-import org.um.nine.v1.Game;
-import org.um.nine.v1.contracts.repositories.IGameRepository;
+import org.um.nine.jme.JmeGame;
+import org.um.nine.jme.repositories.GameRepository;
+import org.um.nine.jme.utils.JmeFactory;
+import org.um.nine.jme.utils.MenuUtils;
 
 import java.awt.*;
 import java.io.IOException;
@@ -24,8 +25,7 @@ public class RuleState extends BaseAppState {
 
     private boolean heartbeat = false;
 
-    @Inject
-    private IGameRepository gameRepository;
+    private GameRepository gameRepository = JmeFactory.getGameRepository();
 
     @Override
     protected void initialize(Application application) {
@@ -95,10 +95,10 @@ public class RuleState extends BaseAppState {
         readMoreBtn.setInsets(new Insets3f(10, 10, 10, 10));
         window.addChild(readMoreBtn, 9, 0);
 
-        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        Vector3f size = MenuUtils.calculateMenusize(gameRepository.getApp(), window);
         size.addLocal(0, 0, 100);
         window.setLocalTranslation(size);
-        window.setLocalScale(Util.getStandardScale(window).mult(0.2f));
+        window.setLocalScale(MenuUtils.getStandardScale(window).mult(0.2f));
     }
 
     @Override
@@ -120,12 +120,12 @@ public class RuleState extends BaseAppState {
 
     @Override
     protected void onEnable() {
-        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        Vector3f size = MenuUtils.calculateMenusize(gameRepository.getApp(), window);
         size.addLocal(0, 0, 100);
         window.setLocalTranslation(size);
-        window.setLocalScale(Util.getStandardScale(window));
+        window.setLocalScale(MenuUtils.getStandardScale(window));
 
-        Node gui = ((Game)getApplication()).getGuiNode();
+        Node gui = ((JmeGame)getApplication()).getGuiNode();
         gui.attachChild(window);
         GuiGlobals.getInstance().requestFocus(window);
     }

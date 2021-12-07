@@ -16,6 +16,7 @@ import org.um.nine.headless.agents.state.GameStateFactory;
 import org.um.nine.headless.game.Settings;
 import org.um.nine.jme.JmeGame;
 import org.um.nine.jme.screens.MainMenuState;
+import org.um.nine.jme.utils.JmeFactory;
 
 import java.awt.*;
 
@@ -72,6 +73,7 @@ public class GameRepository {
 //        inputManager.init();
 
         // Initiate Game Graphics
+        JmeFactory.init(this);
         GameStateFactory.getInitialState().getBoardRepository().reset();
         GameStateFactory.getInitialState().getBoardRepository().start();
     }

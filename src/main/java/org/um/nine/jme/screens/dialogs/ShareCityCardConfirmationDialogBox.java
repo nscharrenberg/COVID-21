@@ -8,15 +8,16 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
+import org.um.nine.headless.game.domain.City;
+import org.um.nine.headless.game.domain.Player;
+import org.um.nine.headless.game.domain.cards.CityCard;
+import org.um.nine.headless.game.domain.cards.PlayerCard;
+import org.um.nine.jme.JmeGame;
+import org.um.nine.jme.repositories.GameRepository;
+import org.um.nine.jme.repositories.PlayerRepository;
 import org.um.nine.jme.screens.DialogBoxState;
-import org.um.nine.jme.screens.utils.Util;
-import org.um.nine.v1.Game;
-import org.um.nine.v1.contracts.repositories.IGameRepository;
-import org.um.nine.v1.contracts.repositories.IPlayerRepository;
-import org.um.nine.v1.domain.City;
-import org.um.nine.v1.domain.Player;
-import org.um.nine.v1.domain.cards.CityCard;
-import org.um.nine.v1.domain.cards.PlayerCard;
+import org.um.nine.jme.utils.JmeFactory;
+import org.um.nine.jme.utils.MenuUtils;
 
 public class ShareCityCardConfirmationDialogBox extends BaseAppState {
     private Container window;
@@ -26,8 +27,7 @@ public class ShareCityCardConfirmationDialogBox extends BaseAppState {
     private City city;
     private boolean heartbeat = false;
 
-    @Inject
-    private IGameRepository gameRepository;
+    private GameRepository gameRepository = JmeFactory.getGameRepository();
 
     public boolean isHeartbeat() {
         return heartbeat;
@@ -37,8 +37,7 @@ public class ShareCityCardConfirmationDialogBox extends BaseAppState {
         this.heartbeat = heartbeat;
     }
 
-    @Inject
-    private IPlayerRepository playerRepository;
+    private PlayerRepository playerRepository = JmeFactory.getPlayerRepository();
 
     public ShareCityCardConfirmationDialogBox() {
         this.currentPlayer = null;
@@ -57,7 +56,7 @@ public class ShareCityCardConfirmationDialogBox extends BaseAppState {
 
         window.setBackground(new QuadBackgroundComponent(ColorRGBA.White));
 
-        PlayerCard pc = otherPlayer.getHandCards().stream().filter(c1 -> {
+        PlayerCard pc = otherPlayer.getHand().stream().filter(c1 -> {
             if (c1 instanceof CityCard cc) {
                 return cc.getCity().equals(city);
             }
@@ -65,7 +64,7 @@ public class ShareCityCardConfirmationDialogBox extends BaseAppState {
             return false;
         }).findFirst().orElse(null);
 
-        PlayerCard cpc = currentPlayer.getHandCards().stream().filter(c1 -> {
+        PlayerCard cpc = currentPlayer.getHand().stream().filter(c1 -> {
             if (c1 instanceof CityCard cc) {
                 return cc.getCity().equals(city);
             }
@@ -75,7 +74,7 @@ public class ShareCityCardConfirmationDialogBox extends BaseAppState {
 
         Label cureText;
 
-        if (currentPlayer.getHandCards().contains(cpc)) {
+        if (currentPlayer.getHand().contains(cpc)) {
            cureText  = window.addChild(new Label("Does " + otherPlayer.getName() + " accept to retrieve " + city.getName() + " from " + currentPlayer.getName()), 1, 0);
         } else {
             cureText  = window.addChild(new Label("Does " + otherPlayer.getName() + " accept to give " + city.getName() + " to " + currentPlayer.getName()), 1, 0);
@@ -101,12 +100,12 @@ public class ShareCityCardConfirmationDialogBox extends BaseAppState {
 
         acceptBtn.addClickCommands(c -> {
 
-            if (currentPlayer.getHandCards().contains(cpc)) {
-                currentPlayer.getHandCards().remove(cpc);
-                otherPlayer.getHandCards().add(cpc);
+            if (currentPlayer.getHand().contains(cpc)) {
+                currentPlayer.getHand().remove(cpc);
+                otherPlayer.getHand().add(cpc);
             } else {
-                otherPlayer.getHandCards().remove(pc);
-                currentPlayer.getHandCards().add(pc);
+                otherPlayer.getHand().remove(pc);
+                currentPlayer.getHand().add(pc);
             }
 
             setEnabled(false);
@@ -116,10 +115,10 @@ public class ShareCityCardConfirmationDialogBox extends BaseAppState {
         window.addChild(acceptBtn, 2, 0);
         window.addChild(cureText);
 
-        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        Vector3f size = MenuUtils.calculateMenusize(gameRepository.getApp(), window);
         size.addLocal(0, 0, 100);
         window.setLocalTranslation(size);
-        window.setLocalScale(Util.getStandardScale(window));
+        window.setLocalScale(MenuUtils.getStandardScale(window));
     }
 
     @Override
@@ -141,12 +140,12 @@ public class ShareCityCardConfirmationDialogBox extends BaseAppState {
 
     @Override
     protected void onEnable() {
-        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        Vector3f size = MenuUtils.calculateMenusize(gameRepository.getApp(), window);
         size.addLocal(0, 0, 100);
         window.setLocalTranslation(size);
-        window.setLocalScale(Util.getStandardScale(window));
+        window.setLocalScale(MenuUtils.getStandardScale(window));
 
-        Node gui = ((Game)getApplication()).getGuiNode();
+        Node gui = ((JmeGame)getApplication()).getGuiNode();
         gui.attachChild(window);
         GuiGlobals.getInstance().requestFocus(window);
     }

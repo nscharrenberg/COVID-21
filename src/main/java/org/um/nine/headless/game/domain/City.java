@@ -203,4 +203,40 @@ public class City {
         result = 31 * result + population;
         return result;
     }
+
+    public Vector3f getCubePosition(Disease disease) {
+        int index = this.cubes.indexOf(disease);
+
+        if (index == -1) {
+            index = this.cubes.size() + 1;
+        }
+
+        float offsetX = 15;
+        float offsetY = 10;
+
+        for (int i = 1; i <= index; i++) {
+            offsetX = offsetX + 5;
+            offsetY = offsetY + 10;
+        }
+
+        return new Vector3f(-15 + offsetX, 15 - offsetY, 0);
+    }
+
+    public Vector3f getPawnPosition(Player player) {
+        int index = this.pawns.indexOf(player);
+
+        if (index == -1) {
+            index = this.pawns.size() + 1;
+        }
+
+        float offsetX = 15;
+        float offsetY = 10;
+
+        for (int i = 1; i <= index; i++) {
+            offsetX = offsetX + 5;
+            offsetY = offsetY + 10;
+        }
+
+        return new Vector3f(5 + offsetX, 25 - offsetY, 0);
+    }
 }
