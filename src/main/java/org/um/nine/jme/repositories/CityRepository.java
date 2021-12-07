@@ -25,6 +25,10 @@ public class CityRepository {
         GameStateFactory.getInitialState().getCityRepository().addResearchStation(city);
     }
 
+    public void addResearchStation(City city, Player player) throws Exception {
+        GameStateFactory.getInitialState().getCityRepository().addResearchStation(city, player);
+    }
+
     /**
      * Import cities from JSON file
      */

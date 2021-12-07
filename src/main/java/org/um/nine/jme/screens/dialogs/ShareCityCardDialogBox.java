@@ -10,9 +10,14 @@ import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
+import org.um.nine.headless.game.domain.cards.CityCard;
+import org.um.nine.headless.game.domain.cards.PlayerCard;
+import org.um.nine.headless.game.exceptions.UnableToShareKnowledgeException;
+import org.um.nine.jme.JmeGame;
 import org.um.nine.jme.repositories.GameRepository;
 import org.um.nine.jme.screens.DialogBoxState;
 import org.um.nine.jme.utils.JmeFactory;
+import org.um.nine.jme.utils.MenuUtils;
 
 
 public class ShareCityCardDialogBox extends BaseAppState {
@@ -54,7 +59,7 @@ public class ShareCityCardDialogBox extends BaseAppState {
 
             button.addClickCommands(c -> {
 
-                PlayerCard pc = pawn.getHandCards().stream().filter(c1 -> {
+                PlayerCard pc = pawn.getHand().stream().filter(c1 -> {
                     if (c1 instanceof CityCard cc) {
                         return cc.getCity().equals(city);
                     }
@@ -62,7 +67,7 @@ public class ShareCityCardDialogBox extends BaseAppState {
                     return false;
                 }).findFirst().orElse(null);
 
-                PlayerCard cpc = currentPlayer.getHandCards().stream().filter(c1 -> {
+                PlayerCard cpc = currentPlayer.getHand().stream().filter(c1 -> {
                     if (c1 instanceof CityCard cc) {
                         return cc.getCity().equals(city);
                     }
@@ -70,7 +75,7 @@ public class ShareCityCardDialogBox extends BaseAppState {
                     return false;
                 }).findFirst().orElse(null);
 
-                if (!pawn.getHandCards().contains(pc) && !currentPlayer.getHandCards().contains(cpc)) {
+                if (!pawn.getHand().contains(pc) && !currentPlayer.getHand().contains(cpc)) {
                     try {
                         throw new UnableToShareKnowledgeException(city, currentPlayer, pawn);
                     } catch (UnableToShareKnowledgeException e) {
@@ -96,10 +101,10 @@ public class ShareCityCardDialogBox extends BaseAppState {
 
         window.addChild(cureText);
 
-        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        Vector3f size = MenuUtils.calculateMenusize(gameRepository.getApp(), window);
         size.addLocal(0, 0, 100);
         window.setLocalTranslation(size);
-        window.setLocalScale(Util.getStandardScale(window));
+        window.setLocalScale(MenuUtils.getStandardScale(window));
     }
 
     @Override
@@ -121,12 +126,12 @@ public class ShareCityCardDialogBox extends BaseAppState {
 
     @Override
     protected void onEnable() {
-        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        Vector3f size = MenuUtils.calculateMenusize(gameRepository.getApp(), window);
         size.addLocal(0, 0, 100);
         window.setLocalTranslation(size);
-        window.setLocalScale(Util.getStandardScale(window));
+        window.setLocalScale(MenuUtils.getStandardScale(window));
 
-        Node gui = ((Game)getApplication()).getGuiNode();
+        Node gui = ((JmeGame)getApplication()).getGuiNode();
         gui.attachChild(window);
         GuiGlobals.getInstance().requestFocus(window);
     }

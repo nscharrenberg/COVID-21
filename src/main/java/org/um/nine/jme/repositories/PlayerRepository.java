@@ -10,6 +10,7 @@ import org.um.nine.jme.screens.dialogs.DiscoverCureDialogBox;
 import org.um.nine.jme.screens.dialogs.ShareCityCardDialogBox;
 import org.um.nine.jme.screens.dialogs.TreatDiseaseDialogBox;
 import org.um.nine.jme.screens.hud.ContingencyPlannerState;
+import org.um.nine.jme.screens.hud.PlayerInfoState;
 import org.um.nine.jme.utils.JmeFactory;
 
 import java.util.*;
@@ -30,8 +31,11 @@ public class PlayerRepository {
 
     private DiscoverCureDialogBox discoverCureDialogBox = JmeFactory.getDiscoverCureDialogBox();
 
-    private ShareCityCardDialogBox shareCityCardDialogBox = new ShareCityCardDialogBox();
+    private ShareCityCardDialogBox shareCityCardDialogBox = JmeFactory.getShareCityCardDialogBox();
 
+    private CardRepository cardRepository = JmeFactory.getCardRepository();
+
+    private PlayerInfoState playerInfoState = JmeFactory.getPlayerInfoState();
     /**
      * Resets state to its original data
      */
@@ -140,7 +144,7 @@ public class PlayerRepository {
         treatDiseaseDialogBox.setEnabled(true);
     }
 
-    public void share(Player player, Player target, City city) throws Exception {
+    public void share(Player player, City city) throws Exception {
         if (city.getPawns().size() <= 1) {
             DialogBoxState dialog = new DialogBoxState("Can not share when you are the only pawn in the city.");
             gameRepository.getApp().getStateManager().attach(dialog);
@@ -163,10 +167,10 @@ public class PlayerRepository {
         }
 
         gameRepository.getApp().getStateManager().attach(shareCityCardDialogBox);
+        shareCityCardDialogBox.setHeartbeat(true);
         shareCityCardDialogBox.setCity(city);
         shareCityCardDialogBox.setCurrentPlayer(player);
         shareCityCardDialogBox.setEnabled(true);
-        GameStateFactory.getInitialState().getPlayerRepository().share(player, target, city, card);
     }
 
     public void buildResearchStation(Player player, City city) throws Exception {
@@ -359,7 +363,11 @@ public class PlayerRepository {
                     return;
                 } else if (type.equals(ActionType.SHARE_KNOWLEDGE)
                         || boardRepository.getSelectedRoleAction().equals(RoleAction.GIVE_PLAYER_CITY_CARD)) {
-                    share(player, city);
+                    try {
+                        share(player, city);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     boardRepository.setSelectedRoleAction(RoleAction.NO_ACTION);
                     return;
                 } else if (type.equals(ActionType.DISCOVER_CURE)) {
@@ -384,7 +392,7 @@ public class PlayerRepository {
                 }
                 skipClicked = false;
             } else if (getCurrentRoundState().equals(RoundState.DRAW)) {
-                cardRepository.drawPlayCard();
+                cardRepository.drawPlayerCard();
 
                 nextState(getCurrentRoundState());
                 if (getDrawLeft() >= 0) {
@@ -392,10 +400,10 @@ public class PlayerRepository {
                     action(null);
                 }
 
-            } else if (currentRoundState.equals(INFECT)) {
+            } else if (getCurrentRoundState().equals(RoundState.INFECT)) {
                 cardRepository.drawInfectionCard();
 
-                nextState(currentRoundState);
+                nextState(getCurrentRoundState());
                 if (getInfectionLeft() >= 0) {
                     boardRepository.setSelectedRoleAction(null);
                     action(null);
@@ -405,6 +413,8 @@ public class PlayerRepository {
             playerInfoState.setHeartbeat(true);
         }
         else{
+            //TODO agentstuff
+            /*
             agentDecision();
             cardRepository.drawPlayCard();
             nextState(getCurrentRoundState());
@@ -414,7 +424,7 @@ public class PlayerRepository {
             nextState(getCurrentRoundState());
             cardRepository.drawInfectionCard();
             nextState(getCurrentRoundState());
-            boardRepository.setSelectedRoleAction(null);
+            boardRepository.setSelectedRoleAction(null);*/
         }
 
     }
