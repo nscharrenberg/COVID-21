@@ -14,6 +14,8 @@ import java.util.List;
 
 public class BoardRepository {
 
+    private CityRepository cityRepository = JmeFactory.getCityRepository();
+
     private OptionHudState optionHudState = JmeFactory.getOptionHudState();
 
     public void preload() {
