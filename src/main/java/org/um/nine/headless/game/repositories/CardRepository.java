@@ -29,10 +29,11 @@ public class CardRepository implements ICardRepository {
     private IState state;
 
     @Override
-    public CardRepository setState(IState state){
+    public CardRepository setState(IState state) {
         this.state = state;
         return this;
     }
+
     public CardRepository() {
     }
 
@@ -50,11 +51,14 @@ public class CardRepository implements ICardRepository {
     /**
      * Draw a player card and give it to the current player
      * When the hand limit is reached one of the cards must be discarded.
+     * 
      * @param toDiscard - The card to discard when exceeding the limit,
-     *                  if nothing is given then the card just drawn will be discarded
+     *                  if nothing is given then the card just drawn will be
+     *                  discarded
      */
     @Override
-    public void drawPlayerCard(PlayerCard... toDiscard) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
+    public void drawPlayerCard(PlayerCard... toDiscard)
+            throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         PlayerCard drawn = this.playerDeck.pop();
 
         System.out.println(drawn);
@@ -81,12 +85,18 @@ public class CardRepository implements ICardRepository {
 
     /**
      * Draw an infection Card and infect cities
-     * @throws NoCubesLeftException - Thrown when no cubes of the correlating infection card are left.
-     * @throws NoDiseaseOrOutbreakPossibleDueToEvent - Thrown when a cube can't be place due to an event
-     * @throws GameOverException - Thrown when the player lost the game
+     * 
+     * @throws NoCubesLeftException                  - Thrown when no cubes of the
+     *                                               correlating infection card are
+     *                                               left.
+     * @throws NoDiseaseOrOutbreakPossibleDueToEvent - Thrown when a cube can't be
+     *                                               place due to an event
+     * @throws GameOverException                     - Thrown when the player lost
+     *                                               the game
      */
     @Override
-    public void drawInfectionCard() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
+    public void drawInfectionCard()
+            throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         InfectionCard infectionCard = this.infectionDeck.pop();
 
         this.state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
@@ -94,17 +104,21 @@ public class CardRepository implements ICardRepository {
     }
 
     /**
-     * Build the Deck by giving players their cards, and infecting cities (initial setup)
+     * Build the Deck by giving players their cards, and infecting cities (initial
+     * setup)
      */
     @Override
     public void buildDecks() {
         if (DEFAULT_INITIAL_STATE) {
-            this.playerDeck = CardUtils.loadPlayerDeck(this.state.getCityRepository().getCities(), this.state.getPlayerRepository().getPlayers(), this.state.getPlayerRepository());
+            this.playerDeck = CardUtils.loadPlayerDeck(this.state.getCityRepository().getCities(),
+                    this.state.getPlayerRepository().getPlayers(), this.state.getPlayerRepository());
             this.infectionDeck = CityUtils.loadInfectionDeck(this.state.getCityRepository().getCities());
-        }
-        else {
-            this.playerDeck = CardUtils.buildPlayerDeck(this.state.getPlayerRepository(),this.state.getBoardRepository().getDifficulty(), this.state.getCityRepository().getCities(), this.state.getPlayerRepository().getPlayers());
-            this.infectionDeck = CityUtils.generateInfectionDeck(this.state.getCityRepository().getCities().values().toArray(new City[0]));
+        } else {
+            this.playerDeck = CardUtils.buildPlayerDeck(this.state.getPlayerRepository(),
+                    this.state.getBoardRepository().getDifficulty(), this.state.getCityRepository().getCities(),
+                    this.state.getPlayerRepository().getPlayers());
+            this.infectionDeck = CityUtils
+                    .generateInfectionDeck(this.state.getCityRepository().getCities().values().toArray(new City[0]));
             Collections.shuffle(this.infectionDeck);
         }
 
