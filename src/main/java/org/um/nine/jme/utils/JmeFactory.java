@@ -66,6 +66,8 @@ public class JmeFactory {
         discardCardDialog.reset();
         cityRepository.reset();
         diseaseRepository.reset();
+        roleActionState.reset();
+        optionHudState.reset();
     }
 
     public static GameRepository getGameRepository() {

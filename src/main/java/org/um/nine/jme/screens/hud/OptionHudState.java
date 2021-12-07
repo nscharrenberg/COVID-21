@@ -32,6 +32,22 @@ public class OptionHudState extends BaseAppState  {
 
     private RuleState ruleState = JmeFactory.getRuleState();
 
+    public void reset(){
+        this.playerInfoState = JmeFactory.getPlayerInfoState();
+
+        this.playerRepository = JmeFactory.getPlayerRepository();
+
+        this.boardRepository = JmeFactory.getBoardRepository();
+
+        this.actionState = JmeFactory.getActionState();
+
+        this.roleActionState = JmeFactory.getRoleActionState();
+
+        this.gameRepository = JmeFactory.getGameRepository();
+
+        this.ruleState = JmeFactory.getRuleState();
+    }
+
     @Override
     protected void initialize(Application application) {
         window = new Container();

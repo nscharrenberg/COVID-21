@@ -26,6 +26,12 @@ public class RoleActionState extends BaseAppState  {
 
     private GameRepository gameRepository = JmeFactory.getGameRepository();
 
+    public void reset(){
+        this.playerRepository = JmeFactory.getPlayerRepository();
+        this.boardRepository = JmeFactory.getBoardRepository();
+        this.gameRepository = JmeFactory.getGameRepository();
+    }
+
     @Override
     protected void initialize(Application application) {
         window = new Container();
