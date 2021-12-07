@@ -1,6 +1,4 @@
-package org.um.nine.headless.agents.rhea;
-
-import org.um.nine.headless.game.domain.state.IState;
+package org.um.nine.headless.agents.state;
 
 public interface StateHeuristic {
 

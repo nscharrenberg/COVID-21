@@ -1,21 +1,20 @@
-package org.um.nine.headless.game.domain.actions.macro;
+package org.um.nine.headless.agents.rhea.macro;
 
-import org.um.nine.headless.agents.rhea.StateEvaluation;
+import org.um.nine.headless.agents.state.IState;
+import org.um.nine.headless.agents.state.StateEvaluation;
 import org.um.nine.headless.agents.utils.PathFinder;
 import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.domain.*;
-import org.um.nine.headless.game.domain.actions.ActionType;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.Medic;
-import org.um.nine.headless.game.domain.state.IState;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.um.nine.headless.game.domain.actions.ActionType.*;
+import static org.um.nine.headless.game.domain.ActionType.*;
 
 public abstract class MacroActionFactory {
 

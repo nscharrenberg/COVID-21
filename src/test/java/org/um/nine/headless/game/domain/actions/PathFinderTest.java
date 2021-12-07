@@ -4,10 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.um.nine.headless.agents.state.GameStateFactory;
+import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.agents.utils.PathFinder;
-import org.um.nine.headless.game.GameStateFactory;
 import org.um.nine.headless.game.domain.Difficulty;
-import org.um.nine.headless.game.domain.state.IState;
 
 class PathFinderTest {
 

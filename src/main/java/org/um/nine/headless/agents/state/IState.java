@@ -1,4 +1,4 @@
-package org.um.nine.headless.game.domain.state;
+package org.um.nine.headless.agents.state;
 
 import com.rits.cloning.Cloner;
 import org.um.nine.headless.game.contracts.repositories.*;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import static org.um.nine.headless.agents.rhea.StateEvaluation.abilityCure;
+import static org.um.nine.headless.agents.state.StateEvaluation.abilityCure;
 
 public interface IState {
     void setBoardRepository(IBoardRepository iBoardRepository);
@@ -82,8 +82,6 @@ public interface IState {
         if (discarding == null) throw new IllegalStateException();
 
         return new PlayerCard[]{discarding};
-
-
     }
 
 }

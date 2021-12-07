@@ -1,7 +1,5 @@
-package org.um.nine.headless.game;
+package org.um.nine.headless.agents.state;
 
-import org.um.nine.headless.game.domain.state.IState;
-import org.um.nine.headless.game.domain.state.State;
 import org.um.nine.headless.game.repositories.*;
 
 public class GameStateFactory {

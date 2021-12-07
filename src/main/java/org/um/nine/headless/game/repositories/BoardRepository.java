@@ -1,12 +1,12 @@
 package org.um.nine.headless.game.repositories;
 
+import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.contracts.repositories.IBoardRepository;
+import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Difficulty;
-import org.um.nine.headless.game.domain.actions.ActionType;
 import org.um.nine.headless.game.domain.roles.RoleAction;
-import org.um.nine.headless.game.domain.state.IState;
 
 import java.util.ArrayList;
 import java.util.List;

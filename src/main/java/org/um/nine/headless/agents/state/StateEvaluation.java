@@ -1,4 +1,4 @@
-package org.um.nine.headless.agents.rhea;
+package org.um.nine.headless.agents.state;
 
 import org.um.nine.headless.game.domain.Color;
 import org.um.nine.headless.game.domain.Cure;
@@ -6,7 +6,6 @@ import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.Scientist;
-import org.um.nine.headless.game.domain.state.IState;
 
 import java.util.List;
 
@@ -57,7 +56,7 @@ public class StateEvaluation {
                 map(p -> abilityCure(cure.getColor(),p)).
                 max(Double::compareTo).
                 orElse(0d);
-    };
+    }
 
     /**
      * Number of cards needed to discover a cure
@@ -92,9 +91,7 @@ public class StateEvaluation {
                 .count();
 
         state.getDiseaseRepository().
-                getCures().values().forEach(cure -> {
-                   sA[0] += abilityCure(state,cure) + (0.3 * Nd);
-                });
+                getCures().values().forEach(cure -> sA[0] += abilityCure(state, cure) + (0.3 * Nd));
         return sA[0] /4 * 1.3;
     };
 

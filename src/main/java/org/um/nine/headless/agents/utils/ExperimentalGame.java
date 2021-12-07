@@ -1,17 +1,18 @@
-package org.um.nine.headless.game;
+package org.um.nine.headless.agents.utils;
 
-import org.um.nine.headless.game.domain.actions.macro.MacroAction;
-import org.um.nine.headless.game.domain.state.IState;
+import org.um.nine.headless.agents.rhea.macro.MacroAction;
+import org.um.nine.headless.agents.state.GameStateFactory;
+import org.um.nine.headless.agents.state.IState;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Game {
+public class ExperimentalGame {
     private final List<MacroAction> actions;
     private final IState initialState;
-    private IState currentState;
+    private final IState currentState;
 
-    public Game() {
+    public ExperimentalGame() {
         this.initialState = GameStateFactory.createInitialState();
         this.currentState = this.initialState;
         this.actions = new ArrayList<>();

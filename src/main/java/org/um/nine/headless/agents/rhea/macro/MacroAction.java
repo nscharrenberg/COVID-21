@@ -1,6 +1,6 @@
-package org.um.nine.headless.game.domain.actions.macro;
+package org.um.nine.headless.agents.rhea.macro;
 
-import org.um.nine.headless.game.domain.actions.ActionType;
+import org.um.nine.headless.game.domain.ActionType;
 
 import java.util.List;
 import java.util.stream.Collectors;

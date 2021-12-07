@@ -1,6 +1,4 @@
-package org.um.nine.headless.game.domain.actions;
-
-import org.um.nine.headless.game.domain.City;
+package org.um.nine.headless.game.domain;
 
 public enum ActionType {
     DRIVE(0, "Drive", "Move your pawn to any adjacent city."),

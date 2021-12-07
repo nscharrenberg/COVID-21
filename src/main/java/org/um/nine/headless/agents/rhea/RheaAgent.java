@@ -1,7 +1,9 @@
 package org.um.nine.headless.agents.rhea;
 
-import org.um.nine.headless.game.domain.actions.ActionType;
-import org.um.nine.headless.game.domain.state.IState;
+import org.um.nine.headless.agents.state.IState;
+import org.um.nine.headless.agents.state.StateHeuristic;
+import org.um.nine.headless.agents.state.StateObservation;
+import org.um.nine.headless.game.domain.ActionType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +24,7 @@ public class RheaAgent {
     private int nIterates = 0;
     private boolean keepIterating = true;
     private final StateHeuristic heuristic;
-    private static int TOURNAMENT_SIZE = 2;
+    private static final int TOURNAMENT_SIZE = 2;
 
 
     public RheaAgent(StateObservation stateObs){

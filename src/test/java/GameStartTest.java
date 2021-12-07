@@ -1,12 +1,12 @@
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.um.nine.headless.game.GameStateFactory;
+import org.um.nine.headless.agents.state.GameStateFactory;
+import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.game.Settings;
+import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.Player;
-import org.um.nine.headless.game.domain.actions.ActionType;
-import org.um.nine.headless.game.domain.state.IState;
 
 public class GameStartTest {
 

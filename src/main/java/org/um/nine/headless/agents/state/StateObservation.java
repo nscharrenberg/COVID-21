@@ -1,6 +1,6 @@
-package org.um.nine.headless.agents.rhea;
+package org.um.nine.headless.agents.state;
 
-import org.um.nine.headless.game.domain.actions.ActionType;
+import org.um.nine.headless.game.domain.ActionType;
 
 import java.util.List;
 

@@ -1,13 +1,13 @@
 package org.um.nine.headless.agents.utils;
 
-import org.um.nine.headless.agents.rhea.StateEvaluation;
+import org.um.nine.headless.agents.state.IState;
+import org.um.nine.headless.agents.state.StateEvaluation;
+import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Color;
 import org.um.nine.headless.game.domain.Player;
-import org.um.nine.headless.game.domain.actions.ActionType;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
-import org.um.nine.headless.game.domain.state.IState;
 
 import java.util.ArrayList;
 import java.util.Collections;

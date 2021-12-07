@@ -1,4 +1,4 @@
-package org.um.nine.headless.game.domain.state;
+package org.um.nine.headless.agents.state;
 
 import org.um.nine.headless.game.contracts.repositories.*;
 

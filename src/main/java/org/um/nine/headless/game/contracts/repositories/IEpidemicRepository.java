@@ -1,7 +1,7 @@
 package org.um.nine.headless.game.contracts.repositories;
 
+import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.game.domain.cards.InfectionCard;
-import org.um.nine.headless.game.domain.state.IState;
 import org.um.nine.headless.game.exceptions.GameOverException;
 import org.um.nine.headless.game.exceptions.NoCubesLeftException;
 import org.um.nine.headless.game.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;

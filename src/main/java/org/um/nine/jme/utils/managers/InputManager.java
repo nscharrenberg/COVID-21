@@ -10,14 +10,14 @@ import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import org.um.nine.headless.game.GameStateFactory;
+import org.um.nine.headless.agents.state.GameStateFactory;
 import org.um.nine.jme.JmeMain;
 import org.um.nine.jme.screens.DialogBoxState;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class InputManager {
-    private CameraManager cameraManager = new CameraManager();
+    private final CameraManager cameraManager = new CameraManager();
 
     public void clear() {
         JmeMain.getGameRepository().getApp().getInputManager().clearMappings();
@@ -44,7 +44,7 @@ public class InputManager {
 
 
         JmeMain.getGameRepository().getApp().getInputManager().addListener(flyByCameraAnalogListener, Input.LEFT.getName(), Input.RIGHT.getName(), Input.UP.getName(), Input.DOWN.getName(), Input.ZOOM_IN.getName(), Input.ZOOM_OUT.getName());
-        JmeMain.getGameRepository().getApp().getInputManager().addListener(mouseButtonsListener,"LClick","RClick","CClick", Input.PAUSE.getName());
+        JmeMain.getGameRepository().getApp().getInputManager().addListener(mouseButtonsListener, "LClick", "RClick", "CClick", Input.PAUSE.getName());
 
         JmeMain.getGameRepository().getApp().getFlyByCamera().setRotationSpeed(2);
         JmeMain.getGameRepository().getApp().getFlyByCamera().setMoveSpeed(200);
@@ -52,23 +52,20 @@ public class InputManager {
         JmeMain.getGameRepository().getApp().getInputManager().setCursorVisible(true);
     }
 
-    private final AnalogListener flyByCameraAnalogListener = new AnalogListener() {
-        @Override
-        public void onAnalog(String name, float value, float tpf) {
-            if (JmeMain.getGameRepository().getApp().getFlyByCamera().isEnabled()) {
-                if (name.equals(Input.UP.getName())) {
-                    cameraManager.localTranslateY(value);
-                } else if(name.equals(Input.DOWN.getName())) {
-                    cameraManager.localTranslateY(-value);
-                } else if (name.equals(Input.LEFT.getName())) {
-                    cameraManager.localTranslateX(value);
-                } else if (name.equals(Input.RIGHT.getName())) {
-                    cameraManager.localTranslateX(-value);
-                } else if (name.equals(Input.ZOOM_IN.getName())) {
-                    cameraManager.localTranslateZ(value);
-                } else if (name.equals(Input.ZOOM_OUT.getName())) {
-                    cameraManager.localTranslateZ(-value);
-                }
+    private final AnalogListener flyByCameraAnalogListener = (name, value, tpf) -> {
+        if (JmeMain.getGameRepository().getApp().getFlyByCamera().isEnabled()) {
+            if (name.equals(Input.UP.getName())) {
+                cameraManager.localTranslateY(value);
+            } else if (name.equals(Input.DOWN.getName())) {
+                cameraManager.localTranslateY(-value);
+            } else if (name.equals(Input.LEFT.getName())) {
+                cameraManager.localTranslateX(value);
+            } else if (name.equals(Input.RIGHT.getName())) {
+                cameraManager.localTranslateX(-value);
+            } else if (name.equals(Input.ZOOM_IN.getName())) {
+                cameraManager.localTranslateZ(value);
+            } else if (name.equals(Input.ZOOM_OUT.getName())) {
+                cameraManager.localTranslateZ(-value);
             }
         }
     };

@@ -1,14 +1,14 @@
-package org.um.nine.headless;
+package org.um.nine.headless.agents.utils;
 
 import org.um.nine.headless.agents.rhea.RheaExperiment;
-import org.um.nine.headless.game.Game;
 
 import static org.um.nine.headless.game.Settings.HEADLESS;
 
-public class Main {
+public class ExperimentRunner {
+
     public static void main(String[] args) {
-        if(HEADLESS){
-            Game game = new Game();
+        if (HEADLESS) {
+            ExperimentalGame game = new ExperimentalGame();
             game.start();
             game.getCurrentState().getClonedState();
             RheaExperiment experiment = new RheaExperiment(game);

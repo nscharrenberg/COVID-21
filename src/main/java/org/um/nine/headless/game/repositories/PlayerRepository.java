@@ -1,14 +1,13 @@
 package org.um.nine.headless.game.repositories;
 
+import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.contracts.repositories.IBoardRepository;
 import org.um.nine.headless.game.contracts.repositories.IPlayerRepository;
 import org.um.nine.headless.game.domain.*;
-import org.um.nine.headless.game.domain.actions.ActionType;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.*;
-import org.um.nine.headless.game.domain.state.IState;
 import org.um.nine.headless.game.exceptions.*;
 
 import java.util.*;
@@ -16,9 +15,9 @@ import java.util.*;
 import static org.um.nine.headless.game.Settings.*;
 
 public class PlayerRepository implements IPlayerRepository {
-    private static int ACTION_COUNT = 4;
-    private static int DRAW_COUNT = 2;
-    private static int INFECTION_COUNT = 2;
+    private static final int ACTION_COUNT = 4;
+    private static final int DRAW_COUNT = 2;
+    private static final int INFECTION_COUNT = 2;
 
     private HashMap<String, Player> players = new HashMap<>();
     private Stack<Role> availableRoles;
