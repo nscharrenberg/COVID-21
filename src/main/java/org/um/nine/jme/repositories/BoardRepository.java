@@ -72,7 +72,6 @@ public class BoardRepository {
 
         playerRepository.decidePlayerOrder();
         playerRepository.nextPlayer();
-        GameStateFactory.getInitialState().getBoardRepository().start();
     }
 
     public City getSelectedCity() {
