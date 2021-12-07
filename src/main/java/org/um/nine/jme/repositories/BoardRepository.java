@@ -6,10 +6,15 @@ import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.roles.RoleAction;
 import org.um.nine.jme.JmeMain;
+import org.um.nine.jme.screens.hud.OptionHudState;
+import org.um.nine.jme.utils.JmeFactory;
+
 
 import java.util.List;
 
 public class BoardRepository {
+
+    private OptionHudState optionHudState = JmeFactory.getOptionHudState();
 
     public void preload() {
         GameStateFactory.getInitialState().getBoardRepository().preload();
