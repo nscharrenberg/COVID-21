@@ -1,6 +1,6 @@
-package org.um.nine.headless.game.agents.baseline;
+package org.um.nine.headless.agents.baseline;
 
-import org.um.nine.headless.game.FactoryProvider;
+import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
@@ -16,16 +16,16 @@ import java.util.stream.Collectors;
 
 public class BaselineAgent {
 
-    private boolean DEBUG = false;
+    private final boolean DEBUG = false;
 
     public BaselineAgent() {
     }
 
-    public boolean moveToCity(Player currentPlayer, City target) throws InvalidMoveException {
+    public boolean moveToCity(Player currentPlayer, City target, IState state) throws InvalidMoveException {
         if (currentPlayer.getCity().getName().equals(target.getName())) return true;
 
         if (currentPlayer.getCity().getNeighbors().contains(target)) {
-            FactoryProvider.getPlayerRepository().drive(currentPlayer, target, true);
+            state.getPlayerRepository().drive(currentPlayer, target, true);
             return true;
         }
 
@@ -39,7 +39,7 @@ public class BaselineAgent {
 
         if (pc != null) {
             currentPlayer.getHand().remove(pc);
-            FactoryProvider.getPlayerRepository().drive(currentPlayer, target, false);
+            state.getPlayerRepository().drive(currentPlayer, target, false);
             return true;
         }
 
@@ -51,12 +51,12 @@ public class BaselineAgent {
         return false;
     }
 
-    public boolean followPlayer(Player currentPlayer, Player toFollow) throws InvalidMoveException {
-        return moveToCity(currentPlayer, toFollow.getCity());
+    public boolean followPlayer(Player currentPlayer, Player toFollow, IState state) throws InvalidMoveException {
+        return moveToCity(currentPlayer, toFollow.getCity(), state);
     }
 
 
-    public void randomAction(Player player) {
+    public void randomAction(Player player, IState state) {
         int possibleActions = 9;
         int random = new Random().nextInt(possibleActions);
 
@@ -64,24 +64,24 @@ public class BaselineAgent {
         RoleAction roleAction = null;
         switch (random) {
             case 0 -> {
-                if(DEBUG) System.out.println("move");
-                City next = player.getCity().getNeighbors().get(new Random().nextInt(player.getCity().getNeighbors().size()-1));
-                try{
-                    FactoryProvider.getPlayerRepository().drive(player, next, true);
+                if (DEBUG) System.out.println("move");
+                City next = player.getCity().getNeighbors().get(new Random().nextInt(player.getCity().getNeighbors().size() - 1));
+                try {
+                    state.getPlayerRepository().drive(player, next, true);
                 }catch(Exception e){
                     e.printStackTrace();
                 }
                 if(DEBUG) System.out.println("Agent moving to "+ next.getName());
             }
             case 1 -> {
-                int rnd = new Random().nextInt(FactoryProvider.getCityRepository().getCities().size()-1);
-                ArrayList<City> temp = new ArrayList<>(FactoryProvider.getCityRepository().getCities().values());
-                if(DEBUG) System.out.println("charter to " + temp.get(rnd));
-                try{
-                    FactoryProvider.getPlayerRepository().charter(player, temp.get(rnd));
-                }catch(Exception e){
-                    if(DEBUG) System.out.println("FAILED WITH ERROR");
-                    randomAction(player);
+                int rnd = new Random().nextInt(state.getCityRepository().getCities().size() - 1);
+                ArrayList<City> temp = new ArrayList<>(state.getCityRepository().getCities().values());
+                if (DEBUG) System.out.println("charter to " + temp.get(rnd));
+                try {
+                    state.getPlayerRepository().charter(player, temp.get(rnd));
+                } catch (Exception e) {
+                    if (DEBUG) System.out.println("FAILED WITH ERROR");
+                    randomAction(player, state);
                 }
 
             }
@@ -90,39 +90,39 @@ public class BaselineAgent {
                 CityCard cityCard = (CityCard) player.getHand().stream().filter(c -> c instanceof CityCard).findFirst().orElse(null);
                 if (cityCard!= null){
                     if(DEBUG) System.out.println("direct to " + cityCard.getCity().getName());
-                    FactoryProvider.getBoardRepository().setSelectedCity(cityCard.getCity());
+                    state.getBoardRepository().setSelectedCity(cityCard.getCity());
                     try{
-                        FactoryProvider.getPlayerRepository().direct(player, cityCard.getCity());
+                        state.getPlayerRepository().direct(player, cityCard.getCity());
                     }catch(Exception e){
                         if(DEBUG) System.out.println("FAILED WITH ERROR");
-                        randomAction(player);
+                        randomAction(player, state);
                     }
                 }
                 else {
                     if(DEBUG) System.out.println("FAILED");
-                    randomAction(player);
+                    randomAction(player, state);
                 }
             }
             case 3 -> {
                 String name = null;
-                if(DEBUG) System.out.print("shuttle");
-                if (FactoryProvider.getCityRepository().getCities().values().stream().filter(c -> c.getResearchStation()!= null).count() >=2 &&
-                        player.getCity().getResearchStation() != null){
-                    City city = FactoryProvider.getCityRepository().getCities().values().stream().filter( c-> c.getResearchStation() != null && !c.equals(player.getCity())).findFirst().orElse(null);
-                    if (city!= null){
-                        if(DEBUG) System.out.println(" to " + city.getName());
-                        FactoryProvider.getBoardRepository().setSelectedCity(city);
-                        try{
+                if (DEBUG) System.out.print("shuttle");
+                if (state.getCityRepository().getCities().values().stream().filter(c -> c.getResearchStation() != null).count() >= 2 &&
+                        player.getCity().getResearchStation() != null) {
+                    City city = state.getCityRepository().getCities().values().stream().filter(c -> c.getResearchStation() != null && !c.equals(player.getCity())).findFirst().orElse(null);
+                    if (city != null) {
+                        if (DEBUG) System.out.println(" to " + city.getName());
+                        state.getBoardRepository().setSelectedCity(city);
+                        try {
                             name = city.getName();
-                            FactoryProvider.getPlayerRepository().shuttle(player, city);
-                        }catch(Exception e){
+                            state.getPlayerRepository().shuttle(player, city);
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
                 }
                 else {
                     if(DEBUG) System.out.println("FAILED");
-                    randomAction(player);
+                    randomAction(player, state);
                 }
             }
             case 4 -> {
@@ -132,28 +132,28 @@ public class BaselineAgent {
                     return false;
                 }).findFirst().orElse(null) != null) {
                     try{
-                        FactoryProvider.getPlayerRepository().buildResearchStation(player, player.getCity());
+                        state.getPlayerRepository().buildResearchStation(player, player.getCity());
                     }catch(Exception e){
                         e.printStackTrace();
                     }
                 }
                 else {
                     if(DEBUG) System.out.println("FAILED");
-                    randomAction(player);
+                    randomAction(player, state);
                 }
             }
             case 5 -> {
                 if(DEBUG) System.out.println("treat in " + player.getCity().getName());
                 if (!player.getCity().getCubes().isEmpty()) {
                     try {
-                        FactoryProvider.getPlayerRepository().treat(player, player.getCity(), player.getCity().getCubes().get(0).getColor());
+                        state.getPlayerRepository().treat(player, player.getCity(), player.getCity().getCubes().get(0).getColor());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
                 else {
                     if(DEBUG) System.out.println("FAILED");
-                    randomAction(player);
+                    randomAction(player, state);
                 }
             }
             case 6 -> {
@@ -161,13 +161,13 @@ public class BaselineAgent {
                 Optional<PlayerCard> sameCityCard = player.getHand().stream().filter(c -> c instanceof CityCard && ((CityCard) c).getCity().equals(player.getCity())).findFirst();
                 if(!sameCityCard.isPresent() || player.getCity().getPawns().size() <= 1){
                     if(DEBUG) System.out.println("FAILED");
-                    randomAction(player);
+                    randomAction(player, state);
                 }
                 else{
                     player.getHand().remove(sameCityCard.get());
                     int rnd = new Random().nextInt(player.getCity().getPawns().size()-1);
                     player.getCity().getPawns().get(rnd).addHand(sameCityCard.get());
-                    FactoryProvider.getPlayerRepository().getLog().addStep(" shared card: " + sameCityCard.get().getName(), player.getCity());
+                    state.getPlayerRepository().getLog().addStep(" shared card: " + sameCityCard.get().getName(), player.getCity(), player);
                 }
             }
             case 7 -> {
@@ -202,31 +202,28 @@ public class BaselineAgent {
                 }
 
                 if (curable) {
-                    if(DEBUG) System.out.println(color.getName());
+                    if (DEBUG) System.out.println(color.getName());
                     Color finalColor = color;
-                    Optional<Cure> cure = FactoryProvider.getDiseaseRepository().getCures().values().stream().filter(c -> {
-                        if(c.getColor().equals(finalColor)){
-                            return true;
-                        }
-                        return false;
+                    Optional<Cure> cure = state.getDiseaseRepository().getCures().values().stream().filter(c -> {
+                        return c.getColor().equals(finalColor);
                     }).findFirst();
-                    if(cure.isPresent()){
+                    if (cure.isPresent()) {
                         try {
-                            FactoryProvider.getDiseaseRepository().discoverCure(player,cure.get());
-                            FactoryProvider.getPlayerRepository().getLog().addStep(" discovered cure", player.getCity());
+                            state.getDiseaseRepository().discoverCure(player, cure.get());
+                            state.getPlayerRepository().getLog().addStep(" discovered cure", player.getCity(), player);
                         } catch (UnableToDiscoverCureException | GameWonException e) {
-                            if(DEBUG) System.out.println("FAILED");
-                            randomAction(player);
+                            if (DEBUG) System.out.println("FAILED");
+                            randomAction(player, state);
                         }
                     }
                     else {
                         if(DEBUG) System.out.println("FAILED");
-                        randomAction(player);
+                        randomAction(player, state);
                     }
                 }
                 else {
                     if(DEBUG) System.out.println("FAILED");
-                    randomAction(player);
+                    randomAction(player, state);
                 }
             }
             case 8 -> {
@@ -234,71 +231,69 @@ public class BaselineAgent {
                 List<RoleAction> l = player.getRole().actions();
                 if(l.size() == 0){
                     if(DEBUG) System.out.println("FAILED");
-                    randomAction(player);
-                }
-                else{
+                    randomAction(player, state);
+                } else {
                     int rnd = new Random().nextInt(l.size());
-                    roleAction(l.get(rnd),player);
+                    roleAction(l.get(rnd), player, state);
                 }
             }
             default -> {
                 selectedAction = ActionType.SKIP_ACTION;
-                if(DEBUG) System.out.println("Skip");
+                if (DEBUG) System.out.println("Skip");
             }
         }
-        FactoryProvider.getBoardRepository().setSelectedPlayerAction(selectedAction == null? ActionType.SKIP_ACTION : selectedAction);
-        FactoryProvider.getBoardRepository().setSelectedRoleAction(roleAction == null ? RoleAction.NO_ACTION : roleAction);
+        state.getBoardRepository().setSelectedPlayerAction(selectedAction == null ? ActionType.SKIP_ACTION : selectedAction);
+        state.getBoardRepository().setSelectedRoleAction(roleAction == null ? RoleAction.NO_ACTION : roleAction);
 
     }
 
-    public void roleAction(RoleAction roleAction, Player player){
-        try{
+    public void roleAction(RoleAction roleAction, Player player, IState state) {
+        try {
             if (roleAction.equals(RoleAction.TAKE_ANY_DISCARED_EVENT)) {
-                LinkedList<PlayerCard> ecards = FactoryProvider.getCardRepository().getEventDiscardPile();
-                if(ecards.size() > 0){
-                    int random = new Random().nextInt(ecards.size()-1);
+                LinkedList<PlayerCard> ecards = state.getCardRepository().getEventDiscardPile();
+                if (ecards.size() > 0) {
+                    int random = new Random().nextInt(ecards.size() - 1);
                     player.addHand(ecards.get(random));
                     ecards.remove(random);
-                    FactoryProvider.getPlayerRepository().getLog().addStep(" uses Roleaction: Take discarded event card", player.getCity());
-                }
-                else{
+                    state.getPlayerRepository().getLog().addStep(" uses Roleaction: Take discarded event card", player.getCity(), player);
+                } else {
                     if(DEBUG) System.out.println("Take event card - FAILED");
-                    randomAction(player);
+                    randomAction(player, state);
                 }
             } else if (roleAction.equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY)) {
                 if(player.getCity().getResearchStation() != null){
-                    int random = new Random().nextInt(FactoryProvider.getCityRepository().getCities().values().size()-1);
+                    int random = new Random().nextInt(state.getCityRepository().getCities().values().size() - 1);
                     ArrayList<City> cities = new ArrayList<>();
-                    FactoryProvider.getCityRepository().getCities().values().forEach(c -> {
+                    state.getCityRepository().getCities().values().forEach(c -> {
                         cities.add(c);
                     });
                     try{
-                        FactoryProvider.getPlayerRepository().shuttle(player, cities.get(random));
+                        state.getPlayerRepository().shuttle(player, cities.get(random));
                     }
                     catch (InvalidMoveException e) {
                         if(DEBUG) System.out.println("Move from research station anywhere - FAILED WITH ERROR");
-                        randomAction(player);
+                        randomAction(player, state);
                     }
                 }
                 else{
                     if(DEBUG) System.out.println("Move from research station anywhere - FAILED");
-                    randomAction(player);
+                    randomAction(player, state);
                 }
             } else if (roleAction.equals(RoleAction.BUILD_RESEARCH_STATION)){
-                if(player.getCity().getResearchStation() == null){
-                    FactoryProvider.getPlayerRepository().buildResearchStation(player, player.getCity());
-                    FactoryProvider.getPlayerRepository().getLog().addStep(" uses Roleaction: Build research station", player.getCity());
+                if(player.getCity().getResearchStation() == null) {
+                    state.getPlayerRepository().buildResearchStation(player, player.getCity());
+                    state.getPlayerRepository().getLog().addStep(" uses Roleaction: Build research station", player.getCity(), player);
                 }
                 else{
                     if(DEBUG) System.out.println("Build research station - FAILED");
-                    randomAction(player);
+                    randomAction(player, state);
                 }
             } else if (roleAction.equals(RoleAction.MOVE_ANY_PAWN_TO_CITY_WITH_OTHER_PAWN)) {
                 //TODO add dispatcher stuff once event cards are merged in
-                FactoryProvider.getPlayerRepository().getLog().addStep(" uses Roleaction: Dispatcher", player.getCity());
+                state.getPlayerRepository().getLog().addStep(" uses Roleaction: Dispatcher", player.getCity(), player);
             } else{
                 if(DEBUG) System.out.println("Roleaction - FAILED");
-                randomAction(player);
+                randomAction(player, state);
             }
         } catch (ResearchStationLimitException | InvalidMoveException | CityAlreadyHasResearchStationException e) {
             e.printStackTrace();

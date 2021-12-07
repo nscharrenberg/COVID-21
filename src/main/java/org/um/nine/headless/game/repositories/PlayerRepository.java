@@ -1,9 +1,8 @@
 package org.um.nine.headless.game.repositories;
 
 import org.um.nine.headless.agents.state.IState;
+import org.um.nine.headless.agents.utils.Log;
 import org.um.nine.headless.game.Settings;
-import org.um.nine.headless.game.Info;
-import org.um.nine.headless.game.agents.Log;
 import org.um.nine.headless.game.contracts.repositories.IBoardRepository;
 import org.um.nine.headless.game.contracts.repositories.IPlayerRepository;
 import org.um.nine.headless.game.domain.*;
@@ -113,7 +112,7 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         if(!logged){
-            log.addStep(" drive to " + city.getName(), city);
+            log.addStep(" drive to " + city.getName(), city, player);
         }
         else{
             logged = false;
@@ -167,7 +166,7 @@ public class PlayerRepository implements IPlayerRepository {
 
         player.getHand().remove(pc);
 
-        log.addStep(" direct to " + city.getName(), city);
+        log.addStep(" direct to " + city.getName(), city, player);
         logged = true;
         drive(player, city, false);
     }
@@ -214,7 +213,7 @@ public class PlayerRepository implements IPlayerRepository {
 
         player.getHand().remove(pc);
 
-        log.addStep(" charter to " + city.getName(), city);
+        log.addStep(" charter to " + city.getName(), city, player);
         logged = true;
         drive(player, city, false);
     }
@@ -244,7 +243,7 @@ public class PlayerRepository implements IPlayerRepository {
 
         }
 
-        log.addStep(" shuttle to " + city.getName(), city);
+        log.addStep(" shuttle to " + city.getName(), city, player);
         logged = true;
         drive(player, city, false);
     }
@@ -304,7 +303,7 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         this.state.getDiseaseRepository().treat(player, city, color);
-        log.addStep(" treat in " + city.getName(), city);
+        log.addStep(" treat in " + city.getName(), city, player);
         nextTurn(this.currentRoundState);
     }
 
@@ -335,7 +334,7 @@ public class PlayerRepository implements IPlayerRepository {
         target.discard(card);
         player.addHand(card);
 
-        log.addStep(" shared " + city.getName() + " with " + target.getName(), city);
+        log.addStep(" shared " + city.getName() + " with " + target.getName(), city, player);
         nextTurn(this.currentRoundState);
     }
 
@@ -371,7 +370,7 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
         this.state.getCityRepository().addResearchStation(city);
-        log.addStep(" build research station in " + city.getName(), city);
+        log.addStep(" build research station in " + city.getName(), city, player);
     }
 
     @Override
