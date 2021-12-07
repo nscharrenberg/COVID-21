@@ -61,12 +61,10 @@ public class CardRepository implements ICardRepository {
         return playerDeck;
     }
 
-
     @Override
     public Stack<InfectionCard> getInfectionDeck() {
         return infectionDeck;
     }
-
 
     public void reset() {
         this.playerDeck = new Stack<>();
@@ -84,7 +82,7 @@ public class CardRepository implements ICardRepository {
         }
 
         playerRepository.getCurrentPlayer().addCard(drawn);
-        if(playerRepository.getCurrentPlayer().getHandCards().size() > Info.HAND_LIMIT) {
+        if (playerRepository.getCurrentPlayer().getHandCards().size() > Info.HAND_LIMIT) {
             discardCardDialog.setCurrentPlayer(playerRepository.getCurrentPlayer());
             gameRepository.getApp().getStateManager().attach(discardCardDialog);
             discardCardDialog.setHeartbeat(true);
@@ -94,7 +92,8 @@ public class CardRepository implements ICardRepository {
     }
 
     @Override
-    public void drawInfectionCard() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
+    public void drawInfectionCard()
+            throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         InfectionCard infectionCard = this.infectionDeck.pop();
 
         diseaseRepository.infect(infectionCard.getCity().getColor(), infectionCard.getCity());
@@ -102,8 +101,9 @@ public class CardRepository implements ICardRepository {
     }
 
     @Override
-    public void buildDecks(){
-        this.playerDeck = Shuffle.buildPlayerDeck(boardRepository.getDifficulty(), cityRepository.getCities(), playerRepository.getPlayers());
+    public void buildDecks() {
+        this.playerDeck = Shuffle.buildPlayerDeck(boardRepository.getDifficulty(), cityRepository.getCities(),
+                playerRepository.getPlayers());
         infectionDeck = CityCardReader.generateInfectionDeck(cityRepository.getCities().values().toArray(new City[0]));
         infectionDiscardPile = new Stack<>();
         Collections.shuffle(infectionDeck);
@@ -116,7 +116,7 @@ public class CardRepository implements ICardRepository {
                 InfectionCard c = infectionDeck.pop();
                 infectionDiscardPile.add(c);
                 Disease d = new Disease(c.getCity().getColor());
-                for(int k=i;k>0;k--) {
+                for (int k = i; k > 0; k--) {
                     try {
                         diseaseRepository.infect(d.getColor(), c.getCity());
                     } catch (NoDiseaseOrOutbreakPossibleDueToEvent e) {
