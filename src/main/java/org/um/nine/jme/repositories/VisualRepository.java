@@ -102,8 +102,12 @@ public class VisualRepository {
         renderManager.renderInfectionMarker(status);
     }
 
-        public void renderPlayer(Player player, Vector3f vector3f){
+    public void renderPlayer(Player player, Vector3f vector3f){
         renderManager.renderPlayer(player, vector3f);
+    }
+
+    public void renderDisease(Disease disease, Vector3f offset) {
+        renderManager.renderDisease(disease,offset);
     }
 
     public void reset(){
