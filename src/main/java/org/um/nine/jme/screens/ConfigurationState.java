@@ -10,6 +10,7 @@ import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.exceptions.PlayerLimitException;
 import org.um.nine.jme.JmeGame;
 import org.um.nine.jme.JmeMain;
+import org.um.nine.jme.utils.JmeFactory;
 import org.um.nine.jme.utils.MenuUtils;
 
 public class ConfigurationState extends BaseAppState {
@@ -18,13 +19,14 @@ public class ConfigurationState extends BaseAppState {
     @Override
     protected void initialize(Application application) {
         window = new Container();
-        GameStateFactory.getInitialState().getBoardRepository().preload();
+        JmeFactory.getBoardRepository().preload();
 
         Label title = window.addChild(new Label("Game Configuration"), 0, 0);
         title.setFontSize(32);
         title.setFont(application.getAssetManager().loadFont("fonts/covid2.fnt"));
         title.setInsets(new Insets3f(10, 10, 0, 10));
 
+        startGame();
         difficultyLevel();
         renderFields();
 
@@ -42,14 +44,14 @@ public class ConfigurationState extends BaseAppState {
     private void startGame() {
         Button menuButton = window.addChild(new Button("Start Game"),0, 0);
         menuButton.addClickCommands(button -> {
-            if (GameStateFactory.getInitialState().getPlayerRepository().getPlayers().size() < 2) {
+            if (JmeFactory.getPlayerRepository().getPlayers().size() < 2) {
                 DialogBoxState dialog = new DialogBoxState("The game can only start when there are at least 2 players.");
                 getStateManager().attach(dialog);
                 dialog.setEnabled(true);
                 return;
             }
 
-            JmeMain.getGameRepository().start();
+            JmeFactory.getGameRepository().start();
             setEnabled(false);
         });
         menuButton.setInsets(new Insets3f(10, 10, 0, 10));
@@ -86,17 +88,17 @@ public class ConfigurationState extends BaseAppState {
 
     private void addPlayer(String name, boolean isBot) {
         try {
-            if (GameStateFactory.getInitialState().getPlayerRepository().getPlayers().get(name) != null) {
+            if (JmeFactory.getPlayerRepository().getPlayers().get(name) != null) {
                 DialogBoxState dialog = new DialogBoxState("The name of the player must be unique");
                 getStateManager().attach(dialog);
                 dialog.setEnabled(true);
                 return;
             }
             //TODO: in headless players are added by default settings
-            GameStateFactory.getInitialState().getPlayerRepository().createPlayer(name, isBot);
+            JmeFactory.getPlayerRepository().createPlayer(name, isBot);
 
-            if(GameStateFactory.getInitialState().getPlayerRepository().getPlayers().size()<4) {
-                createPlayer(GameStateFactory.getInitialState().getPlayerRepository().getPlayers().size());
+            if(JmeFactory.getPlayerRepository().getPlayers().size()<4) {
+                createPlayer(JmeFactory.getPlayerRepository().getPlayers().size());
             }
         } catch (PlayerLimitException e) {
             DialogBoxState dialog = new DialogBoxState(e.getMessage());
@@ -117,9 +119,9 @@ public class ConfigurationState extends BaseAppState {
         subPanel.setInsets(new Insets3f(10, 10, 0, 10));
         subPanel.addChild(item);
 
-        item.getSelectionModel().setSelection(GameStateFactory.getInitialState().getBoardRepository().getDifficulty() != null ? GameStateFactory.getInitialState().getBoardRepository().getDifficulty().getId() : Difficulty.NORMAL.getId());
+        item.getSelectionModel().setSelection(JmeFactory.getBoardRepository().getDifficulty() != null ? JmeFactory.getBoardRepository().getDifficulty().getId() : Difficulty.NORMAL.getId());
         item.addClickCommands(c -> {
-            GameStateFactory.getInitialState().getBoardRepository().setDifficulty(item.getSelectedItem());
+            JmeFactory.getBoardRepository().setDifficulty(item.getSelectedItem());
         });
     }
 

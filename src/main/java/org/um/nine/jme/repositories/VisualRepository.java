@@ -8,8 +8,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import org.um.nine.headless.agents.state.GameStateFactory;
-import org.um.nine.headless.game.domain.Color;
-import org.um.nine.headless.game.domain.Player;
+import org.um.nine.headless.game.domain.*;
 import org.um.nine.jme.JmeMain;
 import org.um.nine.jme.utils.JmeFactory;
 import org.um.nine.jme.utils.managers.RenderManager;
@@ -91,7 +90,23 @@ public class VisualRepository {
         });
     }
 
-    public void renderPlayer(Player player, Vector3f vector3f){
+    public void renderResearchStation(ResearchStation researchStation, Vector3f position){
+        renderManager.renderResearchStation(researchStation,position);
+    }
+
+    public void renderOutbreakMarker(OutbreakMarker status) {
+        renderManager.renderOutbreakMarker(status);
+    }
+
+    public void renderInfectionMarker(InfectionRateMarker status) {
+        renderManager.renderInfectionMarker(status);
+    }
+
+        public void renderPlayer(Player player, Vector3f vector3f){
         renderManager.renderPlayer(player, vector3f);
+    }
+
+    public void reset(){
+        cityRepository = JmeFactory.getCityRepository();
     }
 }

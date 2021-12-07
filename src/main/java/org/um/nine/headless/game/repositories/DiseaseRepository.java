@@ -16,9 +16,13 @@ public class DiseaseRepository implements IDiseaseRepository {
 
     private List<InfectionRateMarker> infectionRates;
     private List<OutbreakMarker> outbreakMarkers;
+    private OutbreakMarker currentOutbreakMarker;
+    private OutbreakMarker lastOutbreakMarker;
     private HashMap<Color, Cure> cures;
     private HashMap<Color, List<Disease>> cubes;
     private boolean gameOver;
+    private InfectionRateMarker currentInfectionRate;
+    private InfectionRateMarker lastInfectionRate;
     public DiseaseRepository() {
     }
 
@@ -29,7 +33,7 @@ public class DiseaseRepository implements IDiseaseRepository {
     @Override
     public void nextOutbreak() throws GameOverException {
         OutbreakMarker marker = this.outbreakMarkers.stream().filter(Marker::isCurrent).findFirst().orElse(null);
-
+        lastOutbreakMarker = marker;
         if (marker == null) {
             this.outbreakMarkers.get(0).setCurrent(true);
             return;
@@ -44,6 +48,7 @@ public class DiseaseRepository implements IDiseaseRepository {
         }
 
         nextMarker.setCurrent(true);
+        currentOutbreakMarker = nextMarker;
     }
 
     /**
@@ -53,7 +58,7 @@ public class DiseaseRepository implements IDiseaseRepository {
     @Override
     public void nextInfectionMarker() {
         InfectionRateMarker marker = this.infectionRates.stream().filter(Marker::isCurrent).findFirst().orElse(null);
-
+        lastInfectionRate = marker;
         if (marker == null) {
             this.infectionRates.get(0).setCurrent(true);
             return;
@@ -67,6 +72,7 @@ public class DiseaseRepository implements IDiseaseRepository {
             return;
         }
 
+        currentInfectionRate = nextMarker;
         nextMarker.setCurrent(true);
     }
 
@@ -249,5 +255,25 @@ public class DiseaseRepository implements IDiseaseRepository {
     @Override
     public void setCubes(HashMap<Color, List<Disease>> cubes) {
         this.cubes = cubes;
+    }
+
+    @Override
+    public OutbreakMarker getCurrentOutbreakMarker() {
+        return currentOutbreakMarker;
+    }
+
+    @Override
+    public OutbreakMarker getLastOutbreakMarker() {
+        return lastOutbreakMarker;
+    }
+
+    @Override
+    public InfectionRateMarker getCurrentInfectionRate() {
+        return currentInfectionRate;
+    }
+
+    @Override
+    public InfectionRateMarker getLastInfectionRate() {
+        return lastInfectionRate;
     }
 }
