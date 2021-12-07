@@ -1,10 +1,6 @@
 package org.um.nine.headless.game.domain;
 
 import com.jme3.math.Vector3f;
-import org.um.nine.headless.game.domain.cards.CityCard;
-import org.um.nine.headless.game.domain.cards.PlayerCard;
-import org.um.nine.headless.game.domain.roles.RoleEvent;
-import org.um.nine.headless.game.exceptions.UnableToDiscoverCureException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class City {
-    private static int INCREMENT = 0;
+    public static int INCREMENT = 0;
     private int id;
     private String name;
     private Color color;
@@ -29,7 +25,7 @@ public class City {
         this.color = color;
         this.location = location;
 
-        INCREMENT++;
+        INCREMENT = INCREMENT > 48? 0 : INCREMENT+1;
     }
 
     public int getId() {

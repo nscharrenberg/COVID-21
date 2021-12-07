@@ -5,8 +5,7 @@ import com.jme3.app.state.BaseAppState;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
-import org.um.nine.headless.game.FactoryProvider;
-import org.um.nine.headless.game.Info;
+import org.um.nine.headless.game.Settings;
 import org.um.nine.jme.JmeGame;
 import org.um.nine.jme.JmeMain;
 import org.um.nine.jme.utils.MenuUtils;
@@ -18,7 +17,7 @@ public class MainMenuState extends BaseAppState {
     protected void initialize(Application application) {
         window = new Container();
 
-        Label title = window.addChild(new Label(Info.APP_TITLE));
+        Label title = window.addChild(new Label(Settings.APP_TITLE));
         title.setFontSize(32);
         title.setFont(application.getAssetManager().loadFont("fonts/covid2.fnt"));
         title.setInsets(new Insets3f(10, 10, 0, 10));

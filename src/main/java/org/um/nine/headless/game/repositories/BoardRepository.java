@@ -1,7 +1,7 @@
 package org.um.nine.headless.game.repositories;
 
-import org.um.nine.headless.game.FactoryProvider;
-import org.um.nine.headless.game.Info;
+import org.um.nine.headless.agents.state.IState;
+import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.contracts.repositories.IBoardRepository;
 import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
@@ -11,17 +11,26 @@ import org.um.nine.headless.game.domain.roles.RoleAction;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.um.nine.headless.game.Settings.DEFAULT_INITIAL_STATE;
+
 public class BoardRepository implements IBoardRepository {
     private City selectedCity;
     private RoleAction selectedRoleAction;
     private ActionType selectedPlayerAction;
     private List<RoleAction> usedActions = new ArrayList<>();
     private Difficulty difficulty;
+    private IState state;
 
     @Override
+    public BoardRepository setState(IState state){
+        this.state = state;
+        return this;
+    }
+    
+    
+    @Override
     public void preload() {
-        this.difficulty = Difficulty.NORMAL;
-        reset();
+        this.difficulty = this.difficulty == null? Settings.DEFAULT_DIFFICULTY : this.difficulty;
     }
 
     /**
@@ -31,18 +40,20 @@ public class BoardRepository implements IBoardRepository {
     @Override
     public void start() {
         resetRound();
-        reset();
+        this.difficulty = this.difficulty == null? Settings.DEFAULT_DIFFICULTY : this.difficulty;
+        City atlanta = this.state.getCityRepository().getCities().get(Settings.START_CITY);
 
-        City atlanta = FactoryProvider.getCityRepository().getCities().get(Info.START_CITY);
-        FactoryProvider.getPlayerRepository().getPlayers().forEach((k, p) -> {
-            FactoryProvider.getPlayerRepository().assignRoleToPlayer(p);
+        this.state.getPlayerRepository().getPlayers().forEach((k, p) -> {
+
+            if (!DEFAULT_INITIAL_STATE)
+                this.state.getPlayerRepository().assignRoleToPlayer(p);
 
             atlanta.addPawn(p);
         });
 
-        FactoryProvider.getCardRepository().buildDecks();
-        FactoryProvider.getPlayerRepository().decidePlayerOrder();
-        FactoryProvider.getPlayerRepository().nextPlayer();
+        this.state.getCardRepository().buildDecks();
+        this.state.getPlayerRepository().decidePlayerOrder();
+        this.state.getPlayerRepository().nextPlayer();
     }
 
 
@@ -105,18 +116,19 @@ public class BoardRepository implements IBoardRepository {
         selectedPlayerAction = null;
         selectedRoleAction = null;
         usedActions = new ArrayList<>();
-        difficulty = Difficulty.NORMAL;
 
-        FactoryProvider.getPlayerRepository().resetRound();
+        this.state.getPlayerRepository().resetRound();
     }
 
     /**
      * Reset the whole game state
      */
+    @Override
     public void reset() {
-        FactoryProvider.getPlayerRepository().reset();
-        FactoryProvider.getDiseaseRepository().reset();
-        FactoryProvider.getCityRepository().reset();
-        FactoryProvider.getPlayerRepository().reset();
+        this.state.getPlayerRepository().reset();
+        this.state.getDiseaseRepository().reset();
+        this.state.getCityRepository().reset();
+        this.state.getPlayerRepository().reset();
+        this.state.getCardRepository().reset();
     }
 }

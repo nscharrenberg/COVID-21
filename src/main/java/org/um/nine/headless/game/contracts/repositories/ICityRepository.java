@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public interface ICityRepository {
+
     HashMap<String, City> getCities();
 
     void setCities(HashMap<String, City> cities);
@@ -22,4 +23,5 @@ public interface ICityRepository {
     List<ResearchStation> getResearchStations();
 
     void setResearchStations(List<ResearchStation> researchStations);
+
 }

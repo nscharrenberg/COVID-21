@@ -1,5 +1,7 @@
 package org.um.nine.headless.game.domain;
 
+import org.um.nine.headless.game.Settings;
+
 public class OutbreakMarker extends Marker {
     private static int INCREMENT = 0;
     private Color color;
@@ -9,6 +11,7 @@ public class OutbreakMarker extends Marker {
         this.color = color;
 
         INCREMENT++;
+        if (INCREMENT > Settings.MAX_OUTBREAKS) INCREMENT = 0;
     }
 
     public OutbreakMarker(Color color, boolean isCurrent) {

@@ -1,6 +1,6 @@
 package org.um.nine.headless.game.utils;
 
-import org.um.nine.headless.game.FactoryProvider;
+import org.um.nine.headless.game.contracts.repositories.IPlayerRepository;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.Player;
@@ -9,9 +9,9 @@ import org.um.nine.headless.game.domain.cards.EpidemicCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.cards.events.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Stack;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
 
 public class CardUtils {
     public static Stack<PlayerCard> shuffle(Difficulty difficulty, Stack<PlayerCard> deck) {
@@ -44,7 +44,48 @@ public class CardUtils {
         return shuffled;
     }
 
-    public static Stack<PlayerCard> buildPlayerDeck(Difficulty difficulty, HashMap<String, City> cities, HashMap<String, Player> players) {
+    public static Stack<PlayerCard> loadPlayerDeck(HashMap<String,City> cities, HashMap<String,Player> players, IPlayerRepository playerRepository) {
+        Stack<PlayerCard> playerDeck = new Stack<>();
+        City max_pop_city = null;
+        try {
+            FileReader fr = new FileReader(
+                    Objects.requireNonNull(
+                            CityUtils.class.getClassLoader().getResource(
+                                    "Cards/PlayerDeck.txt")
+                    ).getFile()
+            );
+            Scanner sc = new Scanner(fr);
+            while(sc.hasNextLine()){
+                String s = sc.nextLine();
+                if (cities.get(s)!= null){
+                    playerDeck.push(new CityCard(cities.get(s)));
+                    if (max_pop_city== null || cities.get(s).getPopulation() > max_pop_city.getPopulation()){
+                        max_pop_city  = cities.get(s);
+                    }
+                }
+                else if (s.equals("Epidemic")){
+                    playerDeck.push(new EpidemicCard(s));
+                }
+                else System.out.println(s);
+            }
+            sc.close();
+            fr.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        for (Player p : players.values()) {
+            for (int i = 0; i< 2; i++){
+                PlayerCard card = playerDeck.pop();
+                p.addHand(card);
+                if (card instanceof CityCard cc && cc.getCity().equals(max_pop_city)) {
+                    playerRepository.setCurrentPlayer(p);
+                }
+            }
+        }
+        return playerDeck;
+    }
+
+    public static Stack<PlayerCard> buildPlayerDeck(IPlayerRepository playerRepository, Difficulty difficulty, HashMap<String, City> cities, HashMap<String, Player> players) {
         Stack<PlayerCard> deck = new Stack<>();
         deck.push(new GovernmentGrandEvent());
         deck.push(new PrognosisEvent());
@@ -78,7 +119,7 @@ public class CardUtils {
                 PlayerCard card = initialDeck.pop();
                 p.addHand(card);
                 if (card.equals(max_pop_cityCard)) {
-                    FactoryProvider.getPlayerRepository().setCurrentPlayer(p);
+                    playerRepository.setCurrentPlayer(p);
                 }
             }
         }

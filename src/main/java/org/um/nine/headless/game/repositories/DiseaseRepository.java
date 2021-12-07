@@ -13,16 +13,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DiseaseRepository implements IDiseaseRepository {
+
     private List<InfectionRateMarker> infectionRates;
     private List<OutbreakMarker> outbreakMarkers;
     private HashMap<Color, Cure> cures;
     private HashMap<Color, List<Disease>> cubes;
-
+    private boolean gameOver;
     public DiseaseRepository() {
-        this.infectionRates = new ArrayList<>();
-        this.outbreakMarkers = new ArrayList<>();
-        this.cubes = new HashMap<>();
-        this.cures = new HashMap<>();
     }
 
     /**
@@ -42,6 +39,7 @@ public class DiseaseRepository implements IDiseaseRepository {
         OutbreakMarker nextMarker = this.outbreakMarkers.stream().filter(v -> v.getId() == marker.getId() + 1).findFirst().orElse(null);
 
         if (nextMarker == null) {
+            this.gameOver = true;
             throw new GameOverException();
         }
 
@@ -70,6 +68,11 @@ public class DiseaseRepository implements IDiseaseRepository {
         }
 
         nextMarker.setCurrent(true);
+    }
+
+    @Override
+    public boolean isGameOver() {
+        return this.gameOver;
     }
 
     /**
@@ -108,6 +111,7 @@ public class DiseaseRepository implements IDiseaseRepository {
         Disease found = this.cubes.get(color).stream().filter(v -> v.getCity() == null).findFirst().orElse(null);
 
         if (found == null) {
+            this.gameOver = true;
             throw new NoCubesLeftException(color);
         }
 
@@ -200,6 +204,7 @@ public class DiseaseRepository implements IDiseaseRepository {
         this.cubes.put(Color.YELLOW, new ArrayList<>());
         this.cubes.put(Color.BLUE, new ArrayList<>());
         this.cubes.put(Color.BLACK, new ArrayList<>());
+        this.gameOver = false;
 
         initCubes();
         initCures();

@@ -1,7 +1,10 @@
 package org.um.nine.headless.game.utils;
 
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.jme3.math.Vector3f;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Color;
@@ -9,10 +12,10 @@ import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.InfectionCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.util.HashMap;
+import java.util.Objects;
+import java.util.Scanner;
 import java.util.Stack;
 
 public class CityUtils {
@@ -33,20 +36,11 @@ public class CityUtils {
             Color color = Color.ORANGE;
 
             switch (colorName) {
-                case "Blue":
-                    color = Color.BLUE;
-                    break;
-                case "Black":
-                    color = Color.BLACK;
-                    break;
-                case "Red":
-                    color = Color.RED;
-                    break;
-                case "Yellow":
-                    color = Color.YELLOW;
-                    break;
-                default:
-                    System.out.println("Invalid Color Provided in " + name);
+                case "Blue" -> color = Color.BLUE;
+                case "Black" -> color = Color.BLACK;
+                case "Red" -> color = Color.RED;
+                case "Yellow" -> color = Color.YELLOW;
+                default -> System.out.println("Invalid Color Provided in " + name);
             }
 
             int population = JOCity.getAsJsonPrimitive("population").getAsInt();
@@ -87,6 +81,25 @@ public class CityUtils {
         return cityDeck;
     }
 
+    public static Stack<InfectionCard> loadInfectionDeck(HashMap<String,City> cities){
+        Stack<InfectionCard> infectionDeck = new Stack<>();
+        try {
+            FileReader fr = new FileReader(
+                    Objects.requireNonNull(
+                            CityUtils.class.getClassLoader().getResource(
+                                    "Cards/InfectionDeck.txt")
+                    ).getFile()
+            );
+            Scanner sc = new Scanner(fr);
+            while(sc.hasNextLine()){
+                String s = sc.nextLine();
+                infectionDeck.push(new InfectionCard(cities.get(s)));
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return infectionDeck;
+    }
     public static Stack<InfectionCard> generateInfectionDeck(City[] cities) {
         Stack<InfectionCard> infectionDeck = new Stack<>();
 

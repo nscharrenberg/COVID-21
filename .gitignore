@@ -280,19 +280,6 @@ buildNumber.properties
 *noot
 *mies
 
-# Other names that would make sense
-*tests
-*testsdir
-*testsfile
-*testsfiles
-*test
-*testdir
-*testfile
-*testfiles
-*testing
-*testingdir
-*testingfile
-*testingfiles
 *temp
 *tempdir
 *tempfile

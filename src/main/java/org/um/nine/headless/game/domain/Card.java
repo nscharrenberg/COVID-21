@@ -9,7 +9,7 @@ public class Card {
         this.name = name;
         this.id = INCREMENT;
 
-        INCREMENT++;
+        INCREMENT = INCREMENT >105?0 : INCREMENT+1;
     }
 
     public int getId() {

@@ -48,12 +48,13 @@ public interface IDiseaseRepository {
     void nextOutbreak() throws GameOverException;
 
     void nextInfectionMarker();
+    boolean isGameOver();
 
     void infect(Color color, City city) throws NoDiseaseOrOutbreakPossibleDueToEvent, NoCubesLeftException, GameOverException;
 
     default void initOutbreak(City city, Disease disease) throws GameOverException {
         nextOutbreak();
-
+        System.out.println("OUTBREAK");
         List<City> previousOutbreaks = new ArrayList<>();
         List<City> neighbors = city.getNeighbors();
 
