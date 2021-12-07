@@ -430,19 +430,16 @@ public class PlayerRepository {
 
             playerInfoState.setHeartbeat(true);
         } else {
-            // TODO agentstuff
-            /*
-             * agentDecision();
-             * cardRepository.drawPlayCard();
-             * nextState(getCurrentRoundState());
-             * cardRepository.drawPlayCard();
-             * nextState(getCurrentRoundState());
-             * cardRepository.drawInfectionCard();
-             * nextState(getCurrentRoundState());
-             * cardRepository.drawInfectionCard();
-             * nextState(getCurrentRoundState());
-             * boardRepository.setSelectedRoleAction(null);
-             */
+            agentDecision();
+            cardRepository.drawPlayCard();
+            nextState(getCurrentRoundState());
+            cardRepository.drawPlayCard();
+            nextState(getCurrentRoundState());
+            cardRepository.drawInfectionCard();
+            nextState(getCurrentRoundState());
+            cardRepository.drawInfectionCard();
+            nextState(getCurrentRoundState());
+            boardRepository.setSelectedRoleAction(null);
         }
 
     }

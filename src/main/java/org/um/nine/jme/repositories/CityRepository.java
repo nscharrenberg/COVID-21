@@ -2,6 +2,7 @@ package org.um.nine.jme.repositories;
 
 import com.jme3.math.Vector3f;
 import org.um.nine.headless.game.domain.City;
+import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.ResearchStation;
 import org.um.nine.headless.agents.state.GameStateFactory;
 import org.um.nine.jme.utils.JmeFactory;
