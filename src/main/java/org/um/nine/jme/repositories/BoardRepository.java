@@ -4,8 +4,11 @@ import org.um.nine.headless.agents.state.GameStateFactory;
 import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Difficulty;
+import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.roles.RoleAction;
+import org.um.nine.headless.game.exceptions.*;
 import org.um.nine.jme.JmeMain;
+import org.um.nine.jme.screens.dialogs.GameEndState;
 import org.um.nine.jme.screens.hud.OptionHudState;
 import org.um.nine.jme.utils.JmeFactory;
 
@@ -17,6 +20,14 @@ public class BoardRepository {
     private CityRepository cityRepository = JmeFactory.getCityRepository();
 
     private OptionHudState optionHudState = JmeFactory.getOptionHudState();
+
+    private PlayerRepository playerRepository = JmeFactory.getPlayerRepository();
+
+    private CardRepository cardRepository = JmeFactory.getCardRepository();
+
+    private GameEndState gameEndState = JmeFactory.getGameEndState();
+
+    private VisualRepository visualRepository = JmeFactory.getVisualRepository();
 
     public void preload() {
         GameStateFactory.getInitialState().getBoardRepository().preload();
@@ -33,37 +44,31 @@ public class BoardRepository {
         gameRepository.getApp().getStateManager().attach(optionHudState);
         optionHudState.setEnabled(true);
 
-        cityRepository.renderCities();
+        visualRepository.renderCities();
 
         City atlanta = cityRepository.getCities().get("Atlanta");
         playerRepository.getPlayers().forEach((key, player) -> {
             playerRepository.assignRoleToPlayer(player);
 
             atlanta.addPawn(player);
-            renderManager.renderPlayer(player, atlanta.getPawnPosition(player));
+            visualRepository.renderPlayer(player, atlanta.getPawnPosition(player));
         });
 
         try {
-            cityRepository.addResearchStation(atlanta, null);
+            cityRepository.addResearchStation(atlanta);
         } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException | InvalidMoveException e) {
             e.printStackTrace();
-        }
-
-        renderBoard();
-
-        renderCureSection();
-        renderOutbreakSection();
-        renderInfectionSection();
-
-        try {
-            cardRepository.buildDecks();
-        } catch (OutbreakException | NoDiseaseOrOutbreakPossibleDueToEvent e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (GameOverException | NoCubesLeftException e) {
-            gameRepository.getApp().getStateManager().attach(gameEndState);
-            gameEndState.setMessage("Game Over! You Lost!");
-            gameEndState.setEnabled(true);
         }
+
+        visualRepository.renderBoard();
+
+        visualRepository.renderCureSection();
+        visualRepository.renderOutbreakSection();
+        visualRepository.renderInfectionSection();
+
+        cardRepository.buildDecks();
 
         playerRepository.decidePlayerOrder();
         playerRepository.nextPlayer();

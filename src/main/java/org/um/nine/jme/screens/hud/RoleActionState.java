@@ -7,10 +7,13 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import org.um.nine.headless.game.domain.roles.RoleAction;
+import org.um.nine.headless.game.exceptions.*;
+import org.um.nine.jme.JmeGame;
 import org.um.nine.jme.repositories.BoardRepository;
 import org.um.nine.jme.repositories.GameRepository;
 import org.um.nine.jme.repositories.PlayerRepository;
 import org.um.nine.jme.utils.JmeFactory;
+import org.um.nine.jme.utils.MenuUtils;
 
 public class RoleActionState extends BaseAppState  {
     private Container window;
@@ -48,7 +51,7 @@ public class RoleActionState extends BaseAppState  {
                 if(type.equals(RoleAction.BUILD_RESEARCH_STATION)||type.equals(RoleAction.TAKE_ANY_DISCARED_EVENT)){
                     try {
                         playerRepository.action(null);
-                    } catch (InvalidMoveException | NoDiseaseOrOutbreakPossibleDueToEvent | NoActionSelectedException | ResearchStationLimitException | CityAlreadyHasResearchStationException | NoCubesLeftException | GameOverException e) {
+                    } catch (InvalidMoveException | NoActionSelectedException | ResearchStationLimitException | CityAlreadyHasResearchStationException | NoCubesLeftException | NoDiseaseOrOutbreakPossibleDueToEvent | GameOverException e) {
                         e.printStackTrace();
                     }
                 }
@@ -59,10 +62,10 @@ public class RoleActionState extends BaseAppState  {
             btnCount++;
         }
 
-        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        Vector3f size = MenuUtils.calculateMenusize(gameRepository.getApp(), window);
         size.addLocal(0, 0, 100);
         window.setLocalTranslation(size);
-        window.setLocalScale(Util.getStandardScale(window));
+        window.setLocalScale(MenuUtils.getStandardScale(window));
     }
 
     @Override
@@ -84,12 +87,12 @@ public class RoleActionState extends BaseAppState  {
 
     @Override
     protected void onEnable() {
-        Vector3f size = Util.calculateMenusize(gameRepository.getApp(), window);
+        Vector3f size = MenuUtils.calculateMenusize(gameRepository.getApp(), window);
         size.addLocal(0, 0, 100);
         window.setLocalTranslation(size);
-        window.setLocalScale(Util.getStandardScale(window));
+        window.setLocalScale(MenuUtils.getStandardScale(window));
 
-        Node gui = ((Game)getApplication()).getGuiNode();
+        Node gui = ((JmeGame)getApplication()).getGuiNode();
         gui.attachChild(window);
         GuiGlobals.getInstance().requestFocus(window);
     }
