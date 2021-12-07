@@ -7,6 +7,7 @@ import org.um.nine.headless.game.domain.roles.*;
 import org.um.nine.headless.game.exceptions.*;
 import org.um.nine.jme.screens.DialogBoxState;
 import org.um.nine.jme.screens.dialogs.DiscoverCureDialogBox;
+import org.um.nine.jme.screens.dialogs.ShareCityCardDialogBox;
 import org.um.nine.jme.screens.dialogs.TreatDiseaseDialogBox;
 import org.um.nine.jme.screens.hud.ContingencyPlannerState;
 import org.um.nine.jme.utils.JmeFactory;
@@ -28,6 +29,8 @@ public class PlayerRepository {
     private TreatDiseaseDialogBox treatDiseaseDialogBox = JmeFactory.getTreatDiseaseDialogBox();
 
     private DiscoverCureDialogBox discoverCureDialogBox = JmeFactory.getDiscoverCureDialogBox();
+
+    private ShareCityCardDialogBox shareCityCardDialogBox = new ShareCityCardDialogBox();
 
     /**
      * Resets state to its original data
@@ -138,7 +141,31 @@ public class PlayerRepository {
     }
 
     public void share(Player player, Player target, City city) throws Exception {
+        if (city.getPawns().size() <= 1) {
+            DialogBoxState dialog = new DialogBoxState("Can not share when you are the only pawn in the city.");
+            gameRepository.getApp().getStateManager().attach(dialog);
+            dialog.setEnabled(true);
+            return;
+        }
 
+        RoleAction action = RoleAction.GIVE_PLAYER_CITY_CARD;
+        if (player.getRole().actions(action) && boardRepository.getSelectedRoleAction().equals(action)
+                && !boardRepository.getUsedActions().contains(action)) {
+            boardRepository.getUsedActions().add(action);
+        } else {
+            if (!player.getCity().equals(city)) {
+                DialogBoxState dialog = new DialogBoxState(
+                        "Only able to share knowledge on the city the player is currently at.");
+                gameRepository.getApp().getStateManager().attach(dialog);
+                dialog.setEnabled(true);
+                return;
+            }
+        }
+
+        gameRepository.getApp().getStateManager().attach(shareCityCardDialogBox);
+        shareCityCardDialogBox.setCity(city);
+        shareCityCardDialogBox.setCurrentPlayer(player);
+        shareCityCardDialogBox.setEnabled(true);
         GameStateFactory.getInitialState().getPlayerRepository().share(player, target, city, card);
     }
 
