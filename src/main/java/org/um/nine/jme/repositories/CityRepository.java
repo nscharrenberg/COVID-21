@@ -21,8 +21,8 @@ public class CityRepository {
         GameStateFactory.getInitialState().getCityRepository().setCities(cities);
     }
 
-    public void addResearchStation(City city, Player player) throws Exception {
-        GameStateFactory.getInitialState().getCityRepository().addResearchStation(city, player);
+    public void addResearchStation(City city) throws Exception {
+        GameStateFactory.getInitialState().getCityRepository().addResearchStation(city);
     }
 
     /**
