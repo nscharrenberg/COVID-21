@@ -94,7 +94,7 @@ public class PathFinder {
         List<CityCard> citiesInHand = new ArrayList<>();
         Player p = state.getPlayerRepository().getCurrentPlayer();
         for (PlayerCard pc : p.getHand()) {
-            if (pc instanceof CityCard) citiesInHand.add((CityCard) pc);
+            if (pc instanceof CityCard) citiesInHand.add(new CityCard(((CityCard) pc).getCity()));
         }
 
         // remove city cards that would reduce chance of curing disease when discarded
@@ -128,6 +128,7 @@ public class PathFinder {
                     bestCard = i;
                 }
             }
+            gc.directFlightPath.directFlight = new ActionType.MovingAction(ActionType.DIRECT_FLIGHT, p.getCity(), gc.city);
             gc.directFlightPath.discardedCard = citiesInHand.size() > 0 ? citiesInHand.get(bestCard) : null;
             gc.directFlightPath.directFlightActionDepth = currentMin;
         }
@@ -287,6 +288,18 @@ public class PathFinder {
             return Map.entry(actions, gc);
         }
 
+        private Map.Entry<List<ActionType.MovingAction>, GCity> buildWalkPathPostDirect(GCity gc, int walkingActionDepth) {
+            List<ActionType.MovingAction> actions = new ArrayList<>();
+            if (gc.directFlightPath.postDirectWalking != null) {
+                for (int i = 0; i < walkingActionDepth; i++) {
+                    if (gc.directFlightPath.directFlight != null) break;
+                    actions.add(new ActionType.MovingAction(ActionType.DIRECT_FLIGHT, gc.directFlightPath.postDirectWalking.fromCity(), gc.city));
+                    gc = findGCity(gc.directFlightPath.postDirectWalking.fromCity());
+                }
+            }
+            return Map.entry(actions, gc);
+        }
+
         private List<ActionType.MovingAction> buildShuttlePath(GCity gc) {
             List<ActionType.MovingAction> shuttlePath = new ArrayList<>();
             if (gc.shuttlePath.shuttleActionDepth > 0 && gc.shuttlePath.shuttleActionDepth <= 4) {
@@ -303,11 +316,16 @@ public class PathFinder {
         private List<ActionType.MovingAction> buildDirectFlightPath(GCity gc) {
             List<ActionType.MovingAction> directFlightPath = new ArrayList<>();
             if (gc.directFlightPath.directFlightActionDepth > 0 && gc.directFlightPath.directFlightActionDepth <= 4) {
-                directFlightPath.add(new ActionType.MovingAction(ActionType.DIRECT_FLIGHT, getCurrentCity().city, gc.directFlightPath.discardedCard.getCity()));
-                directFlightPath.addAll(buildWalkPath(gc, gc.walkingPath.walkingActionDepth));
+                Map.Entry<List<ActionType.MovingAction>, GCity> path = buildWalkPathPostDirect(gc, gc.directFlightPath.directFlightActionDepth - 1);
+                directFlightPath = path.getKey();
+                gc = path.getValue();
+                directFlightPath.add(new ActionType.MovingAction(ActionType.DIRECT_FLIGHT, gc.directFlightPath.directFlight.fromCity(), gc.city));
+                gc = findGCity(gc.directFlightPath.directFlight.fromCity());
+                directFlightPath.addAll(buildWalkPath(gc, gc.directFlightPath.directFlightActionDepth));
             }
             return directFlightPath;
         }
+
 
         private List<ActionType.MovingAction> buildCharterFlightPath(GCity gc) {
             List<ActionType.MovingAction> charterFlightPath = new ArrayList<>();
@@ -336,7 +354,7 @@ public class PathFinder {
                 dest.shortestCharterFlightPath = buildCharterFlightPath(dest);
             }
 
-
+            /*
             if (dest.shortestWalkingPath.isEmpty() && dest.shortestShuttlingPath.isEmpty() && dest.shortestCharterFlightPath.isEmpty() && dest.shortestDirectFlightPath.isEmpty()) return new ArrayList<>();
             int walkLength = dest.shortestWalkingPath.isEmpty() ? MAX_VALUE : dest.shortestWalkingPath.size();
             int shuttleLength = dest.shortestShuttlingPath.isEmpty() ? MAX_VALUE : dest.shortestShuttlingPath.size();
@@ -347,11 +365,21 @@ public class PathFinder {
                 return dest.shortestWalkingPath;
             } else if ((shuttleLength <= dest.shortestCharterFlightPath.size()) && (shuttleLength <= directLength)) {
                 return dest.shortestShuttlingPath;
-            } else if ((charterLength <= directLength)) {
+            }
+
+            else if ((charterLength <= directLength)) {
                 return dest.shortestCharterFlightPath;
             } else{
                 return dest.shortestDirectFlightPath;
             }
+             */
+
+            if (dest.shortestWalkingPath.isEmpty() && dest.shortestShuttlingPath.isEmpty()) return new ArrayList<>();
+            else if (dest.shortestWalkingPath.isEmpty()) return dest.shortestShuttlingPath;
+            else if (dest.shortestShuttlingPath.isEmpty()) return dest.shortestWalkingPath;
+            else
+                return dest.shortestShuttlingPath.size() < dest.shortestWalkingPath.size() ? dest.shortestShuttlingPath : dest.shortestWalkingPath;
+
         }
     }
 
@@ -367,6 +395,7 @@ public class PathFinder {
     }
 
     private static class DirectFlightPath {
+        public ActionType.MovingAction postDirectWalking;
         private ActionType.MovingAction directFlight;
         private int directFlightActionDepth;
         private CityCard discardedCard;

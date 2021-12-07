@@ -35,7 +35,7 @@ public class PlayerRepository implements IPlayerRepository {
     private boolean logged = false;
 
     public PlayerRepository() {
-        reset();
+
     }
 
     @Override
@@ -304,7 +304,6 @@ public class PlayerRepository implements IPlayerRepository {
 
         this.state.getDiseaseRepository().treat(player, city, color);
         log.addStep(" treat in " + city.getName(), city, player);
-        nextTurn(this.currentRoundState);
     }
 
     @Override
@@ -335,7 +334,6 @@ public class PlayerRepository implements IPlayerRepository {
         player.addHand(card);
 
         log.addStep(" shared " + city.getName() + " with " + target.getName(), city, player);
-        nextTurn(this.currentRoundState);
     }
 
     @Override
