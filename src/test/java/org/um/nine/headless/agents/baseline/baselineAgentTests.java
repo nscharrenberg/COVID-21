@@ -1,8 +1,7 @@
-package org.um.nine.headless.agents;
+package org.um.nine.headless.agents.baseline;
 
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.um.nine.headless.agents.baseline.BaselineAgent;
 import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.agents.utils.ExperimentalGame;
 import org.um.nine.headless.agents.utils.Log;

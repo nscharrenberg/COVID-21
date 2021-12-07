@@ -37,4 +37,6 @@ public interface IBoardRepository {
     void setDifficulty(Difficulty difficulty);
 
     void resetRound();
+
+    void reset();
 }

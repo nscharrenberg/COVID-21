@@ -21,7 +21,7 @@ public class Settings {
     public static final List<String> RS = List.of("Atlanta");
     public static final String START_CITY = RS.get(0);
     public static final boolean HEADLESS = true;
-    public static final boolean DEFAULT_INITIAL_STATE = true;
+    public static final boolean DEFAULT_INITIAL_STATE = false;
     public static final int DEFAULT_PLAYERS = 4;
     public static final Map<String, ? extends Role> DEFAULT_ROLES = Map.of(
             "Bot 1",new OperationsExpert(),

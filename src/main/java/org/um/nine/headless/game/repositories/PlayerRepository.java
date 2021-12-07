@@ -334,6 +334,7 @@ public class PlayerRepository implements IPlayerRepository {
         player.addHand(card);
 
         log.addStep(" shared " + city.getName() + " with " + target.getName(), city, player);
+        nextTurn(this.currentRoundState);
     }
 
     @Override

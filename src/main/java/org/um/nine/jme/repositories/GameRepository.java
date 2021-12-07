@@ -72,6 +72,7 @@ public class GameRepository {
 //        inputManager.init();
 
         // Initiate Game Graphics
+        GameStateFactory.getInitialState().getBoardRepository().reset();
         GameStateFactory.getInitialState().getBoardRepository().start();
     }
 
