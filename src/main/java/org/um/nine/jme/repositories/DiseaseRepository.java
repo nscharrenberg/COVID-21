@@ -1,7 +1,9 @@
 package org.um.nine.jme.repositories;
 
+import com.jme3.scene.Spatial;
 import org.um.nine.headless.agents.state.GameStateFactory;
 import org.um.nine.headless.game.domain.*;
+import org.um.nine.headless.game.domain.roles.RoleEvent;
 import org.um.nine.headless.game.exceptions.*;
 import org.um.nine.jme.utils.JmeFactory;
 
@@ -69,10 +71,38 @@ public class DiseaseRepository {
      * 
      * @param pawn  - The pawn that is trying to treat the disease
      * @param city  - The City that contains the disease
-     * @param color - the color of the disease it should treat
+     * @param disease - the color of the disease it should treat
      */
-    public void treat(Player pawn, City city, Color color) {
-        GameStateFactory.getInitialState().getDiseaseRepository().treat(pawn, city, color);
+    public void treat(Player pawn, City city, Disease disease) {
+        String cubeName = disease.toString();
+        Spatial cubeSpatial = JmeFactory.getGameRepository().getApp().getRootNode().getChild(cubeName);
+
+        HashMap<Color, Cure> cures = GameStateFactory.getInitialState().getDiseaseRepository().getCures();
+
+        if (cures.get(disease.getColor()).isDiscovered() || pawn.getRole().events(RoleEvent.REMOVE_ALL_CUBES_OF_A_COLOR)) {
+            for (int i = city.getCubes().size()-1; i >= 0; i--) {
+                Disease cube = city.getCubes().get(i);
+
+                if (cube.getColor().equals(disease.getColor())) {
+                    String tempCubeName = cube.toString();
+                    city.getCubes().remove(cube);
+                    cube.setCity(null);
+
+                    Spatial tempCubeSpatial = JmeFactory.getGameRepository().getApp().getRootNode().getChild(tempCubeName);
+
+                    if (tempCubeSpatial != null) {
+                        tempCubeSpatial.removeFromParent();
+                    }
+                }
+            }
+        }
+        else{
+            city.getCubes().remove(disease);
+            disease.setCity(null);
+            if (cubeSpatial != null) {
+                cubeSpatial.removeFromParent();
+            }
+        }
     }
 
     /**

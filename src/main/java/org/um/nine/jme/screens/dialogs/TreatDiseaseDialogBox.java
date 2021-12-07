@@ -68,7 +68,7 @@ public class TreatDiseaseDialogBox extends BaseAppState {
             button.setInsets(new Insets3f(10, 10, 0, 10));
 
             button.addClickCommands(c -> {
-                diseaseRepository.treat(player, city, disease.getColor());
+                diseaseRepository.treat(player, city, disease);
                 playerRepository.nextState(playerRepository.getCurrentRoundState());
                 setEnabled(false);
             });
