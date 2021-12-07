@@ -126,4 +126,6 @@ public interface IDiseaseRepository {
     InfectionRateMarker getCurrentInfectionRate();
 
     InfectionRateMarker getLastInfectionRate();
+
+    Disease getDiseaseCube();
 }

@@ -23,6 +23,7 @@ public class DiseaseRepository implements IDiseaseRepository {
     private boolean gameOver;
     private InfectionRateMarker currentInfectionRate;
     private InfectionRateMarker lastInfectionRate;
+    private Disease diseaseCube;
     public DiseaseRepository() {
     }
 
@@ -115,7 +116,7 @@ public class DiseaseRepository implements IDiseaseRepository {
         }
 
         Disease found = this.cubes.get(color).stream().filter(v -> v.getCity() == null).findFirst().orElse(null);
-
+        diseaseCube = found;
         if (found == null) {
             this.gameOver = true;
             throw new NoCubesLeftException(color);
@@ -275,5 +276,10 @@ public class DiseaseRepository implements IDiseaseRepository {
     @Override
     public InfectionRateMarker getLastInfectionRate() {
         return lastInfectionRate;
+    }
+
+    @Override
+    public Disease getDiseaseCube() {
+        return diseaseCube;
     }
 }
