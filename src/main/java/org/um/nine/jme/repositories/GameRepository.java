@@ -17,6 +17,7 @@ import org.um.nine.headless.game.Settings;
 import org.um.nine.jme.JmeGame;
 import org.um.nine.jme.screens.MainMenuState;
 import org.um.nine.jme.utils.JmeFactory;
+import org.um.nine.jme.utils.managers.InputManager;
 
 import java.awt.*;
 
@@ -70,12 +71,12 @@ public class GameRepository {
         app.getCamera().setFrustumFar(3000);
         app.getCamera().setLocation(new Vector3f(0, 0,1500));
 
-//        inputManager.init();
+        JmeFactory.getInputManager().init();
 
         // Initiate Game Graphics
-        JmeFactory.init(this);
-        GameStateFactory.getInitialState().getBoardRepository().reset();
-        GameStateFactory.getInitialState().getBoardRepository().start();
+        JmeFactory.getBoardRepository().reset();
+        GameStateFactory.getInitialState().getBoardRepository().setState(GameStateFactory.getInitialState());
+        JmeFactory.getBoardRepository().start();
     }
 
     private void addAmbientLight() {

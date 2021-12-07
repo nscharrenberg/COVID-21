@@ -126,6 +126,12 @@ public class BoardRepository {
      * Reset the whole game state
      */
     public void reset() {
+        this.cityRepository = JmeFactory.getCityRepository();
+        this.optionHudState = JmeFactory.getOptionHudState();
+        this.playerRepository = JmeFactory.getPlayerRepository();
+        this.cardRepository = JmeFactory.getCardRepository();
+        this.gameEndState = JmeFactory.getGameEndState();
+        this.visualRepository = JmeFactory.getVisualRepository();
         GameStateFactory.getInitialState().getBoardRepository().reset();
     }
 }

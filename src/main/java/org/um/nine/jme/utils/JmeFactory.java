@@ -5,6 +5,7 @@ import org.um.nine.headless.agents.state.GameStateFactory;
 import org.um.nine.jme.repositories.*;
 import org.um.nine.jme.screens.dialogs.*;
 import org.um.nine.jme.screens.hud.*;
+import org.um.nine.jme.utils.managers.InputManager;
 
 
 public class JmeFactory {
@@ -30,6 +31,7 @@ public class JmeFactory {
     private static PlayerInfoState playerInfoState;
     private static RoleActionState roleActionState;
     private static RuleState ruleState;
+    private static InputManager inputManager;
 
     public static void init(GameRepository gr){
         //initializing GameStateFactory in case it has not been initialized yet
@@ -56,10 +58,22 @@ public class JmeFactory {
         playerInfoState = new PlayerInfoState();
         roleActionState = new RoleActionState();
         ruleState = new RuleState();
+        inputManager = new InputManager();
+
+        boardRepository.reset();
+        playerRepository.reset();
+        visualRepository.reset();
+        discardCardDialog.reset();
+        cityRepository.reset();
+        diseaseRepository.reset();
     }
 
     public static GameRepository getGameRepository() {
         return gameRepository;
+    }
+
+    public static InputManager getInputManager() {
+        return inputManager;
     }
 
     public static BoardRepository getBoardRepository() {

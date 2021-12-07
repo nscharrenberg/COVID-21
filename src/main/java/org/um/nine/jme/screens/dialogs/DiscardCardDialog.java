@@ -120,4 +120,8 @@ public class DiscardCardDialog extends BaseAppState {
         heartbeat=state;
     }
 
+    public void reset(){
+        this.gameRepository = JmeFactory.getGameRepository();
+        this.playerInfoState = JmeFactory.getPlayerInfoState();
+    }
 }

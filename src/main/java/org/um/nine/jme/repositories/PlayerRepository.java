@@ -36,10 +36,22 @@ public class PlayerRepository {
     private CardRepository cardRepository = JmeFactory.getCardRepository();
 
     private PlayerInfoState playerInfoState = JmeFactory.getPlayerInfoState();
+
+    private VisualRepository visualRepository = JmeFactory.getVisualRepository();
     /**
      * Resets state to its original data
      */
     public void reset() {
+        this.boardRepository = JmeFactory.getBoardRepository();
+        this.contingencyPlannerState = JmeFactory.getContingencyPlannerState();
+        this.gameRepository = JmeFactory.getGameRepository();
+        this.cityRepository = JmeFactory.getCityRepository();
+        this.treatDiseaseDialogBox = JmeFactory.getTreatDiseaseDialogBox();
+        this.discoverCureDialogBox = JmeFactory.getDiscoverCureDialogBox();
+        this.shareCityCardDialogBox = JmeFactory.getShareCityCardDialogBox();
+        this.cardRepository = JmeFactory.getCardRepository();
+        this.playerInfoState = JmeFactory.getPlayerInfoState();
+        this.visualRepository = JmeFactory.getVisualRepository();
         GameStateFactory.getInitialState().getPlayerRepository().reset();
     }
 
@@ -62,6 +74,7 @@ public class PlayerRepository {
 
     public void drive(Player player, City city) throws InvalidMoveException {
         GameStateFactory.getInitialState().getPlayerRepository().drive(player, city);
+        visualRepository.renderPlayer(player, city.getPawnPosition(player));
     }
 
     /**

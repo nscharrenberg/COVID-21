@@ -118,4 +118,12 @@ public interface IDiseaseRepository {
     HashMap<Color, List<Disease>> getCubes();
 
     void setCubes(HashMap<Color, List<Disease>> cubes);
+
+    OutbreakMarker getCurrentOutbreakMarker();
+
+    OutbreakMarker getLastOutbreakMarker();
+
+    InfectionRateMarker getCurrentInfectionRate();
+
+    InfectionRateMarker getLastInfectionRate();
 }

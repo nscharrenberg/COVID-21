@@ -3,11 +3,14 @@ package org.um.nine.jme.repositories;
 import org.um.nine.headless.agents.state.GameStateFactory;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.exceptions.*;
+import org.um.nine.jme.utils.JmeFactory;
 
 import java.util.HashMap;
 import java.util.List;
 
 public class DiseaseRepository {
+
+    private VisualRepository visualRepository = JmeFactory.getVisualRepository();
 
     public DiseaseRepository() {
     }
@@ -19,6 +22,8 @@ public class DiseaseRepository {
      */
     public void nextOutbreak() throws GameOverException {
         GameStateFactory.getInitialState().getDiseaseRepository().nextOutbreak();
+        visualRepository.renderOutbreakMarker(GameStateFactory.getInitialState().getDiseaseRepository().getLastOutbreakMarker());
+        visualRepository.renderOutbreakMarker(GameStateFactory.getInitialState().getDiseaseRepository().getCurrentOutbreakMarker());
     }
 
     /**
@@ -28,6 +33,8 @@ public class DiseaseRepository {
      */
     public void nextInfectionMarker() {
         GameStateFactory.getInitialState().getDiseaseRepository().nextInfectionMarker();
+        visualRepository.renderInfectionMarker(GameStateFactory.getInitialState().getDiseaseRepository().getLastInfectionRate());
+        visualRepository.renderInfectionMarker(GameStateFactory.getInitialState().getDiseaseRepository().getCurrentInfectionRate());
     }
 
     public boolean isGameOver() {
@@ -90,6 +97,7 @@ public class DiseaseRepository {
      * Resets the state back to its original data
      */
     public void reset() {
+        visualRepository = JmeFactory.getVisualRepository();
         GameStateFactory.getInitialState().getDiseaseRepository().reset();
     }
 
