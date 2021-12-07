@@ -8,15 +8,12 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
 import com.simsilica.lemur.component.QuadBackgroundComponent;
+import org.um.nine.headless.game.domain.City;
+import org.um.nine.headless.game.domain.Player;
+import org.um.nine.jme.repositories.GameRepository;
 import org.um.nine.jme.screens.DialogBoxState;
-import org.um.nine.jme.screens.utils.Util;
-import org.um.nine.v1.Game;
-import org.um.nine.v1.contracts.repositories.IGameRepository;
-import org.um.nine.v1.domain.City;
-import org.um.nine.v1.domain.Player;
-import org.um.nine.v1.domain.cards.CityCard;
-import org.um.nine.v1.domain.cards.PlayerCard;
-import org.um.nine.v1.exceptions.UnableToShareKnowledgeException;
+import org.um.nine.jme.utils.JmeFactory;
+
 
 public class ShareCityCardDialogBox extends BaseAppState {
     private Container window;
@@ -25,11 +22,9 @@ public class ShareCityCardDialogBox extends BaseAppState {
     private City city;
     private boolean heartbeat = false;
 
-    @Inject
-    private ShareCityCardConfirmationDialogBox shareCityCardConfirmationDialogBox;
+    private ShareCityCardConfirmationDialogBox shareCityCardConfirmationDialogBox = JmeFactory.getShareCityCardConfirmationDialogBox();
 
-    @Inject
-    private IGameRepository gameRepository;
+    private GameRepository gameRepository = JmeFactory.getGameRepository();
 
     public ShareCityCardDialogBox() {
         this.currentPlayer = null;
