@@ -5,7 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.um.nine.headless.agents.state.GameStateFactory;
 import org.um.nine.headless.agents.state.IState;
-import org.um.nine.headless.game.domain.Difficulty;
 
 class MacroActionFactoryTest {
 
@@ -26,20 +25,22 @@ class MacroActionFactoryTest {
     @BeforeEach
     void setUp() {
         try {
-            GameStateFactory.getInitialState().getPlayerRepository().createPlayer("Test1",false);
-            GameStateFactory.getInitialState().getPlayerRepository().createPlayer("Test2",false);
-            GameStateFactory.getInitialState().getBoardRepository().setDifficulty(Difficulty.EASY);
-            GameStateFactory.getInitialState().getBoardRepository().start();
+            GameStateFactory.createInitialState();
+            GameStateFactory.getInitialState().getBoardRepository().reset();
+
             GameStateFactory.getInitialState().getCityRepository().addResearchStation(
                     GameStateFactory.getInitialState().getCityRepository().getCities().get("Tokyo")
             );
             GameStateFactory.getInitialState().getCityRepository().addResearchStation(
                     GameStateFactory.getInitialState().getCityRepository().getCities().get("Cairo")
             );
+            GameStateFactory.getInitialState().getBoardRepository().start();
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.state = GameStateFactory.getInitialState().getClonedState();
+        this.state = GameStateFactory.getInitialState();
     }
 
 

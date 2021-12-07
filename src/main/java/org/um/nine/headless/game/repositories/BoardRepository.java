@@ -40,7 +40,6 @@ public class BoardRepository implements IBoardRepository {
     @Override
     public void start() {
         resetRound();
-        reset();
         this.difficulty = this.difficulty == null? Settings.DEFAULT_DIFFICULTY : this.difficulty;
         City atlanta = this.state.getCityRepository().getCities().get(Settings.START_CITY);
 
@@ -124,6 +123,7 @@ public class BoardRepository implements IBoardRepository {
     /**
      * Reset the whole game state
      */
+    @Override
     public void reset() {
         this.state.getPlayerRepository().reset();
         this.state.getDiseaseRepository().reset();

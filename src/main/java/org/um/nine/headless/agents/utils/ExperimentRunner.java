@@ -10,7 +10,6 @@ public class ExperimentRunner {
         if (HEADLESS) {
             ExperimentalGame game = new ExperimentalGame();
             game.start();
-            game.getCurrentState().getClonedState();
             RheaExperiment experiment = new RheaExperiment(game);
             experiment.runExperiment();
         }

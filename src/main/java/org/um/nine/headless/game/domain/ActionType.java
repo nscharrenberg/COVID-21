@@ -41,6 +41,8 @@ public enum ActionType {
             String lbl = switch (action) {
                 case DRIVE -> "w";
                 case SHUTTLE -> "s";
+                case DIRECT_FLIGHT -> "d";
+                case CHARTER_FLIGHT -> "c";
                 default -> "?";
             };
             return "{" + toCity.getName() + " <-"+lbl+"- " + fromCity.getName() + "}";

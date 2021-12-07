@@ -10,7 +10,6 @@ import org.um.nine.headless.game.domain.Disease;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public record RheaExperiment(ExperimentalGame game) {
@@ -60,7 +59,11 @@ public record RheaExperiment(ExperimentalGame game) {
                 int n = nextMacro.standingActions().size() - treated;
                 Map<Color, List<Disease>> grouped = game.getCurrentState().getPlayerRepository().getCurrentPlayer().getCity().getCubes().stream().collect(Collectors.groupingBy(Disease::getColor));
                 var c = grouped.entrySet().stream().filter(list -> list.getValue().size() >= n).findFirst().orElse(null);
-                obj = new Object[]{Objects.requireNonNull(c).getKey()};
+                if (c == null) continue;
+                //FIXME: here we ignore this issue but this should not actually happen..
+                // by exiting the loop we don't update actions so we will still have the
+                // free action to spend later on
+                obj = new Object[]{c.getKey()};
                 treated++;
             }
             try {
@@ -78,7 +81,14 @@ public record RheaExperiment(ExperimentalGame game) {
             MacroAction remaining = MacroActionFactory.findSuitableMacro(4 - actions);
             int nextActions = executeMovingActions(game, remaining);
             nextActions = executeStandingActions(nextActions, game, remaining);
-            if (actions + nextActions != 4) throw new IllegalStateException("WTF?" + actions);
+            while (actions + nextActions != 4) {
+                try {
+                    game.getCurrentState().getPlayerRepository().playerAction(ActionType.SKIP_ACTION);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                nextActions++;
+            }
         }
         try {
             game.getCurrentState().getPlayerRepository().playerAction(null);

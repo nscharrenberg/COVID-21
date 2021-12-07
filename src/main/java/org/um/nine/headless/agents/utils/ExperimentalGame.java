@@ -19,6 +19,7 @@ public class ExperimentalGame {
     }
 
     public void start() {
+        this.initialState.getBoardRepository().reset();
         this.initialState.getBoardRepository().start();
     }
     public List<MacroAction> getActionsHistory() {
