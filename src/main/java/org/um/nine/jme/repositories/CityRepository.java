@@ -27,6 +27,7 @@ public class CityRepository {
 
     public void addResearchStation(City city) throws Exception {
         GameStateFactory.getInitialState().getCityRepository().addResearchStation(city);
+        visualRepository.renderResearchStation(city.getResearchStation(), new Vector3f(-20, 5, 0));
     }
 
     public void addResearchStation(City city, Player player) throws Exception {
