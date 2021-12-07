@@ -76,7 +76,6 @@ public class PlayerRepository {
 
     public void drive(Player player, City city) throws InvalidMoveException {
         GameStateFactory.getInitialState().getPlayerRepository().drive(player, city);
-        visualRepository.renderPlayer(player, city.getPawnPosition(player));
     }
 
     /**
