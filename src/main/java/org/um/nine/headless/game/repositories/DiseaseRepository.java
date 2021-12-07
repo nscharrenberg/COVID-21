@@ -1,11 +1,14 @@
 package org.um.nine.headless.game.repositories;
 
+import org.um.nine.headless.agents.state.GameStateFactory;
 import org.um.nine.headless.game.contracts.repositories.IDiseaseRepository;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.RoleEvent;
 import org.um.nine.headless.game.exceptions.*;
+import org.um.nine.jme.utils.JmeFactory;
+import org.um.nine.v1.Info;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -125,6 +128,10 @@ public class DiseaseRepository implements IDiseaseRepository {
         found.setCity(city);
         if(!city.addCube(found)) {
             initOutbreak(city, found);
+        }
+
+        if(Info.visualize){
+            JmeFactory.getVisualRepository().renderDisease(found, city.getCubePosition(found));
         }
     }
 
