@@ -5,6 +5,7 @@ import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.roles.RoleAction;
+import org.um.nine.jme.JmeMain;
 
 import java.util.List;
 
@@ -21,7 +22,44 @@ public class BoardRepository {
      */
 
     public void start() {
-        GameStateFactory.getInitialState().getBoardRepository().start();
+        GameRepository gameRepository = JmeMain.getGameRepository();
+        gameRepository.getApp().getStateManager().attach(optionHudState);
+        optionHudState.setEnabled(true);
+
+        cityRepository.renderCities();
+
+        org.um.nine.v1.domain.City atlanta = cityRepository.getCities().get("Atlanta");
+        playerRepository.getPlayers().forEach((key, player) -> {
+            playerRepository.assignRoleToPlayer(player);
+
+            atlanta.addPawn(player);
+            renderManager.renderPlayer(player, atlanta.getPawnPosition(player));
+        });
+
+        try {
+            cityRepository.addResearchStation(atlanta, null);
+        } catch (ResearchStationLimitException | CityAlreadyHasResearchStationException | InvalidMoveException e) {
+            e.printStackTrace();
+        }
+
+        renderBoard();
+
+        renderCureSection();
+        renderOutbreakSection();
+        renderInfectionSection();
+
+        try {
+            cardRepository.buildDecks();
+        } catch (OutbreakException | NoDiseaseOrOutbreakPossibleDueToEvent e) {
+            e.printStackTrace();
+        } catch (GameOverException | NoCubesLeftException e) {
+            gameRepository.getApp().getStateManager().attach(gameEndState);
+            gameEndState.setMessage("Game Over! You Lost!");
+            gameEndState.setEnabled(true);
+        }
+
+        playerRepository.decidePlayerOrder();
+        playerRepository.nextPlayer();
     }
 
     public City getSelectedCity() {

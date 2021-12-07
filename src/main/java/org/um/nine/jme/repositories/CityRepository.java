@@ -1,6 +1,7 @@
 package org.um.nine.jme.repositories;
 
 import org.um.nine.headless.game.domain.City;
+import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.ResearchStation;
 import org.um.nine.headless.agents.state.GameStateFactory;
 
@@ -20,8 +21,8 @@ public class CityRepository {
         GameStateFactory.getInitialState().getCityRepository().setCities(cities);
     }
 
-    public void addResearchStation(City city) throws Exception {
-        GameStateFactory.getInitialState().getCityRepository().addResearchStation(city);
+    public void addResearchStation(City city, Player player) throws Exception {
+        GameStateFactory.getInitialState().getCityRepository().addResearchStation(city, player);
     }
 
     /**
