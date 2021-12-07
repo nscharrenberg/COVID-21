@@ -16,7 +16,8 @@ public interface ICardRepository {
 
     void reset();
 
-    void drawPlayerCard(PlayerCard... toDiscard) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
+    void drawPlayerCard(PlayerCard... toDiscard)
+            throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
 
     void drawInfectionCard() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
 
