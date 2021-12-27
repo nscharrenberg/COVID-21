@@ -45,6 +45,7 @@ public record MacroActionsExecutor(ExperimentalGame game) {
             Collections.reverse(nextMacro.movingActions());
             Collections.reverse(nextMacro.standingActions());
         }
+
         actionsLeft = executeMovingActionsDefaultOrder(state, nextMacro);
         actionsLeft = executeStandingActionsDefaultOrder(actionsLeft, state, nextMacro);
         executeRestOfActions(actionsLeft, state, nextMacro, draw);
@@ -72,7 +73,7 @@ public record MacroActionsExecutor(ExperimentalGame game) {
         }
     }
 
-    private static void logPlayer(IState state) {
+    public static void logPlayer(IState state) {
         System.out.println("Player " +
                 state.getPlayerRepository().
                         getCurrentPlayer() + " - " +
@@ -88,7 +89,7 @@ public record MacroActionsExecutor(ExperimentalGame game) {
 
     }
 
-    private static void logDiseases(IState state) {
+    public static void logDiseases(IState state) {
         List<String> s = new ArrayList<>();
         for (City c : state.getCityRepository().getCities().values()) {
             Map<String, List<Disease>> grouped = c.getCubes().stream().collect(

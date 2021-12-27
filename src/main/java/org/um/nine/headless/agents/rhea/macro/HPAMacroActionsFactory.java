@@ -39,14 +39,18 @@ public class HPAMacroActionsFactory extends MacroActionFactory {
                 new ExperimentalGame(state)
         );
 
+        MacroActionsExecutor.logPlayer(state);
+        MacroActionsExecutor.logDiseases(state);
         Player player = state.getPlayerRepository().getCurrentPlayer();
         City currentCity = player.getCity();
+        System.out.println("======================================================================");
 
         for (int i = 0; i < individual.genome().length; i++) {
             individual.genome()[i] = init(state, currentCity, player).getActions().get(0);
             simulator.executeMacroAction(state, individual.genome()[i], true, false);
             state.getPlayerRepository().setCurrentPlayer(player); //trick the game logic here to allow fault turn
             currentCity = player.getCity();
+            System.out.println("======================================================================");
         }
     }
 
