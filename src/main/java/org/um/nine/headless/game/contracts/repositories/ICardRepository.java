@@ -6,21 +6,18 @@ import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.exceptions.GameOverException;
 import org.um.nine.headless.game.exceptions.NoCubesLeftException;
 import org.um.nine.headless.game.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
-import org.um.nine.headless.game.repositories.CardRepository;
 
 import java.util.LinkedList;
 import java.util.Stack;
 
 public interface ICardRepository {
-    CardRepository setState(IState state);
-
     void reset();
 
-    void drawPlayerCard(PlayerCard... toDiscard) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
+    void drawPlayerCard(IState state, PlayerCard... toDiscard) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
 
-    void drawInfectionCard() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
+    void drawInfectionCard(IState state) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
 
-    void buildDecks();
+    void buildDecks(IState state);
 
     Stack<PlayerCard> getPlayerDeck();
 

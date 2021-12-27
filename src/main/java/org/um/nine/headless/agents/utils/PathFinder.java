@@ -21,14 +21,27 @@ import static java.lang.Integer.MAX_VALUE;
 public class PathFinder {
 
     private final IState state;
+    private GCity currentCity;
+    private Player currentPlayer;
     private final List<GCity> costGraph;
     private final List<GCity> visitedCities = new ArrayList<>();
 
     private PathFinder(IState state) {
         this.state = state;
         costGraph = new ArrayList<>();
+        currentCity = getCurrentCity();
         for (City c : this.state.getCityRepository().getCities().values())
             costGraph.add(new GCity(c));
+    }
+
+    private PathFinder(IState state, City city, Player player) {
+        this.state = state;
+        costGraph = new ArrayList<>();
+        for (City c : this.state.getCityRepository().getCities().values())
+            costGraph.add(new GCity(c));
+
+        currentPlayer = player;
+        currentCity = findGCity(city);
     }
 
     public final void evaluateCostGraph() {
@@ -55,7 +68,7 @@ public class PathFinder {
 
     private void evaluateCostGraphCharterFlight() {
         List<CityCard> citiesInHand = new ArrayList<>();
-        Player p = state.getPlayerRepository().getCurrentPlayer();
+        Player p = getCurrentPlayer();
         for (PlayerCard pc : p.getHand()) {
             if (pc instanceof CityCard) citiesInHand.add((CityCard) pc);
         }
@@ -92,7 +105,7 @@ public class PathFinder {
 
     private void evaluateCostGraphDirectFlight() {
         List<CityCard> citiesInHand = new ArrayList<>();
-        Player p = state.getPlayerRepository().getCurrentPlayer();
+        Player p = getCurrentPlayer();
         for (PlayerCard pc : p.getHand()) {
             if (pc instanceof CityCard) citiesInHand.add(new CityCard(((CityCard) pc).getCity()));
         }
@@ -225,7 +238,16 @@ public class PathFinder {
     }
 
     public GCity getCurrentCity() {
-        return this.costGraph.stream().filter(gc -> gc.city.equals(this.state.getPlayerRepository().getCurrentPlayer().getCity())).findFirst().orElse(null);
+        return currentCity == null ?
+                this.currentCity = this.costGraph.stream().
+                        filter(gc ->
+                                gc.city.equals(getCurrentPlayer().getCity())).
+                        findFirst().orElse(null)
+                : this.currentCity;
+    }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer == null ? state.getPlayerRepository().getCurrentPlayer() : currentPlayer;
     }
 
     public GCity findGCity(City c) {
@@ -235,7 +257,7 @@ public class PathFinder {
     private Player getMaxAcPlayer(Color t) {
         double maxAc = 0;
         Player maxP = null;
-        for (Player p : state.getPlayerRepository().getPlayerOrder()) {
+        for (Player p : state.getPlayerRepository().getPlayers().values()) {
             double ac = Ac(p, t);
             maxAc = Math.max(maxAc, ac);
             maxP = p;
@@ -262,6 +284,11 @@ public class PathFinder {
     public static class Descriptor extends PathFinder {
         public Descriptor(IState state) {
             super(state);
+            super.evaluateCostGraph();
+        }
+
+        public Descriptor(IState state, City city, Player player) {
+            super(state, city, player);
             super.evaluateCostGraph();
         }
 

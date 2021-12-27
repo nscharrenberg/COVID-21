@@ -19,14 +19,6 @@ public class BoardRepository implements IBoardRepository {
     private ActionType selectedPlayerAction;
     private List<RoleAction> usedActions = new ArrayList<>();
     private Difficulty difficulty;
-    private IState state;
-
-    @Override
-    public BoardRepository setState(IState state){
-        this.state = state;
-        return this;
-    }
-    
     
     @Override
     public void preload() {
@@ -38,22 +30,21 @@ public class BoardRepository implements IBoardRepository {
      * Loading cities, Assigning Roles, Distributing Cards, Infecting Cities, deciding first player
      */
     @Override
-    public void start() {
-        resetRound();
-        this.difficulty = this.difficulty == null? Settings.DEFAULT_DIFFICULTY : this.difficulty;
-        City atlanta = this.state.getCityRepository().getCities().get(Settings.START_CITY);
+    public void start(IState state) {
+        this.difficulty = this.difficulty == null ? Settings.DEFAULT_DIFFICULTY : this.difficulty;
+        City atlanta = state.getCityRepository().getCities().get(Settings.START_CITY);
 
-        this.state.getPlayerRepository().getPlayers().forEach((k, p) -> {
+        state.getPlayerRepository().getPlayers().forEach((k, p) -> {
 
             if (!DEFAULT_INITIAL_STATE)
-                this.state.getPlayerRepository().assignRoleToPlayer(p);
+                state.getPlayerRepository().assignRoleToPlayer(p);
 
             atlanta.addPawn(p);
         });
 
-        this.state.getCardRepository().buildDecks();
-        this.state.getPlayerRepository().decidePlayerOrder();
-        this.state.getPlayerRepository().nextPlayer();
+        state.getCardRepository().buildDecks(state);
+        state.getPlayerRepository().decidePlayerOrder();
+        state.getPlayerRepository().nextPlayer();
     }
 
 
@@ -117,7 +108,6 @@ public class BoardRepository implements IBoardRepository {
         selectedRoleAction = null;
         usedActions = new ArrayList<>();
 
-        this.state.getPlayerRepository().resetRound();
     }
 
     /**
@@ -125,10 +115,7 @@ public class BoardRepository implements IBoardRepository {
      */
     @Override
     public void reset() {
-        this.state.getPlayerRepository().reset();
-        this.state.getDiseaseRepository().reset();
-        this.state.getCityRepository().reset();
-        this.state.getPlayerRepository().reset();
-        this.state.getCardRepository().reset();
+        resetRound();
+
     }
 }

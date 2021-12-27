@@ -27,7 +27,7 @@ public class GameStartTest {
         String playerThree = "Bot 3";
         String playerFour = "Bot 4";
 
-        new ExperimentalGame().start();
+        new ExperimentalGame();
         IState initialState = GameStateFactory.getInitialState();
 
         Player playerOneClass = initialState.getPlayerRepository().getPlayers().get(playerOne);
@@ -52,7 +52,7 @@ public class GameStartTest {
         initialState.getBoardRepository().setSelectedPlayerAction(ActionType.DRIVE);
         City newCity = initialState.getPlayerRepository().getCurrentPlayer().getCity().getNeighbors().get(0);
         initialState.getBoardRepository().setSelectedCity(newCity);
-        initialState.getPlayerRepository().playerAction(initialState.getBoardRepository().getSelectedPlayerAction());
+        initialState.getPlayerRepository().playerAction(initialState.getBoardRepository().getSelectedPlayerAction(), initialState);
 
         Assertions.assertEquals(initialState.getPlayerRepository().getCurrentPlayer().getCity(), newCity);
 
@@ -71,11 +71,11 @@ public class GameStartTest {
         String playerTwo = "Player 2";
         IState initialState = GameStateFactory.createInitialState();
 
-        initialState.getBoardRepository().reset();
+        initialState.reset();
         initialState.getPlayerRepository().createPlayer(playerOne, false);
         initialState.getPlayerRepository().createPlayer(playerTwo, false);
         initialState.getBoardRepository().setDifficulty(Difficulty.EASY);
-        initialState.getBoardRepository().start();
+        initialState.start();
 
         Player playerOneClass = initialState.getPlayerRepository().getPlayers().get(playerOne);
         Player playerTwoClass = initialState.getPlayerRepository().getPlayers().get(playerTwo);
@@ -91,7 +91,7 @@ public class GameStartTest {
         initialState.getBoardRepository().setSelectedPlayerAction(ActionType.DRIVE);
         City newCity = initialState.getPlayerRepository().getCurrentPlayer().getCity().getNeighbors().get(0);
         initialState.getBoardRepository().setSelectedCity(newCity);
-        initialState.getPlayerRepository().playerAction(initialState.getBoardRepository().getSelectedPlayerAction());
+        initialState.getPlayerRepository().playerAction(initialState.getBoardRepository().getSelectedPlayerAction(), initialState);
 
         Assertions.assertEquals(initialState.getPlayerRepository().getCurrentPlayer().getCity(), newCity);
 

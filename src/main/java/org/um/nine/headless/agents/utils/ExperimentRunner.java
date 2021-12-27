@@ -1,17 +1,19 @@
 package org.um.nine.headless.agents.utils;
 
-import org.um.nine.headless.agents.rhea.RheaExperiment;
+import org.um.nine.headless.agents.rhea.MacroActionsExecutor;
 
 import static org.um.nine.headless.game.Settings.HEADLESS;
 
 public class ExperimentRunner {
 
     public static void main(String[] args) {
+
+
         if (HEADLESS) {
             ExperimentalGame game = new ExperimentalGame();
-            game.start();
-            RheaExperiment experiment = new RheaExperiment(game);
-            experiment.runExperiment();
+            MacroActionsExecutor experiment = new MacroActionsExecutor(game);
+            experiment.runExperimentalGame();
+
         }
     }
 }

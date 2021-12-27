@@ -150,7 +150,7 @@ public class InputManager {
 
         if(GameStateFactory.getInitialState().getBoardRepository().getSelectedCity() != null) {
             try {
-                GameStateFactory.getInitialState().getPlayerRepository().playerAction(GameStateFactory.getInitialState().getBoardRepository().getSelectedPlayerAction());
+                GameStateFactory.getInitialState().getPlayerRepository().playerAction(GameStateFactory.getInitialState().getBoardRepository().getSelectedPlayerAction(), GameStateFactory.getInitialState());
             } catch (Exception e) {
                 DialogBoxState dialog = new DialogBoxState(e.getMessage());
                 JmeMain.getGameRepository().getApp().getStateManager().attach(dialog);

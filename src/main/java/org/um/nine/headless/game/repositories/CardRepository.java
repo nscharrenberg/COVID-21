@@ -6,6 +6,7 @@ import org.um.nine.headless.game.contracts.repositories.ICardRepository;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Disease;
 import org.um.nine.headless.game.domain.Player;
+import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.EpidemicCard;
 import org.um.nine.headless.game.domain.cards.InfectionCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
@@ -26,13 +27,7 @@ public class CardRepository implements ICardRepository {
     private LinkedList<PlayerCard> eventDiscardPile;
     private Stack<InfectionCard> infectionDeck;
     private Stack<InfectionCard> infectionDiscardPile;
-    private IState state;
 
-    @Override
-    public CardRepository setState(IState state){
-        this.state = state;
-        return this;
-    }
     public CardRepository() {
     }
 
@@ -50,21 +45,24 @@ public class CardRepository implements ICardRepository {
     /**
      * Draw a player card and give it to the current player
      * When the hand limit is reached one of the cards must be discarded.
+     *
      * @param toDiscard - The card to discard when exceeding the limit,
      *                  if nothing is given then the card just drawn will be discarded
      */
     @Override
-    public void drawPlayerCard(PlayerCard... toDiscard) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
+    public void drawPlayerCard(IState state, PlayerCard... toDiscard) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         PlayerCard drawn = this.playerDeck.pop();
+        System.out.println("draw " +
+                (drawn instanceof CityCard cc ?
+                        cc.getCity().getName() + " " + cc.getCity().getColor() :
+                        "epidemic"));
 
-        System.out.println(drawn);
         if (drawn instanceof EpidemicCard) {
-            System.out.println("EPIDEMIC");
-            this.state.getEpidemicRepository().action();
+            state.getEpidemicRepository().action(state);
             return;
         }
 
-        Player currentPlayer = this.state.getPlayerRepository().getCurrentPlayer();
+        Player currentPlayer = state.getPlayerRepository().getCurrentPlayer();
 
         if (currentPlayer.getHand().size() >= Settings.HAND_LIMIT) {
             if (toDiscard.length <= 0) {
@@ -81,15 +79,16 @@ public class CardRepository implements ICardRepository {
 
     /**
      * Draw an infection Card and infect cities
-     * @throws NoCubesLeftException - Thrown when no cubes of the correlating infection card are left.
+     *
+     * @throws NoCubesLeftException                  - Thrown when no cubes of the correlating infection card are left.
      * @throws NoDiseaseOrOutbreakPossibleDueToEvent - Thrown when a cube can't be place due to an event
-     * @throws GameOverException - Thrown when the player lost the game
+     * @throws GameOverException                     - Thrown when the player lost the game
      */
     @Override
-    public void drawInfectionCard() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
+    public void drawInfectionCard(IState state) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         InfectionCard infectionCard = this.infectionDeck.pop();
-
-        this.state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
+        System.out.println("draw infect " + infectionCard.getCity().getName() + " " + infectionCard.getCity().getColor());
+        state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
         this.infectionDiscardPile.push(infectionCard);
     }
 
@@ -97,14 +96,13 @@ public class CardRepository implements ICardRepository {
      * Build the Deck by giving players their cards, and infecting cities (initial setup)
      */
     @Override
-    public void buildDecks() {
+    public void buildDecks(IState state) {
         if (DEFAULT_INITIAL_STATE) {
-            this.playerDeck = CardUtils.loadPlayerDeck(this.state.getCityRepository().getCities(), this.state.getPlayerRepository().getPlayers(), this.state.getPlayerRepository());
-            this.infectionDeck = CityUtils.loadInfectionDeck(this.state.getCityRepository().getCities());
-        }
-        else {
-            this.playerDeck = CardUtils.buildPlayerDeck(this.state.getPlayerRepository(),this.state.getBoardRepository().getDifficulty(), this.state.getCityRepository().getCities(), this.state.getPlayerRepository().getPlayers());
-            this.infectionDeck = CityUtils.generateInfectionDeck(this.state.getCityRepository().getCities().values().toArray(new City[0]));
+            this.playerDeck = CardUtils.loadPlayerDeck(state.getCityRepository().getCities(), state.getPlayerRepository().getPlayers(), state.getPlayerRepository());
+            this.infectionDeck = CityUtils.loadInfectionDeck(state.getCityRepository().getCities());
+        } else {
+            this.playerDeck = CardUtils.buildPlayerDeck(state.getPlayerRepository(), state.getBoardRepository().getDifficulty(), state.getCityRepository().getCities(), state.getPlayerRepository().getPlayers());
+            this.infectionDeck = CityUtils.generateInfectionDeck(state.getCityRepository().getCities().values().toArray(new City[0]));
             Collections.shuffle(this.infectionDeck);
         }
 
@@ -124,7 +122,7 @@ public class CardRepository implements ICardRepository {
 
                 for (int k = i; k > 0; k--) {
                     try {
-                        this.state.getDiseaseRepository().infect(d.getColor(), c.getCity());
+                        state.getDiseaseRepository().infect(d.getColor(), c.getCity());
                     } catch (NoCubesLeftException | GameOverException noDiseaseOrOutbreakPossibleDueToEvent) {
                         noDiseaseOrOutbreakPossibleDueToEvent.printStackTrace();
                     } catch (NoDiseaseOrOutbreakPossibleDueToEvent noDiseaseOrOutbreakPossibleDueToEvent) {

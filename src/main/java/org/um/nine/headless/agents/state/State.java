@@ -40,7 +40,6 @@ public class State implements IState {
     @Override
     public void setPlayerRepository(IPlayerRepository iPlayerRepository) {
         this.iPlayerRepository = iPlayerRepository;
-        this.iPlayerRepository.setState(this);
     }
     @Override
     public IPlayerRepository getPlayerRepository() {
@@ -49,7 +48,6 @@ public class State implements IState {
     @Override
     public void setBoardRepository(IBoardRepository iBoardRepository) {
         this.iBoardRepository = iBoardRepository;
-        this.iBoardRepository.setState(this);
     }
     @Override
     public IBoardRepository getBoardRepository() {
@@ -69,7 +67,6 @@ public class State implements IState {
     @Override
     public void setCardRepository(ICardRepository iCardRepository) {
         this.iCardRepository = iCardRepository;
-        this.iCardRepository.setState(this);
     }
     @Override
     public ICardRepository getCardRepository() {
@@ -80,7 +77,6 @@ public class State implements IState {
     @Override
     public void setEpidemicRepository(IEpidemicRepository iEpidemicRepository) {
         this.iEpidemicRepository = iEpidemicRepository;
-        this.iEpidemicRepository.setState(this);
     }
     @Override
     public IEpidemicRepository getEpidemicRepository() {

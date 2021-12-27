@@ -13,31 +13,29 @@ import java.util.Queue;
 import java.util.Stack;
 
 public interface IPlayerRepository {
-    IPlayerRepository setState(IState initialState);
-
     void reset();
 
-    void drive(Player player, City city, boolean careAboutNeighbors) throws InvalidMoveException;
+    void drive(Player player, City city, IState state, boolean careAboutNeighbors) throws InvalidMoveException;
 
-    void drive(Player player, City city) throws InvalidMoveException;
+    void drive(Player player, City city, IState state) throws InvalidMoveException;
 
-    void direct(Player player, City city) throws InvalidMoveException;
+    void direct(Player player, City city, IState state) throws InvalidMoveException;
 
-    void charter(Player player, City city) throws InvalidMoveException;
+    void charter(Player player, City city, IState state) throws InvalidMoveException;
 
-    void shuttle(Player player, City city) throws InvalidMoveException;
+    void shuttle(Player player, City city, IState state) throws InvalidMoveException;
 
-    RoundState nextTurn();
+    RoundState nextTurn(IState state);
 
-    RoundState nextTurn(RoundState currentState);
+    RoundState nextTurn(RoundState currentState, IState state);
 
-    void treat(Player player, City city, Color color) throws Exception;
+    void treat(Player player, City city, Color color, IState state) throws Exception;
 
-    void share(Player player, Player target, City city, PlayerCard card) throws Exception;
+    void share(Player player, Player target, City city, PlayerCard card, IState state) throws Exception;
 
-    void buildResearchStation(Player player, City city) throws Exception;
+    void buildResearchStation(Player player, City city, IState state) throws Exception;
 
-    void playerAction(ActionType type, Object... args) throws Exception;
+    void playerAction(ActionType type, IState state, Object... args) throws Exception;
 
     void nextPlayer();
 

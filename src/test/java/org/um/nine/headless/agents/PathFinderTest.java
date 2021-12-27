@@ -16,7 +16,7 @@ class PathFinderTest {
     void setUp() {
         try {
             GameStateFactory.createInitialState();
-            GameStateFactory.getInitialState().getBoardRepository().reset();
+            GameStateFactory.getInitialState().reset();
 
             GameStateFactory.getInitialState().getCityRepository().addResearchStation(
                     GameStateFactory.getInitialState().getCityRepository().getCities().get("Tokyo")
@@ -24,7 +24,7 @@ class PathFinderTest {
             GameStateFactory.getInitialState().getCityRepository().addResearchStation(
                     GameStateFactory.getInitialState().getCityRepository().getCities().get("Cairo")
             );
-            GameStateFactory.getInitialState().getBoardRepository().start();
+            GameStateFactory.getInitialState().start();
 
 
         } catch (Exception e) {

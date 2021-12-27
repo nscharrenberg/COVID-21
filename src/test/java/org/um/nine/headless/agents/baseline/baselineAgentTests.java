@@ -12,7 +12,6 @@ public class baselineAgentTests {
     @Test
     public void decisionsTest() {
         ExperimentalGame game = new ExperimentalGame();
-        game.start();
         IState state = game.getCurrentState();
         Log log = state.getPlayerRepository().getLog();
         BaselineAgent ba = new BaselineAgent();

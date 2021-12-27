@@ -10,6 +10,7 @@ import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.Medic;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -18,17 +19,22 @@ import static org.um.nine.headless.game.domain.ActionType.*;
 
 public abstract class MacroActionFactory {
 
-    private static PathFinder.Descriptor pathFinder;
-    private static IState state;
-    private static MacroActionFactory instance;
-    private static List<MacroAction> actions;
-    private MacroActionFactory() {}
-    private void addList(List<MacroAction> toAdd, List<MacroAction> actions) {
+    protected static PathFinder.Descriptor pathFinder;
+    protected static IState state;
+    protected static MacroActionFactory instance;
+    protected static List<MacroAction> actions;
+    protected static Player currentPlayer;
+
+    protected MacroActionFactory() {
+    }
+
+    protected static void addList(List<MacroAction> toAdd, List<MacroAction> actions) {
         int remaining = Settings.ROLLING_HORIZON - (actions.size() + toAdd.size());
         if (remaining >= 0) actions.addAll(toAdd);
         else actions.addAll(toAdd.subList(0, Settings.ROLLING_HORIZON - actions.size()));
     }
-    private List<MacroAction> buildAllMacroActions () {
+
+    protected static List<MacroAction> buildAllMacroActions() {
         List<MacroAction> actions = buildTreatDiseaseMacroActions(1);
         actions.addAll(buildTreatDiseaseMacroActions(2));
         actions.addAll(buildTreatDiseaseMacroActions(3));
@@ -38,7 +44,7 @@ public abstract class MacroActionFactory {
         return actions;
     }
 
-    private List<MacroAction> buildMacroActions (MacroType type) {
+    protected static List<MacroAction> buildMacroActions(MacroType type) {
         return switch (type) {
             case Treat1Macro -> buildTreatDiseaseMacroActions(1);
             case Treat2Macro -> buildTreatDiseaseMacroActions(2);
@@ -51,42 +57,52 @@ public abstract class MacroActionFactory {
             case WalkAway4Macro -> buildWalkAwayMacroActions(4);
         };
     }
-    private List<MacroAction> buildWalkAwayMacroActions(int N) {
+
+    protected static List<MacroAction> buildWalkAwayMacroActions(int N) {
         List<MacroAction> actions = new ArrayList<>();
-        for (City c : state.getCityRepository().getCities().values()){
-            List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(c);
-            if (shortestPath.size() == N)
-                actions.add(MacroAction.macro(shortestPath,
-                        List.of(new ActionType.StandingAction(NO_ACTION,c))));
+        for (City c : state.getCityRepository().getCities().values()) {
+            List<MovingAction> shortestPath = pathFinder.shortestPath(c);
+            List<StandingAction> s = new ArrayList<>();
+            if (shortestPath.size() <= N) {
+
+                for (int i = 0; i < N - shortestPath.size(); i++)
+                    s.add(new ActionType.StandingAction(NO_ACTION, c));
+
+                actions.add(MacroAction.macro(shortestPath, s));
+            }
         }
-        return actions;
+        return actions.stream().sorted(Comparator.comparingInt(ma -> ((MacroAction) ma).movingActions().size()).reversed()).collect(Collectors.toList());
     }
-    private List<MacroAction> buildResearchStationMacroActions() {
+
+    protected static List<MacroAction> buildResearchStationMacroActions() {
         List<MacroAction> actions = new ArrayList<>();
-        if (state.getCityRepository().getResearchStations().size() >= Settings.RESEARCH_STATION_THRESHOLD) return actions;
-        for (PlayerCard pc : state.getPlayerRepository().getCurrentPlayer().getHand()){
+        if (state.getCityRepository().getResearchStations().size() >= Settings.RESEARCH_STATION_THRESHOLD)
+            return actions;
+        for (PlayerCard pc : getCurrentPlayer().getHand()) {
             if (pc instanceof CityCard cc) {
                 if (cc.getCity().getResearchStation() != null) continue;
                 List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(cc.getCity());
-                if (cc.getCity().equals(state.getPlayerRepository().getCurrentPlayer().getCity()))
+                if (cc.getCity().equals(getCurrentPlayer().getCity()))
                     shortestPath = new ArrayList<>();
 
-                if (shortestPath.size() > 0 && shortestPath.size()<4) {
-                    actions.add(MacroAction.macro(shortestPath,List.of(
-                            new ActionType.StandingAction(BUILD_RESEARCH_STATION,cc.getCity()))));
+                if (shortestPath.size() > 0 && shortestPath.size() < 4) {
+                    List<StandingAction> s = new ArrayList<>();
+                    s.add(new ActionType.StandingAction(BUILD_RESEARCH_STATION, cc.getCity()));
+                    actions.add(MacroAction.macro(shortestPath, s));
                 }
 
             }
         }
         return actions;
     }
-    private List<MacroAction> buildCureDiseaseMacroActions() {
+
+    protected static List<MacroAction> buildCureDiseaseMacroActions() {
         List<MacroAction> curingActions = new ArrayList<>();
 
-        Player current = state.getPlayerRepository().getCurrentPlayer();
+        Player current = getCurrentPlayer();
         int needed = StateEvaluation.Cd(current);
 
-        for (Cure cure : state.getDiseaseRepository().getCures().values()){
+        for (Cure cure : state.getDiseaseRepository().getCures().values()) {
             if (cure.isDiscovered()) continue;
             Color color = cure.getColor();
             long inHand = current.getHand().stream().
@@ -101,21 +117,22 @@ public abstract class MacroActionFactory {
                         collect(Collectors.toList());
                 for (City c : stations){
                     List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(c);
-                    if (shortestPath.size()<=3 && shortestPath.size()>0)
-                        curingActions.add( MacroAction.macro(
-                                shortestPath, List.of(new ActionType.StandingAction(DISCOVER_CURE,c))
+                    if (shortestPath.size() <= 3 && shortestPath.size() > 0)
+                        curingActions.add(MacroAction.macro(
+                                shortestPath, List.of(new ActionType.StandingAction(DISCOVER_CURE, c))
                         ));
                 }
             }
         }
         return curingActions;
     }
-    private List<MacroAction> buildTreatDiseaseMacroActions(int t) {
+
+    protected static List<MacroAction> buildTreatDiseaseMacroActions(int t) {
         var treatDiseaseMacroActionList = new ArrayList<MacroAction>();
-        for (Map.Entry<String, City> sc : state.getCityRepository().getCities().entrySet()){
+        for (Map.Entry<String, City> sc : state.getCityRepository().getCities().entrySet()) {
             List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(sc.getValue());
             if (shortestPath.size() == 0 &&   // if path is size 0
-                    !sc.getValue().equals(state.getPlayerRepository().getCurrentPlayer().getCity()))
+                    !sc.getValue().equals(getCurrentPlayer().getCity()))
                 //but we are not in that city
                 continue;
             Map<Color, List<Disease>> grouped = sc.getValue().getCubes().stream().collect(
@@ -129,8 +146,7 @@ public abstract class MacroActionFactory {
                     int availableMoves = 4 - movingActions;
                     List<ActionType.StandingAction> standingActions = new ArrayList<>();
                     while(treats < t) {
-                        var medic = treats > 0 && state.getPlayerRepository().
-                                getCurrentPlayer().getRole() instanceof Medic;
+                        var medic = treats > 0 && getCurrentPlayer().getRole() instanceof Medic;
 
                         if (availableMoves > treats && cubes > treats && !medic)
                             //if medic add only one treat disease action no matter how many cubes
@@ -138,122 +154,116 @@ public abstract class MacroActionFactory {
                         treats++;
                     }
                     if (standingActions.size() == t)
-                        treatDiseaseMacroActionList.add(new MacroAction.TreatDiseaseMacro(shortestPath,standingActions));
+                        treatDiseaseMacroActionList.add(new MacroAction.TreatDiseaseMacro(shortestPath, standingActions));
                 }
             }
 
         }
         return treatDiseaseMacroActionList;
     }
-    private List<MacroAction> buildHPAMacroActions() {
-        actions = new ArrayList<>();
-        var cure = buildCureDiseaseMacroActions();
-        this.addList(cure,actions);
-        var treat3 = buildTreatDiseaseMacroActions(3);
-        this.addList(treat3,actions);
-        var build  = buildResearchStationMacroActions();
-        this.addList(build,actions);
-        var treat2 = buildTreatDiseaseMacroActions(2);
-        this.addList(treat2,actions);
-        var treat1 = buildTreatDiseaseMacroActions(1);
-        this.addList(treat1,actions);
-        var walk = buildWalkAwayMacroActions(state.getPlayerRepository().getActionsLeft());
-        this.addList(walk,actions);
-        return actions;
+
+    protected static MacroActionFactory getInstance() {
+        return instance == null ? (instance = new MacroActionFactory() {
+        }) : instance;
     }
 
-    private static MacroActionFactory getInstance() {
-        if (instance == null) instance = new MacroActionFactory(){};
-        return instance;
+    protected static Player getCurrentPlayer() {
+        return currentPlayer == null ? state.getPlayerRepository().getCurrentPlayer() : currentPlayer;
     }
-    private static void reset(){
+
+    protected static void reset() {
+        instance = null;
         actions = null;
         pathFinder = null;
         state = null;
     }
 
-    public static MacroAction findSuitableMacro(int remainingActions){
-        City current = state.getPlayerRepository().getCurrentPlayer().getCity();
-        if (remainingActions == 1){
-            if (current.getCubes().size() >= 1){
-                    return MacroAction.macro(new ArrayList<>(),
-                            List.of(new StandingAction(TREAT_DISEASE,current)));
+    public static MacroAction findSuitableMacro(int remainingActions) {
+        City current = getCurrentPlayer().getCity();
+        List<MovingAction> m = new ArrayList<>();
+        List<StandingAction> s = new ArrayList<>();
+        if (remainingActions == 1) {
+            if (current.getCubes().size() >= 1) {
+                s.add(new StandingAction(TREAT_DISEASE, current));
+                return MacroAction.macro(m, s);
             }
             City n = current.getNeighbors().get(0);
-            return MacroAction.macro(List.of(
-                    new MovingAction(DRIVE,current,n)
-            ), new ArrayList<>());
+            m.add(new MovingAction(DRIVE, current, n));
+            return MacroAction.macro(m, s);
         }
-        if (remainingActions == 2){
-            if (current.getCubes().size() >= 2){
-                return MacroAction.macro(new ArrayList<>(),
-                        List.of(new StandingAction(TREAT_DISEASE,current),
-                                new StandingAction(TREAT_DISEASE,current)));
+        if (remainingActions == 2) {
+            if (current.getCubes().size() >= 2) {
+                s.add(new StandingAction(TREAT_DISEASE, current));
+                s.add(new StandingAction(TREAT_DISEASE, current));
+                return MacroAction.macro(m, s);
             }
-            for (City c : current.getNeighbors()){
-                if (c.getCubes().size()>=1){
-                    return MacroAction.macro(
-                            List.of(new MovingAction(
-                                    DRIVE,state.getPlayerRepository().getCurrentPlayer().getCity(),c)),
-                            List.of(new StandingAction(TREAT_DISEASE,c)));
+            for (City c : current.getNeighbors()) {
+                if (c.getCubes().size() >= 1) {
+                    m.add(new MovingAction(DRIVE, getCurrentPlayer().getCity(), c));
+                    s.add(new StandingAction(TREAT_DISEASE, c));
+                    return MacroAction.macro(m, s);
                 }
             }
             City n = current.getNeighbors().get(0), nn = n.getNeighbors().get(0);
-            return MacroAction.macro(List.of(
-                    new MovingAction(DRIVE,current,n),
-                    new MovingAction(DRIVE,n,nn)
-            ), new ArrayList<>());
+            m.add(new MovingAction(DRIVE, current, n));
+            m.add(new MovingAction(DRIVE, n, nn));
+            return MacroAction.macro(m, s);
         }
         if (remainingActions == 3) {
-            if (current.getCubes().size() >= 3){
-                return MacroAction.macro(new ArrayList<>(),
-                        List.of(new StandingAction(TREAT_DISEASE,current),
-                                new StandingAction(TREAT_DISEASE,current),
-                                new StandingAction(TREAT_DISEASE,current)));
+            if (current.getCubes().size() >= 3) {
+                s.add(new StandingAction(TREAT_DISEASE, current));
+                s.add(new StandingAction(TREAT_DISEASE, current));
+                s.add(new StandingAction(TREAT_DISEASE, current));
+                return MacroAction.macro(m, s);
             }
             City save = null;
-            for (City c : current.getNeighbors()){
-                if (c.getCubes().size() == 1) save =c;
-                if (c.getCubes().size()>=2){
-                    return MacroAction.macro(
-                            List.of(new MovingAction(
-                                    DRIVE,state.getPlayerRepository().getCurrentPlayer().getCity(),c)),
-                            List.of(new StandingAction(TREAT_DISEASE,c),
-                                    new StandingAction(TREAT_DISEASE,c)));
+            for (City c : current.getNeighbors()) {
+                if (c.getCubes().size() == 1) save = c;
+                if (c.getCubes().size() >= 2) {
+                    m.add(new MovingAction(DRIVE, getCurrentPlayer().getCity(), c));
+                    s.add(new StandingAction(TREAT_DISEASE, c));
+                    s.add(new StandingAction(TREAT_DISEASE, c));
+                    return MacroAction.macro(m, s);
                 }
             }
-            if (save!= null){
-                return MacroAction.macro(
-                        List.of(new MovingAction(
-                                DRIVE,state.getPlayerRepository().getCurrentPlayer().getCity(),save)),
-                        List.of(new StandingAction(TREAT_DISEASE,save),
-                                new StandingAction(TREAT_DISEASE,save)));
+            if (save != null) {
+                m.add(new MovingAction(DRIVE, getCurrentPlayer().getCity(), save));
+                s.add(new StandingAction(TREAT_DISEASE, save));
+                s.add(new StandingAction(TREAT_DISEASE, save));
+                return MacroAction.macro(m, s);
             }
             City n = current.getNeighbors().get(0), nn = n.getNeighbors().get(0);
-            return MacroAction.macro(List.of(
-                            new MovingAction(DRIVE,current,n),
-                            new MovingAction(DRIVE,n,nn),
-                            new MovingAction(DRIVE,nn,nn.getNeighbors().get(0))
-            ) , new ArrayList<>());
+            m.add(new MovingAction(DRIVE, current, n));
+            m.add(new MovingAction(DRIVE, n, nn));
+            m.add(new MovingAction(DRIVE, nn, nn.getNeighbors().get(0)));
+            return MacroAction.macro(m, s);
         }
         throw new IllegalStateException();
     }
-    public static MacroAction getFirstMacros(IState state) {
+
+    public static MacroAction getFirstMacro(IState state) {
         init(state);
-        MacroAction macro = getInstance().getActions().get(0);
-        getInstance().getActions().remove(macro);
+        MacroAction macro = instance.getActions().get(0);
+        instance.getActions().remove(macro);
         return macro;
     }
 
-    public static MacroActionFactory init(IState newState) {
+    protected static MacroActionFactory init(IState newState) {
         reset();
         state = newState;
         pathFinder = new PathFinder.Descriptor(state);
         return getInstance();
     }
 
+    protected static MacroActionFactory init(IState newState, City city, Player player) {
+        reset();
+        state = newState;
+        pathFinder = new PathFinder.Descriptor(state, city, player);
+        return getInstance();
+    }
+
     public List<MacroAction> getActions() {
-        return actions == null ? (actions = buildHPAMacroActions()) : actions;
+        return actions == null ? (actions = buildAllMacroActions()) : actions;
     }
 
     public enum MacroType {

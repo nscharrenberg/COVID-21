@@ -67,13 +67,13 @@ public class GameRepository {
         app.getRootNode().detachAllChildren();
 
         app.getCamera().setFrustumFar(3000);
-        app.getCamera().setLocation(new Vector3f(0, 0,1500));
+        app.getCamera().setLocation(new Vector3f(0, 0, 1500));
 
 //        inputManager.init();
 
         // Initiate Game Graphics
-        GameStateFactory.getInitialState().getBoardRepository().reset();
-        GameStateFactory.getInitialState().getBoardRepository().start();
+        GameStateFactory.getInitialState().reset();
+        GameStateFactory.getInitialState().start();
     }
 
     private void addAmbientLight() {

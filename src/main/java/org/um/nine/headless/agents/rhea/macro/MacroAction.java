@@ -7,12 +7,53 @@ import java.util.stream.Collectors;
 
 public interface MacroAction {
     List<ActionType.MovingAction> movingActions();
+
     List<ActionType.StandingAction> standingActions();
-    static MacroAction macro (List<ActionType.MovingAction> ma, List<ActionType.StandingAction> sa) {
+
+    String index();
+
+    void setIndex(String s);
+
+    static void combine(MacroAction ma1, MacroAction ma2) {
+        for (ActionType.MovingAction m : ma2.movingActions()) ma1.add(m);
+        for (ActionType.StandingAction s : ma2.standingActions()) ma1.add(s);
+    }
+
+    static void combine(MacroAction... ms) {
+        for (MacroAction m : ms) combine(ms[0], m);
+    }
+
+    static String index(MacroAction m) {
+        return "m".repeat(m.movingActions().size()) +
+                "s".repeat(m.standingActions().size());
+    }
+
+    static MacroAction macro(List<ActionType.MovingAction> ma, List<ActionType.StandingAction> sa) {
         return new MacroAction() {
-            @Override public List<ActionType.MovingAction> movingActions() {return ma;}
-            @Override public List<ActionType.StandingAction> standingActions() {return sa;}
-            @Override public String toString() {
+            String index;
+
+            @Override
+            public List<ActionType.MovingAction> movingActions() {
+                return ma;
+            }
+
+            @Override
+            public List<ActionType.StandingAction> standingActions() {
+                return sa;
+            }
+
+            @Override
+            public String index() {
+                return index == null ? (index = MacroAction.index(this)) : index;
+            }
+
+            @Override
+            public void setIndex(String s) {
+                index = s;
+            }
+
+            @Override
+            public String toString() {
                 String s = "";
                 s += standingActions().stream().map(ActionType.StandingAction::toString).collect(Collectors.toList());
                 s += "\t\t" + movingActions().stream().map(ActionType.MovingAction::toString).collect(Collectors.toList());
@@ -22,22 +63,54 @@ public interface MacroAction {
     }
 
     default MacroAction add(ActionType.MovingAction action){
+        setIndex(index() + "m");
         movingActions().add(action);
         return this;
     }
 
-    default MacroAction add(ActionType.StandingAction action){
+    default MacroAction add(ActionType.StandingAction action) {
+        setIndex(index() + "s");
         standingActions().add(action);
         return this;
     }
 
-    record TreatDiseaseMacro(List<ActionType.MovingAction> movingActions, List<ActionType.StandingAction> standingActions) implements MacroAction {
+    class TreatDiseaseMacro implements MacroAction {
+
+        private final List<ActionType.MovingAction> movingActions;
+        private final List<ActionType.StandingAction> standingActions;
+        private String index;
+
+        public TreatDiseaseMacro(List<ActionType.MovingAction> movingActions, List<ActionType.StandingAction> standingActions) {
+            this.movingActions = movingActions;
+            this.standingActions = standingActions;
+        }
+
         @Override
         public String toString() {
-             String s = "";
-             s += standingActions().stream().map(ActionType.StandingAction::toString).collect(Collectors.toList());
-             s += "\t\t" + movingActions().stream().map(ActionType.MovingAction::toString).collect(Collectors.toList());
-             return s;
+            String s = "";
+            s += standingActions().stream().map(ActionType.StandingAction::toString).collect(Collectors.toList());
+            s += "\t\t" + movingActions().stream().map(ActionType.MovingAction::toString).collect(Collectors.toList());
+            return s;
+        }
+
+        @Override
+        public List<ActionType.MovingAction> movingActions() {
+            return this.movingActions;
+        }
+
+        @Override
+        public List<ActionType.StandingAction> standingActions() {
+            return this.standingActions;
+        }
+
+        @Override
+        public String index() {
+            return index == null ? (index = MacroAction.index(this)) : index;
+        }
+
+        @Override
+        public void setIndex(String s) {
+            this.index = s;
         }
     }
 }

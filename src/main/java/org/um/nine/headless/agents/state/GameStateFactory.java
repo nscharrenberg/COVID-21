@@ -8,7 +8,7 @@ public class GameStateFactory {
 
     }
     public static IState createInitialState() {
-        return initialState = new State(
+        initialState = new State(
                 new DiseaseRepository(),
                 new PlayerRepository(),
                 new CardRepository(),
@@ -16,8 +16,10 @@ public class GameStateFactory {
                 new EpidemicRepository(),
                 new BoardRepository()
         );
+        initialState.reset();
+        initialState.start();
+        return initialState;
     }
-
     public static IState getInitialState() {
         return initialState == null ? createInitialState() : initialState;
     }

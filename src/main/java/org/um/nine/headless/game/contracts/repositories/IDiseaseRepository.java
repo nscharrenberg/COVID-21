@@ -3,10 +3,7 @@ package org.um.nine.headless.game.contracts.repositories;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.exceptions.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public interface IDiseaseRepository {
     default void initMarkers() {
@@ -54,7 +51,7 @@ public interface IDiseaseRepository {
 
     default void initOutbreak(City city, Disease disease) throws GameOverException {
         nextOutbreak();
-        System.out.println("OUTBREAK");
+        System.out.println("OUTBREAK OCCURRED IN " + city.getName().toUpperCase(Locale.ROOT));
         List<City> previousOutbreaks = new ArrayList<>();
         List<City> neighbors = city.getNeighbors();
 
@@ -68,6 +65,8 @@ public interface IDiseaseRepository {
     default void spreadOutbreak(City city, Disease disease, List<City> previousOutbreaks) {
         if (city.addCube(disease)) {
             return;
+        } else {
+            System.out.println("CHAINED OUTBREAK IN " + city.getName().toUpperCase(Locale.ROOT));
         }
 
         List<City> neighbors = city.getNeighbors();

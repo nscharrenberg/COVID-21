@@ -15,6 +15,19 @@ import java.util.Stack;
 import static org.um.nine.headless.agents.state.StateEvaluation.abilityCure;
 
 public interface IState {
+
+    default void reset() {
+        getBoardRepository().reset();
+        getPlayerRepository().reset();
+        getCityRepository().reset();
+        getDiseaseRepository().reset();
+        getCardRepository().reset();
+    }
+
+    default void start() {
+        getBoardRepository().start(this);
+    }
+
     void setBoardRepository(IBoardRepository iBoardRepository);
 
     void setDiseaseRepository(IDiseaseRepository iDiseaseRepository);
@@ -58,10 +71,6 @@ public interface IState {
             Cloner cloner = new Cloner();
             cloner.setDontCloneInstanceOf(Stack.class);
             var x = cloner.deepClone(this);
-            x.getBoardRepository().setState(x);
-            x.getPlayerRepository().setState(x);
-            x.getCardRepository().setState(x);
-            x.getEpidemicRepository().setState(x);
             return x;
         }
     }

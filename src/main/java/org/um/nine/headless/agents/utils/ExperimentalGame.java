@@ -12,19 +12,22 @@ public class ExperimentalGame {
     private final IState initialState;
     private final IState currentState;
 
-    public ExperimentalGame() {
-        this.initialState = GameStateFactory.createInitialState();
-        this.currentState = this.initialState;
+    public ExperimentalGame(IState state) {
+        this.initialState = state;
+        this.currentState = state.getClonedState();
         this.actions = new ArrayList<>();
     }
 
-    public void start() {
-        this.initialState.getBoardRepository().reset();
-        this.initialState.getBoardRepository().start();
+    public ExperimentalGame() {
+        this.initialState = GameStateFactory.createInitialState();
+        this.currentState = this.initialState.getClonedState();
+        this.actions = new ArrayList<>();
     }
+
     public List<MacroAction> getActionsHistory() {
         return actions;
     }
+
     public IState getInitialState() {
         return this.initialState;
     }
