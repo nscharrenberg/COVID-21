@@ -44,16 +44,16 @@ public class StateEvaluation {
      * A(t)
      * Ability to find a cure based on it being already discovered or not
      */
-    public static double abilityCure (IState state,Cure cure) {
-        if (cure.isDiscovered()) return 1;
+    public static double abilityCure(IState state, Color color) {
+        if (state.getDiseaseRepository().getCures().get(color).isDiscovered()) return 1;
 
-        //TODO : this is other players Ac ability to cure the disease.. without share knowledge
-        // this value is completely irrelevant
+            //TODO : this is other players Ac ability to cure the disease.. without share knowledge
+            // this value is completely irrelevant
         else return state.getPlayerRepository().
                 getPlayers().
                 values().
                 stream().
-                map(p -> abilityCure(cure.getColor(),p)).
+                map(p -> abilityCure(color, p)).
                 max(Double::compareTo).
                 orElse(0d);
     }
@@ -91,7 +91,7 @@ public class StateEvaluation {
                 .count();
 
         state.getDiseaseRepository().
-                getCures().values().forEach(cure -> sA[0] += abilityCure(state, cure) + (0.3 * Nd));
+                getCures().values().forEach(cure -> sA[0] += abilityCure(state, cure.getColor()) + (0.3 * Nd));
         return sA[0] /4 * 1.3;
     };
 

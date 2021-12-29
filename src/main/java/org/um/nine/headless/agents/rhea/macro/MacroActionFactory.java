@@ -2,7 +2,7 @@ package org.um.nine.headless.agents.rhea.macro;
 
 import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.agents.state.StateEvaluation;
-import org.um.nine.headless.agents.utils.PathFinder;
+import org.um.nine.headless.agents.utils.pathfinder.PathFinder;
 import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;

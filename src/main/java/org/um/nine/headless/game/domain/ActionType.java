@@ -45,7 +45,7 @@ public enum ActionType {
                 case CHARTER_FLIGHT -> "c";
                 default -> "?";
             };
-            return "{" + toCity.getName() + " <-"+lbl+"- " + fromCity.getName() + "}";
+            return "{" + fromCity.getName() + " -" + lbl + "-> " + toCity.getName() + "}";
         }
     }
 

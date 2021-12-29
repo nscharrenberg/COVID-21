@@ -7,6 +7,7 @@ import java.util.LinkedList;
 
 public class Log {
     private final LinkedList<LogRecord> log;
+    private final static LinkedList<String> staticLog = new LinkedList<>();
 
     public Log() {
         log = new LinkedList<>();
@@ -15,6 +16,24 @@ public class Log {
     public void addStep(String action, City targetLocation, Player player) {
         log.add(new LogRecord(action, targetLocation, player));
     }
+
+    public static void clear() {
+        staticLog.clear();
+    }
+
+    public static void record(LogRecord logRecord) {
+        record(logRecord.toString());
+    }
+
+    public static void record(String string) {
+        staticLog.add(string);
+    }
+
+    public static void log() {
+        staticLog.forEach(System.out::println);
+        clear();
+    }
+
 
     @Override
     public String toString() {

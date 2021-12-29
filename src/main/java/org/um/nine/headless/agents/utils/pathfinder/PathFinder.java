@@ -1,4 +1,4 @@
-package org.um.nine.headless.agents.utils;
+package org.um.nine.headless.agents.utils.pathfinder;
 
 import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.agents.state.StateEvaluation;
@@ -314,7 +314,6 @@ public class PathFinder {
             }
             return Map.entry(actions, gc);
         }
-
         private Map.Entry<List<ActionType.MovingAction>, GCity> buildWalkPathPostDirect(GCity gc, int walkingActionDepth) {
             List<ActionType.MovingAction> actions = new ArrayList<>();
             if (gc.directFlightPath.postDirectWalking != null) {
@@ -326,7 +325,6 @@ public class PathFinder {
             }
             return Map.entry(actions, gc);
         }
-
         private List<ActionType.MovingAction> buildShuttlePath(GCity gc) {
             List<ActionType.MovingAction> shuttlePath = new ArrayList<>();
             if (gc.shuttlePath.shuttleActionDepth > 0 && gc.shuttlePath.shuttleActionDepth <= 4) {
@@ -339,7 +337,6 @@ public class PathFinder {
             }
             return shuttlePath;
         }
-
         private List<ActionType.MovingAction> buildDirectFlightPath(GCity gc) {
             List<ActionType.MovingAction> directFlightPath = new ArrayList<>();
             if (gc.directFlightPath.directFlightActionDepth > 0 && gc.directFlightPath.directFlightActionDepth <= 4) {
@@ -352,8 +349,6 @@ public class PathFinder {
             }
             return directFlightPath;
         }
-
-
         private List<ActionType.MovingAction> buildCharterFlightPath(GCity gc) {
             List<ActionType.MovingAction> charterFlightPath = new ArrayList<>();
             if (gc.charterFlightPath.charterFlightActionDepth > 0 && gc.charterFlightPath.charterFlightActionDepth <= 4) {
@@ -371,6 +366,7 @@ public class PathFinder {
             if (dest.shortestWalkingPath == null) {
                 dest.shortestWalkingPath = buildWalkPath(dest, dest.walkingPath.walkingActionDepth);
             }
+
             if (dest.shortestShuttlingPath == null) {
                 dest.shortestShuttlingPath = buildShuttlePath(dest);
             }
@@ -380,13 +376,13 @@ public class PathFinder {
             if (dest.shortestCharterFlightPath == null) {
                 dest.shortestCharterFlightPath = buildCharterFlightPath(dest);
             }
-
-            /*
-            if (dest.shortestWalkingPath.isEmpty() && dest.shortestShuttlingPath.isEmpty() && dest.shortestCharterFlightPath.isEmpty() && dest.shortestDirectFlightPath.isEmpty()) return new ArrayList<>();
             int walkLength = dest.shortestWalkingPath.isEmpty() ? MAX_VALUE : dest.shortestWalkingPath.size();
             int shuttleLength = dest.shortestShuttlingPath.isEmpty() ? MAX_VALUE : dest.shortestShuttlingPath.size();
             int charterLength = dest.shortestCharterFlightPath.isEmpty() ? MAX_VALUE : dest.shortestCharterFlightPath.size();
             int directLength = dest.shortestDirectFlightPath.isEmpty() ? MAX_VALUE : dest.shortestDirectFlightPath.size();
+
+            /*
+            if (dest.shortestWalkingPath.isEmpty() && dest.shortestShuttlingPath.isEmpty() && dest.shortestCharterFlightPath.isEmpty() && dest.shortestDirectFlightPath.isEmpty()) return new ArrayList<>();
 
             if ((walkLength <= shuttleLength) && (walkLength <= dest.shortestCharterFlightPath.size()) && (walkLength <= directLength)) {
                 return dest.shortestWalkingPath;
@@ -441,13 +437,14 @@ public class PathFinder {
         private final DirectFlightPath directFlightPath = new DirectFlightPath();
         private final CharterFlightPath charterFlightPath = new CharterFlightPath();
         private List<Integer> directFlightActionsDepthList; //different value depending on which city card you use
-
         private List<ActionType.MovingAction> shortestWalkingPath, shortestShuttlingPath, shortestDirectFlightPath, shortestCharterFlightPath;
 
         private GCity(City city) {
             this.city = city;
             this.walkingPath.walkingActionDepth = -1;
             this.shuttlePath.shuttleActionDepth = -1;
+            this.directFlightPath.directFlightActionDepth = -1;
+            this.charterFlightPath.charterFlightActionDepth = -1;
         }
 
         private void setNActionsDirectFlight(List<Integer> nActionsDirectFlight) {

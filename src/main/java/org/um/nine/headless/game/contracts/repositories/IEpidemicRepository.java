@@ -1,6 +1,7 @@
 package org.um.nine.headless.game.contracts.repositories;
 
 import org.um.nine.headless.agents.state.IState;
+import org.um.nine.headless.agents.utils.Log;
 import org.um.nine.headless.game.domain.cards.InfectionCard;
 import org.um.nine.headless.game.exceptions.GameOverException;
 import org.um.nine.headless.game.exceptions.NoCubesLeftException;
@@ -9,8 +10,7 @@ import org.um.nine.headless.game.exceptions.NoDiseaseOrOutbreakPossibleDueToEven
 import java.util.Collections;
 import java.util.Stack;
 
-import static org.um.nine.headless.game.Settings.DEFAULT_INITIAL_STATE;
-import static org.um.nine.headless.game.Settings.RANDOM_PROVIDER;
+import static org.um.nine.headless.game.Settings.*;
 
 public interface IEpidemicRepository {
 
@@ -21,7 +21,7 @@ public interface IEpidemicRepository {
     default void infect(IState state) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         for (int i = 0; i < 3; i++) {
             InfectionCard infectionCard = state.getCardRepository().getInfectionDeck().pop();
-            System.out.println("infecting " + infectionCard.getCity().getName());
+            if (LOG) Log.record("infecting " + infectionCard.getCity().getName());
             state.getCardRepository().getInfectionDiscardPile().add(infectionCard);
 
             int amountCubes = infectionCard.getCity().getCubes().size();

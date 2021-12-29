@@ -1,9 +1,8 @@
-package org.um.nine.headless.agents.rhea;
+package org.um.nine.headless.agents.rhea.macro;
 
-import org.um.nine.headless.agents.rhea.macro.MacroAction;
-import org.um.nine.headless.agents.rhea.macro.MacroActionFactory;
 import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.agents.utils.ExperimentalGame;
+import org.um.nine.headless.agents.utils.Log;
 import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Color;
@@ -13,6 +12,8 @@ import org.um.nine.headless.game.domain.cards.CityCard;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.um.nine.headless.game.Settings.LOG;
+
 public record MacroActionsExecutor(ExperimentalGame game) {
 
     public void runExperimentalGame() {
@@ -20,23 +21,21 @@ public record MacroActionsExecutor(ExperimentalGame game) {
                 state = game.getCurrentState();
 
         while (game.onGoing()) {
-            System.out.println("=============================================");
             logPlayer(state);
             logDiseases(state);
             MacroAction nextMacro = MacroActionFactory.getFirstMacro(state);
             executeMacroAction(state, nextMacro, true, true);
             game.getActionsHistory().add(nextMacro);
-            System.out.println("=============================================");
         }
 
 
         for (MacroAction m : game.getActionsHistory()) {
-            System.out.println("=============================================");
             logPlayer(initialState);
             logDiseases(initialState);
             executeIndexedMacro(initialState, m);
-            System.out.println("=============================================");
         }
+
+        if (LOG) Log.log();
     }
 
     public void executeMacroAction(IState state, MacroAction nextMacro, boolean reverse, boolean draw) {
@@ -74,14 +73,16 @@ public record MacroActionsExecutor(ExperimentalGame game) {
     }
 
     public static void logPlayer(IState state) {
-        System.out.println("Player " +
+        if (!LOG) return;
+        Log.record("=============================================");
+        Log.record("Player " +
                 state.getPlayerRepository().
                         getCurrentPlayer() + " - " +
                 state.getPlayerRepository().
                         getCurrentPlayer().
                         getRole().getName());
 
-        System.out.println("Cards in hand: " + state.getPlayerRepository().
+        Log.record("Cards in hand: " + state.getPlayerRepository().
                 getCurrentPlayer().
                 getHand().stream().
                 map(c -> ((CityCard) c).getCity().getName() + " " + ((CityCard) c).getCity().getColor()).
@@ -90,6 +91,7 @@ public record MacroActionsExecutor(ExperimentalGame game) {
     }
 
     public static void logDiseases(IState state) {
+        if (!LOG) return;
         List<String> s = new ArrayList<>();
         for (City c : state.getCityRepository().getCities().values()) {
             Map<String, List<Disease>> grouped = c.getCubes().stream().collect(
@@ -103,7 +105,7 @@ public record MacroActionsExecutor(ExperimentalGame game) {
                                 kv.getKey() + ")").
                         collect(Collectors.toList()));
         }
-        System.out.println("Diseases : " + s);
+        Log.record("Diseases : " + s);
     }
 
     public int executeMovingActionsDefaultOrder(IState state, MacroAction nextMacro) {
@@ -118,7 +120,7 @@ public record MacroActionsExecutor(ExperimentalGame game) {
     public void executeMovingAction(IState state, ActionType.MovingAction action) {
         state.getBoardRepository().setSelectedCity(state.getCityRepository().getCities().get(action.toCity().getName()));
         try {
-            System.out.println("[" + action.action() + "] -> " + action.toCity());
+            if (LOG) Log.record("[" + action.action() + "] -> " + action.toCity());
             state.getPlayerRepository().playerAction(action.action(), state);
         } catch (Exception e) {
             e.printStackTrace();
@@ -146,7 +148,7 @@ public record MacroActionsExecutor(ExperimentalGame game) {
             treated = 1;
         }
         try {
-            System.out.println("[" + action.action() + "] -> " + action.applyTo());
+            if (LOG) Log.record("[" + action.action() + "] -> " + action.applyTo());
             state.getPlayerRepository().playerAction(action.action(), state, obj == null ? new Object[]{} : obj);
         } catch (Exception e) {
             e.printStackTrace();

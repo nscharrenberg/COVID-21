@@ -1,7 +1,6 @@
 package org.um.nine.headless.agents.rhea.macro;
 
 import org.um.nine.headless.agents.rhea.Individual;
-import org.um.nine.headless.agents.rhea.MacroActionsExecutor;
 import org.um.nine.headless.agents.state.GameStateFactory;
 import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.agents.utils.ExperimentalGame;
@@ -11,17 +10,15 @@ import org.um.nine.headless.game.domain.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HPAMacroActionsFactory extends MacroActionFactory {
-    protected static HPAMacroActionsFactory instance;
+import static org.um.nine.headless.game.Settings.ROLLING_HORIZON;
 
-    protected HPAMacroActionsFactory() {
-        super();  //keep constructor protected
-    }
+public abstract class HPAMacroActionsFactory extends MacroActionFactory {
+    protected static HPAMacroActionsFactory instance;
 
     public static void main(String[] args) {
         IState state = GameStateFactory.getInitialState();
         initIndividualGene(
-                new Individual(new MacroAction[5]), state);
+                new Individual(new MacroAction[ROLLING_HORIZON]), state);
     }
 
     protected static HPAMacroActionsFactory getInstance() {
@@ -43,14 +40,12 @@ public class HPAMacroActionsFactory extends MacroActionFactory {
         MacroActionsExecutor.logDiseases(state);
         Player player = state.getPlayerRepository().getCurrentPlayer();
         City currentCity = player.getCity();
-        System.out.println("======================================================================");
 
         for (int i = 0; i < individual.genome().length; i++) {
             individual.genome()[i] = init(state, currentCity, player).getActions().get(0);
             simulator.executeMacroAction(state, individual.genome()[i], true, false);
             state.getPlayerRepository().setCurrentPlayer(player); //trick the game logic here to allow fault turn
             currentCity = player.getCity();
-            System.out.println("======================================================================");
         }
     }
 
