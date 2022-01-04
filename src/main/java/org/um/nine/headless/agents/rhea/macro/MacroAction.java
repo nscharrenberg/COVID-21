@@ -62,10 +62,23 @@ public interface MacroAction {
         };
     }
 
-    default MacroAction add(ActionType.MovingAction action){
+    default MacroAction add(ActionType.MovingAction action) {
         setIndex(index() + "m");
         movingActions().add(action);
         return this;
+    }
+
+    default Record getAtIndex(int index) {
+        int standingIndex = 0, movingIndex = 0;
+        for (int i = 0; i < index().length(); i++) {
+            if (i == index) {
+                if (index().charAt(i) == 's') return standingActions().get(standingIndex);
+                if (index().charAt(i) == 'm') return movingActions().get(movingIndex);
+            }
+            if (index().charAt(i) == 's') standingIndex++;
+            else if (index().charAt(i) == 'm') movingIndex++;
+        }
+        return null;
     }
 
     default MacroAction add(ActionType.StandingAction action) {

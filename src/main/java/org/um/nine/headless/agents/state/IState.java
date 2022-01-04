@@ -55,24 +55,27 @@ public interface IState {
         if (getDiseaseRepository().isGameOver()) return true;
 
         var redCubes = getDiseaseRepository().getCubes().get(Color.RED).stream().filter(c -> c.getCity() == null).count();
+        if (redCubes == 0) return true;
         var blueCubes = getDiseaseRepository().getCubes().get(Color.BLUE).stream().filter(c -> c.getCity() == null).count();
+        if (blueCubes == 0) return true;
         var blackCubes = getDiseaseRepository().getCubes().get(Color.BLACK).stream().filter(c -> c.getCity() == null).count();
+        if (blackCubes == 0) return true;
         var yellowCubes = getDiseaseRepository().getCubes().get(Color.YELLOW).stream().filter(c -> c.getCity() == null).count();
+        if (yellowCubes == 0) return true;
+
+        return getCardRepository().getPlayerDeck().isEmpty();
+
 
         //TODO: missing some losing conditions
-        return redCubes == 0 || blueCubes == 0 || blackCubes == 0 || yellowCubes == 0;
     }
     default boolean isGameWon() {
         return this.getDiseaseRepository().getCures().values().stream().filter(Cure::isDiscovered).count() ==4;
     }
 
     default IState getClonedState() {
-        synchronized (this) {
-            Cloner cloner = new Cloner();
-            cloner.setDontCloneInstanceOf(Stack.class);
-            var x = cloner.deepClone(this);
-            return x;
-        }
+        Cloner cloner = new Cloner();
+        cloner.setDontCloneInstanceOf(Stack.class);
+        return cloner.deepClone(this);
     }
 
     default PlayerCard[] getDiscardingCard() {

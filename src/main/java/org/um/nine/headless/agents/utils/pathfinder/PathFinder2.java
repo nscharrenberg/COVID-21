@@ -3,8 +3,8 @@ package org.um.nine.headless.agents.utils.pathfinder;
 import org.um.nine.headless.agents.state.GameStateFactory;
 import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.agents.state.StateEvaluation;
+import org.um.nine.headless.agents.utils.ExperimentalGame;
 import org.um.nine.headless.game.domain.ActionType;
-import org.um.nine.headless.game.domain.ActionType.*;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.cards.CityCard;
@@ -25,8 +25,18 @@ public class PathFinder2 {
     final Player currentPlayer;
     GCity currentCity;
     final List<GCity> costGraph;
-    final List<GCity> visitedCities = new ArrayList<>();
 
+    public static PathFinder2 evaluateGameState(ExperimentalGame gameState) {
+        return new PathFinder2(gameState.getCurrentState(), gameState.getCurrentState().getPlayerRepository().getCurrentPlayer());
+    }
+
+    public static PathFinder2 evaluateGameState(IState gameState) {
+        return new PathFinder2(gameState, gameState.getPlayerRepository().getCurrentPlayer());
+    }
+
+    public PathFinder2(IState state, Player currentPlayer) {
+        this(state, currentPlayer.getCity(), currentPlayer);
+    }
 
     public PathFinder2(IState state, City currentCity, Player currentPlayer) {
         this.state = state;
@@ -209,17 +219,14 @@ public class PathFinder2 {
     }
 
     private Path shortest(Path oldPath, Path newPath) {
-
         if (oldPath == null || (oldPath.depth() == 0 && newPath.depth() > 0)) {
             return newPath;
         } else if (oldPath.depth() > 0 && newPath.depth() == 0) {
             return oldPath;
         }
-
         if (newPath.depth() > 0 && newPath.path()[0].action().equals(CHARTER_FLIGHT)) {
             return combine(oldPath, newPath);
         }
-
         return oldPath.depth() < newPath.depth() ? oldPath : newPath;
     }
 

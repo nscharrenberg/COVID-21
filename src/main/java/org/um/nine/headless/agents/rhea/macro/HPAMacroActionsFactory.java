@@ -1,7 +1,6 @@
 package org.um.nine.headless.agents.rhea.macro;
 
 import org.um.nine.headless.agents.rhea.Individual;
-import org.um.nine.headless.agents.state.GameStateFactory;
 import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.agents.utils.ExperimentalGame;
 import org.um.nine.headless.game.domain.City;
@@ -10,15 +9,12 @@ import org.um.nine.headless.game.domain.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.um.nine.headless.game.Settings.ROLLING_HORIZON;
-
 public abstract class HPAMacroActionsFactory extends MacroActionFactory {
     protected static HPAMacroActionsFactory instance;
 
-    public static void main(String[] args) {
-        IState state = GameStateFactory.getInitialState();
-        initIndividualGene(
-                new Individual(new MacroAction[ROLLING_HORIZON]), state);
+    public static MacroAction getNextMacroAction(Individual individual, IState state) {
+        init(state, individual.player().getCity(), individual.player());
+        return getInstance().getActions().get(0);
     }
 
     protected static HPAMacroActionsFactory getInstance() {
@@ -38,7 +34,7 @@ public abstract class HPAMacroActionsFactory extends MacroActionFactory {
 
         MacroActionsExecutor.logPlayer(state);
         MacroActionsExecutor.logDiseases(state);
-        Player player = state.getPlayerRepository().getCurrentPlayer();
+        Player player = individual.player();
         City currentCity = player.getCity();
 
         for (int i = 0; i < individual.genome().length; i++) {

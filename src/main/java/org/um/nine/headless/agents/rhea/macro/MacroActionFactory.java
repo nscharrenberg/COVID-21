@@ -73,7 +73,6 @@ public abstract class MacroActionFactory {
         }
         return actions.stream().sorted(Comparator.comparingInt(ma -> ((MacroAction) ma).movingActions().size()).reversed()).collect(Collectors.toList());
     }
-
     protected static List<MacroAction> buildResearchStationMacroActions() {
         List<MacroAction> actions = new ArrayList<>();
         if (state.getCityRepository().getResearchStations().size() >= Settings.RESEARCH_STATION_THRESHOLD)
@@ -95,7 +94,6 @@ public abstract class MacroActionFactory {
         }
         return actions;
     }
-
     protected static List<MacroAction> buildCureDiseaseMacroActions() {
         List<MacroAction> curingActions = new ArrayList<>();
 
@@ -125,6 +123,16 @@ public abstract class MacroActionFactory {
             }
         }
         return curingActions;
+    }
+
+    protected static List<MacroAction> buildTreatDiseaseMacroActions() {
+        var treat3 = buildTreatDiseaseMacroActions(3);
+        if (treat3.size() > 0) return treat3;
+        var treat2 = buildTreatDiseaseMacroActions(2);
+        if (treat2.size() > 0) return treat2;
+        var treat1 = buildTreatDiseaseMacroActions(1);
+        if (treat1.size() > 0) return treat1;
+        return new ArrayList<>();
     }
 
     protected static List<MacroAction> buildTreatDiseaseMacroActions(int t) {
@@ -241,7 +249,7 @@ public abstract class MacroActionFactory {
         throw new IllegalStateException();
     }
 
-    public static MacroAction getFirstMacro(IState state) {
+    public static MacroAction getNextMacroAction(IState state) {
         init(state);
         MacroAction macro = instance.getActions().get(0);
         instance.getActions().remove(macro);

@@ -1,5 +1,6 @@
 package org.um.nine.headless.game;
 
+import org.um.nine.headless.agents.state.StateHeuristic;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.Role;
 import org.um.nine.headless.game.domain.roles.Medic;
@@ -10,6 +11,10 @@ import org.um.nine.headless.game.domain.roles.Scientist;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import static org.um.nine.headless.agents.state.StateEvaluation.Fcm;
+import static org.um.nine.headless.agents.state.StateEvaluation.FoA;
+import static org.um.nine.headless.agents.state.StateHeuristic.p;
 
 public class Settings {
     public static final String APP_TITLE = "COVID-21 The Game";
@@ -26,6 +31,10 @@ public class Settings {
 
     public static final boolean DEFAULT_INITIAL_STATE = true;
     public static final int DEFAULT_PLAYERS = 4;
+
+
+    private static final StateHeuristic f = s -> (FoA.evaluateState(s) + Fcm.evaluateState(s)) / 2;
+    public static final StateHeuristic BEST_HEURISTIC = state -> p(f, state);
 
 
     public static final Map<String, ? extends Role> DEFAULT_ROLES = Map.of(

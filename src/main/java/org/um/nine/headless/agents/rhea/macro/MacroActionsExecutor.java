@@ -23,12 +23,12 @@ public record MacroActionsExecutor(ExperimentalGame game) {
         while (game.onGoing()) {
             logPlayer(state);
             logDiseases(state);
-            MacroAction nextMacro = MacroActionFactory.getFirstMacro(state);
+            MacroAction nextMacro = MacroActionFactory.getNextMacroAction(state);
             executeMacroAction(state, nextMacro, true, true);
             game.getActionsHistory().add(nextMacro);
         }
 
-
+        // resume from history test
         for (MacroAction m : game.getActionsHistory()) {
             logPlayer(initialState);
             logDiseases(initialState);
@@ -37,7 +37,6 @@ public record MacroActionsExecutor(ExperimentalGame game) {
 
         if (LOG) Log.log();
     }
-
     public void executeMacroAction(IState state, MacroAction nextMacro, boolean reverse, boolean draw) {
         int actionsLeft;
         if (reverse) {
@@ -50,7 +49,7 @@ public record MacroActionsExecutor(ExperimentalGame game) {
         executeRestOfActions(actionsLeft, state, nextMacro, draw);
     }
 
-    private void executeIndexedMacro(IState state, MacroAction macro) {
+    public void executeIndexedMacro(IState state, MacroAction macro) {
         char[] index = macro.index().toCharArray();
         int m, s = m = 0, treated = 0;
         Map<City, List<ActionType.StandingAction>> actionCity = macro.standingActions().stream().collect(Collectors.groupingBy(ActionType.StandingAction::applyTo));
@@ -71,7 +70,6 @@ public record MacroActionsExecutor(ExperimentalGame game) {
             e.printStackTrace();
         }
     }
-
     public static void logPlayer(IState state) {
         if (!LOG) return;
         Log.record("=============================================");
@@ -150,6 +148,13 @@ public record MacroActionsExecutor(ExperimentalGame game) {
         try {
             if (LOG) Log.record("[" + action.action() + "] -> " + action.applyTo());
             state.getPlayerRepository().playerAction(action.action(), state, obj == null ? new Object[]{} : obj);
+        } catch (NullPointerException noDiseases) {
+            //TODO: fix not allowed actions here
+            try {
+                state.getPlayerRepository().playerAction(ActionType.SKIP_ACTION, state);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -2,22 +2,27 @@ package org.um.nine.headless.agents.state;
 
 public interface StateHeuristic {
 
+
     double cp = 0.1;
+
     double evaluateState(IState state);
 
-    default double evaluateFitness(IState state){
-        if (state.isGameLost()){
+
+    static double w(StateHeuristic f, IState state) {
+        if (state.isGameLost()) {
             if (state.isGameWon()) return 1;
             return 0;
         }
-        return evaluateState(state);
+        return f.evaluateState(state);
     }
 
-    default double evaluateFitnessPenalize(IState state){
-        if (state.isGameLost()){
+
+    static double p(StateHeuristic f, IState state) {
+        if (state.isGameLost()) {
             if (state.isGameWon()) return 1;
-            return cp * evaluateState(state) ;
+            return cp * f.evaluateState(state);
         }
-        return evaluateState(state);
+        return f.evaluateState(state);
     }
+
 }
