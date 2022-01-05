@@ -9,10 +9,8 @@ import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.Medic;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import javax.crypto.Mac;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.um.nine.headless.game.domain.ActionType.*;
@@ -55,6 +53,7 @@ public abstract class MacroActionFactory {
             case WalkAway2Macro -> buildWalkAwayMacroActions(2);
             case WalkAway3Macro -> buildWalkAwayMacroActions(3);
             case WalkAway4Macro -> buildWalkAwayMacroActions(4);
+            case ShareKnowledgeMacro -> buildGiveKnowledgeMacroActions();
         };
     }
 
@@ -73,6 +72,7 @@ public abstract class MacroActionFactory {
         }
         return actions.stream().sorted(Comparator.comparingInt(ma -> ((MacroAction) ma).movingActions().size()).reversed()).collect(Collectors.toList());
     }
+
     protected static List<MacroAction> buildResearchStationMacroActions() {
         List<MacroAction> actions = new ArrayList<>();
         if (state.getCityRepository().getResearchStations().size() >= Settings.RESEARCH_STATION_THRESHOLD)
@@ -94,6 +94,7 @@ public abstract class MacroActionFactory {
         }
         return actions;
     }
+
     protected static List<MacroAction> buildCureDiseaseMacroActions() {
         List<MacroAction> curingActions = new ArrayList<>();
 
@@ -107,13 +108,13 @@ public abstract class MacroActionFactory {
                     filter(pc ->
                             pc instanceof CityCard cc && cc.getCity().getColor().equals(color)
                     ).count();
-            if (inHand >= needed){
+            if (inHand >= needed) {
                 List<City> stations = state.getCityRepository().
                         getResearchStations().
                         stream().
                         map(ResearchStation::getCity).
                         collect(Collectors.toList());
-                for (City c : stations){
+                for (City c : stations) {
                     List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(c);
                     if (shortestPath.size() <= 3 && shortestPath.size() > 0)
                         curingActions.add(MacroAction.macro(
@@ -124,6 +125,71 @@ public abstract class MacroActionFactory {
         }
         return curingActions;
     }
+
+    protected static List<MacroAction> buildGiveKnowledgeMacroActions() {
+        List<MacroAction> shareKnowledgeActions = new ArrayList<>();
+
+        List<PlayerCard> cardsInHand = currentPlayer.getHand();
+        List<City> citiesInHand = new ArrayList<>();
+        for (PlayerCard card : cardsInHand) {//TODO: Make sure shortestPath check is correct
+            if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() <= 4)
+                citiesInHand.add(((CityCard) card).getCity());
+        }
+
+        List<Player> otherPlayers = new ArrayList<>();
+        for (var entry : state.getPlayerRepository().getPlayers().entrySet()) {
+            if (entry != currentPlayer) otherPlayers.add(entry.getValue());
+        }
+
+        List<Player> playersInCities = new ArrayList<>();
+        for (Player p : otherPlayers) {
+            for (City c : citiesInHand) {
+                if (c == p.getCity()) playersInCities.add(p);
+            }
+        }
+
+        //TODO: return actions
+        //playersInCities contains Players at cities we could go to and give a card immediately
+        //citiesInHand contains cities that currentPlayer can reach in one turn (includes the cities where there are other players)
+        return shareKnowledgeActions;
+    }
+
+    protected static List<MacroAction> buildTakeKnowledgeMacroAction() {
+        List<MacroAction> shareKnowledgeActions = new ArrayList<>();
+        List<City> citiesInRange = new ArrayList<>();
+        List<City> citiesWithPlayer = new ArrayList<>();
+
+        List<Player> otherPlayers = new ArrayList<>();
+        for (var entry : state.getPlayerRepository().getPlayers().entrySet()) {
+            if (entry != currentPlayer) otherPlayers.add(entry.getValue());
+        }
+
+        for (Player p : otherPlayers) {
+            List<PlayerCard> cardsInHand = p.getHand();
+            for (PlayerCard card : cardsInHand) {//TODO: Make sure shortestPath check is correct
+                if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() <= 4) {
+                    City c = ((CityCard) card).getCity();
+                    citiesInRange.add(c);
+                    if(c==p.getCity()) citiesWithPlayer.add(c);
+                }
+            }
+        }
+
+        //TODO: return actions
+        //citiesWithPlayers contains cities in which another player holding the card is AND we can reach the city immediately
+        //citiesInRange contains cities that currentPlayer can reach in one turn (includes the cities where there are other players)
+        return shareKnowledgeActions;
+    }
+
+    /*private static List<City> findCitiesInReach(Player p){
+        List<PlayerCard> cardsInHand = p.getHand();
+        List<City> citiesInHand = new ArrayList<>();
+        for (PlayerCard card: cardsInHand) {
+            if(card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size()<=4) citiesInHand.add(((CityCard) card).getCity());
+        }
+
+
+    }*/
 
     protected static List<MacroAction> buildTreatDiseaseMacroActions() {
         var treat3 = buildTreatDiseaseMacroActions(3);
@@ -146,14 +212,14 @@ public abstract class MacroActionFactory {
             Map<Color, List<Disease>> grouped = sc.getValue().getCubes().stream().collect(
                     Collectors.groupingBy(Disease::getColor)
             );
-            for (List<Disease> diseases : grouped.values()){
+            for (List<Disease> diseases : grouped.values()) {
                 int cubes = diseases.size();
                 int movingActions = shortestPath.size();
-                if (cubes >= 1 && movingActions <= 3){
+                if (cubes >= 1 && movingActions <= 3) {
                     int treats = 0;
                     int availableMoves = 4 - movingActions;
                     List<ActionType.StandingAction> standingActions = new ArrayList<>();
-                    while(treats < t) {
+                    while (treats < t) {
                         var medic = treats > 0 && getCurrentPlayer().getRole() instanceof Medic;
 
                         if (availableMoves > treats && cubes > treats && !medic)
@@ -283,7 +349,8 @@ public abstract class MacroActionFactory {
         WalkAway1Macro,
         WalkAway2Macro,
         WalkAway3Macro,
-        WalkAway4Macro
+        WalkAway4Macro,
+        ShareKnowledgeMacro
     }
 
 }
