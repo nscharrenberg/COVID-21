@@ -1,7 +1,7 @@
 package org.um.nine.headless.game.repositories;
 
-import org.um.nine.headless.agents.state.IState;
-import org.um.nine.headless.agents.utils.Log;
+import org.um.nine.headless.agents.rhea.state.IState;
+import org.um.nine.headless.agents.utils.Logger;
 import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.contracts.repositories.ICardRepository;
 import org.um.nine.headless.game.domain.City;
@@ -54,7 +54,7 @@ public class CardRepository implements ICardRepository {
     @Override
     public void drawPlayerCard(IState state, PlayerCard... toDiscard) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         PlayerCard drawn = this.playerDeck.pop();
-        if (LOG) Log.record("draw " +
+        if (LOG) Logger.record("draw " +
                 (drawn instanceof CityCard cc ?
                         cc.getCity().getName() + " " + cc.getCity().getColor() :
                         "epidemic"));
@@ -90,7 +90,7 @@ public class CardRepository implements ICardRepository {
     public void drawInfectionCard(IState state) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         InfectionCard infectionCard = this.infectionDeck.pop();
         if (LOG)
-            Log.record("draw infect " + infectionCard.getCity().getName() + " " + infectionCard.getCity().getColor());
+            Logger.record("draw infect " + infectionCard.getCity().getName() + " " + infectionCard.getCity().getColor());
         state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
         this.infectionDiscardPile.push(infectionCard);
     }

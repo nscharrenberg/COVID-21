@@ -1,8 +1,8 @@
 package org.um.nine.headless.agents.rhea.macro;
 
-import org.um.nine.headless.agents.state.IState;
-import org.um.nine.headless.agents.state.StateEvaluation;
-import org.um.nine.headless.agents.utils.pathfinder.PathFinder;
+import org.um.nine.headless.agents.rhea.pathfinder.PathFinder2;
+import org.um.nine.headless.agents.rhea.state.IState;
+import org.um.nine.headless.agents.rhea.state.StateEvaluation;
 import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
@@ -19,7 +19,7 @@ import static org.um.nine.headless.game.domain.ActionType.*;
 
 public abstract class MacroActionFactory {
 
-    protected static PathFinder.Descriptor pathFinder;
+    protected static PathFinder2 pathFinder;
     protected static IState state;
     protected static MacroActionFactory instance;
     protected static List<MacroAction> actions;
@@ -249,24 +249,17 @@ public abstract class MacroActionFactory {
         throw new IllegalStateException();
     }
 
-    public static MacroAction getNextMacroAction(IState state) {
-        init(state);
+    public static MacroAction getNextMacroAction(IState state, Player player) {
+        init(state, player.getCity(), player);
         MacroAction macro = instance.getActions().get(0);
         instance.getActions().remove(macro);
         return macro;
     }
 
-    protected static MacroActionFactory init(IState newState) {
-        reset();
-        state = newState;
-        pathFinder = new PathFinder.Descriptor(state);
-        return getInstance();
-    }
-
     protected static MacroActionFactory init(IState newState, City city, Player player) {
         reset();
         state = newState;
-        pathFinder = new PathFinder.Descriptor(state, city, player);
+        pathFinder = new PathFinder2(state, city, player);
         return getInstance();
     }
 

@@ -1,7 +1,7 @@
 package org.um.nine.headless.game.repositories;
 
-import org.um.nine.headless.agents.state.IState;
-import org.um.nine.headless.agents.utils.Log;
+import org.um.nine.headless.agents.rhea.state.IState;
+import org.um.nine.headless.agents.utils.Logger;
 import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.contracts.repositories.IBoardRepository;
 import org.um.nine.headless.game.contracts.repositories.IPlayerRepository;
@@ -29,7 +29,7 @@ public class PlayerRepository implements IPlayerRepository {
     private int actionsLeft = ACTION_COUNT;
     private int drawLeft = DRAW_COUNT;
     private int infectionLeft = INFECTION_COUNT;
-    private Log log = new Log();
+    private Logger log = new Logger();
     private boolean logged = false;
 
     public PlayerRepository() {
@@ -41,7 +41,7 @@ public class PlayerRepository implements IPlayerRepository {
      */
     @Override
     public void reset() {
-        this.log = new Log();
+        this.log = new Logger();
 
         this.currentPlayer = null;
         this.currentRoundState = null;
@@ -626,7 +626,7 @@ public class PlayerRepository implements IPlayerRepository {
     }
 
     @Override
-    public Log getLog(){
+    public Logger getLog() {
         return log;
     }
 }

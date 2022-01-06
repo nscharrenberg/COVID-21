@@ -1,6 +1,6 @@
 package org.um.nine.headless.game.repositories;
 
-import org.um.nine.headless.agents.state.IState;
+import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.contracts.repositories.IEpidemicRepository;
 import org.um.nine.headless.game.exceptions.GameOverException;
 import org.um.nine.headless.game.exceptions.NoCubesLeftException;

@@ -1,6 +1,11 @@
 package org.um.nine.headless.game;
 
-import org.um.nine.headless.agents.state.StateHeuristic;
+import com.rits.cloning.Cloner;
+import org.um.nine.headless.agents.rhea.core.Mutator;
+import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
+import org.um.nine.headless.agents.rhea.macro.MacroActionsExecutor;
+import org.um.nine.headless.agents.rhea.state.StateHeuristic;
+import org.um.nine.headless.agents.utils.Reporter;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.Role;
 import org.um.nine.headless.game.domain.roles.Medic;
@@ -11,10 +16,11 @@ import org.um.nine.headless.game.domain.roles.Scientist;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Stack;
 
-import static org.um.nine.headless.agents.state.StateEvaluation.Fcm;
-import static org.um.nine.headless.agents.state.StateEvaluation.FoA;
-import static org.um.nine.headless.agents.state.StateHeuristic.p;
+import static org.um.nine.headless.agents.rhea.state.StateEvaluation.Fcm;
+import static org.um.nine.headless.agents.rhea.state.StateEvaluation.FoA;
+import static org.um.nine.headless.agents.rhea.state.StateHeuristic.p;
 
 public class Settings {
     public static final String APP_TITLE = "COVID-21 The Game";
@@ -28,7 +34,6 @@ public class Settings {
     public static final String START_CITY = RS.get(0);
     public static final boolean HEADLESS = true;
     public static final boolean LOG = true;
-
     public static final boolean DEFAULT_INITIAL_STATE = true;
     public static final int DEFAULT_PLAYERS = 4;
 
@@ -45,8 +50,23 @@ public class Settings {
     );
     public static final Difficulty DEFAULT_DIFFICULTY = Difficulty.EASY;
     public static final Random RANDOM_PROVIDER = new Random();
+
+
+    public static final Reporter DEFAULT_REPORTER = new Reporter();
+
+    public static final Cloner DEFAULT_CLONER = new Cloner();
+
     static {
         if (!HEADLESS && DEFAULT_INITIAL_STATE)
             throw new IllegalStateException();
+
+        //DEFAULT_CLONER.setDontCloneInstanceOf(Stack.class);
+        DEFAULT_CLONER.registerImmutable(Record.class, Enum.class, Stack.class);
     }
+
+
+    public static ExperimentalGame DEFAULT_RUNNING_GAME;
+    public static MacroActionsExecutor DEFAULT_MACRO_ACTIONS_EXECUTOR;
+
+    public static Mutator DEFAULT_MUTATOR;
 }

@@ -2,6 +2,7 @@ package org.um.nine.headless.agents.rhea.macro;
 
 import org.um.nine.headless.game.domain.ActionType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -85,6 +86,12 @@ public interface MacroAction {
         setIndex(index() + "s");
         standingActions().add(action);
         return this;
+    }
+
+    default MacroAction getClone() {
+        ArrayList<ActionType.StandingAction> sa = new ArrayList<>();
+        ArrayList<ActionType.MovingAction> ma = new ArrayList<>(movingActions().stream().map(ActionType.MovingAction::getClone).collect(Collectors.toList()));
+        return macro(ma, sa);
     }
 
     class TreatDiseaseMacro implements MacroAction {

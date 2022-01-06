@@ -1,4 +1,4 @@
-package org.um.nine.headless.agents.state;
+package org.um.nine.headless.agents.rhea.state;
 
 public interface StateHeuristic {
 

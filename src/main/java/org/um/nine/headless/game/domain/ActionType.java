@@ -35,7 +35,7 @@ public enum ActionType {
         return description;
     }
 
-    public static record MovingAction (ActionType action, City fromCity, City toCity){
+    public static record MovingAction(ActionType action, City fromCity, City toCity) {
         @Override
         public String toString() {
             String lbl = switch (action) {
@@ -47,12 +47,18 @@ public enum ActionType {
             };
             return "{" + fromCity.getName() + " -" + lbl + "-> " + toCity.getName() + "}";
         }
+
+        public MovingAction getClone() {
+            return new MovingAction(action(), fromCity(), toCity());
+        }
     }
 
     public static record StandingAction(ActionType action, City applyTo) {
         @Override
         public String toString() {
-            return "{" + action.getName() +" ("+ applyTo.getName() +")}";
+            return "{" + action.getName() + " (" + applyTo.getName() + ")}";
         }
     }
+
+
 }

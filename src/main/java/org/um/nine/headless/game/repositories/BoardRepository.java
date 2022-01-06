@@ -1,6 +1,6 @@
 package org.um.nine.headless.game.repositories;
 
-import org.um.nine.headless.agents.state.IState;
+import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.contracts.repositories.IBoardRepository;
 import org.um.nine.headless.game.domain.ActionType;

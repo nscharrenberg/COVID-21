@@ -1,42 +1,20 @@
 package org.um.nine.headless.agents.rhea.macro;
 
-import org.um.nine.headless.agents.state.IState;
-import org.um.nine.headless.agents.utils.ExperimentalGame;
-import org.um.nine.headless.agents.utils.Log;
+import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
+import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Color;
 import org.um.nine.headless.game.domain.Disease;
-import org.um.nine.headless.game.domain.cards.CityCard;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.um.nine.headless.agents.utils.Logger.record;
 import static org.um.nine.headless.game.Settings.LOG;
 
 public record MacroActionsExecutor(ExperimentalGame game) {
 
-    public void runExperimentalGame() {
-        IState initialState = game().getInitialState(),
-                state = game.getCurrentState();
-
-        while (game.onGoing()) {
-            logPlayer(state);
-            logDiseases(state);
-            MacroAction nextMacro = MacroActionFactory.getNextMacroAction(state);
-            executeMacroAction(state, nextMacro, true, true);
-            game.getActionsHistory().add(nextMacro);
-        }
-
-        // resume from history test
-        for (MacroAction m : game.getActionsHistory()) {
-            logPlayer(initialState);
-            logDiseases(initialState);
-            executeIndexedMacro(initialState, m);
-        }
-
-        if (LOG) Log.log();
-    }
     public void executeMacroAction(IState state, MacroAction nextMacro, boolean reverse, boolean draw) {
         int actionsLeft;
         if (reverse) {
@@ -49,7 +27,7 @@ public record MacroActionsExecutor(ExperimentalGame game) {
         executeRestOfActions(actionsLeft, state, nextMacro, draw);
     }
 
-    public void executeIndexedMacro(IState state, MacroAction macro) {
+    public void executeIndexedMacro(IState state, MacroAction macro, boolean draw) {
         char[] index = macro.index().toCharArray();
         int m, s = m = 0, treated = 0;
         Map<City, List<ActionType.StandingAction>> actionCity = macro.standingActions().stream().collect(Collectors.groupingBy(ActionType.StandingAction::applyTo));
@@ -64,47 +42,16 @@ public record MacroActionsExecutor(ExperimentalGame game) {
                 s++;
             }
         }
-        try {
-            state.getPlayerRepository().playerAction(null, state);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    public static void logPlayer(IState state) {
-        if (!LOG) return;
-        Log.record("=============================================");
-        Log.record("Player " +
-                state.getPlayerRepository().
-                        getCurrentPlayer() + " - " +
-                state.getPlayerRepository().
-                        getCurrentPlayer().
-                        getRole().getName());
-
-        Log.record("Cards in hand: " + state.getPlayerRepository().
-                getCurrentPlayer().
-                getHand().stream().
-                map(c -> ((CityCard) c).getCity().getName() + " " + ((CityCard) c).getCity().getColor()).
-                collect(Collectors.toList()));
-
+        if (draw)
+            try {
+                state.getPlayerRepository().playerAction(null, state);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        else
+            state.getPlayerRepository().nextPlayer();
     }
 
-    public static void logDiseases(IState state) {
-        if (!LOG) return;
-        List<String> s = new ArrayList<>();
-        for (City c : state.getCityRepository().getCities().values()) {
-            Map<String, List<Disease>> grouped = c.getCubes().stream().collect(
-                    Collectors.groupingBy(att -> att.getColor().getName())
-            );
-            if (!grouped.isEmpty())
-                s.addAll(grouped.entrySet().
-                        stream().
-                        map(kv -> c.getName() + " (" +
-                                kv.getValue().size() + " " +
-                                kv.getKey() + ")").
-                        collect(Collectors.toList()));
-        }
-        Log.record("Diseases : " + s);
-    }
 
     public int executeMovingActionsDefaultOrder(IState state, MacroAction nextMacro) {
         int actions = 0;
@@ -118,7 +65,7 @@ public record MacroActionsExecutor(ExperimentalGame game) {
     public void executeMovingAction(IState state, ActionType.MovingAction action) {
         state.getBoardRepository().setSelectedCity(state.getCityRepository().getCities().get(action.toCity().getName()));
         try {
-            if (LOG) Log.record("[" + action.action() + "] -> " + action.toCity());
+            if (LOG) record("[" + action.action() + "] -> " + action.toCity());
             state.getPlayerRepository().playerAction(action.action(), state);
         } catch (Exception e) {
             e.printStackTrace();
@@ -146,7 +93,7 @@ public record MacroActionsExecutor(ExperimentalGame game) {
             treated = 1;
         }
         try {
-            if (LOG) Log.record("[" + action.action() + "] -> " + action.applyTo());
+            if (LOG) record("[" + action.action() + "] -> " + action.applyTo());
             state.getPlayerRepository().playerAction(action.action(), state, obj == null ? new Object[]{} : obj);
         } catch (NullPointerException noDiseases) {
             //TODO: fix not allowed actions here

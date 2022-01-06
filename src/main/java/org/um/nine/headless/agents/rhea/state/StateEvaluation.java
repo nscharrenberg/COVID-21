@@ -1,4 +1,4 @@
-package org.um.nine.headless.agents.state;
+package org.um.nine.headless.agents.rhea.state;
 
 import org.um.nine.headless.game.domain.Color;
 import org.um.nine.headless.game.domain.Cure;
