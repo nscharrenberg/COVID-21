@@ -130,11 +130,14 @@ public class PathFinder2 {
                     //if we can get to that city and still have at least 1 move left
                     GCity fromCharter = findGCity(cc.getCity());
                     int depth = fromCharter.shortestPathFromCurrentCity.depth();
-                    if (depth > 0 && depth < 4) {
+                    if (depth >= 0 && depth < 4) {
                         // check each city which wasn't accessible before
                         List<GCity> charterFlightCities = this.costGraph.stream().
                                 filter(gc -> gc.shortestPathFromCurrentCity.depth() == 0).
                                 collect(Collectors.toList());
+
+                        /*fromCharter.prev=findGCity(currentPlayer.getCity());
+                        fromCharter.prevA=DRIVE;*/
 
                         for (GCity charterFlightCity : charterFlightCities) {
                             charterFlightCity.prev = fromCharter;

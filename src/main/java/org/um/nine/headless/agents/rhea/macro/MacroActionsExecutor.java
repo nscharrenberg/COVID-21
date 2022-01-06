@@ -173,7 +173,7 @@ public record MacroActionsExecutor(ExperimentalGame game) {
                         ActionType.SKIP_ACTION,
                         state.getCityRepository().getCities().get(
                                 state.getPlayerRepository().getCurrentPlayer().getCity().getName()
-                        )
+                        ),null,null
                 ));
                 MacroAction skip = MacroAction.macro(new ArrayList<>(), s);
                 MacroAction.combine(macro, skip);
