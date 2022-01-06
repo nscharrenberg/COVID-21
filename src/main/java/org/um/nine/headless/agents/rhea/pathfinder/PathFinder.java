@@ -1,7 +1,7 @@
-package org.um.nine.headless.agents.utils.pathfinder;
+package org.um.nine.headless.agents.rhea.pathfinder;
 
-import org.um.nine.headless.agents.state.IState;
-import org.um.nine.headless.agents.state.StateEvaluation;
+import org.um.nine.headless.agents.rhea.state.IState;
+import org.um.nine.headless.agents.rhea.state.StateEvaluation;
 import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Color;

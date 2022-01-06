@@ -1,6 +1,5 @@
-package org.um.nine.headless.agents.state;
+package org.um.nine.headless.agents.rhea.state;
 
-import com.rits.cloning.Cloner;
 import org.um.nine.headless.game.contracts.repositories.*;
 import org.um.nine.headless.game.domain.Color;
 import org.um.nine.headless.game.domain.Cure;
@@ -10,9 +9,9 @@ import org.um.nine.headless.game.domain.cards.PlayerCard;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
-import static org.um.nine.headless.agents.state.StateEvaluation.abilityCure;
+import static org.um.nine.headless.agents.rhea.state.StateEvaluation.abilityCure;
+import static org.um.nine.headless.game.Settings.DEFAULT_CLONER;
 
 public interface IState {
 
@@ -73,9 +72,7 @@ public interface IState {
     }
 
     default IState getClonedState() {
-        Cloner cloner = new Cloner();
-        cloner.setDontCloneInstanceOf(Stack.class);
-        return cloner.deepClone(this);
+        return DEFAULT_CLONER.deepClone(this);
     }
 
     default PlayerCard[] getDiscardingCard() {

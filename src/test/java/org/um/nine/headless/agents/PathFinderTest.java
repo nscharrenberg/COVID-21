@@ -3,9 +3,9 @@ package org.um.nine.headless.agents;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.um.nine.headless.agents.state.GameStateFactory;
-import org.um.nine.headless.agents.state.IState;
-import org.um.nine.headless.agents.utils.pathfinder.PathFinder;
+import org.um.nine.headless.agents.rhea.pathfinder.PathFinder;
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
+import org.um.nine.headless.agents.rhea.state.IState;
 
 class PathFinderTest {
 

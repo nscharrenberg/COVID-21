@@ -1,14 +1,11 @@
-package org.um.nine.headless.agents.utils;
+package org.um.nine.headless.agents.rhea.experiments;
 
 import org.um.nine.headless.agents.rhea.macro.MacroAction;
-import org.um.nine.headless.agents.rhea.macro.MacroActionsExecutor;
-import org.um.nine.headless.agents.state.GameStateFactory;
-import org.um.nine.headless.agents.state.IState;
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
+import org.um.nine.headless.agents.rhea.state.IState;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.um.nine.headless.game.Settings.HEADLESS;
 
 public class ExperimentalGame {
     private final List<MacroAction> actions;
@@ -44,14 +41,4 @@ public class ExperimentalGame {
                 !this.currentState.isGameWon();
     }
 
-    public static class ExperimentalGameRunner {
-
-        public static void main(String[] args) {
-            if (HEADLESS) {
-                ExperimentalGame game = new ExperimentalGame();
-                MacroActionsExecutor experiment = new MacroActionsExecutor(game);
-                experiment.runExperimentalGame();
-            }
-        }
-    }
 }

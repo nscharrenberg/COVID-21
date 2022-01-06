@@ -1,9 +1,10 @@
-package org.um.nine.headless.agents.utils.pathfinder;
+package org.um.nine.headless.agents.rhea.pathfinder;
 
-import org.um.nine.headless.agents.state.GameStateFactory;
-import org.um.nine.headless.agents.state.IState;
-import org.um.nine.headless.agents.state.StateEvaluation;
-import org.um.nine.headless.agents.utils.ExperimentalGame;
+import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
+import org.um.nine.headless.agents.rhea.state.IState;
+import org.um.nine.headless.agents.rhea.state.StateEvaluation;
+import org.um.nine.headless.agents.utils.Reporter;
 import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
@@ -15,8 +16,6 @@ import java.util.stream.Collectors;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.util.Arrays.stream;
-import static org.um.nine.headless.agents.utils.Log.log;
-import static org.um.nine.headless.agents.utils.Log.record;
 import static org.um.nine.headless.game.Settings.LOG;
 import static org.um.nine.headless.game.domain.ActionType.*;
 
@@ -52,27 +51,27 @@ public class PathFinder2 {
 
     private void logGraph() {
         if (LOG) {
-            record("============================================================================================");
+            Reporter graphReporter = new Reporter();
+            graphReporter.getLog().add("============================================================================================");
             for (GCity gc : this.costGraph) {
                 if (gc.shortestPathFromCurrentCity.depth() > 0)
-                    record(String.format("%1$-20s", gc.city.getName()) + gc.shortestPathFromCurrentCity.toString());
+                    graphReporter.getLog().add(String.format("%1$-20s", gc.city.getName()) + gc.shortestPathFromCurrentCity.toString());
             }
-            record("============================================================================================");
-            log();
+            graphReporter.getLog().add("============================================================================================");
+            graphReporter.report("reports/pathReport.txt", true);
         }
     }
 
     public void evaluatePath() {
         currentCity.walkingDistance = 0;
-        System.out.println(currentPlayer.getHand());
         this.evaluateWalkingPath();
-        logGraph();
+        this.logGraph();
         this.evaluateShuttlePath();
-        logGraph();
+        this.logGraph();
         this.evaluateDirectPath();
-        logGraph();
+        this.logGraph();
         this.evaluateCharterPath();
-        logGraph();
+        this.logGraph();
     }
 
     private double[] evaluateAbilityCureOfCards() {
@@ -122,7 +121,9 @@ public class PathFinder2 {
     }
 
     private void evaluateCharterPath() {
+
         double[] ac = evaluateAbilityCureOfCards();
+        cardsLoop:
         for (int i = 0; i < currentPlayer.getHand().size(); i++) {
             if (currentPlayer.getHand().get(i) instanceof CityCard cc) {
                 if (isDiscardableCard(cc, ac[i], i)) {
@@ -130,22 +131,29 @@ public class PathFinder2 {
                     //if we can get to that city and still have at least 1 move left
                     GCity fromCharter = findGCity(cc.getCity());
                     int depth = fromCharter.shortestPathFromCurrentCity.depth();
-                    if (depth >= 0 && depth < 4) {
+                    //easy check, if we want to charter now from city X, and to get to X we used direct flight
+                    //it means we used card with city X
+                    //TODO: implement better strategy to see if there was another path
+
+                    if (depth > 0 && depth < 4) {
+                        if (fromCharter.shortestPathFromCurrentCity.path[depth - 1].action().equals(DIRECT_FLIGHT))
+                            continue cardsLoop;
                         // check each city which wasn't accessible before
                         List<GCity> charterFlightCities = this.costGraph.stream().
                                 filter(gc -> gc.shortestPathFromCurrentCity.depth() == 0).
                                 collect(Collectors.toList());
 
-                        /*fromCharter.prev=findGCity(currentPlayer.getCity());
-                        fromCharter.prevA=DRIVE;*/
-
                         for (GCity charterFlightCity : charterFlightCities) {
                             charterFlightCity.prev = fromCharter;
                             charterFlightCity.prevA = CHARTER_FLIGHT;
                             charterFlightCity.walkingDistance = depth + 1;  //take charter flight action step + previous depth
-                            this.currentCity = charterFlightCity;
-                            this.evaluateWalkingPath();
-                            this.currentCity.marked = true;
+                            if (charterFlightCity.walkingDistance < 4) {
+                                this.currentCity = charterFlightCity;
+                                this.evaluateWalkingPath();
+                                this.currentCity.marked = true;
+                            } else createShortestPath(charterFlightCity);
+
+
                         }
                     }
                 }
@@ -196,7 +204,7 @@ public class PathFinder2 {
             for (City c : u.city.getNeighbors()) {
                 GCity v = findGCity(c);
                 int d = u.walkingDistance;
-                if (v.walkingDistance > d && !v.marked) {
+                if (v.walkingDistance > d && !v.marked && v != u.prev) {
                     v.walkingDistance = d + 1;
                     v.prev = u;
                     v.prevA = DRIVE;
@@ -216,9 +224,27 @@ public class PathFinder2 {
             m.add(new MovingAction(current.prevA, current.prev.city, current.city));
             current = current.prev;
         }
+
+        if (m.size() > 0 && m.get(0).action().equals(CHARTER_FLIGHT)) {
+            var mm = stream(current.shortestPathFromCurrentCity.path()).collect(Collectors.toCollection(ArrayList::new));
+            Collections.reverse(mm);
+            m.addAll(mm);
+        }
         Collections.reverse(m);
-        gc.shortestPathFromCurrentCity = shortest(gc.shortestPathFromCurrentCity, new Path(m.toArray(new MovingAction[4])));
+
+        Path newPath = new Path(m.toArray(new MovingAction[4]));
+
+        //gc.lightestPathFromCurrentCity = lightest(gc.shortestPathFromCurrentCity, newPath);
+        gc.shortestPathFromCurrentCity = shortest(gc.shortestPathFromCurrentCity, newPath);
+
+
         return gc.shortestPathFromCurrentCity;
+    }
+
+    private Path lightest(Path p1, Path p2) {
+        long p1Depth = stream(p1.path()).filter(ma -> (ma.action().equals(DIRECT_FLIGHT) || ma.action().equals(CHARTER_FLIGHT))).count();
+        long p2Depth = stream(p2.path()).filter(ma -> (ma.action().equals(DIRECT_FLIGHT) || ma.action().equals(CHARTER_FLIGHT))).count();
+        return p1Depth > p2Depth ? p2 : p1;
     }
 
     private Path shortest(Path oldPath, Path newPath) {
@@ -257,6 +283,12 @@ public class PathFinder2 {
         return gc.shortestPathFromCurrentCity == null ? createShortestPath(gc) : gc.shortestPathFromCurrentCity;
     }
 
+    public List<MovingAction> shortestPath(City c) {
+        GCity gc = findGCity(c);
+        Path p = gc.shortestPathFromCurrentCity == null ? createShortestPath(gc) : gc.shortestPathFromCurrentCity;
+        return Arrays.stream(p.path()).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
     private GCity findGCity(City c) {
         return this.costGraph.stream().filter(gCity -> gCity.city.equals(c)).findFirst().orElse(null);
     }
@@ -269,6 +301,7 @@ public class PathFinder2 {
         private ActionType prevA;
         private int walkingDistance;
         private Path shortestPathFromCurrentCity;
+        private Path lightestPathFromCurrentCity;
 
         private GCity(City c) {
             this.city = c;

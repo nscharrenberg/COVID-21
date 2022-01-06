@@ -1,7 +1,6 @@
 package org.um.nine.headless.agents.rhea.macro;
 
-import org.um.nine.headless.agents.rhea.Individual;
-import org.um.nine.headless.agents.state.IState;
+import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
 
@@ -14,8 +13,9 @@ import static org.um.nine.headless.game.Settings.RANDOM_PROVIDER;
 public class RPAMacroActionsFactory extends MacroActionFactory {
     private static RPAMacroActionsFactory instance;
 
-    public static MacroAction getNextMacroAction(Individual individual, IState state) {
-        init(state, individual.player().getCity(), individual.player());
+    public static MacroAction getNextMacroAction(IState state) {
+        Player currentPlayer = state.getPlayerRepository().getCurrentPlayer();
+        init(state, currentPlayer.getCity(), currentPlayer);
         Collections.shuffle(getInstance().getActions(), RANDOM_PROVIDER);
         return getInstance().getActions().get(0);
     }
