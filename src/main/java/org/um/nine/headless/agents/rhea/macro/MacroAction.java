@@ -15,9 +15,10 @@ public interface MacroAction {
 
     void setIndex(String s);
 
-    static void combine(MacroAction ma1, MacroAction ma2) {
+    static MacroAction combine(MacroAction ma1, MacroAction ma2) {
         for (ActionType.MovingAction m : ma2.movingActions()) ma1.add(m);
         for (ActionType.StandingAction s : ma2.standingActions()) ma1.add(s);
+        return ma1;
     }
 
     static void combine(MacroAction... ms) {
