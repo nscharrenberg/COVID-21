@@ -138,8 +138,8 @@ public abstract class MacroActionFactory {
 
         List<PlayerCard> cardsInHand = currentPlayer.getHand();
         List<Player> otherPlayers = new ArrayList<>();
-        for (var entry : state.getPlayerRepository().getPlayers().entrySet()) {
-            if (entry != currentPlayer) otherPlayers.add(entry.getValue());
+        for (Map.Entry<String, Player> entry : state.getPlayerRepository().getPlayers().entrySet()) {
+            if (entry.getValue() != currentPlayer) otherPlayers.add(entry.getValue());
         }
 
         //TODO: Make sure this is how you check Role
@@ -147,7 +147,7 @@ public abstract class MacroActionFactory {
             //Researcher can give any city card
             List<City> citiesInImmediateRange = new ArrayList<>();
             List<City> citiesInRange = new ArrayList<>();
-            for (var c : state.getCityRepository().getCities().entrySet()) {
+            for (Map.Entry<String, City> c : state.getCityRepository().getCities().entrySet()) {
                 int distance = pathFinder.shortestPath(c.getValue()).size();
                 if (distance < N) citiesInImmediateRange.add(c.getValue());
                 else if (distance == N) citiesInRange.add(c.getValue());
@@ -229,8 +229,8 @@ public abstract class MacroActionFactory {
         Player researcher = null;
 
         List<Player> otherPlayers = new ArrayList<>();
-        for (var entry : state.getPlayerRepository().getPlayers().entrySet()) {
-            if (entry != currentPlayer) otherPlayers.add(entry.getValue());
+        for (Map.Entry<String, Player> entry : state.getPlayerRepository().getPlayers().entrySet()) {
+            if (entry.getValue() != currentPlayer) otherPlayers.add(entry.getValue());
         }
 
         for (Player p : otherPlayers) {
