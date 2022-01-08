@@ -173,8 +173,11 @@ public class MCTS {
                 }
                 else{
                     player.getHand().remove(sameCityCard.get());
-                    int rnd = new Random().nextInt(player.getCity().getPawns().size()-1);
-                    player.getCity().getPawns().get(rnd).addHand(sameCityCard.get());
+                    ArrayList<Player> copy = new ArrayList<>();
+                    copy.addAll(player.getCity().getPawns());
+                    copy.remove(player);
+                    int rnd = new Random().nextInt(copy.size());
+                    copy.get(rnd).addHand(sameCityCard.get());
                 }
             }
             case DISCOVER_CURE -> {
@@ -185,10 +188,10 @@ public class MCTS {
                 AtomicInteger yellow = new AtomicInteger();
                 sameColorCard.forEach((color, playerCards) -> {
                     switch (color){
-                        case RED -> red.getAndIncrement();
-                        case BLACK -> black.getAndIncrement();
-                        case BLUE -> blue.getAndIncrement();
-                        case YELLOW -> yellow.getAndIncrement();
+                        case RED -> red.set(playerCards.size());
+                        case BLACK -> black.set(playerCards.size());
+                        case BLUE -> blue.set(playerCards.size());
+                        case YELLOW -> yellow.set(playerCards.size());
                     }
                 });
                 Color color = Color.LIME;
@@ -314,6 +317,7 @@ public class MCTS {
                         e.printStackTrace();
                     }
                 }
+                currentNode.getState().getPlayerRepository().nextPlayer();
             }
             iterations++;
         }

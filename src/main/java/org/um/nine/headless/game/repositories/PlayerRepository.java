@@ -189,18 +189,18 @@ public class PlayerRepository implements IPlayerRepository {
         // No need to charter when neighbouring city
         if (player.getCity().getNeighbors().contains(city)) {
             drive(player, city);
-            return; //todo needs to be fixed in main code
+            return;
         }
 
         // No need to charter when both cities have research station
         if (player.getCity().getResearchStation() != null && city.getResearchStation() != null) {
             drive(player, city);
-            return; //todo needs to be fixed in main code
+            return;
         }
 
         PlayerCard pc = player.getHand().stream().filter(c -> {
             if (c instanceof CityCard cc) {
-                return cc.getCity().equals(city);
+                return cc.getCity().equals(player.getCity());
             }
             return false;
         }).findFirst().orElse(null);
