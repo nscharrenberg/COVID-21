@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.agents.utils.ExperimentalGame;
 import org.um.nine.headless.agents.utils.Log;
+import org.um.nine.headless.game.exceptions.PlayerLimitException;
 
 
 public class baselineAgentTests {
@@ -12,6 +13,12 @@ public class baselineAgentTests {
     @Test
     public void decisionsTest() {
         ExperimentalGame game = new ExperimentalGame();
+        try{
+            game.getCurrentState().getPlayerRepository().createPlayer("P1",true);
+            game.getCurrentState().getPlayerRepository().createPlayer("P2",true);
+        } catch (PlayerLimitException e) {
+            e.printStackTrace();
+        }
         game.start();
         IState state = game.getCurrentState();
         Log log = state.getPlayerRepository().getLog();
