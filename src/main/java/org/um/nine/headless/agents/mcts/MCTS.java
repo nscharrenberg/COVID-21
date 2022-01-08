@@ -5,15 +5,15 @@ import org.nd4j.common.primitives.AtomicDouble;
 import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
+import org.um.nine.headless.game.domain.cards.InfectionCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.Medic;
 import org.um.nine.headless.game.domain.roles.RoleAction;
-import org.um.nine.headless.game.exceptions.GameWonException;
-import org.um.nine.headless.game.exceptions.MoveNotPossibleException;
-import org.um.nine.headless.game.exceptions.UnableToDiscoverCureException;
+import org.um.nine.headless.game.exceptions.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
@@ -37,13 +37,24 @@ public class MCTS {
      * UCB selection: Selects a node that will be explored
      * @return the node that will be selected
      */
-    public Node selection(Node node){ //todo normalization
+    public Node selection(Node node){
         LinkedList<Node> children = node.getChildren();
         double[] scores = new double[children.size()];
+        //finding min and max for normalization
+        AtomicReference<Double> min = new AtomicReference<>((double) Integer.MAX_VALUE);
+        AtomicReference<Double> max = new AtomicReference<>((double) Integer.MIN_VALUE);
+        children.forEach(c -> {
+            if(c.getValue() < min.get()) min.set(c.getValue());
+            if(c.getValue() > max.get()) max.set(c.getValue());
+        });
+        max.set(max.get()-min.get());
+
         int maxIndex = 0;
         for(int i = 0; i < children.size(); i++){
+            //normalized value
+            double value = (node.getValue() - min.get())/max.get();
             //ucb formula
-            scores[i] = node.getValue() + C*Math.sqrt(Math.log(node.getParent().getVisits())/(double) node.getVisits());
+            scores[i] = value + C*Math.sqrt(Math.log(node.getParent().getVisits())/(double) node.getVisits());
             if(scores[i] > scores[maxIndex]){
                 maxIndex = i;
             }
@@ -231,7 +242,7 @@ public class MCTS {
     }
 
     /**
-     * backpropogates from leaf to root and changes values of the nodes on the way
+     * backpropogates from leaf to root and changes values of the nodes
      */
     public void backPropagation(){
         ArrayList<Node> leaves = new ArrayList<>();
@@ -282,6 +293,28 @@ public class MCTS {
             //backpropagation
             backPropagation();
 
+            //checking for game specific events, like the draw and infect phase
+            if(currentNode.getState().isGameLost() || currentNode.getState().isGameWon()) {
+                endState = true;
+            }
+            if(currentNode.getDepth()%4 == 0 && currentNode.getDepth() != 0){
+                //cloning the player decks and shuffling them for the simulation
+                Stack<PlayerCard> simulationPD = (Stack<PlayerCard>) currentNode.getState().getCardRepository().getPlayerDeck().clone();
+                Stack<InfectionCard> simulationID = (Stack<InfectionCard>) currentNode.getState().getCardRepository().getInfectionDeck().clone();
+                Collections.shuffle(simulationPD);
+                Collections.shuffle(simulationID);
+                currentNode.getState().getPlayerRepository().getCurrentPlayer().addHand(simulationPD.pop());
+                currentNode.getState().getPlayerRepository().getCurrentPlayer().addHand(simulationPD.pop());
+
+                for(int i = 0; i < Objects.requireNonNull(currentNode.getState().getDiseaseRepository().getInfectionRates().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount(); i++){
+                    InfectionCard ic = simulationID.pop();
+                    try {
+                        currentNode.getState().getDiseaseRepository().infect(ic.getCity().getColor(), ic.getCity());
+                    } catch (NoCubesLeftException | NoDiseaseOrOutbreakPossibleDueToEvent | GameOverException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
             iterations++;
         }
         //playing the highest valued node
@@ -296,5 +329,9 @@ public class MCTS {
         });
 
         return action.get();
+    }
+
+    public Node getRoot(){
+        return root;
     }
 }
