@@ -27,13 +27,35 @@ public class Log {
         return log;
     }
 
-    public static record LogRecord(String action, City targetLocation, Player player) {
+    public static class LogRecord {
+
+        private String action;
+        private City targetLocation;
+        private Player player;
+
+        public LogRecord(String action, City targetLocation, Player player){
+            this.action = action;
+            this.targetLocation = targetLocation;
+            this.player = player;
+        }
 
         @Override
         public String toString() {
-            return player().getName() + "\t" +
-                    action() + "\t" +
-                    targetLocation().getName();
+            return player.getName() + "\t" +
+                    action + "\t" +
+                    targetLocation.getName();
+        }
+
+        public Player player(){
+            return player;
+        }
+
+        public City targetLocation(){
+            return targetLocation;
+        }
+
+        public String action(){
+            return action;
         }
 
     }
