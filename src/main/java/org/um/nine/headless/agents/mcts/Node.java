@@ -38,6 +38,7 @@ public class Node {
     //todo evaluate on creation
     private void evaluate(){
         //do evaluation stuff and give score
+
     }
 
     public boolean isLeaf(){
