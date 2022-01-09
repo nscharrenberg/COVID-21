@@ -19,17 +19,14 @@ public abstract class HPAMacroActionsFactory extends MacroActionFactory {
         init(state, currentPlayer.getCity(), currentPlayer);
         return getInstance().getActions().get(0);
     }
-
     protected static HPAMacroActionsFactory getInstance() {
         return instance == null ? (instance = new HPAMacroActionsFactory() {
         }) : instance;
     }
-
     public static HPAMacroActionsFactory init(IState state, City city, Player player) {
         MacroActionFactory.init(state, city, player);
         return instance = getInstance();
     }
-
     public static void initIndividualGene(IState state, Individual individual) {
         IState mutationState = state.getClonedState();
         Player player = mutationState.getPlayerRepository().getCurrentPlayer();
@@ -43,15 +40,15 @@ public abstract class HPAMacroActionsFactory extends MacroActionFactory {
         for (int i = 0; i < individual.genome().length; i++) {
             if (LOG)
                 addLog("Initializing player " + mutationState.getPlayerRepository().getCurrentPlayer().getId() + " genome, index " + i);
-            individual.genome()[i] = init(mutationState, currentCity, player).getNextMacroAction();
-            DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(mutationState, individual.genome()[i], true);
+            MacroAction nextMacro = init(mutationState, currentCity, player).getNextMacroAction();
+            individual.genome()[i] = nextMacro;
+            DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(mutationState, nextMacro, true);
             mutationState.getPlayerRepository().setCurrentPlayer(player); //trick the game logic here to allow fault turn
             currentCity = player.getCity();
             ROUND_INDEX++;
         }
         ROUND_INDEX = 0;
     }
-
     public MacroAction getNextMacroAction() {
         MacroAction nextHPAMacro = getActions().get(0);
         if (LOG) addLog("Best hpa macro : " + nextHPAMacro.toString());
@@ -64,7 +61,6 @@ public abstract class HPAMacroActionsFactory extends MacroActionFactory {
             return filling;
         } else return nextHPAMacro;
     }
-
     protected static List<MacroAction> buildHPAMacroActions() {
         if (LOG) addLog("Building allowed HPA macro actions...");
         actions = new ArrayList<>();

@@ -1,7 +1,0 @@
-Cards in hand : [Sao Paolo, Manaus]
-============================================================================================
-Washington          [{Atlanta -w-> Washington}]
-Santo Domingo       [{Atlanta -w-> Santo Domingo}]
-Chicago             [{Atlanta -w-> Chicago}]
-Mexico City         [{Atlanta -w-> Mexico City}]
-============================================================================================

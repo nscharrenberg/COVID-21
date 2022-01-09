@@ -1,6 +1,5 @@
 package org.um.nine.headless.agents.rhea.pathfinder;
 
-import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
 import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.rhea.state.StateEvaluation;
@@ -30,18 +29,6 @@ public class PathFinder2 {
     final List<GCity> costGraph;
     String path = "";
     String cardsInHand = "";
-
-    public static PathFinder2 evaluateGameState(ExperimentalGame gameState) {
-        return new PathFinder2(gameState.getCurrentState(), gameState.getCurrentState().getPlayerRepository().getCurrentPlayer());
-    }
-
-    public static PathFinder2 evaluateGameState(IState gameState) {
-        return new PathFinder2(gameState, gameState.getPlayerRepository().getCurrentPlayer());
-    }
-
-    public PathFinder2(IState state, Player currentPlayer) {
-        this(state, currentPlayer.getCity(), currentPlayer);
-    }
 
     public PathFinder2(IState state, City currentCity, Player currentPlayer) {
         this.state = state;
@@ -191,16 +178,45 @@ public class PathFinder2 {
                     collect(Collectors.toList());
 
             GCity prev = this.currentCity;
-            for (GCity researchStationNeighbour : researchStations) {
-                researchStationNeighbour.prev = prev;
-                researchStationNeighbour.prevA = SHUTTLE;
-                researchStationNeighbour.walkingDistance = 1;  //take shuttle action step
-                this.currentCity = researchStationNeighbour;
-                this.evaluateWalkingPath();
-                this.currentCity.marked = true;
+            evaluatePostShuttlePath(researchStations, prev);
+        } else {
+            List<GCity> reachableWalking = state.
+                    getCityRepository().
+                    getCities().
+                    values().
+                    stream().
+                    filter(city -> city.getResearchStation() != null).
+                    map(this::findGCity).
+                    filter(gCity -> gCity.shortestPathFromCurrentCity.depth() < 3).
+                    collect(Collectors.toList());
+
+            for (GCity reachable : reachableWalking) {
+
+                List<GCity> researchStations = state.
+                        getCityRepository().
+                        getCities().
+                        values().
+                        stream().
+                        filter(city -> city.getResearchStation() != null).
+                        filter(city -> city != reachable.city).
+                        map(this::findGCity).
+                        collect(Collectors.toList());
+
+                evaluatePostShuttlePath(researchStations, reachable);
             }
-            this.currentCity = prev;
         }
+    }
+
+    private void evaluatePostShuttlePath(List<GCity> researchStations, GCity prev) {
+        for (GCity researchStationNeighbour : researchStations) {
+            researchStationNeighbour.prev = prev;
+            researchStationNeighbour.prevA = SHUTTLE;
+            researchStationNeighbour.walkingDistance = 1;  //take shuttle action step
+            this.currentCity = researchStationNeighbour;
+            this.evaluateWalkingPath();
+            this.currentCity.marked = true;
+        }
+        this.currentCity = prev;
     }
 
     private void evaluateWalkingPath() {
