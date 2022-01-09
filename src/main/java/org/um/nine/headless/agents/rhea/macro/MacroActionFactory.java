@@ -9,6 +9,7 @@ import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.Medic;
 
+import javax.crypto.Mac;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -40,10 +41,10 @@ public abstract class MacroActionFactory {
         actions.addAll(buildTreatDiseaseMacroActions(2));
         actions.addAll(buildTreatDiseaseMacroActions(3));
         actions.addAll(buildCureDiseaseMacroActions());
+        actions.addAll(buildGiveKnowledgeMacroActions(4));
+        actions.addAll(buildTakeKnowledgeMacroAction(4));
         actions.addAll(buildResearchStationMacroActions());
         actions.addAll(buildWalkAwayMacroActions(4));
-        actions.addAll(buildGiveKnowledgeMacroActions());
-        actions.addAll(buildTakeKnowledgeMacroAction());
         return actions;
     }
 
@@ -53,13 +54,13 @@ public abstract class MacroActionFactory {
             case Treat2Macro -> buildTreatDiseaseMacroActions(2);
             case Treat3Macro -> buildTreatDiseaseMacroActions(3);
             case CureMacro -> buildCureDiseaseMacroActions();
+            case GiveKnowledgeMacro -> buildGiveKnowledgeMacroActions(4);
+            case TakeKnowledgeMacro -> buildTakeKnowledgeMacroAction(4);
             case ResearchStationMacro -> buildResearchStationMacroActions();
             case WalkAway1Macro -> buildWalkAwayMacroActions(1);
             case WalkAway2Macro -> buildWalkAwayMacroActions(2);
             case WalkAway3Macro -> buildWalkAwayMacroActions(3);
             case WalkAway4Macro -> buildWalkAwayMacroActions(4);
-            case GiveKnowledgeMacro -> buildGiveKnowledgeMacroActions();
-            case TakeKnowledgeMacro -> buildTakeKnowledgeMacroAction();
         };
     }
 
@@ -134,7 +135,18 @@ public abstract class MacroActionFactory {
         return curingActions;
     }
 
-    protected static List<MacroAction> buildGiveKnowledgeMacroActions() {
+    protected static List<MacroAction> buildShareKnowledgeMacroActions(int N){
+        List<MacroAction> allMacros = buildGiveKnowledgeMacroActions(N);
+        allMacros.addAll(buildTakeKnowledgeMacroAction(N));
+        return allMacros;
+    }
+
+    /**
+     *
+     * @param N actions remaining when starting Macro
+     * @return
+     */
+    protected static List<MacroAction> buildGiveKnowledgeMacroActions(int N) {
         List<MacroAction> shareKnowledgeActions = new ArrayList<>();
         List<PlayerCard> cardsInHand = currentPlayer.getHand();
         List<Player> otherPlayers = new ArrayList<>();
@@ -149,8 +161,8 @@ public abstract class MacroActionFactory {
             List<City> citiesInRange = new ArrayList<>();
             for (Map.Entry<String, City> c : state.getCityRepository().getCities().entrySet()) {
                 int distance = pathFinder.shortestPath(c.getValue()).size();
-                if (distance < 4) citiesInImmediateRange.add(c.getValue());
-                else if (distance == 4) citiesInRange.add(c.getValue());
+                if (distance < N) citiesInImmediateRange.add(c.getValue());
+                else if (distance == N) citiesInRange.add(c.getValue());
             }
 
             List<City> citiesNotCoveredYet = new ArrayList<>();
@@ -160,31 +172,23 @@ public abstract class MacroActionFactory {
                         for (PlayerCard card : cardsInHand) {
                             if (card instanceof CityCard) {
                                 City cardCity = ((CityCard) card).getCity();
-                                shareKnowledgeActions.add(MacroAction.macro(pathFinder.shortestPath(c),
-                                        List.of(new ActionType.StandingAction(SHARE_KNOWLEDGE, cardCity, currentPlayer, p))));
+                                addShareAndWait(N,shareKnowledgeActions,currentPlayer,p,cardCity);
                             }
                         }
                     } else citiesNotCoveredYet.add(c);
                 }
             }
-
-            for (City c : citiesNotCoveredYet) {
-                List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(c);
-                shareKnowledgeActions.add(MacroAction.macro(shortestPath, null));
-            }
-            for (City c : citiesInRange) {
-                List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(c);
-                shareKnowledgeActions.add(MacroAction.macro(shortestPath, null));
-            }
+            addWait(N,shareKnowledgeActions,citiesNotCoveredYet);
+            addWait(N,shareKnowledgeActions,citiesInRange);
 
         } else {
 
             List<City> citiesInHandInImmediateReach = new ArrayList<>();
             List<City> citiesInHandInReach = new ArrayList<>();
             for (PlayerCard card : cardsInHand) {//TODO: Make sure shortestPath check is correct
-                if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() < 4)
+                if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() < N)
                     citiesInHandInImmediateReach.add(((CityCard) card).getCity());
-                else if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() == 4)
+                else if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() == N)
                     citiesInHandInReach.add(((CityCard) card).getCity());
             }
 
@@ -203,23 +207,22 @@ public abstract class MacroActionFactory {
                 City c = p.getCity();
                 citiesInHandInImmediateReach.remove(c);
                 //this city can be removed from the other list, seeing as it is handled here
-                shareKnowledgeActions.add(MacroAction.macro(pathFinder.shortestPath(c), List.of(new ActionType.StandingAction(SHARE_KNOWLEDGE, c, currentPlayer, p))));
+                addShareAndWait(N,shareKnowledgeActions,currentPlayer,p,c);
             }
 
-            for (City c : citiesInHandInImmediateReach) {
-                List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(c);
-                shareKnowledgeActions.add(MacroAction.macro(shortestPath, null));
-            }
-            for (City c : citiesInHandInReach) {
-                List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(c);
-                shareKnowledgeActions.add(MacroAction.macro(shortestPath, null));
-            }
+            addWait(N,shareKnowledgeActions,citiesInHandInImmediateReach);
+            addWait(N,shareKnowledgeActions,citiesInHandInReach);
 
         }
         return shareKnowledgeActions;
     }
 
-    protected static List<MacroAction> buildTakeKnowledgeMacroAction() {
+    /**
+     *
+     * @param N actions remaining when starting Macro
+     * @return
+     */
+    protected static List<MacroAction> buildTakeKnowledgeMacroAction(int N) {
         List<MacroAction> shareKnowledgeActions = new ArrayList<>();
         List<City> citiesInImmediateRange = new ArrayList<>();
         List<City> citiesInRange = new ArrayList<>();
@@ -234,45 +237,58 @@ public abstract class MacroActionFactory {
         for (Player p : otherPlayers) {
             List<PlayerCard> cardsInHand = p.getHand();
             if (p.getRole().getName().equals("Researcher")) {//check if the researcher is in an immediately reachable city
-                if (pathFinder.shortestPath(p.getCity()).size() < 4) researcher = p;
+                if (pathFinder.shortestPath(p.getCity()).size() < N) researcher = p;
             } else {
                 for (PlayerCard card : cardsInHand) {//TODO: Make sure shortestPath check is correct
-                    if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() < 4) {
+                    if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() < N) {
                         City c = ((CityCard) card).getCity();
                         citiesInImmediateRange.add(c);
                         if (c == p.getCity()) playersInReachableCities.add(p);
-                    } else if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() == 4) {
+                    } else if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() == N) {
                         citiesInRange.add(((CityCard) card).getCity());
                     }
                 }
             }
         }
-
         if(researcher!=null){
             for (PlayerCard pc:researcher.getHand()) {
                 if(pc instanceof CityCard){
                     City c = ((CityCard) pc).getCity();
-                    shareKnowledgeActions.add(MacroAction.macro(pathFinder.shortestPath(c), List.of(new ActionType.StandingAction(SHARE_KNOWLEDGE, c, researcher, currentPlayer))));
+                    addShareAndWait(N, shareKnowledgeActions, researcher, currentPlayer, c);
+
                 }
             }
         }
-
         for (Player p : playersInReachableCities) {
             City c = p.getCity();
             citiesInImmediateRange.remove(c); //this city can be removed from the other list, seeing as it is handled here
-            shareKnowledgeActions.add(MacroAction.macro(pathFinder.shortestPath(c), List.of(new ActionType.StandingAction(SHARE_KNOWLEDGE, c, p, currentPlayer))));
+            addShareAndWait(N, shareKnowledgeActions, p, currentPlayer, c);
         }
-
-        for (City c : citiesInImmediateRange) {
-            List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(c);
-            shareKnowledgeActions.add(MacroAction.macro(shortestPath, null));
-        }
-        for (City c : citiesInRange) {
-            List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(c);
-            shareKnowledgeActions.add(MacroAction.macro(shortestPath, null));
-        }
+        addWait(N, shareKnowledgeActions, citiesInImmediateRange);
+        addWait(N, shareKnowledgeActions, citiesInRange);
 
         return shareKnowledgeActions;
+    }
+
+    private static void addShareAndWait(int N, List<MacroAction> shareKnowledgeActions, Player give, Player take, City c) {
+        List<MovingAction> shortestPath = pathFinder.shortestPath(c);
+        List<StandingAction> standing = new ArrayList<>();
+        standing.add(new StandingAction(SHARE_KNOWLEDGE, c, give, take));
+        for (int i = 0; i < N-shortestPath.size()-1; i++) {
+            standing.add(new StandingAction(SKIP_ACTION,c,null,null));
+        }
+        shareKnowledgeActions.add(MacroAction.macro(shortestPath, standing));
+    }
+
+    private static void addWait(int N, List<MacroAction> shareKnowledgeActions, List<City> citiesInRange) {
+        for (City c : citiesInRange) {
+            List<MovingAction> shortestPath = pathFinder.shortestPath(c);
+            List<StandingAction> skip = new ArrayList<>();
+            for (int i = 0; i < N-shortestPath.size(); i++) {
+                skip.add(new StandingAction(SKIP_ACTION,c,null,null));
+            }
+            shareKnowledgeActions.add(MacroAction.macro(shortestPath, skip));
+        }
     }
 
 

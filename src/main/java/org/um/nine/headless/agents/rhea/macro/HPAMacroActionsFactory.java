@@ -72,6 +72,8 @@ public abstract class HPAMacroActionsFactory extends MacroActionFactory {
         addList(cure, actions);
         var treat3 = buildTreatDiseaseMacroActions(3);
         addList(treat3, actions);
+        var share = buildShareKnowledgeMacroActions(4);
+        addList(share, actions);
         var build = buildResearchStationMacroActions();
         addList(build, actions);
         var treat2 = buildTreatDiseaseMacroActions(2);
