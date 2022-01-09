@@ -168,8 +168,20 @@ public class MCTSAgentTests {
 
     }
 
+    @Test
     public void functionalityTest(){
-
+        ExperimentalGame game = new ExperimentalGame();
+        try{
+            game.getCurrentState().getPlayerRepository().createPlayer("P1",true);
+            game.getCurrentState().getPlayerRepository().createPlayer("P2",true);
+        } catch (PlayerLimitException e) {
+            e.printStackTrace();
+        }
+        game.start();
+        IState state = game.getCurrentState();
+        MCTS mcts = new MCTS(state,3);
+        Actions a = mcts.run();
+        System.out.println(a);
     }
 
 }
