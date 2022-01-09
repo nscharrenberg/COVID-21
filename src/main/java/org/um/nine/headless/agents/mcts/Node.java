@@ -1,7 +1,10 @@
 package org.um.nine.headless.agents.mcts;
 
 import org.um.nine.headless.agents.state.IState;
+import org.um.nine.headless.game.domain.Marker;
+
 import java.util.LinkedList;
+import java.util.Objects;
 
 public class Node {
     private int visits;
@@ -37,8 +40,21 @@ public class Node {
 
     //todo evaluate on creation
     private void evaluate(){
-        //do evaluation stuff and give score
+        //until Ilian does his stuff
+        value = 1000;
+        state.getCityRepository().getCities().values().forEach(c -> {
+            value -= 10 * c.getCubes().size();
+        });
 
+        state.getPlayerRepository().getPlayers().values().forEach(p -> {
+            value += 10 * p.getHand().size();
+        });
+
+        int infectionRate = Objects.requireNonNull(this.state.getDiseaseRepository().getInfectionRates().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
+        value -= 100 * infectionRate;
+
+        if(state.isGameWon()) value = Integer.MAX_VALUE;
+        if(state.isGameLost()) value = Integer.MIN_VALUE;
     }
 
     public boolean isLeaf(){
