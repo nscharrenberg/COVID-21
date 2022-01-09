@@ -258,7 +258,7 @@ public class MCTS {
             int amtNodes = 1;
             Node current = node;
             while(!current.getParent().isRoot()){
-                current = node.getParent();
+                current = current.getParent();
                 value += current.getValue();
                 amtNodes++;
             }
@@ -286,7 +286,7 @@ public class MCTS {
         int iterations = 0;
         endState = false;
         //simulation
-        while(iterations < maxIterations && !endState){
+        while(iterations < maxIterations-1 && !endState){
             //selection step
             Node currentNode = root;
             while(!currentNode.isLeaf()){
