@@ -63,7 +63,7 @@ public enum ActionType {
         }
 
         public StandingAction getClone() {
-            return new StandingAction(action(), applyTo());
+            return new StandingAction(action(), applyTo(), giving(), receiving());
         }
     }
 }

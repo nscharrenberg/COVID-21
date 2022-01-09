@@ -26,8 +26,8 @@ Player bot-Bot 2-Orange
 Location Atlanta
 Cards in hand: [Sao Paolo YELLOW, Manaus YELLOW]
 Diseases : [Johannesburg (1 Yellow), Kiev (3 Blue), Atlanta (3 Blue), Sri Lanka (1 Black), Fortaleza (2 Yellow), Bangkok (1 Red), Beijing (3 Red), Montreal (2 Blue), Mexico City (2 Yellow)]
-***	Initializing player 0 genome...	***
-Initializing player 0 genome, index 0
+***	Initializing player 1 genome...	***
+Initializing player 1 genome, index 0
 Evaluating city graph paths from current location : Atlanta
 Cards in hand : [Hong Kong, Bangkok]
 City graph has been successfully reported ... "reports/round-0/pathFinder/pathReport-Bot 3-Atlanta.txt"
@@ -42,7 +42,7 @@ draw Sri Lanka BLACK
 draw Comodoro Rivadavia YELLOW
 draw infect Bogota YELLOW
 draw infect Tolyatti BLACK
-Initializing player 0 genome, index 1
+Initializing player 1 genome, index 1
 Evaluating city graph paths from current location : Chicago
 Cards in hand : [Hong Kong, Bangkok, Sri Lanka, Comodoro Rivadavia]
 City graph has been successfully reported ... "reports/round-1/pathFinder/pathReport-Bot 3-Chicago.txt"
@@ -57,7 +57,7 @@ draw Mexico City YELLOW
 draw Bogota YELLOW
 draw infect Madrid BLUE
 draw infect Karachi BLACK
-Initializing player 0 genome, index 2
+Initializing player 1 genome, index 2
 Evaluating city graph paths from current location : Chicago
 Cards in hand : [Hong Kong, Bangkok, Sri Lanka, Comodoro Rivadavia, Mexico City, Bogota]
 City graph has been successfully reported ... "reports/round-2/pathFinder/pathReport-Bot 3-Chicago.txt"
@@ -72,7 +72,7 @@ draw Tolyatti BLACK
 draw Atlanta BLUE
 draw infect Hong Kong RED
 draw infect Cairo BLACK
-Initializing player 0 genome, index 3
+Initializing player 1 genome, index 3
 Evaluating city graph paths from current location : Mexico City
 Cards in hand : [Hong Kong, Bangkok, Sri Lanka, Comodoro Rivadavia, Bogota, Tolyatti, Atlanta]
 City graph has been successfully reported ... "reports/round-3/pathFinder/pathReport-Bot 3-Mexico City.txt"
@@ -87,7 +87,7 @@ draw Madrid BLUE
 draw Karachi BLACK
 draw infect Tokyo RED
 draw infect Algiers BLACK
-Initializing player 0 genome, index 4
+Initializing player 1 genome, index 4
 Evaluating city graph paths from current location : Bangkok
 Cards in hand : [Sri Lanka, Comodoro Rivadavia, Bogota, Tolyatti, Atlanta, Madrid, Karachi]
 City graph has been successfully reported ... "reports/round-4/pathFinder/pathReport-Bot 3-Bangkok.txt"
@@ -119,49 +119,6 @@ draw infect Astana BLACK
 Evaluating city graph paths from current location : Atlanta
 Cards in hand : [Sao Paolo, Manaus]
 City graph has been successfully reported ... "reports/round-0/pathFinder/pathReport-Bot 2-Atlanta.txt"
-[DRIVE] -> city-38-Santo Domingo-Yellow
-[TREAT_DISEASE] -> city-38-Santo Domingo-Yellow
 [DRIVE] -> city-37-Mexico City-Yellow
-[DRIVE] -> city-31-Manila-Red
-draw Lagos YELLOW
-draw Santo Domingo YELLOW
-draw infect Krasnoyarsk RED
-draw infect London BLUE
-Evaluating city graph paths from current location : Atlanta
-Cards in hand : [Beijing, Johannesburg]
-City graph has been successfully reported ... "reports/round-0/pathFinder/pathReport-Bot 1-Atlanta.txt"
-[DIRECT_FLIGHT] -> city-28-Beijing-Red
-[TREAT_DISEASE] -> city-28-Beijing-Red
-[TREAT_DISEASE] -> city-28-Beijing-Red
-[TREAT_DISEASE] -> city-28-Beijing-Red
-draw epidemic
-infecting Luanda
-infecting Moscow
-infecting Khartoum
-draw Tehran BLACK
-draw infect Algiers BLACK
-draw infect Moscow BLACK
-OUTBREAK OCCURRED IN MOSCOW
-Evaluating city graph paths from current location : Atlanta
-Cards in hand : [Kiev, Montreal]
-City graph has been successfully reported ... "reports/round-0/pathFinder/pathReport-Bot 4-Atlanta.txt"
-[DRIVE] -> city-2-Chicago-Blue
-[DRIVE] -> city-3-Montreal-Blue
-[BUILD_RESEARCH_STATION] -> city-3-Montreal-Blue
-[TREAT_DISEASE] -> city-3-Montreal-Blue
-draw Astana BLACK
-draw Krasnoyarsk RED
-draw infect Cairo BLACK
-draw infect Kiev BLUE
-OUTBREAK OCCURRED IN KIEV
-Evaluating city graph paths from current location : Chicago
-Cards in hand : [Hong Kong, Bangkok, Tokyo, Algiers]
-City graph has been successfully reported ... "reports/round-0/pathFinder/pathReport-Bot 3-Chicago.txt"
-[DIRECT_FLIGHT] -> city-12-Algiers-Black
-[DRIVE] -> city-13-Cairo-Black
-[TREAT_DISEASE] -> city-13-Cairo-Black
-[TREAT_DISEASE] -> city-13-Cairo-Black
-draw London BLUE
-draw Luanda YELLOW
-draw infect Astana BLACK
-draw infect Montreal BLUE
+[TREAT_DISEASE] -> city-37-Mexico City-Yellow
+[DRIVE] -> city-38-Santo Domingo-Yellow

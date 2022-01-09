@@ -9,7 +9,10 @@ import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.Medic;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.um.nine.headless.agents.rhea.macro.MacroAction.combine;
@@ -39,8 +42,8 @@ public abstract class MacroActionFactory {
         actions.addAll(buildCureDiseaseMacroActions());
         actions.addAll(buildResearchStationMacroActions());
         actions.addAll(buildWalkAwayMacroActions(4));
-        actions.addAll(buildGiveKnowledgeMacroActions(4));
-        actions.addAll(buildTakeKnowledgeMacroAction(4));
+        actions.addAll(buildGiveKnowledgeMacroActions());
+        actions.addAll(buildTakeKnowledgeMacroAction());
         return actions;
     }
 
@@ -55,8 +58,8 @@ public abstract class MacroActionFactory {
             case WalkAway2Macro -> buildWalkAwayMacroActions(2);
             case WalkAway3Macro -> buildWalkAwayMacroActions(3);
             case WalkAway4Macro -> buildWalkAwayMacroActions(4);
-            case GiveKnowledgeMacro -> buildGiveKnowledgeMacroActions(4);
-            case TakeKnowledgeMacro -> buildTakeKnowledgeMacroAction(4);
+            case GiveKnowledgeMacro -> buildGiveKnowledgeMacroActions();
+            case TakeKnowledgeMacro -> buildTakeKnowledgeMacroAction();
         };
     }
 
@@ -131,14 +134,8 @@ public abstract class MacroActionFactory {
         return curingActions;
     }
 
-    /**
-     *
-     * @param N actions left this turn
-     * @return
-     */
-    protected static List<MacroAction> buildGiveKnowledgeMacroActions(int N) {
+    protected static List<MacroAction> buildGiveKnowledgeMacroActions() {
         List<MacroAction> shareKnowledgeActions = new ArrayList<>();
-
         List<PlayerCard> cardsInHand = currentPlayer.getHand();
         List<Player> otherPlayers = new ArrayList<>();
         for (Map.Entry<String, Player> entry : state.getPlayerRepository().getPlayers().entrySet()) {
@@ -152,8 +149,8 @@ public abstract class MacroActionFactory {
             List<City> citiesInRange = new ArrayList<>();
             for (Map.Entry<String, City> c : state.getCityRepository().getCities().entrySet()) {
                 int distance = pathFinder.shortestPath(c.getValue()).size();
-                if (distance < N) citiesInImmediateRange.add(c.getValue());
-                else if (distance == N) citiesInRange.add(c.getValue());
+                if (distance < 4) citiesInImmediateRange.add(c.getValue());
+                else if (distance == 4) citiesInRange.add(c.getValue());
             }
 
             List<City> citiesNotCoveredYet = new ArrayList<>();
@@ -173,13 +170,11 @@ public abstract class MacroActionFactory {
 
             for (City c : citiesNotCoveredYet) {
                 List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(c);
-                shareKnowledgeActions.add(MacroAction.combine(MacroAction.macro(shortestPath, null),
-                        findSuitableMacro(N - shortestPath.size())));
+                shareKnowledgeActions.add(MacroAction.macro(shortestPath, null));
             }
             for (City c : citiesInRange) {
                 List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(c);
-                shareKnowledgeActions.add(MacroAction.combine(MacroAction.macro(shortestPath, null),
-                        findSuitableMacro(N - shortestPath.size())));
+                shareKnowledgeActions.add(MacroAction.macro(shortestPath, null));
             }
 
         } else {
@@ -187,9 +182,9 @@ public abstract class MacroActionFactory {
             List<City> citiesInHandInImmediateReach = new ArrayList<>();
             List<City> citiesInHandInReach = new ArrayList<>();
             for (PlayerCard card : cardsInHand) {//TODO: Make sure shortestPath check is correct
-                if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() < N)
+                if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() < 4)
                     citiesInHandInImmediateReach.add(((CityCard) card).getCity());
-                else if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() == N)
+                else if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() == 4)
                     citiesInHandInReach.add(((CityCard) card).getCity());
             }
 
@@ -206,29 +201,25 @@ public abstract class MacroActionFactory {
         //citiesInHand contains cities that currentPlayer can reach in one turn (includes the cities where there are other players)
             for (Player p : playersInCities) {
                 City c = p.getCity();
-                citiesInHandInImmediateReach.remove(c);//this city can be removed from the other list, seeing as it is handled here
+                citiesInHandInImmediateReach.remove(c);
+                //this city can be removed from the other list, seeing as it is handled here
                 shareKnowledgeActions.add(MacroAction.macro(pathFinder.shortestPath(c), List.of(new ActionType.StandingAction(SHARE_KNOWLEDGE, c, currentPlayer, p))));
             }
 
             for (City c : citiesInHandInImmediateReach) {
                 List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(c);
-                shareKnowledgeActions.add(MacroAction.combine(MacroAction.macro(shortestPath, null), findSuitableMacro(N - shortestPath.size())));
+                shareKnowledgeActions.add(MacroAction.macro(shortestPath, null));
             }
             for (City c : citiesInHandInReach) {
                 List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(c);
-                shareKnowledgeActions.add(MacroAction.combine(MacroAction.macro(shortestPath, null), findSuitableMacro(N - shortestPath.size())));
+                shareKnowledgeActions.add(MacroAction.macro(shortestPath, null));
             }
 
         }
         return shareKnowledgeActions;
     }
 
-    /**
-     *
-     * @param N actions left this turn
-     * @return
-     */
-    protected static List<MacroAction> buildTakeKnowledgeMacroAction(int N) {
+    protected static List<MacroAction> buildTakeKnowledgeMacroAction() {
         List<MacroAction> shareKnowledgeActions = new ArrayList<>();
         List<City> citiesInImmediateRange = new ArrayList<>();
         List<City> citiesInRange = new ArrayList<>();
@@ -243,14 +234,14 @@ public abstract class MacroActionFactory {
         for (Player p : otherPlayers) {
             List<PlayerCard> cardsInHand = p.getHand();
             if (p.getRole().getName().equals("Researcher")) {//check if the researcher is in an immediately reachable city
-                if(pathFinder.shortestPath(p.getCity()).size()<N) researcher=p;
+                if (pathFinder.shortestPath(p.getCity()).size() < 4) researcher = p;
             } else {
                 for (PlayerCard card : cardsInHand) {//TODO: Make sure shortestPath check is correct
-                    if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() < N) {
+                    if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() < 4) {
                         City c = ((CityCard) card).getCity();
                         citiesInImmediateRange.add(c);
                         if (c == p.getCity()) playersInReachableCities.add(p);
-                    } else if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() == N) {
+                    } else if (card instanceof CityCard && pathFinder.shortestPath(((CityCard) card).getCity()).size() == 4) {
                         citiesInRange.add(((CityCard) card).getCity());
                     }
                 }
@@ -274,11 +265,11 @@ public abstract class MacroActionFactory {
 
         for (City c : citiesInImmediateRange) {
             List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(c);
-            shareKnowledgeActions.add(MacroAction.combine(MacroAction.macro(shortestPath, null), findSuitableMacro(N - shortestPath.size())));
+            shareKnowledgeActions.add(MacroAction.macro(shortestPath, null));
         }
         for (City c : citiesInRange) {
             List<ActionType.MovingAction> shortestPath = pathFinder.shortestPath(c);
-            shareKnowledgeActions.add(MacroAction.combine(MacroAction.macro(shortestPath, null), findSuitableMacro(N - shortestPath.size())));
+            shareKnowledgeActions.add(MacroAction.macro(shortestPath, null));
         }
 
         return shareKnowledgeActions;
@@ -363,7 +354,7 @@ public abstract class MacroActionFactory {
         switch (remainingActions) {
             case 1 -> {
                 if (diseasesLeft >= 1) {
-                    s.add(new StandingAction(TREAT_DISEASE, current));
+                    s.add(new StandingAction(TREAT_DISEASE, current, null, null));
                     return combine(toFill, MacroAction.macro(m, s));
                 }
                 City n = current.getNeighbors().get(0);
@@ -372,14 +363,14 @@ public abstract class MacroActionFactory {
             }
             case 2 -> {
                 if (diseasesLeft >= 2) {
-                    s.add(new StandingAction(TREAT_DISEASE, current));
-                    s.add(new StandingAction(TREAT_DISEASE, current));
+                    s.add(new StandingAction(TREAT_DISEASE, current, null, null));
+                    s.add(new StandingAction(TREAT_DISEASE, current, null, null));
                     return combine(toFill, MacroAction.macro(m, s));
                 }
                 for (City c : current.getNeighbors()) {
                     if (diseasesLeft >= 1 && c.getCubes().size() >= 1) {
                         m.add(new MovingAction(DRIVE, getCurrentPlayer().getCity(), c));
-                        s.add(new StandingAction(TREAT_DISEASE, c));
+                        s.add(new StandingAction(TREAT_DISEASE, current, null, null));
                         return combine(toFill, MacroAction.macro(m, s));
                     }
                 }
@@ -390,9 +381,9 @@ public abstract class MacroActionFactory {
             }
             case 3 -> {
                 if (diseasesLeft >= 3) {
-                    s.add(new StandingAction(TREAT_DISEASE, current));
-                    s.add(new StandingAction(TREAT_DISEASE, current));
-                    s.add(new StandingAction(TREAT_DISEASE, current));
+                    s.add(new StandingAction(TREAT_DISEASE, current, null, null));
+                    s.add(new StandingAction(TREAT_DISEASE, current, null, null));
+                    s.add(new StandingAction(TREAT_DISEASE, current, null, null));
                     return combine(toFill, MacroAction.macro(m, s));
                 }
                 City save = null;
@@ -400,15 +391,15 @@ public abstract class MacroActionFactory {
                     if (c.getCubes().size() == 1) save = c;
                     if (c.getCubes().size() >= 2) {
                         m.add(new MovingAction(DRIVE, getCurrentPlayer().getCity(), c));
-                        s.add(new StandingAction(TREAT_DISEASE, c));
-                        s.add(new StandingAction(TREAT_DISEASE, c));
+                        s.add(new StandingAction(TREAT_DISEASE, current, null, null));
+                        s.add(new StandingAction(TREAT_DISEASE, current, null, null));
                         return combine(toFill, MacroAction.macro(m, s));
                     }
                 }
                 if (save != null) {
                     m.add(new MovingAction(DRIVE, getCurrentPlayer().getCity(), save));
-                    s.add(new StandingAction(TREAT_DISEASE, save));
-                    s.add(new StandingAction(TREAT_DISEASE, save));
+                    s.add(new StandingAction(TREAT_DISEASE, current, null, null));
+                    s.add(new StandingAction(TREAT_DISEASE, current, null, null));
                     return combine(toFill, MacroAction.macro(m, s));
                 }
                 City n = current.getNeighbors().get(0), nn = n.getNeighbors().get(0);
