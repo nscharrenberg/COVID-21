@@ -21,9 +21,9 @@ public class ExperimentalGameRunner {
 
         DEFAULT_RUNNING_GAME = new ExperimentalGame(GameStateFactory.createInitialState());
         if (LOG) {
-            record("STARTING EXPERIMENT");
-            record("Initializing new game state...");
-            logState(DEFAULT_RUNNING_GAME.getInitialState());
+            addLog("STARTING EXPERIMENT");
+            addLog("Initializing new game state...");
+            addLog(DEFAULT_RUNNING_GAME.getInitialState());
         }
 
         DEFAULT_MACRO_ACTIONS_EXECUTOR = new MacroActionsExecutor(DEFAULT_RUNNING_GAME);

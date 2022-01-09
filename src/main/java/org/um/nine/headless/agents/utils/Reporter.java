@@ -15,10 +15,10 @@ public class Reporter extends Logger {
         DEFAULT_REPORTER.report(filePath, false);
     }
 
-
     public void report(String filePath, boolean clear) {
         try {
-            FileWriter fw = new FileWriter(Reporter.class.getClassLoader().getResource(filePath).getFile());
+            FileWriter fw = new FileWriter("src/main/resources/" + filePath);
+
             for (String s : this.getLog()) fw.append(s).append("\n");
             fw.close();
         } catch (NullPointerException | IOException e) {

@@ -8,7 +8,8 @@ import org.um.nine.headless.game.domain.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.um.nine.headless.game.Settings.DEFAULT_MACRO_ACTIONS_EXECUTOR;
+import static org.um.nine.headless.agents.utils.Logger.addLog;
+import static org.um.nine.headless.game.Settings.*;
 
 public abstract class HPAMacroActionsFactory extends MacroActionFactory {
     protected static HPAMacroActionsFactory instance;
@@ -30,20 +31,42 @@ public abstract class HPAMacroActionsFactory extends MacroActionFactory {
     }
 
     public static void initIndividualGene(IState state, Individual individual) {
-        state = state.getClonedState();
-        Player player = state.getPlayerRepository().getCurrentPlayer();
+        IState mutationState = state.getClonedState();
+        Player player = mutationState.getPlayerRepository().getCurrentPlayer();
         City currentCity = player.getCity();
+
+        if (LOG) {
+            addLog("***\tInitializing player " + player.getId() + " genome...\t***");
+        }
 
 
         for (int i = 0; i < individual.genome().length; i++) {
-            individual.genome()[i] = init(state, currentCity, player).getActions().get(0);
-            DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(state, individual.genome()[i], true);
-            state.getPlayerRepository().setCurrentPlayer(player); //trick the game logic here to allow fault turn
+            if (LOG)
+                addLog("Initializing player " + mutationState.getPlayerRepository().getCurrentPlayer().getId() + " genome, index " + i);
+            individual.genome()[i] = init(mutationState, currentCity, player).getNextMacroAction();
+            DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(mutationState, individual.genome()[i], true);
+            mutationState.getPlayerRepository().setCurrentPlayer(player); //trick the game logic here to allow fault turn
             currentCity = player.getCity();
+            ROUND_INDEX++;
         }
+        ROUND_INDEX = 0;
+    }
+
+    public MacroAction getNextMacroAction() {
+        MacroAction nextHPAMacro = getActions().get(0);
+        if (LOG) addLog("Best hpa macro : " + nextHPAMacro.toString());
+
+
+        int remaining = 4 - nextHPAMacro.size();
+        if (remaining > 0) {
+            MacroAction filling = findSuitableMacro(nextHPAMacro);
+            if (LOG) addLog("Filled hpa macro : " + filling);
+            return filling;
+        } else return nextHPAMacro;
     }
 
     protected static List<MacroAction> buildHPAMacroActions() {
+        if (LOG) addLog("Building allowed HPA macro actions...");
         actions = new ArrayList<>();
         var cure = buildCureDiseaseMacroActions();
         addList(cure, actions);

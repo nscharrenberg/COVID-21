@@ -54,7 +54,7 @@ public interface IDiseaseRepository {
 
     default void initOutbreak(City city, Disease disease) throws GameOverException {
         nextOutbreak();
-        if (LOG) Logger.record("OUTBREAK OCCURRED IN " + city.getName().toUpperCase(Locale.ROOT));
+        if (LOG) Logger.addLog("OUTBREAK OCCURRED IN " + city.getName().toUpperCase(Locale.ROOT));
         List<City> previousOutbreaks = new ArrayList<>();
         List<City> neighbors = city.getNeighbors();
 
@@ -69,7 +69,7 @@ public interface IDiseaseRepository {
         if (city.addCube(disease)) {
             return;
         } else {
-            if (LOG) Logger.record("CHAINED OUTBREAK IN " + city.getName().toUpperCase(Locale.ROOT));
+            if (LOG) Logger.addLog("CHAINED OUTBREAK IN " + city.getName().toUpperCase(Locale.ROOT));
         }
 
         List<City> neighbors = city.getNeighbors();

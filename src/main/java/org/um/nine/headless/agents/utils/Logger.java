@@ -1,17 +1,14 @@
 package org.um.nine.headless.agents.utils;
 
 import org.um.nine.headless.agents.rhea.state.IState;
-import org.um.nine.headless.game.domain.Card;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Disease;
 import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.InfectionCard;
+import org.um.nine.headless.game.domain.cards.PlayerCard;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.um.nine.headless.game.Settings.DEFAULT_REPORTER;
@@ -37,31 +34,30 @@ public class Logger {
     }
 
 
-    public static void record(String string) {
+    public static void addLog(String string) {
         DEFAULT_REPORTER.getLog().add(string);
     }
 
-    public static void logState(IState state) {
+    public static void addLog(IState state) {
         for (Player p : state.getPlayerRepository().getPlayers().values()) {
             logPlayer(p, p.equals(state.getPlayerRepository().getCurrentPlayer()));
         }
 
         logDiseases(state);
-        logDecks(state);
-
+        //logDecks(state.getCardRepository().getPlayerDeck(),state.getCardRepository().getInfectionDeck());
     }
 
-    private static void logDecks(IState state) {
-        record("Player Cards Deck : \n" + state.getCardRepository().getPlayerDeck().stream().map(Card::getName).collect(Collectors.toList()));
-        record("Infection Cards Deck : \n" + state.getCardRepository().getInfectionDeck().stream().map(InfectionCard::getName).collect(Collectors.toList()));
+    public static void logDecks(Stack<PlayerCard> playerDeck, Stack<InfectionCard> infectionDeck) {
+        addLog("Player Cards Deck : \n" + playerDeck.stream().map(PlayerCard::getName).collect(Collectors.toList()));
+        addLog("Infection Cards Deck : \n" + infectionDeck.stream().map(InfectionCard::getName).collect(Collectors.toList()));
     }
 
     public static void logPlayer(Player p, boolean currentPlayer) {
         if (!LOG) return;
 
-        record((currentPlayer ? "Current Player " : "Player ") + p);
-        record("Location " + p.getCity().getName());
-        record("Cards in hand: " + p.getHand().stream().
+        addLog((currentPlayer ? "Current Player " : "Player ") + p);
+        addLog("Location " + p.getCity().getName());
+        addLog("Cards in hand: " + p.getHand().stream().
                 map(c -> ((CityCard) c).getCity().getName() +
                         " " + ((CityCard) c).getCity().getColor()).
                 collect(Collectors.toList()));
@@ -82,7 +78,7 @@ public class Logger {
                                 kv.getKey() + ")").
                         collect(Collectors.toList()));
         }
-        record("Diseases : " + s);
+        addLog("Diseases : " + s);
     }
 
 

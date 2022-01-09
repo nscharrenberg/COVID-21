@@ -4,19 +4,23 @@ import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
 import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.rhea.state.StateEvaluation;
+import org.um.nine.headless.agents.utils.Logger;
 import org.um.nine.headless.agents.utils.Reporter;
 import org.um.nine.headless.game.domain.ActionType;
+import org.um.nine.headless.game.domain.Card;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.util.Arrays.stream;
 import static org.um.nine.headless.game.Settings.LOG;
+import static org.um.nine.headless.game.Settings.ROUND_INDEX;
 import static org.um.nine.headless.game.domain.ActionType.*;
 
 public class PathFinder2 {
@@ -24,6 +28,8 @@ public class PathFinder2 {
     final Player currentPlayer;
     GCity currentCity;
     final List<GCity> costGraph;
+    String path = "";
+    String cardsInHand = "";
 
     public static PathFinder2 evaluateGameState(ExperimentalGame gameState) {
         return new PathFinder2(gameState.getCurrentState(), gameState.getCurrentState().getPlayerRepository().getCurrentPlayer());
@@ -52,25 +58,36 @@ public class PathFinder2 {
     private void logGraph() {
         if (LOG) {
             Reporter graphReporter = new Reporter();
+            graphReporter.getLog().add(cardsInHand);
             graphReporter.getLog().add("============================================================================================");
             for (GCity gc : this.costGraph) {
                 if (gc.shortestPathFromCurrentCity.depth() > 0)
                     graphReporter.getLog().add(String.format("%1$-20s", gc.city.getName()) + gc.shortestPathFromCurrentCity.toString());
             }
             graphReporter.getLog().add("============================================================================================");
-            graphReporter.report("reports/pathReport.txt", true);
+            graphReporter.report(path, true);
+            Logger.addLog("City graph has been successfully reported ... \"" + path + "\"");
         }
     }
 
     public void evaluatePath() {
+        if (LOG) {
+            Logger.addLog("Evaluating city graph paths from current location : " + currentCity.city.getName());
+            Logger.addLog(cardsInHand = "Cards in hand : " + currentPlayer.getHand().stream().map(Card::getName).collect(Collectors.toList()));
+            String header = "reports/round-" + ROUND_INDEX + "/pathFinder/";
+            boolean folder = new File("src/main/resources/" + header).mkdirs();
+            path = header + "pathReport" + "-" + currentPlayer.getName() + "-" + currentCity.city.getName() + ".txt";
+        }
+
         currentCity.walkingDistance = 0;
         this.evaluateWalkingPath();
-        this.logGraph();
+        this.buildAllPaths();
         this.evaluateShuttlePath();
-        this.logGraph();
+        this.buildAllPaths();
         this.evaluateDirectPath();
-        this.logGraph();
+        this.buildAllPaths();
         this.evaluateCharterPath();
+        this.buildAllPaths();
         this.logGraph();
     }
 
@@ -212,9 +229,6 @@ public class PathFinder2 {
             }
         }
 
-        for (GCity gc : this.costGraph) {
-            createShortestPath(gc);
-        }
     }
 
     private Path createShortestPath(GCity gc) {
@@ -278,6 +292,12 @@ public class PathFinder2 {
     }
 
 
+    private void buildAllPaths() {
+        for (GCity gc : this.costGraph) {
+            createShortestPath(gc);
+        }
+    }
+
     public Path getShortestPath(City c) {
         GCity gc = findGCity(c);
         return gc.shortestPathFromCurrentCity == null ? createShortestPath(gc) : gc.shortestPathFromCurrentCity;
@@ -291,6 +311,16 @@ public class PathFinder2 {
 
     private GCity findGCity(City c) {
         return this.costGraph.stream().filter(gCity -> gCity.city.equals(c)).findFirst().orElse(null);
+    }
+
+    public boolean isSpendingCard(List<MovingAction> shortestPath, City city) {
+        for (MovingAction action : shortestPath) {
+            if (action.action().equals(DIRECT_FLIGHT))
+                return action.toCity().equals(city);
+            if (action.action().equals(CHARTER_FLIGHT))
+                return action.fromCity().equals(city);
+        }
+        return false;
     }
 
 

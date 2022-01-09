@@ -17,7 +17,7 @@ public class RPAMacroActionsFactory extends MacroActionFactory {
         Player currentPlayer = state.getPlayerRepository().getCurrentPlayer();
         init(state, currentPlayer.getCity(), currentPlayer);
         Collections.shuffle(getInstance().getActions(), RANDOM_PROVIDER);
-        return getInstance().getActions().get(0);
+        return findSuitableMacro(getInstance().getActions().get(0));
     }
 
     protected static RPAMacroActionsFactory getInstance() {

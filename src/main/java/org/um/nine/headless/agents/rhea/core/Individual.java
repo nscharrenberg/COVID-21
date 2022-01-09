@@ -15,7 +15,7 @@ public final record Individual(MacroAction[] genome) implements IAgent {
         double avg = 0;
         IState state = DEFAULT_RUNNING_GAME.getInitialState();
         for (MacroAction m : genome) {
-            DEFAULT_MACRO_ACTIONS_EXECUTOR.executeMacroAction(state, m, false, true);
+            DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(state, m, true);
             avg += BEST_HEURISTIC.evaluateState(state);
         }
         return avg / genome.length;
@@ -25,7 +25,7 @@ public final record Individual(MacroAction[] genome) implements IAgent {
         double[] eval = new double[genome.length];
         IState state = DEFAULT_RUNNING_GAME.getInitialState();
         for (int i = 0; i < genome().length; i++) {
-            DEFAULT_MACRO_ACTIONS_EXECUTOR.executeMacroAction(state, genome[i], false, true);
+            DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(state, genome[i], true);
             eval[i] = BEST_HEURISTIC.evaluateState(state);
         }
         return eval;
@@ -47,9 +47,11 @@ public final record Individual(MacroAction[] genome) implements IAgent {
 
 
     public MacroAction getNextMacroAction(IState state) {
+        IState mutationState = state.getClonedState();
         Individual ancestor = this;
 
-        HPAMacroActionsFactory.initIndividualGene(state, ancestor);
+
+        HPAMacroActionsFactory.initIndividualGene(mutationState, ancestor);
         successfulMutations = 0;
 
         for (int i = 0; i < N_MUTATIONS; i++) {
@@ -62,7 +64,7 @@ public final record Individual(MacroAction[] genome) implements IAgent {
             );
 
             Individual child = ancestor.generateChild();
-            DEFAULT_MUTATOR.mutateIndividual(child, mutationRate);
+            DEFAULT_MUTATOR.mutateIndividual(state, child, mutationRate);
 
             if (child.betterThan(ancestor)) {  //all macro actions are better
                 successfulMutations++;

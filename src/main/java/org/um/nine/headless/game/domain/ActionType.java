@@ -58,6 +58,10 @@ public enum ActionType {
         public String toString() {
             return "{" + action.getName() + " (" + applyTo.getName() + ")}";
         }
+
+        public StandingAction getClone() {
+            return new StandingAction(action(), applyTo());
+        }
     }
 
 

@@ -36,6 +36,7 @@ public class Settings {
     public static final boolean LOG = true;
     public static final boolean DEFAULT_INITIAL_STATE = true;
     public static final int DEFAULT_PLAYERS = 4;
+    public static int ROUND_INDEX = 0;
 
 
     private static final StateHeuristic f = s -> (FoA.evaluateState(s) + Fcm.evaluateState(s)) / 2;

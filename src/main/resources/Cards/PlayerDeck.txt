@@ -1,5 +1,4 @@
 Epidemic
-Comodoro Rivadavia
 Calgary
 Tasiusaq
 Jakarta
@@ -27,18 +26,19 @@ Algiers
 Tokyo
 Cairo
 Fortaleza
-Hong Kong
 Karachi
 Madrid
 Atlanta
 Tolyatti
+Bogota
+Mexico City
+Comodoro Rivadavia
 Sri Lanka
 Manaus
 Sao Paolo
 Johannesburg
-Bangkok
-Montreal
 Beijing
+Montreal
 Kiev
-Bogota
-Mexico City
+Bangkok
+Hong Kong

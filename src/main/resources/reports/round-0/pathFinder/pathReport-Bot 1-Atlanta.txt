@@ -1,0 +1,17 @@
+Cards in hand : [Beijing, Johannesburg]
+============================================================================================
+Hong Kong           [{Atlanta -d-> Beijing}, {Beijing -w-> Hong Kong}]
+Jakutsk             [{Atlanta -d-> Beijing}, {Beijing -w-> Jakutsk}]
+Taipei              [{Atlanta -d-> Beijing}, {Beijing -w-> Taipei}]
+Manila              [{Atlanta -d-> Beijing}, {Beijing -w-> Taipei}, {Taipei -w-> Manila}]
+Washington          [{Atlanta -w-> Washington}]
+Tokyo               [{Atlanta -d-> Beijing}, {Beijing -w-> Tokyo}]
+Santo Domingo       [{Atlanta -w-> Santo Domingo}]
+Chicago             [{Atlanta -w-> Chicago}]
+Calgary             [{Atlanta -d-> Beijing}, {Beijing -w-> Jakutsk}, {Jakutsk -w-> Calgary}]
+San Francisco       [{Atlanta -d-> Beijing}, {Beijing -w-> Tokyo}, {Tokyo -w-> San Francisco}]
+Bangkok             [{Atlanta -d-> Beijing}, {Beijing -w-> Hong Kong}, {Hong Kong -w-> Bangkok}]
+Krasnoyarsk         [{Atlanta -d-> Beijing}, {Beijing -w-> Jakutsk}, {Jakutsk -w-> Krasnoyarsk}]
+Beijing             [{Atlanta -d-> Beijing}]
+Mexico City         [{Atlanta -w-> Mexico City}]
+============================================================================================

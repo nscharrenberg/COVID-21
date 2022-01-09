@@ -21,7 +21,7 @@ public interface IEpidemicRepository {
     default void infect(IState state) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         for (int i = 0; i < 3; i++) {
             InfectionCard infectionCard = state.getCardRepository().getInfectionDeck().pop();
-            if (LOG) Logger.record("infecting " + infectionCard.getCity().getName());
+            if (LOG) Logger.addLog("infecting " + infectionCard.getCity().getName());
             state.getCardRepository().getInfectionDiscardPile().add(infectionCard);
 
             int amountCubes = infectionCard.getCity().getCubes().size();
