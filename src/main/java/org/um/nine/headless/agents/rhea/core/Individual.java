@@ -11,29 +11,19 @@ import static org.um.nine.headless.game.Settings.*;
 
 public final record Individual(MacroAction[] genome) implements IAgent {
 
-    public double averageEvaluationIndividual() {
-        double avg = 0;
-        IState state = DEFAULT_RUNNING_GAME.getInitialState();
-        for (MacroAction m : genome) {
-            DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(state, m, true);
-            avg += BEST_HEURISTIC.evaluateState(state);
-        }
-        return avg / genome.length;
-    }
-
-    public double[] evaluationIndividual() {
+    public double[] evaluateIndividual(IState state) {
         double[] eval = new double[genome.length];
-        IState state = DEFAULT_RUNNING_GAME.getInitialState();
+        IState evaluationState = state.getClonedState();
         for (int i = 0; i < genome().length; i++) {
-            DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(state, genome[i], true);
-            eval[i] = BEST_HEURISTIC.evaluateState(state);
+            DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(evaluationState, genome[i], true);
+            eval[i] = BEST_HEURISTIC.evaluateState(evaluationState);
         }
         return eval;
     }
 
-    public boolean betterThan(Individual other) {
-        double[] eval1 = this.evaluationIndividual();
-        double[] eval2 = other.evaluationIndividual();
+    public boolean betterThan(Individual other, IState state) {
+        double[] eval1 = this.evaluateIndividual(state);
+        double[] eval2 = other.evaluateIndividual(state);
         // all better or false
         for (int i = 0; i < genome.length; i++) {
             if (eval2[i] > eval1[i]) return false;
@@ -64,9 +54,9 @@ public final record Individual(MacroAction[] genome) implements IAgent {
             );
 
             Individual child = ancestor.generateChild();
-            DEFAULT_MUTATOR.mutateIndividual(state, child, mutationRate);
+            DEFAULT_MUTATOR.mutateIndividual(mutationState, child, mutationRate);
 
-            if (child.betterThan(ancestor)) {  //all macro actions are better
+            if (child.betterThan(ancestor, mutationState)) {  //all macro actions are better
                 successfulMutations++;
                 ancestor = child.generateChild(); //cloned
             }

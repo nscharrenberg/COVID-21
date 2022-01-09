@@ -5,19 +5,26 @@ import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import static org.um.nine.headless.game.Settings.RANDOM_PROVIDER;
+import static org.um.nine.headless.agents.utils.Logger.addLog;
+import static org.um.nine.headless.game.Settings.LOG;
 
 public class RPAMacroActionsFactory extends MacroActionFactory {
     private static RPAMacroActionsFactory instance;
 
-    public static MacroAction getNextMacroAction(IState state) {
-        Player currentPlayer = state.getPlayerRepository().getCurrentPlayer();
-        init(state, currentPlayer.getCity(), currentPlayer);
-        Collections.shuffle(getInstance().getActions(), RANDOM_PROVIDER);
-        return findSuitableMacro(getInstance().getActions().get(0));
+    @Override
+    public MacroAction getNextMacroAction() {
+        MacroAction nextRPAMacro = this.getActions().get(0);
+        if (LOG) addLog("Best rpa macro : " + nextRPAMacro.toString());
+
+
+        int remaining = 4 - nextRPAMacro.size();
+        if (remaining > 0) {
+            MacroAction filling = findSuitableMacro(nextRPAMacro);
+            if (LOG) addLog("Filled rpa macro : " + filling);
+            return filling;
+        } else return nextRPAMacro;
     }
 
     protected static RPAMacroActionsFactory getInstance() {

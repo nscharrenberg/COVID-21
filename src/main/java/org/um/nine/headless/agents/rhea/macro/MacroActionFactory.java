@@ -339,6 +339,10 @@ public abstract class MacroActionFactory {
 
     protected static MacroActionFactory getInstance() {
         return instance == null ? (instance = new MacroActionFactory() {
+            @Override
+            public MacroAction getNextMacroAction() {
+                throw new IllegalStateException();
+            }
         }) : instance;
     }
 
@@ -448,6 +452,8 @@ public abstract class MacroActionFactory {
     public List<MacroAction> getActions() {
         return actions == null ? (actions = buildAllMacroActions()) : actions;
     }
+
+    public abstract MacroAction getNextMacroAction();
 
     public enum MacroType {
         Treat1Macro,

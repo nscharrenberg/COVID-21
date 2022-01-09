@@ -1,11 +1,12 @@
 package org.um.nine.headless.agents.rhea.core;
 
 import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
+import org.um.nine.headless.agents.rhea.macro.HPAMacroActionsFactory;
 import org.um.nine.headless.agents.rhea.macro.MacroAction;
 import org.um.nine.headless.agents.rhea.macro.RPAMacroActionsFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
+import org.um.nine.headless.game.domain.Player;
 
-import static org.um.nine.headless.agents.rhea.macro.HPAMacroActionsFactory.init;
 import static org.um.nine.headless.game.Settings.*;
 
 public record Mutator(ExperimentalGame game) {
@@ -41,17 +42,19 @@ public record Mutator(ExperimentalGame game) {
     }
 
     private void mutateGene(IState initialState, Individual individual, int mutationIndex) {
+        Player p = initialState.getPlayerRepository().getCurrentPlayer();
         for (int i = 0; i < ROLLING_HORIZON; i++) {
             MacroAction macroIndex = individual.genome()[i];
             if (i < mutationIndex) {
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(initialState, macroIndex, true);
             } else if (i == mutationIndex) {
-                individual.genome()[i] = (macroIndex = init(initialState, initialState.getPlayerRepository().getCurrentPlayer().getCity(), initialState.getPlayerRepository().getCurrentPlayer()).getNextMacroAction());
+                individual.genome()[i] = (macroIndex = HPAMacroActionsFactory.init(initialState, p.getCity(), p).getNextMacroAction());
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(initialState, macroIndex, true);
             } else {
-                individual.genome()[i] = (macroIndex = RPAMacroActionsFactory.getNextMacroAction(initialState));
+                individual.genome()[i] = (macroIndex = RPAMacroActionsFactory.init(initialState, p.getCity(), p).getNextMacroAction());
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(initialState, macroIndex, true);
             }
+            initialState.getPlayerRepository().setCurrentPlayer(p);
         }
     }
 
