@@ -53,8 +53,11 @@ public class MCTS {
         for(int i = 0; i < children.size(); i++){
             //normalized value
             double value = (node.getValue() - min.get())/max.get();
+            int parentVisits;
+            if(node.getParent() == null) parentVisits = 0;
+            else parentVisits = node.getParent().getVisits();
             //ucb formula
-            scores[i] = value + C*Math.sqrt(Math.log(node.getParent().getVisits())/(double) node.getVisits());
+            scores[i] = value + C*Math.sqrt(Math.log(parentVisits)/(double) node.getVisits());
             if(scores[i] > scores[maxIndex]){
                 maxIndex = i;
             }
