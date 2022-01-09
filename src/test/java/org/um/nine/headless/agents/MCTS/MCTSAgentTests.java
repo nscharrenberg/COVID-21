@@ -179,7 +179,7 @@ public class MCTSAgentTests {
         }
         game.start();
         IState state = game.getCurrentState();
-        MCTS mcts = new MCTS(state,3);
+        MCTS mcts = new MCTS(state,200);
         Actions a = mcts.run();
         System.out.println(a);
     }
