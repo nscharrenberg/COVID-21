@@ -53,16 +53,17 @@ public enum ActionType {
         }
     }
 
-    public static record StandingAction(ActionType action, City applyTo) {
+    public static record StandingAction(ActionType action, City applyTo, Player giving, Player receiving) {
         @Override
         public String toString() {
-            return "{" + action.getName() + " (" + applyTo.getName() + ")}";
+            if(giving!=null && receiving != null)
+                return "{" + action.getName() +" (City: "+ applyTo.getName() + ", from " + giving.getName() +" to " + receiving.getName() + ")}";
+
+            return "{" + action.getName() +" ("+ applyTo.getName() + ")}";
         }
 
         public StandingAction getClone() {
             return new StandingAction(action(), applyTo());
         }
     }
-
-
 }
