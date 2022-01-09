@@ -1,0 +1,18 @@
+Cards in hand : [Hong Kong RED, Bangkok RED, Tokyo RED, Algiers BLACK, Lagos YELLOW, Santo Domingo YELLOW]
+============================================================================================
+Khartoum            [{Atlanta -d-> Lagos}, {Lagos -w-> Khartoum}]
+Lagos               [{Atlanta -d-> Lagos}]
+Washington          [{Chicago -w-> Montreal}, {Montreal -w-> Washington}]
+Atlanta             [{Chicago -w-> Atlanta}]
+Luanda              [{Atlanta -d-> Lagos}, {Lagos -w-> Luanda}]
+Santo Domingo       [{Chicago -w-> Atlanta}, {Atlanta -w-> Santo Domingo}]
+Calgary             [{Chicago -w-> Calgary}]
+Tasiusaq            [{Chicago -w-> Montreal}, {Montreal -w-> Tasiusaq}]
+Fortaleza           [{Atlanta -d-> Lagos}, {Lagos -w-> Fortaleza}]
+Bogota              [{Chicago -w-> Atlanta}, {Atlanta -w-> Santo Domingo}, {Santo Domingo -w-> Bogota}]
+San Francisco       [{Chicago -w-> San Francisco}]
+Madrid              [{Chicago -w-> Montreal}, {Montreal -w-> Madrid}]
+Montreal            [{Chicago -w-> Montreal}]
+Sydney              [{Chicago -w-> Atlanta}, {Atlanta -w-> Santo Domingo}, {Santo Domingo -c-> Sydney}]
+Mexico City         [{Chicago -w-> Atlanta}, {Atlanta -w-> Mexico City}]
+============================================================================================

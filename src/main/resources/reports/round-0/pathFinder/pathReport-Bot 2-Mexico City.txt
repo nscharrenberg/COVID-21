@@ -1,0 +1,15 @@
+Cards in hand : [Manaus YELLOW, Bogota YELLOW, Tolyatti BLACK]
+============================================================================================
+Manila              [{Mexico City -w-> Manila}]
+Washington          [{Mexico City -s-> Atlanta}, {Atlanta -w-> Washington}]
+Atlanta             [{Mexico City -s-> Atlanta}]
+Santiago de Chile   [{Mexico City -d-> Manaus}, {Manaus -w-> Santiago de Chile}]
+Santo Domingo       [{Mexico City -w-> Santo Domingo}]
+Chicago             [{Mexico City -s-> Atlanta}, {Atlanta -w-> Chicago}]
+Manaus              [{Mexico City -d-> Manaus}]
+Fortaleza           [{Mexico City -d-> Manaus}, {Manaus -w-> Fortaleza}]
+Bogota              [{Mexico City -w-> Bogota}]
+San Francisco       [{Mexico City -w-> San Francisco}]
+Montreal            [{Mexico City -s-> Atlanta}, {Atlanta -w-> Washington}, {Washington -w-> Montreal}]
+Mexico City         [{Mexico City -w-> Bogota}, {Bogota -c-> Mexico City}]
+============================================================================================

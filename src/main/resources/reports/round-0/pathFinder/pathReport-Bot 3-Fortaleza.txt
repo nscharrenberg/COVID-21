@@ -1,0 +1,14 @@
+Cards in hand : [Hong Kong RED, Bangkok RED, Tokyo RED, Algiers BLACK, Santo Domingo YELLOW, Tehran BLACK]
+============================================================================================
+Khartoum            [{Fortaleza -w-> Lagos}, {Lagos -w-> Khartoum}]
+Lagos               [{Fortaleza -w-> Lagos}]
+Comodoro Rivadavia  [{Fortaleza -w-> Sao Paolo}, {Sao Paolo -w-> Comodoro Rivadavia}]
+Santiago de Chile   [{Fortaleza -w-> Sao Paolo}, {Sao Paolo -w-> Santiago de Chile}]
+Luanda              [{Fortaleza -w-> Lagos}, {Lagos -w-> Luanda}]
+Santo Domingo       [{Atlanta -d-> Santo Domingo}]
+Sao Paolo           [{Fortaleza -w-> Sao Paolo}]
+Manaus              [{Fortaleza -w-> Manaus}]
+Bogota              [{Atlanta -d-> Santo Domingo}, {Santo Domingo -w-> Bogota}]
+Madrid              [{Fortaleza -w-> Madrid}]
+Mexico City         [{Atlanta -d-> Santo Domingo}, {Santo Domingo -w-> Mexico City}]
+============================================================================================

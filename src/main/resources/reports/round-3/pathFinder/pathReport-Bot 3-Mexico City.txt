@@ -1,0 +1,8 @@
+Cards in hand : [Hong Kong RED, Bangkok RED, Tokyo RED, Sri Lanka BLACK, Comodoro Rivadavia YELLOW, Mexico City YELLOW, Bogota YELLOW]
+============================================================================================
+Manila              [{Mexico City -w-> Manila}]
+Atlanta             [{Mexico City -w-> Atlanta}]
+Santo Domingo       [{Mexico City -w-> Santo Domingo}]
+Bogota              [{Mexico City -w-> Bogota}]
+San Francisco       [{Mexico City -w-> San Francisco}]
+============================================================================================

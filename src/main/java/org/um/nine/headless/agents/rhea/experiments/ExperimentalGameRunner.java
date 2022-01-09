@@ -7,6 +7,7 @@ import org.um.nine.headless.agents.rhea.macro.MacroAction;
 import org.um.nine.headless.agents.rhea.macro.MacroActionsExecutor;
 import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
+import org.um.nine.headless.game.domain.Player;
 
 import static org.um.nine.headless.agents.utils.Logger.*;
 import static org.um.nine.headless.agents.utils.Reporter.report;
@@ -20,6 +21,7 @@ public class ExperimentalGameRunner {
 
 
         DEFAULT_RUNNING_GAME = new ExperimentalGame(GameStateFactory.createInitialState());
+
         if (LOG) {
             addLog("STARTING EXPERIMENT");
             addLog("Initializing new game state...");
@@ -30,13 +32,18 @@ public class ExperimentalGameRunner {
         DEFAULT_MUTATOR = new Mutator(DEFAULT_RUNNING_GAME);
 
         IState state = DEFAULT_RUNNING_GAME.getInitialState();
-        IAgent rhAgent = new Individual(new MacroAction[5]);
+
 
         try {
 
             while (DEFAULT_RUNNING_GAME.onGoing()) {
-                MacroAction nextMacro = rhAgent.getNextMacroAction(state);
-                DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(state, nextMacro, true);
+                for (Player p : state.getPlayerRepository().getPlayerOrder()) {
+                    state.getPlayerRepository().setCurrentPlayer(p);
+                    IAgent rhAgent = new Individual(new MacroAction[5]);
+                    MacroAction nextMacro = rhAgent.getNextMacroAction(state);
+                    DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(state, nextMacro, true);
+                }
+
             }
 
         } catch (Exception e) {

@@ -7,16 +7,14 @@ import org.um.nine.headless.agents.rhea.macro.MacroActionsExecutor;
 import org.um.nine.headless.agents.rhea.state.StateHeuristic;
 import org.um.nine.headless.agents.utils.Reporter;
 import org.um.nine.headless.game.domain.Difficulty;
+import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.Role;
 import org.um.nine.headless.game.domain.roles.Medic;
 import org.um.nine.headless.game.domain.roles.OperationsExpert;
 import org.um.nine.headless.game.domain.roles.Researcher;
 import org.um.nine.headless.game.domain.roles.Scientist;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Stack;
+import java.util.*;
 
 import static org.um.nine.headless.agents.rhea.state.StateEvaluation.Fcm;
 import static org.um.nine.headless.agents.rhea.state.StateEvaluation.FoA;
@@ -35,7 +33,7 @@ public class Settings {
     public static final boolean HEADLESS = true;
     public static final boolean LOG = true;
     public static final boolean DEFAULT_INITIAL_STATE = true;
-    public static final int DEFAULT_PLAYERS = 4;
+    public static final List<Player> DEFAULT_PLAYERS = new ArrayList<>();
     public static int ROUND_INDEX = 0;
 
 
@@ -49,6 +47,7 @@ public class Settings {
             "Bot 3", new Researcher(),
             "Bot 4", new Scientist()
     );
+
     public static final Difficulty DEFAULT_DIFFICULTY = Difficulty.EASY;
     public static final Random RANDOM_PROVIDER = new Random();
 

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.groupingBy;
-import static org.um.nine.headless.agents.rhea.state.StateEvaluation.abilityCure;
+import static org.um.nine.headless.agents.rhea.state.StateEvaluation.abilityCure2;
 import static org.um.nine.headless.game.Settings.DEFAULT_CLONER;
 
 public interface IState {
@@ -85,9 +85,9 @@ public interface IState {
         for (int i = 0; i < pc.size(); i++) {
             PlayerCard card = pc.get(0);
             Color color = ((CityCard) card).getCity().getColor();
-            double at = abilityCure(color, pc, player);
+            double at = abilityCure2(this, color);
             pc.remove(card);
-            if (at == abilityCure(color, pc, player)) {
+            if (at == abilityCure2(this, color)) {
                 discarding = card;
             }
         }

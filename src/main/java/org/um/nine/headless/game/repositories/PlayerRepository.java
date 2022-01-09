@@ -54,7 +54,8 @@ public class PlayerRepository implements IPlayerRepository {
             DEFAULT_ROLES.forEach((k,v) -> {
                 Player p = new Player(k, true);
                 p.setRole(v);
-                this.getPlayers().put(k,p);
+                this.getPlayers().put(k, p);
+                DEFAULT_PLAYERS.add(p);
             });
         }
         else {

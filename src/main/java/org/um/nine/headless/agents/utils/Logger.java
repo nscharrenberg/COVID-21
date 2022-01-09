@@ -56,8 +56,9 @@ public class Logger {
         if (!LOG) return;
 
         addLog((currentPlayer ? "Current Player " : "Player ") + p);
-        addLog("Location " + p.getCity().getName());
-        addLog("Cards in hand: " + p.getHand().stream().
+        addLog("Role : " + p.getRole().getName());
+        addLog("Location :" + p.getCity().getName());
+        addLog("Cards in hand : " + p.getHand().stream().
                 map(c -> ((CityCard) c).getCity().getName() +
                         " " + ((CityCard) c).getCity().getColor()).
                 collect(Collectors.toList()));

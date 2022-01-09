@@ -21,7 +21,7 @@ public class RPAMacroActionsFactory extends MacroActionFactory {
 
         int remaining = 4 - nextRPAMacro.size();
         if (remaining > 0) {
-            MacroAction filling = findSuitableMacro(nextRPAMacro);
+            MacroAction filling = fillMacroAction(nextRPAMacro);
             if (LOG) addLog("Filled rpa macro : " + filling);
             return filling;
         } else return nextRPAMacro;
@@ -44,8 +44,8 @@ public class RPAMacroActionsFactory extends MacroActionFactory {
         addList(cure, actions);
         var treat = buildTreatDiseaseMacroActions();
         addList(treat, actions);
-        var share = buildShareKnowledgeMacroActions(4);
-        addList(share, actions);
+        //var share = buildShareKnowledgeMacroActions(4);
+        //addList(share, actions);
         var build = buildResearchStationMacroActions();
         addList(build, actions);
         return actions;

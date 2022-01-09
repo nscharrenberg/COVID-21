@@ -6,7 +6,6 @@ import org.um.nine.headless.agents.rhea.state.StateEvaluation;
 import org.um.nine.headless.agents.utils.Logger;
 import org.um.nine.headless.agents.utils.Reporter;
 import org.um.nine.headless.game.domain.ActionType;
-import org.um.nine.headless.game.domain.Card;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.cards.CityCard;
@@ -60,7 +59,10 @@ public class PathFinder2 {
     public void evaluatePath() {
         if (LOG) {
             Logger.addLog("Evaluating city graph paths from current location : " + currentCity.city.getName());
-            Logger.addLog(cardsInHand = "Cards in hand : " + currentPlayer.getHand().stream().map(Card::getName).collect(Collectors.toList()));
+            Logger.addLog(cardsInHand = "Cards in hand : " + currentPlayer.getHand().stream().
+                    map(c -> c.getName() +
+                            " " + ((CityCard) c).getCity().getColor()).
+                    collect(Collectors.toList()));
             String header = "reports/round-" + ROUND_INDEX + "/pathFinder/";
             boolean folder = new File("src/main/resources/" + header).mkdirs();
             path = header + "pathReport" + "-" + currentPlayer.getName() + "-" + currentCity.city.getName() + ".txt";
@@ -104,7 +106,7 @@ public class PathFinder2 {
     private boolean isDiscardableCard(CityCard cc, double ac, int i) {
         // we remove it to check if discarding wouldn't affect ability to cure disease
         currentPlayer.getHand().remove(cc);
-        double ac_new = StateEvaluation.abilityCure(state, cc.getCity().getColor());
+        double ac_new = StateEvaluation.abilityCure2(state, cc.getCity().getColor());
         currentPlayer.getHand().add(i, cc);
         return ac_new == ac;
     }
@@ -192,6 +194,7 @@ public class PathFinder2 {
 
             for (GCity reachable : reachableWalking) {
 
+
                 List<GCity> researchStations = state.
                         getCityRepository().
                         getCities().
@@ -201,6 +204,7 @@ public class PathFinder2 {
                         filter(city -> city != reachable.city).
                         map(this::findGCity).
                         collect(Collectors.toList());
+
 
                 evaluatePostShuttlePath(researchStations, reachable);
             }

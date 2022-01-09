@@ -1,14 +1,11 @@
 Epidemic
 Calgary
 Tasiusaq
-Jakarta
 Perth
 Epidemic
 Calcutta
-Taipei
 Haixi
 Jakutsk
-Manila
 Milan
 Khartoum
 Istanbul
@@ -20,25 +17,28 @@ Krasnoyarsk
 Astana
 Tehran
 Epidemic
-Santo Domingo
 Lagos
 Algiers
-Tokyo
 Cairo
 Fortaleza
 Karachi
+Sri Lanka
 Madrid
+Bangkok
 Atlanta
 Tolyatti
 Bogota
-Mexico City
 Comodoro Rivadavia
-Sri Lanka
-Manaus
+Jakarta
+Manila
+Taipei
+Tokyo
+Beijing
+Santo Domingo
+Mexico City
 Sao Paolo
 Johannesburg
-Beijing
 Montreal
 Kiev
-Bangkok
+Manaus
 Hong Kong

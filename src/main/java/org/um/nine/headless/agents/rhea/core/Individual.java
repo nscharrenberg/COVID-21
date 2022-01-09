@@ -39,12 +39,14 @@ public final record Individual(MacroAction[] genome) implements IAgent {
     public MacroAction getNextMacroAction(IState state) {
         IState mutationState = state.getClonedState();
         Individual ancestor = this;
-
-
         HPAMacroActionsFactory.initIndividualGene(mutationState, ancestor);
+
         successfulMutations = 0;
 
         for (int i = 0; i < N_MUTATIONS; i++) {
+
+            //for Player p : players
+
             double mutationRate = map(
                     ((double) (i + 1)) / N_MUTATIONS,
                     0,
@@ -60,6 +62,8 @@ public final record Individual(MacroAction[] genome) implements IAgent {
                 successfulMutations++;
                 ancestor = child.generateChild(); //cloned
             }
+
+
         }
 
         return ancestor.genome()[0];

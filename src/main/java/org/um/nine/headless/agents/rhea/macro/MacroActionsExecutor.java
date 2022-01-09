@@ -7,7 +7,10 @@ import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Color;
 import org.um.nine.headless.game.domain.Disease;
+import org.um.nine.headless.game.domain.cards.CityCard;
+import org.um.nine.headless.game.domain.roles.Medic;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,7 +31,9 @@ public record MacroActionsExecutor(ExperimentalGame game) {
                 m++;
                 treated = 0;
             } else if (c == 's') {
-                treated += executeStandingAction(actionCity.get(macro.standingActions().get(s).applyTo()).size() - treated, state, macro.standingActions().get(s));
+                List<ActionType.StandingAction> toTreat = actionCity.get(macro.standingActions().get(s).applyTo());
+                int d = toTreat == null ? 0 : toTreat.size() - treated;
+                treated += executeStandingAction(d, state, macro.standingActions().get(s));
                 s++;
             }
         }
@@ -58,9 +63,20 @@ public record MacroActionsExecutor(ExperimentalGame game) {
         Object[] obj = null;
         if (action.action().equals(ActionType.TREAT_DISEASE)) {
             Map<Color, List<Disease>> grouped = state.getPlayerRepository().getCurrentPlayer().getCity().getCubes().stream().collect(Collectors.groupingBy(Disease::getColor));
-            var c = grouped.entrySet().stream().filter(list -> list.getValue().size() >= n).findFirst().orElse(null);
-            obj = new Object[]{Objects.requireNonNull(c).getKey()};
+            if (state.getPlayerRepository().getCurrentPlayer().getRole() instanceof Medic) {
+                var x = grouped.values().stream().max(Comparator.comparingInt(List::size)).get();
+                obj = new Object[]{Objects.requireNonNull(x.get(0).getColor())};
+            } else {
+                var c = grouped.entrySet().stream().filter(list -> list.getValue().size() >= n).findFirst().orElse(null);
+                obj = new Object[]{Objects.requireNonNull(c).getKey()};
+            }
             treated = 1;
+
+        } else if (action.action().equals(ActionType.SHARE_KNOWLEDGE)) {
+            obj = new Object[]{
+                    action.receiving(), state.getPlayerRepository().getCurrentPlayer().getHand().stream().filter(pc -> ((CityCard) pc).getCity().equals(action.applyTo()))
+            };
+
         }
         try {
             if (LOG) Logger.addLog("[" + action.action() + "] -> " + action.applyTo());

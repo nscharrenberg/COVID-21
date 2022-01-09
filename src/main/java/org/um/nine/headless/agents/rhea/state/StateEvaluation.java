@@ -20,22 +20,21 @@ public class StateEvaluation {
      * Will evaluate over 5 cards, 4 if the role of the current player is Scientist role
      */
     public static double abilityCure(Color color, Player p) {
-        double hpt = sameColorCards(p.getHand(),color);
+        double hpt = sameColorCards(p.getHand(), color);
         double cd = Cd(p);
         if (hpt >= cd) return 1;
-        else return hpt/cd;
+        return hpt / cd;
     }
 
-    public static double abilityCure(Color color, List<PlayerCard> cards, Player p) {
-        double hpt = sameColorCards(cards,color);
-        double cd = Cd(p);
-        if (hpt >= cd) return 1;
-        else return hpt/cd;
+
+    public static double abilityCure2(IState state, Color color) {
+        if (state.getDiseaseRepository().getCures().get(color).isDiscovered()) return 1;
+        return state.getPlayerRepository().getPlayers().values().stream().map(p -> abilityCure(color, p)).max(Double::compareTo).get();
     }
 
-    public static double sameColorCards(List<PlayerCard> cards, Color color){
+    public static double sameColorCards(List<PlayerCard> cards, Color color) {
         return cards.stream().
-                filter(c-> c instanceof CityCard cc &&
+                filter(c -> c instanceof CityCard cc &&
                         cc.getCity().getColor().equals(color)).
                 count();
     }
