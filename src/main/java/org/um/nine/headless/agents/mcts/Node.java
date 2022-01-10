@@ -111,16 +111,10 @@ public class Node {
                     case YELLOW -> yellow.getAndIncrement();
                 }
             });
-            if (red.get() == 1)
-                value += 1;
-            else if (red.get() == 2)
-                value += 2;
-            else if (red.get() == 3)
-                value += 3;
-            else if (red.get() == 4)
-                value += 4;
-            else
-                value += 5;
+            value += 2 * red.get();
+            value += 2 * black.get();
+            value += 2 * blue.get();
+            value += 2 * yellow.get();
 
         long numberOfDiscoveredCures = state.getDiseaseRepository().getCures().values().stream()
                 .filter(Cure::isDiscovered).count();
