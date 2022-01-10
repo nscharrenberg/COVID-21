@@ -96,6 +96,32 @@ public class Node {
             value -= 3 * numberOfOutbreaks[0];
         });
 
+        state.getPlayerRepository().getPlayers().values().forEach(s -> {
+            var sameColorCard = s.getHand().stream().filter(c -> c instanceof CityCard)
+                    .collect(Collectors.groupingBy(c -> ((CityCard) c).getCity().getColor()));
+            AtomicInteger red = new AtomicInteger();
+            AtomicInteger black = new AtomicInteger();
+            AtomicInteger blue = new AtomicInteger();
+            AtomicInteger yellow = new AtomicInteger();
+            sameColorCard.forEach((color, playerCards) -> {
+                switch (color) {
+                    case RED -> red.getAndIncrement();
+                    case BLACK -> black.getAndIncrement();
+                    case BLUE -> blue.getAndIncrement();
+                    case YELLOW -> yellow.getAndIncrement();
+                }
+            });
+            if (red.get() == 1)
+                value += 1;
+            else if (red.get() == 2)
+                value += 2;
+            else if (red.get() == 3)
+                value += 3;
+            else if (red.get() == 4)
+                value += 4;
+            else
+                value += 5;
+
         long numberOfDiscoveredCures = state.getDiseaseRepository().getCures().values().stream()
                 .filter(Cure::isDiscovered).count();
         value += 100 * (double) numberOfDiscoveredCures;
