@@ -84,49 +84,10 @@ public class Node {
                     case YELLOW -> yellow.getAndIncrement();
                 }
             });
-            if (red.get() == 1)
-                value += 1;
-            else if (red.get() == 2)
-                value += 2;
-            else if (red.get() == 3)
-                value += 3;
-            else if (red.get() == 4)
-                value += 4;
-            else
-                value += 5;
-
-            if (black.get() == 1)
-                value += 1;
-            else if (black.get() == 2)
-                value += 2;
-            else if (black.get() == 3)
-                value += 3;
-            else if (black.get() == 4)
-                value += 4;
-            else
-                value += 5;
-
-            if (blue.get() == 1)
-                value += 1;
-            else if (blue.get() == 2)
-                value += 2;
-            else if (blue.get() == 3)
-                value += 3;
-            else if (blue.get() == 4)
-                value += 4;
-            else
-                value += 5;
-
-            if (yellow.get() == 1)
-                value += 1;
-            else if (yellow.get() == 2)
-                value += 2;
-            else if (yellow.get() == 3)
-                value += 3;
-            else if (yellow.get() == 4)
-                value += 4;
-            else
-                value += 5;
+            value += 2 * red.get();
+            value += 2 * black.get();
+            value += 2 * blue.get();
+            value += 2 * yellow.get();
         });
         double[] numberOfOutbreaks = new double[1];
         state.getDiseaseRepository().getOutbreakMarkers().forEach(outbreakMarker -> {
