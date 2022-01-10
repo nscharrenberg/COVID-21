@@ -1,8 +1,0 @@
-Cards in hand : [Hong Kong RED, Bangkok RED, Tokyo RED, Algiers BLACK, Tehran BLACK, Astana BLACK, Krasnoyarsk RED]
-============================================================================================
-Manila              [{Mexico City -w-> Manila}]
-Atlanta             [{Mexico City -w-> Atlanta}]
-Santo Domingo       [{Mexico City -w-> Santo Domingo}]
-Bogota              [{Mexico City -w-> Bogota}]
-San Francisco       [{Mexico City -w-> San Francisco}]
-============================================================================================
