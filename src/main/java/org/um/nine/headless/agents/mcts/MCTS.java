@@ -338,6 +338,170 @@ public class MCTS {
         return action.get();
     }
 
+    /**
+     * Executes the action. The same as simulating, but without a copy.
+     * @param a the action
+     * @param current the current state
+     * @return the next state
+     * @throws MoveNotPossibleException if the action cannot be performed
+     */
+    public IState execute(Actions a, IState current) throws MoveNotPossibleException {
+        IState nextState = current;
+        Player player = nextState.getPlayerRepository().getCurrentPlayer();
+        switch(a){
+            case DRIVE -> {
+                City next = player.getCity().getNeighbors().get(new Random().nextInt(player.getCity().getNeighbors().size() - 1));
+                try {
+                    nextState.getPlayerRepository().drive(player, next, true);
+                }catch(Exception e){
+                    throw new MoveNotPossibleException();
+                }
+            }
+            case CHARTER_FLIGHT -> {
+                int rnd = new Random().nextInt(nextState.getCityRepository().getCities().size() - 1);
+                ArrayList<City> temp = new ArrayList<>(nextState.getCityRepository().getCities().values());
+                try {
+                    nextState.getPlayerRepository().charter(player, temp.get(rnd));
+                } catch (Exception e) {
+                    throw new MoveNotPossibleException();
+                }
+            }
+            case  DIRECT_FLIGHT -> {
+                CityCard cityCard = (CityCard) player.getHand().stream().filter(c -> c instanceof CityCard).findFirst().orElse(null);
+                if (cityCard!= null){
+                    nextState.getBoardRepository().setSelectedCity(cityCard.getCity());
+                    try{
+                        nextState.getPlayerRepository().direct(player, cityCard.getCity());
+                    }catch(Exception e){
+                        throw new MoveNotPossibleException();
+                    }
+                }
+                else {
+                    throw new MoveNotPossibleException();
+                }
+            }
+            case SHUTTLE -> {
+                if (nextState.getCityRepository().getCities().values().stream().filter(c -> c.getResearchStation() != null).count() >= 2 &&
+                        player.getCity().getResearchStation() != null) {
+                    City city = nextState.getCityRepository().getCities().values().stream().filter(c -> c.getResearchStation() != null && !c.equals(player.getCity())).findFirst().orElse(null);
+                    if (city != null) {
+                        nextState.getBoardRepository().setSelectedCity(city);
+                        try {
+                            nextState.getPlayerRepository().shuttle(player, city);
+                        } catch (Exception e) {
+                            throw new MoveNotPossibleException();
+                        }
+                    }
+                }
+                else {
+                    throw new MoveNotPossibleException();
+                }
+            }
+            case BUILD_RESEARCH_STATION -> {
+                if (player.getCity().getResearchStation() == null && player.getHand().stream().filter(c -> {
+                    if (c instanceof CityCard card) return card.getCity().equals(player.getCity());
+                    return false;
+                }).findFirst().orElse(null) != null) {
+                    try{
+                        nextState.getPlayerRepository().buildResearchStation(player, player.getCity());
+                    }catch(Exception e){
+                        throw new MoveNotPossibleException();
+                    }
+                }
+                else {
+                    throw new MoveNotPossibleException();
+                }
+            }
+            case TREAT_DISEASE -> {
+                if (!player.getCity().getCubes().isEmpty()) {
+                    try {
+                        nextState.getPlayerRepository().treat(player, player.getCity(), player.getCity().getCubes().get(0).getColor());
+                    } catch (Exception e) {
+                        throw new MoveNotPossibleException();
+                    }
+                }
+                else {
+                    throw new MoveNotPossibleException();
+                }
+            }
+            case SHARE_KNOWLEDGE -> {
+                Optional<PlayerCard> sameCityCard = player.getHand().stream().filter(c -> c instanceof CityCard && ((CityCard) c).getCity().equals(player.getCity())).findFirst();
+                if(!sameCityCard.isPresent() || player.getCity().getPawns().size() <= 1){
+                    throw new MoveNotPossibleException();
+                }
+                else{
+                    player.getHand().remove(sameCityCard.get());
+                    ArrayList<Player> copy = new ArrayList<>();
+                    copy.addAll(player.getCity().getPawns());
+                    copy.remove(player);
+                    int rnd = new Random().nextInt(copy.size());
+                    copy.get(rnd).addHand(sameCityCard.get());
+                }
+            }
+            case DISCOVER_CURE -> {
+                var sameColorCard = player.getHand().stream().filter(c -> c instanceof CityCard).collect(Collectors.groupingBy(c -> ((CityCard)c).getCity().getColor()));
+                AtomicInteger red = new AtomicInteger();
+                AtomicInteger black = new AtomicInteger();
+                AtomicInteger blue = new AtomicInteger();
+                AtomicInteger yellow = new AtomicInteger();
+                sameColorCard.forEach((color, playerCards) -> {
+                    switch (color){
+                        case RED -> red.set(playerCards.size());
+                        case BLACK -> black.set(playerCards.size());
+                        case BLUE -> blue.set(playerCards.size());
+                        case YELLOW -> yellow.set(playerCards.size());
+                    }
+                });
+                Color color = Color.LIME;
+                boolean curable = false;
+                if(red.get() >= 5|| (player.getRole() instanceof Medic) && red.get() >=4){
+                    curable = true;
+                    color = Color.RED;
+                }else if(black.get() >= 5|| (player.getRole() instanceof Medic) && black.get() >=4){
+                    curable = true;
+                    color = Color.BLACK;
+                }else if(blue.get() >= 5|| (player.getRole() instanceof Medic) && blue.get() >=4){
+                    curable = true;
+                    color = Color.BLUE;
+                }else if(yellow.get() >= 5|| (player.getRole() instanceof Medic) && yellow.get() >=4){
+                    curable = true;
+                    color = Color.YELLOW;
+                }
+
+                if (curable) {
+                    Color finalColor = color;
+                    Optional<Cure> cure = nextState.getDiseaseRepository().getCures().values().stream().filter(c -> {
+                        return c.getColor().equals(finalColor);
+                    }).findFirst();
+                    if (cure.isPresent()) {
+                        try {
+                            nextState.getDiseaseRepository().discoverCure(player, cure.get());
+                            nextState.getPlayerRepository().getLog().addStep(" discovered cure", player.getCity(), player);
+                        } catch (UnableToDiscoverCureException | GameWonException e) {
+                            throw new MoveNotPossibleException();
+                        }
+                    }
+                    else {
+                        throw new MoveNotPossibleException();
+                    }
+                }
+                else {
+                    throw new MoveNotPossibleException();
+                }
+            }
+            case ROLE_ACTION -> {
+                List<RoleAction> l = player.getRole().actions();
+                if(l.size() == 0){
+                    throw new MoveNotPossibleException();
+                } else {
+                    //todo add role logic here and remove exception
+                    throw new MoveNotPossibleException();
+                }
+            }
+        }
+        return nextState;
+    }
+
     public Node getRoot(){
         return root;
     }
