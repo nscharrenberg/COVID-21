@@ -1,5 +1,7 @@
 package org.um.nine.headless.game.repositories;
 
+import org.um.nine.headless.agents.mcts.MCTS;
+import org.um.nine.headless.agents.state.GameStateFactory;
 import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.agents.utils.Log;
 import org.um.nine.headless.game.Settings;
@@ -376,6 +378,12 @@ public class PlayerRepository implements IPlayerRepository {
     public void playerAction(ActionType type, Object... args) throws Exception {
         if (this.getCurrentRoundState() == null) this.nextTurn();
         if (currentRoundState.equals(RoundState.ACTION)) {
+            if(currentPlayer.isBot()){
+                if(currentPlayer.getAgent() == null){
+                    currentPlayer.setAgent(new MCTS(state, 100));
+                }
+                currentPlayer.getAgent().agentDecision(state);
+            }
             if (type == null) type = ActionType.NO_ACTION;
             if (this.state.getBoardRepository().getSelectedRoleAction() == null) this.state.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
             if (!type.equals(ActionType.SKIP_ACTION)) {
@@ -462,7 +470,7 @@ public class PlayerRepository implements IPlayerRepository {
                     }
                 }
             }
-           this.nextTurn();
+            this.nextTurn();
 
         }
         else if (currentRoundState.equals(RoundState.DRAW)) {
@@ -482,6 +490,8 @@ public class PlayerRepository implements IPlayerRepository {
                 this.playerAction(null);
             }
         }
+
+
     }
 
     public void createPlayer(String name, boolean isBot) throws PlayerLimitException {

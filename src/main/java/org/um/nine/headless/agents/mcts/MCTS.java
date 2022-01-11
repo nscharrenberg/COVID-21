@@ -2,6 +2,7 @@ package org.um.nine.headless.agents.mcts;
 
 import org.nd4j.common.primitives.Atomic;
 import org.nd4j.common.primitives.AtomicDouble;
+import org.um.nine.headless.agents.Agent;
 import org.um.nine.headless.agents.state.IState;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
@@ -17,7 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
-public class MCTS {
+public class MCTS implements Agent {
 
     private Node root;
     private int maxIterations;
@@ -31,6 +32,7 @@ public class MCTS {
     public MCTS(IState state, int iterations){
         root = new Node(state);
         maxIterations = iterations;
+        if(iterations == 0) maxIterations = Integer.MAX_VALUE;
     }
 
     /**
@@ -339,29 +341,28 @@ public class MCTS {
     }
 
     /**
-     * Executes the action. The same as simulating, but without a copy.
-     * @param a the action
+     * Runs the mcts and executes it.
      * @param current the current state
      * @return the next state
      * @throws MoveNotPossibleException if the action cannot be performed
      */
-    public IState execute(Actions a, IState current) throws MoveNotPossibleException {
-        IState nextState = current;
-        Player player = nextState.getPlayerRepository().getCurrentPlayer();
+    public void agentDecision(IState current) throws MoveNotPossibleException {
+        Actions a = run();
+        Player player = current.getPlayerRepository().getCurrentPlayer();
         switch(a){
             case DRIVE -> {
                 City next = player.getCity().getNeighbors().get(new Random().nextInt(player.getCity().getNeighbors().size() - 1));
                 try {
-                    nextState.getPlayerRepository().drive(player, next, true);
+                    current.getPlayerRepository().drive(player, next, true);
                 }catch(Exception e){
                     throw new MoveNotPossibleException();
                 }
             }
             case CHARTER_FLIGHT -> {
-                int rnd = new Random().nextInt(nextState.getCityRepository().getCities().size() - 1);
-                ArrayList<City> temp = new ArrayList<>(nextState.getCityRepository().getCities().values());
+                int rnd = new Random().nextInt(current.getCityRepository().getCities().size() - 1);
+                ArrayList<City> temp = new ArrayList<>(current.getCityRepository().getCities().values());
                 try {
-                    nextState.getPlayerRepository().charter(player, temp.get(rnd));
+                    current.getPlayerRepository().charter(player, temp.get(rnd));
                 } catch (Exception e) {
                     throw new MoveNotPossibleException();
                 }
@@ -369,9 +370,9 @@ public class MCTS {
             case  DIRECT_FLIGHT -> {
                 CityCard cityCard = (CityCard) player.getHand().stream().filter(c -> c instanceof CityCard).findFirst().orElse(null);
                 if (cityCard!= null){
-                    nextState.getBoardRepository().setSelectedCity(cityCard.getCity());
+                    current.getBoardRepository().setSelectedCity(cityCard.getCity());
                     try{
-                        nextState.getPlayerRepository().direct(player, cityCard.getCity());
+                        current.getPlayerRepository().direct(player, cityCard.getCity());
                     }catch(Exception e){
                         throw new MoveNotPossibleException();
                     }
@@ -381,13 +382,13 @@ public class MCTS {
                 }
             }
             case SHUTTLE -> {
-                if (nextState.getCityRepository().getCities().values().stream().filter(c -> c.getResearchStation() != null).count() >= 2 &&
+                if (current.getCityRepository().getCities().values().stream().filter(c -> c.getResearchStation() != null).count() >= 2 &&
                         player.getCity().getResearchStation() != null) {
-                    City city = nextState.getCityRepository().getCities().values().stream().filter(c -> c.getResearchStation() != null && !c.equals(player.getCity())).findFirst().orElse(null);
+                    City city = current.getCityRepository().getCities().values().stream().filter(c -> c.getResearchStation() != null && !c.equals(player.getCity())).findFirst().orElse(null);
                     if (city != null) {
-                        nextState.getBoardRepository().setSelectedCity(city);
+                        current.getBoardRepository().setSelectedCity(city);
                         try {
-                            nextState.getPlayerRepository().shuttle(player, city);
+                            current.getPlayerRepository().shuttle(player, city);
                         } catch (Exception e) {
                             throw new MoveNotPossibleException();
                         }
@@ -403,7 +404,7 @@ public class MCTS {
                     return false;
                 }).findFirst().orElse(null) != null) {
                     try{
-                        nextState.getPlayerRepository().buildResearchStation(player, player.getCity());
+                        current.getPlayerRepository().buildResearchStation(player, player.getCity());
                     }catch(Exception e){
                         throw new MoveNotPossibleException();
                     }
@@ -415,7 +416,7 @@ public class MCTS {
             case TREAT_DISEASE -> {
                 if (!player.getCity().getCubes().isEmpty()) {
                     try {
-                        nextState.getPlayerRepository().treat(player, player.getCity(), player.getCity().getCubes().get(0).getColor());
+                        current.getPlayerRepository().treat(player, player.getCity(), player.getCity().getCubes().get(0).getColor());
                     } catch (Exception e) {
                         throw new MoveNotPossibleException();
                     }
@@ -470,13 +471,13 @@ public class MCTS {
 
                 if (curable) {
                     Color finalColor = color;
-                    Optional<Cure> cure = nextState.getDiseaseRepository().getCures().values().stream().filter(c -> {
+                    Optional<Cure> cure = current.getDiseaseRepository().getCures().values().stream().filter(c -> {
                         return c.getColor().equals(finalColor);
                     }).findFirst();
                     if (cure.isPresent()) {
                         try {
-                            nextState.getDiseaseRepository().discoverCure(player, cure.get());
-                            nextState.getPlayerRepository().getLog().addStep(" discovered cure", player.getCity(), player);
+                            current.getDiseaseRepository().discoverCure(player, cure.get());
+                            current.getPlayerRepository().getLog().addStep(" discovered cure", player.getCity(), player);
                         } catch (UnableToDiscoverCureException | GameWonException e) {
                             throw new MoveNotPossibleException();
                         }
@@ -491,15 +492,9 @@ public class MCTS {
             }
             case ROLE_ACTION -> {
                 List<RoleAction> l = player.getRole().actions();
-                if(l.size() == 0){
-                    throw new MoveNotPossibleException();
-                } else {
-                    //todo add role logic here and remove exception
-                    throw new MoveNotPossibleException();
-                }
+                throw new MoveNotPossibleException();
             }
         }
-        return nextState;
     }
 
     public Node getRoot(){

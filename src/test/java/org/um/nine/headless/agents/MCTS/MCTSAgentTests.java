@@ -175,7 +175,7 @@ public class MCTSAgentTests {
             game.getCurrentState().getPlayerRepository().createPlayer("P1",true);
             game.getCurrentState().getPlayerRepository().createPlayer("P2",true);
         } catch (PlayerLimitException e) {
-            e.printStackTrace();
+            assert(false);
         }
         game.start();
         IState state = game.getCurrentState();
