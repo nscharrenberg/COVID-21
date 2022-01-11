@@ -2,6 +2,7 @@ package org.um.nine.headless.agents.baseline;
 
 import org.um.nine.headless.agents.Agent;
 import org.um.nine.headless.agents.state.IState;
+import org.um.nine.headless.agents.utils.Log;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
@@ -246,6 +247,11 @@ public class BaselineAgent implements Agent {
         state.getBoardRepository().setSelectedPlayerAction(selectedAction == null ? ActionType.SKIP_ACTION : selectedAction);
         state.getBoardRepository().setSelectedRoleAction(roleAction == null ? RoleAction.NO_ACTION : roleAction);
 
+    }
+
+    @Override
+    public Log getLog() {
+        return null;
     }
 
     public void roleAction(RoleAction roleAction, Player player, IState state) {

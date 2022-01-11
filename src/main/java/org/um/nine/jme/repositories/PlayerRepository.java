@@ -1,6 +1,9 @@
 package org.um.nine.jme.repositories;
 
+import com.jme3.math.Vector3f;
+import org.um.nine.headless.agents.mcts.MCTS;
 import org.um.nine.headless.agents.state.GameStateFactory;
+import org.um.nine.headless.agents.utils.Log;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.*;
@@ -92,6 +95,7 @@ public class PlayerRepository {
      */
     public void direct(Player player, City city) throws InvalidMoveException {
         GameStateFactory.getInitialState().getPlayerRepository().direct(player, city);
+        visualRepository.renderPlayer(player, city.getPawnPosition(player));
     }
 
     /**
@@ -108,6 +112,7 @@ public class PlayerRepository {
      */
     public void charter(Player player, City city) throws InvalidMoveException {
         GameStateFactory.getInitialState().getPlayerRepository().charter(player, city);
+        visualRepository.renderPlayer(player, city.getPawnPosition(player));
     }
 
     /**
@@ -123,6 +128,7 @@ public class PlayerRepository {
      */
     public void shuttle(Player player, City city) throws InvalidMoveException {
         GameStateFactory.getInitialState().getPlayerRepository().shuttle(player, city);
+        visualRepository.renderPlayer(player, city.getPawnPosition(player));
     }
 
     public RoundState nextTurn() {
@@ -430,19 +436,40 @@ public class PlayerRepository {
 
             playerInfoState.setHeartbeat(true);
         } else {
-            // TODO agentstuff
-            /*
-             * agentDecision();
-             * cardRepository.drawPlayCard();
-             * nextState(getCurrentRoundState());
-             * cardRepository.drawPlayCard();
-             * nextState(getCurrentRoundState());
-             * cardRepository.drawInfectionCard();
-             * nextState(getCurrentRoundState());
-             * cardRepository.drawInfectionCard();
-             * nextState(getCurrentRoundState());
-             * boardRepository.setSelectedRoleAction(null);
-             */
+            Player currentPlayer = GameStateFactory.getInitialState().getPlayerRepository().getCurrentPlayer();
+            if(currentPlayer.getAgent() == null) currentPlayer.setAgent(new MCTS(GameStateFactory.getInitialState(),100));
+            try{
+                currentPlayer.getAgent().agentDecision(GameStateFactory.getInitialState());
+                LinkedList<Log.LogRecord> log = currentPlayer.getAgent().getLog().getLog();
+                String a = log.getLast().action();
+                City c = log.getLast().targetLocation();
+                Player p = log.getLast().player();
+
+                switch (a){
+                    case "drive":
+                        visualRepository.renderPlayer(p, c.getPawnPosition(p));
+                    case "charter":
+                        visualRepository.renderPlayer(p, c.getPawnPosition(p));
+                    case "direct":
+                        visualRepository.renderPlayer(p, c.getPawnPosition(p));
+                    case "shuttle":
+                        visualRepository.renderPlayer(p, c.getPawnPosition(p));
+                    case "research station":
+                        visualRepository.renderResearchStation(c.getResearchStation(),new Vector3f(-20, 5, 0));
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            cardRepository.drawPlayerCard();
+            nextState(getCurrentRoundState());
+            cardRepository.drawPlayerCard();
+            nextState(getCurrentRoundState());
+            cardRepository.drawInfectionCard();
+            nextState(getCurrentRoundState());
+            cardRepository.drawInfectionCard();
+            nextState(getCurrentRoundState());
+            boardRepository.setSelectedRoleAction(null);
+
         }
 
     }
