@@ -23,7 +23,7 @@ public class baselineAgentTests {
         IState state = game.getCurrentState();
         Log log = state.getPlayerRepository().getLog();
         BaselineAgent ba = new BaselineAgent();
-        ba.randomAction(state.getPlayerRepository().getCurrentPlayer(), state);
+        ba.agentDecision(state);
         int size = log.getLog().size();
         System.out.println("Log: " + size);
         System.out.println(log);
