@@ -21,6 +21,7 @@ public class PlayerRepository implements IPlayerRepository {
     private static final int ACTION_COUNT = 4;
     private static final int DRAW_COUNT = 2;
     private static final int INFECTION_COUNT = 2;
+    private static final int mctsIterations = 3;
 
     private HashMap<String, Player> players = new HashMap<>();
     private Stack<Role> availableRoles;
@@ -380,7 +381,7 @@ public class PlayerRepository implements IPlayerRepository {
         if (currentRoundState.equals(RoundState.ACTION)) {
             if(currentPlayer.isBot()){
                 if(currentPlayer.getAgent() == null){
-                    currentPlayer.setAgent(new MCTS(state, 100));
+                    currentPlayer.setAgent(new MCTS(state, mctsIterations));
                 }
                 currentPlayer.getAgent().agentDecision(state);
             }
