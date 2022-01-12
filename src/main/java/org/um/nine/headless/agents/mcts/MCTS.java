@@ -334,7 +334,7 @@ public class MCTS implements Agent {
         }
         //playing the highest valued node
         AtomicDouble highestVal = new AtomicDouble();
-        highestVal.set(0);
+        highestVal.set(Integer.MIN_VALUE);
         Atomic<Actions> action = new Atomic<>();
         root.getChildren().forEach(n -> {
             if(highestVal.get() < n.getValue()){
@@ -343,6 +343,7 @@ public class MCTS implements Agent {
             }
         });
 
+        System.out.println(action.get());
         return action.get();
     }
 

@@ -184,4 +184,28 @@ public class MCTSAgentTests {
         System.out.println(a);
     }
 
+    @Test
+    public void experimentTest(){
+        ExperimentalGame game = new ExperimentalGame();
+        try{
+            game.getCurrentState().getPlayerRepository().createPlayer("P1",true);
+            game.getCurrentState().getPlayerRepository().createPlayer("P2",true);
+        } catch (PlayerLimitException e) {
+            assert(false);
+        }
+        game.start();
+        IState state = game.getCurrentState();
+        while(game.onGoing()){
+            try{
+                state.getPlayerRepository().playerAction(null);
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        if(state.isGameLost()) System.out.println("Lost");
+        else System.out.println("Won");
+    }
+
 }
