@@ -18,6 +18,7 @@ public class GameStateFactory {
         );
         initialState.reset();
         initialState.start();
+
         return initialState;
     }
     public static IState getInitialState() {

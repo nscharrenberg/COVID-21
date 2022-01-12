@@ -5,7 +5,7 @@ import org.um.nine.headless.agents.rhea.core.Mutator;
 import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
 import org.um.nine.headless.agents.rhea.macro.MacroActionsExecutor;
 import org.um.nine.headless.agents.rhea.state.StateHeuristic;
-import org.um.nine.headless.agents.utils.Reporter;
+import org.um.nine.headless.agents.utils.Logger;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.Role;
@@ -50,10 +50,6 @@ public class Settings {
 
     public static final Difficulty DEFAULT_DIFFICULTY = Difficulty.EASY;
     public static final Random RANDOM_PROVIDER = new Random();
-
-
-    public static final Reporter DEFAULT_REPORTER = new Reporter();
-
     public static final Cloner DEFAULT_CLONER = new Cloner();
 
     static {
@@ -65,6 +61,7 @@ public class Settings {
     }
 
 
+    public static final Logger DEFAULT_LOGGER = new Logger();
     public static ExperimentalGame DEFAULT_RUNNING_GAME;
     public static MacroActionsExecutor DEFAULT_MACRO_ACTIONS_EXECUTOR;
 
