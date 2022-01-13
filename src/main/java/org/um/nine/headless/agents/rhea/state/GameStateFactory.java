@@ -1,9 +1,12 @@
 package org.um.nine.headless.agents.rhea.state;
 
+import org.um.nine.headless.game.contracts.repositories.IAnalyticsRepository;
 import org.um.nine.headless.game.repositories.*;
 
 public class GameStateFactory {
     private static IState initialState;
+    private static IAnalyticsRepository analyticsRepository = new AnalyticsRepository();
+
     private GameStateFactory() {
 
     }
@@ -25,4 +28,7 @@ public class GameStateFactory {
         return initialState == null ? createInitialState() : initialState;
     }
 
+    public static IAnalyticsRepository getAnalyticsRepository() {
+        return analyticsRepository;
+    }
 }
