@@ -41,7 +41,7 @@ public class ExperimentalGameRunner {
         DEFAULT_MUTATOR = new Mutator();
 
 
-        int n_rep = 10;
+        int n_rep = 1;
         for (int i = 0; i < n_rep; i++) {
             DEFAULT_RUNNING_GAME = new ExperimentalGame(GameStateFactory.createInitialState());
             IState state = DEFAULT_RUNNING_GAME.getCurrentState();
@@ -65,7 +65,7 @@ public class ExperimentalGameRunner {
                     DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(mutationState, nextMacro, true);
                 } catch (GameOverException ignored) {
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.err.println(e.getMessage() + " :: " + IReportable.REPORT_PATH[0]);
                 }
                 DEFAULT_RUNNING_GAME.setPath(gamePath);
             }

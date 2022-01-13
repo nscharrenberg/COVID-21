@@ -109,7 +109,6 @@ public class PathFinder2 implements IReportable {
         for (int i = 0; i < ac.length; i++) {
             CityCard cc = ((CityCard) currentPlayer.getHand().get(i));
             if (!cc.getCity().equals(currentCity.city) &&
-                    //              findGCity(cc.getCity()).shortestPathFromCurrentCity.depth() == 0 &&
                     isDiscardableCard(cc, ac[i], i)) {
                 discarding = cc;
                 break;
@@ -184,12 +183,17 @@ public class PathFinder2 implements IReportable {
                         this.currentCity.marked = true;
                     } else createShortestPath(charterFlightCity, shortest);
                 }
+                shortest = checkCorrectness(shortest, fromCharter);
                 fromCharter.prev = findGCity(shortest.get(shortest.size() - 1).fromCity());
                 fromCharter.prevA = shortest.get(shortest.size() - 1).action();
                 fromCharter.marked = true;
             }
         }
 
+    }
+
+    private List<MovingAction> checkCorrectness(List<MovingAction> path, GCity endCity) {
+        return Arrays.asList(checkCorrectness(new Path(path.toArray(MovingAction[]::new)), endCity).path());
     }
 
     private void createShortestPath(GCity charterFlightCity, List<MovingAction> shortest) {
@@ -405,7 +409,6 @@ public class PathFinder2 implements IReportable {
             }
         }
     }
-
     private Path checkCorrectness(Path path, GCity endCity) {
         if (path.depth() == 0) return path;
         boolean wrong = !path.path()[0].fromCity().equals(currentCity.city) && !path.path()[path.depth() - 1].toCity().equals(endCity.city);
@@ -429,12 +432,21 @@ public class PathFinder2 implements IReportable {
                 findFirst().
                 orElseThrow();
 
+        List<City> cycle = new ArrayList<>();
         correct.add(first);
+        cycle.add(first.toCity());
 
         while (!first.toCity().equals(last.fromCity())) {
+            try {
+                if (cycle.contains(first.toCity()))
+                    throw new InfiniteLoopException("Infinite Loop while finding paths from " + currentCity.city.getName() + " to " + endCity.city.getName() + " ->  \n" + correct);
+            } catch (InfiniteLoopException e) {
+                append(e.getMessage());
+            }
             final MovingAction temp = first;
             first = stream(path.path()).filter(ma -> ma.fromCity().equals(temp.toCity())).findFirst().orElseThrow();
             correct.add(first);
+            cycle.add(first.toCity());
         }
         correct.add(last);
         return Path.fromList(correct);

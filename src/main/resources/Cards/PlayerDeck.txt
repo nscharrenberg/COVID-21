@@ -28,6 +28,7 @@ Bangkok
 Atlanta
 Tolyatti
 Bogota
+Mexico City
 Comodoro Rivadavia
 Jakarta
 Manila
@@ -35,7 +36,6 @@ Taipei
 Tokyo
 Beijing
 Santo Domingo
-Mexico City
 Sao Paolo
 Johannesburg
 Montreal

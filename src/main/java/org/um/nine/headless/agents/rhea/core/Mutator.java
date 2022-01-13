@@ -70,7 +70,7 @@ public record Mutator() implements IReportable {
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(initialState, macroIndex, true);
             } catch (GameOverException ignored) {
             } catch (Exception e) {
-                e.printStackTrace();
+                System.err.println(e.getMessage() + " :: " + REPORT_PATH[0]);
             }
 
             initialState.getPlayerRepository().setCurrentPlayer(p);

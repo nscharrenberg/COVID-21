@@ -56,7 +56,7 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
             try {
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(initState, nextMacro, true);
             } catch (Exception e) {
-                e.printStackTrace();
+                System.err.println(e.getMessage() + " :: " + REPORT_PATH[0]);
             }
 
             initState.getPlayerRepository().setCurrentPlayer(player); //trick the game logic here to allow fault turn
