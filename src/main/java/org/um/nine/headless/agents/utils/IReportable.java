@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static org.um.nine.headless.game.Settings.DEFAULT_LOGGER;
@@ -46,14 +47,21 @@ public interface IReportable {
     }
 
     default void report() {
+        Future<Void> future = CompletableFuture.runAsync(() -> {
+            try {
+                FileWriter fw = new FileWriter(getPath());
+                for (String s : this.getLogger().getLog()) fw.append(s).append("\n");
+                fw.close();
+            } catch (NullPointerException | IOException e) {
+                e.printStackTrace();
+            }
+            this.clear();
+        });
         try {
-            FileWriter fw = new FileWriter(getPath());
-            for (String s : this.getLogger().getLog()) fw.append(s).append("\n");
-            fw.close();
-        } catch (NullPointerException | IOException e) {
+            future.get(10L, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
             e.printStackTrace();
         }
-        this.clear();
     }
 
     default void logPlayer(Player p, boolean currentPlayer) {

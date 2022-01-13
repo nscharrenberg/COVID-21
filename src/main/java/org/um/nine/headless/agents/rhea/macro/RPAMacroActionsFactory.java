@@ -6,12 +6,16 @@ import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import static org.um.nine.headless.game.Settings.RANDOM_PROVIDER;
 
 public class RPAMacroActionsFactory extends MacroActionFactory {
 
     @Override
     public MacroAction getNextMacroAction() {
+        Collections.shuffle(getActions(), RANDOM_PROVIDER);
         MacroAction nextRPAMacro = this.getActions().get(0);
 
         int remaining = 4 - nextRPAMacro.size();
@@ -40,14 +44,9 @@ public class RPAMacroActionsFactory extends MacroActionFactory {
 
     protected static List<MacroAction> buildRPAMacroActions() {
         getInstance().actions = new ArrayList<>();
-        var cure = buildCureDiseaseMacroActions();
-        addList(cure, getInstance().actions);
-        var treat = buildTreatDiseaseMacroActions();
-        addList(treat, getInstance().actions);
-        //var share = buildShareKnowledgeMacroActions(4);
-        //addList(share, actions);
-        var build = buildResearchStationMacroActions();
-        addList(build, getInstance().actions);
+        getInstance().actions.addAll(buildCureDiseaseMacroActions());
+        getInstance().actions.addAll(buildTreatDiseaseMacroActions());
+        getInstance().actions.addAll(buildResearchStationMacroActions());
         return getInstance().actions;
     }
 

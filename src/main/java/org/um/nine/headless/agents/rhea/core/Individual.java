@@ -14,7 +14,7 @@ import static org.um.nine.headless.game.Settings.*;
 
 public final record Individual(MacroAction[] genome) implements IAgent, IReportable {
 
-    public double[] evaluateIndividual(IState state) {
+    public double[] evaluateIndividual(IState state) throws Exception {
         double[] eval = new double[genome.length];
         IState evaluationState = state.getClonedState();
         for (int i = 0; i < genome().length; i++) {
@@ -24,7 +24,7 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         return eval;
     }
 
-    public boolean betterThan(Individual other, IState state) {
+    public boolean betterThan(Individual other, IState state) throws Exception {
         double[] eval1 = this.evaluateIndividual(state);
         double[] eval2 = other.evaluateIndividual(state);
         // all better or false
@@ -34,7 +34,7 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         return true;
     }
 
-    public Individual initGenome(IState state) {
+    public Individual initGenome(IState state) throws Exception {
         IState initState = state.getClonedState();
         Player player = initState.getPlayerRepository().getCurrentPlayer();
         String gamePath = getPath();
@@ -64,7 +64,7 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         return new Individual(Arrays.stream(genome()).map(MacroAction::getClone).toArray(MacroAction[]::new));
     }
 
-    public MacroAction getNextMacroAction(IState initialGameState) {
+    public MacroAction getNextMacroAction(IState initialGameState) throws Exception {
         Individual ancestor = this;
         successfulMutations = 0;
         String gamePath = getPath();

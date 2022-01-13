@@ -397,12 +397,12 @@ public class PathFinder2 implements IReportable {
 
 
     private void buildAllPaths() {
-        try {
-            for (GCity gc : this.costGraph) {
+        for (GCity gc : this.costGraph) {
+            try {
                 gc.shortestPathFromCurrentCity = createShortestPath(gc);
+            } catch (InfiniteLoopException e) {
+                append(e.getMessage());
             }
-        } catch (InfiniteLoopException e) {
-            e.printStackTrace();
         }
     }
 
