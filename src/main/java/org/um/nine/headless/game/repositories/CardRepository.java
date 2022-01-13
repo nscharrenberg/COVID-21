@@ -16,6 +16,7 @@ import org.um.nine.headless.game.utils.CardUtils;
 import org.um.nine.headless.game.utils.CityUtils;
 
 import java.util.Collections;
+import java.util.EmptyStackException;
 import java.util.LinkedList;
 import java.util.Stack;
 
@@ -50,7 +51,13 @@ public class CardRepository implements ICardRepository {
      */
     @Override
     public void drawPlayerCard(IState state, PlayerCard... toDiscard) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
-        PlayerCard drawn = this.playerDeck.pop();
+        PlayerCard drawn;
+        try {
+            drawn = this.playerDeck.pop();
+        } catch (EmptyStackException e) {
+            throw new GameOverException();
+        }
+
 
         if (drawn instanceof EpidemicCard) {
             state.getEpidemicRepository().action(state);

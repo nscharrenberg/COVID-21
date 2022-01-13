@@ -45,16 +45,18 @@ public class PlayerRepository implements IPlayerRepository {
 
         this.currentPlayer = null;
         this.currentRoundState = null;
+        DEFAULT_PLAYERS.clear();
+
 
         this.actionsLeft = ACTION_COUNT;
         this.drawLeft = DRAW_COUNT;
         this.infectionLeft = INFECTION_COUNT;
 
         if (DEFAULT_INITIAL_STATE) {
-            DEFAULT_ROLES.forEach((k,v) -> {
-                Player p = new Player(k, true);
-                p.setRole(v);
-                this.getPlayers().put(k, p);
+            DEFAULT_ROLES.entrySet().stream().forEachOrdered(e -> {
+                Player p = new Player(e.getKey(), true);
+                p.setRole(e.getValue());
+                this.getPlayers().put(e.getKey(), p);
                 DEFAULT_PLAYERS.add(p);
             });
         }

@@ -4,5 +4,5 @@ import org.um.nine.headless.agents.rhea.macro.MacroAction;
 import org.um.nine.headless.agents.rhea.state.IState;
 
 public interface IAgent {
-    MacroAction getNextMacroAction(IState state) throws Exception;
+    MacroAction getNextMacroAction(IState state);
 }
