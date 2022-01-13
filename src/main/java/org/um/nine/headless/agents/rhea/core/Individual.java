@@ -6,6 +6,7 @@ import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
+import org.um.nine.headless.game.exceptions.GameOverException;
 
 import java.util.Arrays;
 
@@ -34,7 +35,7 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         return true;
     }
 
-    public Individual initGenome(IState state) throws Exception {
+    public Individual initGenome(IState state) {
         IState initState = state.getClonedState();
         Player player = initState.getPlayerRepository().getCurrentPlayer();
         String gamePath = getPath();
@@ -51,10 +52,17 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
             if (LOG) append("\nChosen macro : " + nextMacro);
 
             this.genome()[i] = nextMacro;
-            DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(initState, nextMacro, true);
+
+            try {
+                DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(initState, nextMacro, true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             initState.getPlayerRepository().setCurrentPlayer(player); //trick the game logic here to allow fault turn
-            report();
+            if (LOG) report();
         }
+
         ROUND_INDEX = 0;
         if (LOG) setPath(gamePath);
         return this;
@@ -64,7 +72,7 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         return new Individual(Arrays.stream(genome()).map(MacroAction::getClone).toArray(MacroAction[]::new));
     }
 
-    public MacroAction getNextMacroAction(IState initialGameState) throws Exception {
+    public MacroAction getNextMacroAction(IState initialGameState) {
         Individual ancestor = this;
         successfulMutations = 0;
         String gamePath = getPath();
@@ -73,7 +81,7 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         for (int i = 0; i < N_MUTATIONS; i++) {
             IState mutationState = initialGameState.getClonedState();
 
-            String mutationPath = getPath() + "/" + mutationState.getPlayerRepository().getCurrentPlayer().toString() + "/mutation-" + i;
+            String mutationPath = gamePath + "/" + mutationState.getPlayerRepository().getCurrentPlayer().toString() + "/mutation-" + i;
             if (LOG) setPath(mutationPath);
 
             double mutationRate = map(
@@ -86,11 +94,16 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
 
             Individual child = ancestor.generateChild();
 
-            DEFAULT_MUTATOR.mutateIndividual(mutationState, child, mutationRate);
+            try {
+                DEFAULT_MUTATOR.mutateIndividual(mutationState, child, mutationRate);
+                if (child.betterThan(ancestor, mutationState)) {  //all macro actions are better
+                    successfulMutations++;
+                    ancestor = child.generateChild(); //cloned
+                }
 
-            if (child.betterThan(ancestor, mutationState)) {  //all macro actions are better
-                successfulMutations++;
-                ancestor = child.generateChild(); //cloned
+            } catch (GameOverException ignored) {
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         if (LOG) setPath(gamePath);

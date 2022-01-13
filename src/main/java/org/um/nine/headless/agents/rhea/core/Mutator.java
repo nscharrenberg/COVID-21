@@ -5,6 +5,7 @@ import org.um.nine.headless.agents.rhea.macro.RPAMacroActionsFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.game.domain.Player;
+import org.um.nine.headless.game.exceptions.GameOverException;
 
 import static org.um.nine.headless.game.Settings.*;
 
@@ -18,7 +19,7 @@ public record Mutator() implements IReportable {
         return (value - min1) / (max1 - min1) * (max2 - min2) + min2;
     }
 
-    public void mutateIndividual(IState initialState, Individual individual, double mutationRate) throws Exception {
+    public void mutateIndividual(IState initialState, Individual individual, double mutationRate) {
         boolean atLeastOneMutated = false;
         String mutationIndexPath = getPath();
 
@@ -40,13 +41,14 @@ public record Mutator() implements IReportable {
             int mutationIndex = RANDOM_PROVIDER.nextInt(ROLLING_HORIZON);
             if (LOG) setPath(mutationIndexPath + "/gene-" + mutationIndex);
 
-            mutateGene(initialState.getClonedState(), individual, mutationIndex);
+            IState mutationState = initialState.getClonedState();
+            mutateGene(mutationState, individual, mutationIndex);
         }
 
         if (LOG) setPath(mutationIndexPath);
     }
 
-    private void mutateGene(IState initialState, Individual individual, int mutationIndex) throws Exception {
+    private void mutateGene(IState initialState, Individual individual, int mutationIndex) {
         Player p = initialState.getPlayerRepository().getCurrentPlayer();
         String mutatedGeneIndexPath = getPath();
 
@@ -59,19 +61,28 @@ public record Mutator() implements IReportable {
             }
             boolean mutated = i >= mutationIndex;
             if (i == mutationIndex) {
-                individual.genome()[i] = (macroIndex = HPAMacroActionsFactory.init(initialState, p.getCity(), p).getNextMacroAction());
+                macroIndex = HPAMacroActionsFactory.init(initialState, p.getCity(), p).getNextMacroAction();
             } else if (i > mutationIndex) {
-                individual.genome()[i] = (macroIndex = RPAMacroActionsFactory.init(initialState, p.getCity(), p).getNextMacroAction());
+                macroIndex = RPAMacroActionsFactory.init(initialState, p.getCity(), p).getNextMacroAction();
             }
-            DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(initialState, macroIndex, true);
+
+            try {
+                DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(initialState, macroIndex, true);
+            } catch (GameOverException ignored) {
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             initialState.getPlayerRepository().setCurrentPlayer(p);
             if (LOG) {
                 if (mutated)
-                    append("Mutated by " + (i == mutationIndex ? "HPA" : "RPA") + " macro action " + individual.genome()[i]);
+                    append("Mutated by " + (i == mutationIndex ? "HPA" : "RPA") + " macro action " + macroIndex);
                 else append("Given macro action is being kept");
                 report();
             }
+            individual.genome()[i] = macroIndex;
         }
+
     }
 
 }
