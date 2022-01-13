@@ -3,15 +3,15 @@ package org.um.nine.headless.game.repositories;
 import org.um.nine.headless.game.contracts.repositories.IAnalyticsRepository;
 import org.um.nine.headless.game.domain.analytics.GameAnalytics;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class AnalyticsRepository implements IAnalyticsRepository {
    private int gameCount = 0;
    private int winCount = 0;
 
-   private HashMap<Integer, GameAnalytics> gameAnalytics = new HashMap<>();
+   private List<GameAnalytics> gameAnalytics = new ArrayList<>();
 
     /**
      * The game was won, add this to the analytics
@@ -101,12 +101,12 @@ public class AnalyticsRepository implements IAnalyticsRepository {
     }
 
     @Override
-    public HashMap<Integer, GameAnalytics> getGameAnalytics() {
+    public List<GameAnalytics> getGameAnalytics() {
         return gameAnalytics;
     }
 
     @Override
-    public void setGameAnalytics(HashMap<Integer, GameAnalytics> gameAnalytics) {
+    public void setGameAnalytics(List<GameAnalytics> gameAnalytics) {
         this.gameAnalytics = gameAnalytics;
     }
 }

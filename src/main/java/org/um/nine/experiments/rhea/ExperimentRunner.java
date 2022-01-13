@@ -16,6 +16,7 @@ import org.um.nine.headless.game.exceptions.GameWonException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import static org.um.nine.headless.game.Settings.*;
 import static org.um.nine.headless.game.Settings.DEFAULT_RUNNING_GAME;
@@ -50,7 +51,7 @@ public class ExperimentRunner {
         DEFAULT_MACRO_ACTIONS_EXECUTOR = new MacroActionsExecutor();
         DEFAULT_MUTATOR = new Mutator();
 
-        int n_rep = 10;
+        int n_rep = 500;
         for (int i = 0; i < n_rep; i++) {
             DEFAULT_RUNNING_GAME = new ExperimentalGame(GameStateFactory.createInitialState());
             IState state = DEFAULT_RUNNING_GAME.getCurrentState();

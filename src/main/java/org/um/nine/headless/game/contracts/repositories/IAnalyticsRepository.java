@@ -5,6 +5,7 @@ import org.um.nine.headless.game.domain.analytics.GameAnalytics;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
+import java.util.List;
 
 public interface IAnalyticsRepository {
     void won();
@@ -23,7 +24,7 @@ public interface IAnalyticsRepository {
 
     int winLossRatio();
 
-    HashMap<Integer, GameAnalytics> getGameAnalytics();
+    List<GameAnalytics> getGameAnalytics();
 
-    void setGameAnalytics(HashMap<Integer, GameAnalytics> gameAnalytics);
+    void setGameAnalytics(List<GameAnalytics> gameAnalytics);
 }

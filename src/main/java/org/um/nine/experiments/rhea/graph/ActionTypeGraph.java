@@ -7,23 +7,27 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.ui.ApplicationFrame;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.um.nine.headless.agents.rhea.state.GameStateFactory;
+import org.um.nine.headless.game.contracts.repositories.IAnalyticsRepository;
+import org.um.nine.headless.game.domain.analytics.GameAnalytics;
+import org.um.nine.headless.game.repositories.AnalyticsRepository;
 
 import java.awt.*;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class WinLossRate extends ApplicationFrame {
+public class ActionTypeGraph extends ApplicationFrame {
     private JFreeChart chart;
     private ChartPanel chartPanel;
     private DefaultCategoryDataset dataset;
     private Timer timer = new Timer();
 
-    public WinLossRate(String title) {
+    public ActionTypeGraph(String title) {
         super(title);
 
         this.chart = ChartFactory.createBarChart(
-                "Action Counts",
-                "Outcome", "Amount",
+                "Action Types",
+                "ActionType", "Amount",
                 createDataset(),
                 PlotOrientation.VERTICAL,
                 true, true, false
@@ -40,13 +44,15 @@ public class WinLossRate extends ApplicationFrame {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                dataset.setValue(GameStateFactory.getAnalyticsRepository().winCount(), "Amount Won", "Won");
-                dataset.setValue(GameStateFactory.getAnalyticsRepository().lossCount(), "Amount Loss", "Loss");
-                dataset.setValue(GameStateFactory.getAnalyticsRepository().winLossRatio(), "Ratio", "Win / Loss Ratio");
+                IAnalyticsRepository repository = GameStateFactory.getAnalyticsRepository();
+                List<GameAnalytics> gameAnalytics = repository.getGameAnalytics();
 
-                System.out.println("WinCount: " + GameStateFactory.getAnalyticsRepository().winCount());
-                System.out.println("LossCount: " + GameStateFactory.getAnalyticsRepository().lossCount());
-                System.out.println("WinLossRatio: " + GameStateFactory.getAnalyticsRepository().winLossRatio());
+                if (gameAnalytics.size() >= 1) {
+                    GameAnalytics game = gameAnalytics.get(gameAnalytics.size() - 1);
+                    game.getActionsUsed().forEach((k, v) -> {
+                        dataset.setValue(v, k, k);
+                    });
+                }
             }
         }, 5000, 1000);
 
