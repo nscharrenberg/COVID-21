@@ -49,7 +49,7 @@ public class Settings {
     );
 
     public static final Difficulty DEFAULT_DIFFICULTY = Difficulty.EASY;
-    public static final Random RANDOM_PROVIDER = new Random(1 >> 7 >> 1999);
+    public static final Random RANDOM_PROVIDER = new Random(1 << 7 << 1999);
     public static final Cloner DEFAULT_CLONER = new Cloner();
 
     static {

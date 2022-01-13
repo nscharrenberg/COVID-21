@@ -39,7 +39,7 @@ public class ExperimentalGameRunner {
         DEFAULT_MUTATOR = new Mutator();
 
 
-        int n_rep = 20;
+        int n_rep = 10;
         for (int i = 0; i < n_rep; i++) {
             DEFAULT_RUNNING_GAME = new ExperimentalGame(GameStateFactory.createInitialState());
             IState state = DEFAULT_RUNNING_GAME.getCurrentState();
@@ -55,6 +55,7 @@ public class ExperimentalGameRunner {
                 DEFAULT_RUNNING_GAME.setPath(gamePath);
             } catch (Exception e) {
                 e.printStackTrace();
+                System.out.println(IReportable.REPORT_PATH[0]);
             }
         }
 

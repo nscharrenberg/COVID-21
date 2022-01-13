@@ -1,6 +1,7 @@
 package org.um.nine.headless.agents.rhea.macro;
 
 import org.um.nine.headless.agents.rhea.state.IState;
+import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.roles.Medic;
@@ -8,9 +9,9 @@ import org.um.nine.headless.game.domain.roles.Medic;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.requireNonNull;
 import static org.um.nine.headless.agents.rhea.state.StateEvaluation.Cd;
 
 public record MacroActionsExecutor() {
@@ -53,13 +54,13 @@ public record MacroActionsExecutor() {
                     Map<Color, List<Disease>> grouped = state.getPlayerRepository().getCurrentPlayer().getCity().getCubes().stream().collect(Collectors.groupingBy(Disease::getColor));
                     if (state.getPlayerRepository().getCurrentPlayer().getRole() instanceof Medic) {
                         var x = grouped.values().stream().max(Comparator.comparingInt(List::size)).orElse(null);
-                        obj = new Object[]{Objects.requireNonNull(Objects.requireNonNull(x).get(0).getColor())};
+                        obj = new Object[]{requireNonNull(requireNonNull(x).get(0).getColor())};
                     } else {
                         var c = grouped.entrySet().stream().filter(list -> list.getValue().size() >= n).findFirst().orElse(null);
-                        obj = new Object[]{Objects.requireNonNull(c).getKey()};
+                        obj = new Object[]{requireNonNull(c).getKey()};
                     }
                 } catch (NullPointerException noDiseases) {
-                    noDiseases.printStackTrace();
+                    System.err.println(noDiseases.getMessage() + " :: " + action + " :: " + IReportable.REPORT_PATH[0]);
                     //TODO: fix not allowed actions here
                     executedAction = ActionType.SKIP_ACTION;
                 }
