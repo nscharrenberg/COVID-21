@@ -1,6 +1,7 @@
 package org.um.nine.headless.agents.rhea.macro;
 
 import org.um.nine.headless.agents.rhea.pathfinder.PathFinder2;
+import org.um.nine.headless.agents.rhea.pathfinder.PathFinder3;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.rhea.state.StateEvaluation;
 import org.um.nine.headless.game.Settings;
@@ -22,7 +23,7 @@ import static org.um.nine.headless.game.domain.ActionType.*;
 
 public abstract class MacroActionFactory {
 
-    protected PathFinder2 pathFinder;
+    protected PathFinder3 pathFinder;
     protected IState state;
     protected List<MacroAction> actions;
     protected Player currentPlayer;
@@ -41,7 +42,7 @@ public abstract class MacroActionFactory {
         List<MacroAction> actions = buildTreatDiseaseMacroActions(1);
         actions.addAll(buildTreatDiseaseMacroActions(2));
         actions.addAll(buildTreatDiseaseMacroActions(3));
-        actions.addAll(buildCureDiseaseMacroActions());
+        actions.addAll(buildDiscoverCureMacroActions());
         actions.addAll(buildGiveKnowledgeMacroActions(4));
         actions.addAll(buildTakeKnowledgeMacroAction(4));
         actions.addAll(buildResearchStationMacroActions());
@@ -54,7 +55,7 @@ public abstract class MacroActionFactory {
             case Treat1Macro -> buildTreatDiseaseMacroActions(1);
             case Treat2Macro -> buildTreatDiseaseMacroActions(2);
             case Treat3Macro -> buildTreatDiseaseMacroActions(3);
-            case CureMacro -> buildCureDiseaseMacroActions();
+            case CureMacro -> buildDiscoverCureMacroActions();
             case GiveKnowledgeMacro -> buildGiveKnowledgeMacroActions(4);
             case TakeKnowledgeMacro -> buildTakeKnowledgeMacroAction(4);
             case ResearchStationMacro -> buildResearchStationMacroActions();
@@ -68,7 +69,7 @@ public abstract class MacroActionFactory {
     protected static List<MacroAction> buildWalkAwayMacroActions(int N) {
         List<MacroAction> actions = new ArrayList<>();
         for (City c : getInstance().state.getCityRepository().getCities().values()) {
-            List<MovingAction> shortestPath = getInstance().pathFinder.lightestPath(c); //don't spend card to walk away
+            List<MovingAction> shortestPath = getInstance().pathFinder.lightestPath(c);
             List<StandingAction> s = new ArrayList<>();
             if (shortestPath.size() <= N) {
                 for (int i = 0; i < N - shortestPath.size(); i++)
@@ -92,33 +93,31 @@ public abstract class MacroActionFactory {
 
                 //check if all research stations are at least distance 3 from this new RS
                 //need a new pathfinder from this city
+
                 PathFinder2 pf = PathFinder2.evaluateWalkingPath(getInstance().state, cc.getCity());
-                var reachableMinDistance = getInstance().state.
+
+                var reachableWalkingMinDistance = getInstance().state.
                         getCityRepository().
                         getResearchStations().
                         stream().
                         map(ResearchStation::getCity).
-                        noneMatch(city -> pf.shortestPath(city).size() < 3);
+                        filter(city -> pf.lightestPath(city).size() > 3).findFirst().orElse(null);
 
 
-                if (reachableMinDistance) {
-
+                if (reachableWalkingMinDistance != null) {
                     List<ActionType.MovingAction> shortestPath = getInstance().pathFinder.getPath(cc.getCity(), true);
-                    if ((cc.getCity().equals(getInstance().getCurrentPlayer().getCity()) || shortestPath.size() > 0) &&
-                            shortestPath.size() < 4) {
+                    if (shortestPath.size() > 0 && shortestPath.size() < 4) {
                         List<StandingAction> s = new ArrayList<>();
                         s.add(new ActionType.StandingAction(BUILD_RESEARCH_STATION, cc.getCity(), null, null));
                         actions.add(macro(shortestPath, s));
                     }
                 }
-
-
             }
         }
         return actions;
     }
 
-    protected static List<MacroAction> buildCureDiseaseMacroActions() {
+    protected static List<MacroAction> buildDiscoverCureMacroActions() {
         List<MacroAction> curingActions = new ArrayList<>();
 
         Player current = getInstance().getCurrentPlayer();
@@ -133,7 +132,13 @@ public abstract class MacroActionFactory {
                     ).count();
             if (inHand >= needed) {
                 if (current.getCity().getResearchStation() != null) {
-                    curingActions.add(macro(new ArrayList<>(), List.of(new StandingAction(DISCOVER_CURE, current.getCity(), null, null))));
+                    curingActions.add(macro(new ArrayList<>(), new ArrayList<>(
+                            List.of(new StandingAction(
+                                    DISCOVER_CURE,
+                                    current.getCity(),
+                                    null,
+                                    null)))
+                    ));
                     return curingActions;
                 }
                 List<City> stations = getInstance().state.getCityRepository().
@@ -142,21 +147,21 @@ public abstract class MacroActionFactory {
                         map(ResearchStation::getCity).
                         collect(Collectors.toList());
 
-                City closestResearchStation = stations.stream().min(Comparator.comparingInt(k -> getInstance().pathFinder.shortestPath(k).size())).orElse(null);
+                City closestResearchStation = stations.stream().
+                        filter(city -> getInstance().pathFinder.getPath(city, true).size() > 0).
+                        min(Comparator.comparingInt(city -> getInstance().pathFinder.getPath(city, true).size())).
+                        orElse(null);
+
+
                 if (closestResearchStation != null) {
-                    List<ActionType.MovingAction> shortestPath = getInstance().pathFinder.shortestPath(closestResearchStation);
-                    if (getInstance().pathFinder.isSpendingCard(shortestPath, closestResearchStation)) {
-                        //if the player would spend the card to get to the city, that path is no long useful so we check on the lightest one
-                        shortestPath = getInstance().pathFinder.lightestPath(closestResearchStation);
-                    }
-                    if (shortestPath.size() < 4 && (closestResearchStation.equals(getInstance().getCurrentPlayer().getCity()) || shortestPath.size() > 0))
-                        curingActions.add(macro(
-                                shortestPath, List.of(new ActionType.StandingAction(DISCOVER_CURE, closestResearchStation, null, null))
-                        ));
+
+                    List<ActionType.MovingAction> shortestPath = getInstance().pathFinder.getPath(closestResearchStation, true);
 
                     if (shortestPath.size() == 4) {
                         MacroAction curingLater = macro(shortestPath, new ArrayList<>());
                         curingActions.add(curingLater);
+                    } else {
+                        curingActions.add(macro(shortestPath, new ArrayList<>(List.of(new ActionType.StandingAction(DISCOVER_CURE, closestResearchStation, null, null)))));
                     }
                 }
 
@@ -191,7 +196,7 @@ public abstract class MacroActionFactory {
             List<City> citiesInImmediateRange = new ArrayList<>();
             List<City> citiesInRange = new ArrayList<>();
             for (Map.Entry<String, City> c : getInstance().state.getCityRepository().getCities().entrySet()) {
-                int distance = getInstance().pathFinder.shortestPath(c.getValue()).size();
+                int distance = getInstance().pathFinder.getPath(c.getValue(), true).size();
                 if (distance < N) citiesInImmediateRange.add(c.getValue());
                 else if (distance == N) citiesInRange.add(c.getValue());
             }
@@ -218,9 +223,9 @@ public abstract class MacroActionFactory {
             List<City> citiesInHandInReach = new ArrayList<>();
 
             for (PlayerCard card : cardsInHand) {
-                if (card instanceof CityCard cc && getInstance().pathFinder.shortestPath(cc.getCity()).size() < N)
+                if (card instanceof CityCard cc && getInstance().pathFinder.getPath(cc.getCity(), true).size() < N)
                     citiesInHandInImmediateReach.add(cc.getCity());
-                else if (card instanceof CityCard cc && getInstance().pathFinder.shortestPath(cc.getCity()).size() == N)
+                else if (card instanceof CityCard cc && getInstance().pathFinder.getPath(cc.getCity(), true).size() == N)
                     citiesInHandInReach.add(cc.getCity());
             }
 
@@ -269,14 +274,14 @@ public abstract class MacroActionFactory {
             List<PlayerCard> cardsInHand = p.getHand();
             if (p.getRole() instanceof Researcher) {
                 //check if the researcher is in an immediately reachable city
-                if (getInstance().pathFinder.shortestPath(p.getCity()).size() < N) researcher = p;
+                if (getInstance().pathFinder.getPath(p.getCity(), true).size() < N) researcher = p;
             } else {
                 for (PlayerCard card : cardsInHand) {
-                    if (card instanceof CityCard cc && getInstance().pathFinder.shortestPath(cc.getCity()).size() < N) {
+                    if (card instanceof CityCard cc && getInstance().pathFinder.getPath(cc.getCity(), true).size() < N) {
                         City c = cc.getCity();
                         citiesInImmediateRange.add(c);
                         if (c == p.getCity()) playersInReachableCities.add(p);
-                    } else if (card instanceof CityCard cc && getInstance().pathFinder.shortestPath(cc.getCity()).size() == N) {
+                    } else if (card instanceof CityCard cc && getInstance().pathFinder.getPath(cc.getCity(), true).size() == N) {
                         citiesInRange.add(cc.getCity());
                     }
                 }
@@ -302,7 +307,7 @@ public abstract class MacroActionFactory {
         return shareKnowledgeActions;
     }
     private static void addShareAndWait(int N, List<MacroAction> shareKnowledgeActions, Player give, Player take, City c) {
-        List<MovingAction> shortestPath = getInstance().pathFinder.shortestPath(c);
+        List<MovingAction> shortestPath = getInstance().pathFinder.getPath(c, true);
         List<StandingAction> standing = new ArrayList<>();
         standing.add(new StandingAction(SHARE_KNOWLEDGE, c, give, take));
         for (int i = 0; i < N-shortestPath.size()-1; i++) {
@@ -312,7 +317,7 @@ public abstract class MacroActionFactory {
     }
     private static void addWait(int N, List<MacroAction> shareKnowledgeActions, List<City> citiesInRange) {
         for (City c : citiesInRange) {
-            List<MovingAction> shortestPath = getInstance().pathFinder.shortestPath(c);
+            List<MovingAction> shortestPath = getInstance().pathFinder.getPath(c, true);
             List<StandingAction> skip = new ArrayList<>();
             for (int i = 0; i < N-shortestPath.size(); i++) {
                 skip.add(new StandingAction(SKIP_ACTION,c,null,null));
@@ -335,10 +340,10 @@ public abstract class MacroActionFactory {
     protected static List<MacroAction> buildTreatDiseaseMacroActions(int t) {
         var treatDiseaseMacroActionList = new ArrayList<MacroAction>();
         for (Map.Entry<String, City> sc : getInstance().state.getCityRepository().getCities().entrySet()) {
-            List<ActionType.MovingAction> shortestPath = getInstance().pathFinder.shortestPath(sc.getValue());
-            if (shortestPath.size() == 0 &&   // if path is size 0
-                    !sc.getValue().equals(getInstance().getCurrentPlayer().getCity()))
-                //but we are not in that city
+            List<ActionType.MovingAction> shortestPath =
+                    t == 3 ? getInstance().pathFinder.getPath(sc.getValue(), false) :
+                            getInstance().pathFinder.lightestPath(sc.getValue());
+            if (shortestPath.size() == 0 && !sc.getValue().equals(getInstance().getCurrentPlayer().getCity()))
                 continue;
             Map<Color, List<Disease>> grouped = sc.getValue().getCubes().stream().collect(
                     Collectors.groupingBy(Disease::getColor)

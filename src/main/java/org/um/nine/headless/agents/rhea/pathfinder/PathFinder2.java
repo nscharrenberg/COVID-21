@@ -103,7 +103,6 @@ public class PathFinder2 implements IReportable {
         }
         return ac;
     }
-
     private CityCard getOneDiscardableCard(double[] ac) {
         CityCard discarding = null;
         for (int i = 0; i < ac.length; i++) {
@@ -116,7 +115,6 @@ public class PathFinder2 implements IReportable {
         }
         return discarding;
     }
-
     private boolean isDiscardableCard(CityCard cc, double ac, int i) {
         // we remove it to check if discarding wouldn't affect ability to cure disease
         currentPlayer.getHand().remove(cc);
@@ -124,7 +122,6 @@ public class PathFinder2 implements IReportable {
         currentPlayer.getHand().add(i, cc);
         return ac_new == ac;
     }
-
     private void evaluateDirectPath() {
         double[] ac = evaluateAbilityCureOfCards();
         CityCard discarding = getOneDiscardableCard(ac);
@@ -139,7 +136,6 @@ public class PathFinder2 implements IReportable {
             this.currentCity.marked = true;
         }
     }
-
     private void evaluateCharterPath() {
 
         double[] ac = evaluateAbilityCureOfCards();
@@ -191,11 +187,9 @@ public class PathFinder2 implements IReportable {
         }
 
     }
-
     private List<MovingAction> checkCorrectness(List<MovingAction> path, GCity endCity) {
         return Arrays.asList(checkCorrectness(new Path(path.toArray(MovingAction[]::new)), endCity).path());
     }
-
     private void createShortestPath(GCity charterFlightCity, List<MovingAction> shortest) {
         Collections.reverse(shortest);
         MovingAction[] ma = new MovingAction[4];
@@ -203,7 +197,6 @@ public class PathFinder2 implements IReportable {
         ma[3] = new MovingAction(charterFlightCity.prevA, charterFlightCity.prev.city, charterFlightCity.city);
         charterFlightCity.shortestPathFromCurrentCity = new Path(ma);
     }
-
     private void evaluateShuttlePath() {
         if (currentCity.city.getResearchStation() != null) {
             List<GCity> researchStations = state.
@@ -250,13 +243,11 @@ public class PathFinder2 implements IReportable {
             }
         }
     }
-
     public List<MovingAction> getPath(City c, boolean needCardCityC) {
         List<MovingAction> shortest = shortestPath(c);
         if (needCardCityC && isSpendingCard(shortest, c)) return lightestPath(c);
         return shortest;
     }
-
     private void evaluatePostShuttlePath(List<GCity> researchStations, GCity prev, Path prevPath) {
         for (GCity researchStationNeighbour : researchStations) {
             researchStationNeighbour.prev = prev;
@@ -280,7 +271,6 @@ public class PathFinder2 implements IReportable {
         }
         this.currentCity = prev;
     }
-
     private void evaluateWalkingPath() {
         Comparator<GCity> comparator = Comparator.comparingInt(c -> c.city.getCubes().size());  // ;)
         PriorityQueue<GCity> Q = new PriorityQueue<>(comparator.reversed());
@@ -314,7 +304,6 @@ public class PathFinder2 implements IReportable {
         }
 
     }
-
     private Path createShortestPath(GCity gc) throws InfiniteLoopException {
         if (gc.city.equals(currentCity.city)) return new Path(new MovingAction[0]);
 
@@ -350,7 +339,6 @@ public class PathFinder2 implements IReportable {
 
         return gc.shortestPathFromCurrentCity;
     }
-
     private Path lightest(Path p1, Path p2) {
         if (p1 == null) return p2;
         if (p2 == null) return p1;
@@ -361,7 +349,6 @@ public class PathFinder2 implements IReportable {
 
         return p1Depth > p2Depth ? p2 : p1;
     }
-
     private Path shortest(Path oldPath, Path newPath) {
         if (oldPath == null || (oldPath.depth() == 0 && newPath.depth() > 0)) {
             return newPath;
@@ -375,11 +362,9 @@ public class PathFinder2 implements IReportable {
         if (!checkPath(newPath) && checkPath(oldPath)) return oldPath;
         return oldPath.depth() > newPath.depth() ? newPath : oldPath;
     }
-
     private boolean checkPath(Path oldPath) {
         return oldPath.depth() == 0 || oldPath.path()[0].fromCity().equals(currentCity.city);
     }
-
     private Path combine(Path oldPath, Path newPath) {
         // we get here only if oldPath.depth is not 0 and we charter in newPath[0],
         // therefore we need to check if charter flight would give
@@ -398,8 +383,6 @@ public class PathFinder2 implements IReportable {
         }
         return oldPath;
     }
-
-
     private void buildAllPaths() {
         for (GCity gc : this.costGraph) {
             try {
@@ -451,22 +434,17 @@ public class PathFinder2 implements IReportable {
         correct.add(last);
         return Path.fromList(correct);
     }
-
     public List<MovingAction> lightestPath(City c) {
         GCity gc = findGCity(c);
         gc.lightestPathFromCurrentCity = gc.lightestPathFromCurrentCity == null ? new Path(new MovingAction[0]) : gc.lightestPathFromCurrentCity;
         return Arrays.stream(gc.lightestPathFromCurrentCity.path).filter(Objects::nonNull).collect(Collectors.toList());
     }
-
     public List<MovingAction> shortestPath(City c) {
         return Arrays.stream(findGCity(c).shortestPathFromCurrentCity.path).filter(Objects::nonNull).collect(Collectors.toList());
     }
-
-
     private GCity findGCity(City c) {
         return this.costGraph.stream().filter(gCity -> gCity.city.equals(c)).findFirst().orElse(null);
     }
-
     public boolean isSpendingCard(List<MovingAction> shortestPath, City city) {
         for (MovingAction action : shortestPath) {
             if (action.action().equals(DIRECT_FLIGHT))
@@ -476,7 +454,6 @@ public class PathFinder2 implements IReportable {
         }
         return false;
     }
-
     private static class GCity {
         private final City city;
         private GCity prev;
@@ -495,7 +472,6 @@ public class PathFinder2 implements IReportable {
             return city.getName();
         }
     }
-
     private static record Path(MovingAction[] path) {
         public static Path fromList(List<MovingAction> list) {
             return new Path(list.toArray(MovingAction[]::new));

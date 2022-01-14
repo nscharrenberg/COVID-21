@@ -1,6 +1,6 @@
 package org.um.nine.headless.agents.rhea.macro;
 
-import org.um.nine.headless.agents.rhea.pathfinder.PathFinder2;
+import org.um.nine.headless.agents.rhea.pathfinder.PathFinder3;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
@@ -23,15 +23,21 @@ public abstract class HPAMacroActionsFactory extends MacroActionFactory {
     public HPAMacroActionsFactory initialise(IState state, City city, Player player) {
         getInstance().state = state;
         getInstance().currentPlayer = player;
-        getInstance().pathFinder = new PathFinder2(state, city, player);
+        getInstance().pathFinder = new PathFinder3(state, player, city);
+        getInstance().pathFinder.evaluatePaths();
         getInstance().actions = null;
         return getInstance();
     }
 
     public MacroAction getNextMacroAction() {
+
+//        System.out.println(getActions().
+//                stream().
+//            filter(ma -> ma.movingActions().getClass().getName().contains("ImmutableCollections") ||
+//                    ma.standingActions().getClass().getName().contains("ImmutableCollections")).
+//                collect(Collectors.toList()));
+
         MacroAction nextHPAMacro = getActions().get(0);
-
-
         int remaining = 4 - nextHPAMacro.size();
         if (remaining > 0) {
             return fillMacroAction(nextHPAMacro);
@@ -39,7 +45,7 @@ public abstract class HPAMacroActionsFactory extends MacroActionFactory {
     }
     protected static List<MacroAction> buildHPAMacroActions() {
         getInstance().actions = new ArrayList<>();
-        var cure = buildCureDiseaseMacroActions();
+        var cure = buildDiscoverCureMacroActions();
         addList(cure, getInstance().actions);
         var treat3 = buildTreatDiseaseMacroActions(3);
         addList(treat3, getInstance().actions);

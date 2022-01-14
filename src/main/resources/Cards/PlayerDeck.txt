@@ -12,7 +12,6 @@ Istanbul
 Epidemic
 Moscow
 Luanda
-London
 Krasnoyarsk
 Astana
 Tehran
@@ -34,6 +33,7 @@ Jakarta
 Manila
 Taipei
 Tokyo
+London
 Beijing
 Santo Domingo
 Sao Paolo

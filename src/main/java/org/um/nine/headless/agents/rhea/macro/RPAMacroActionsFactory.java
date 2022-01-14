@@ -1,6 +1,6 @@
 package org.um.nine.headless.agents.rhea.macro;
 
-import org.um.nine.headless.agents.rhea.pathfinder.PathFinder2;
+import org.um.nine.headless.agents.rhea.pathfinder.PathFinder3;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
@@ -37,14 +37,15 @@ public class RPAMacroActionsFactory extends MacroActionFactory {
     public RPAMacroActionsFactory initialise(IState state, City city, Player player) {
         getInstance().state = state;
         getInstance().currentPlayer = player;
-        getInstance().pathFinder = new PathFinder2(state, city, player);
+        getInstance().pathFinder = new PathFinder3(state, player, city);
+        getInstance().pathFinder.evaluatePaths();
         getInstance().actions = null;
         return getInstance();
     }
 
     protected static List<MacroAction> buildRPAMacroActions() {
         getInstance().actions = new ArrayList<>();
-        getInstance().actions.addAll(buildCureDiseaseMacroActions());
+        getInstance().actions.addAll(buildDiscoverCureMacroActions());
         getInstance().actions.addAll(buildTreatDiseaseMacroActions());
         getInstance().actions.addAll(buildResearchStationMacroActions());
         return getInstance().actions;

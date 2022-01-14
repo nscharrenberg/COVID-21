@@ -78,7 +78,7 @@ public interface IReportable {
                 collect(Collectors.toList()));
     }
 
-    default void logDiseases(IState state) {
+    default List<String> logDiseases(IState state) {
         List<String> s = new ArrayList<>();
         for (City c : state.getCityRepository().getCities().values()) {
             Map<String, List<Disease>> grouped = c.getCubes().stream().collect(
@@ -92,6 +92,6 @@ public interface IReportable {
                                 kv.getKey() + ")").
                         collect(Collectors.toList()));
         }
-        append("Diseases : " + s);
+        return s;
     }
 }
