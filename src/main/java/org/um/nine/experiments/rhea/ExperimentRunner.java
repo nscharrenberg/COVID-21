@@ -53,7 +53,7 @@ public class ExperimentRunner {
         DEFAULT_MACRO_ACTIONS_EXECUTOR = new MacroActionsExecutor();
         DEFAULT_MUTATOR = new Mutator();
 
-        int n_rep = 3;
+        int n_rep = 10;
         for (int i = 0; i < n_rep; i++) {
             DEFAULT_RUNNING_GAME = new ExperimentalGame(GameStateFactory.createInitialState());
             IState state = DEFAULT_RUNNING_GAME.getCurrentState();
