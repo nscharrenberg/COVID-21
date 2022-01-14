@@ -1,7 +1,7 @@
 package org.um.nine.experiments.rhea;
 
 import org.apache.commons.io.FileUtils;
-import org.um.nine.experiments.rhea.graph.ActionTypeGraph;
+import org.um.nine.experiments.rhea.graph.StatGraph;
 import org.um.nine.headless.agents.rhea.core.IAgent;
 import org.um.nine.headless.agents.rhea.core.Individual;
 import org.um.nine.headless.agents.rhea.core.Mutator;
@@ -27,7 +27,7 @@ public class ExperimentRunner {
 //        winLoseChart.pack();
 //        winLoseChart.setVisible(true);
 
-        ActionTypeGraph actionTypeGraph = new ActionTypeGraph("Actions Stats");
+        StatGraph actionTypeGraph = new StatGraph("Actions Stats");
         actionTypeGraph.pack();
         actionTypeGraph.setVisible(true);
 

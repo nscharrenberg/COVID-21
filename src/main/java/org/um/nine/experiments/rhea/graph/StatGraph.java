@@ -16,7 +16,7 @@ import java.util.TimerTask;
 
 import static org.um.nine.headless.game.Settings.DEFAULT_RUNNING_GAME;
 
-public class ActionTypeGraph extends ApplicationFrame {
+public class StatGraph extends ApplicationFrame {
     // Actions
     private JFreeChart actionChart;
     private DefaultCategoryDataset actionDataset = new DefaultCategoryDataset();
@@ -34,7 +34,7 @@ public class ActionTypeGraph extends ApplicationFrame {
 
     private Timer timer = new Timer();
 
-    public ActionTypeGraph(String title) {
+    public StatGraph(String title) {
         super(title);
         GridLayout layout = new GridLayout();
         layout.setColumns(3);
@@ -67,7 +67,7 @@ public class ActionTypeGraph extends ApplicationFrame {
                 "ActionType", "Amount",
                 actionDataset,
                 PlotOrientation.VERTICAL,
-                true, true, false
+                false, true, false
         );
 
         actionChartPanel = new ChartPanel(actionChart);
@@ -81,12 +81,12 @@ public class ActionTypeGraph extends ApplicationFrame {
                 "Macro Action", "Amount",
                 macroActionDataset,
                 PlotOrientation.VERTICAL,
-                true, true, false
+                false, true, false
         );
 
 
         macroActionChartPanel = new ChartPanel(macroActionChart);
-        macroActionChartPanel.setPreferredSize(new Dimension(560, 367));
+        macroActionChartPanel.setPreferredSize(new Dimension(1900, 367));
         add(macroActionChartPanel);
     }
 
@@ -103,15 +103,13 @@ public class ActionTypeGraph extends ApplicationFrame {
 
                 game.getPlayerAnalytics().forEach((k, v) -> {
                     v.getActionsUsed().forEach((kp, vp) -> {
-                        actionDataset.addValue(vp, k, kp);
+                        actionDataset.addValue(vp, kp, k);
                     });
 
                     v.getMacroActionsUsed().forEach((kp, vp) -> {
-                        macroActionDataset.addValue(vp, k, kp);
+                        macroActionDataset.addValue(vp, kp, k);
                     });
                 });
-
-                System.out.println(GameStateFactory.getInitialState().getPlayerRepository().getPlayers().size());
             }
         }, 5000, 1000);
     }
