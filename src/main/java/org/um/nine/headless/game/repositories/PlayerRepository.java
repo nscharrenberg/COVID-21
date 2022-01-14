@@ -1,5 +1,6 @@
 package org.um.nine.headless.game.repositories;
 
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.utils.Logger;
 import org.um.nine.headless.game.Settings;
@@ -118,6 +119,7 @@ public class PlayerRepository implements IPlayerRepository {
     @Override
     public void drive(Player player, City city, IState state) throws InvalidMoveException {
         drive(player, city, state, true);
+
     }
 
     /**
@@ -402,6 +404,7 @@ public class PlayerRepository implements IPlayerRepository {
 
                         state.getCardRepository().getEventDiscardPile().remove(card);
                         player.addHand(card);
+                        GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics().getCurrentPlayerAnalytics().markActionTypeUsed(type);
                     } catch (Exception e) {
                         throw new Exception("You need to select an event Card from the discard pile.");
                     }
@@ -410,13 +413,24 @@ public class PlayerRepository implements IPlayerRepository {
                         .equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY) || type.equals(ActionType.SHUTTLE)) {
                     shuttle(player, city, state);
                     state.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
+                    GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics().getCurrentPlayerAnalytics().markActionTypeUsed(type);
                 } else if (boardRepository.getSelectedRoleAction() != null && boardRepository.getSelectedRoleAction().equals(RoleAction.BUILD_RESEARCH_STATION)
                         || type.equals(ActionType.BUILD_RESEARCH_STATION)) {
                     state.getPlayerRepository().buildResearchStation(player, city, state);
                     state.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
-                } else if (type.equals(ActionType.DRIVE)) drive(player, city, state);
-                else if (type.equals(ActionType.DIRECT_FLIGHT)) direct(player, city, state);
-                else if (type.equals(ActionType.CHARTER_FLIGHT)) charter(player, city, state);
+                    GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics().getCurrentPlayerAnalytics().markActionTypeUsed(type);
+                } else if (type.equals(ActionType.DRIVE)) {
+                    drive(player, city, state);
+                    GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics().getCurrentPlayerAnalytics().markActionTypeUsed(type);
+                }
+                else if (type.equals(ActionType.DIRECT_FLIGHT)) {
+                    direct(player, city, state);
+                    GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics().getCurrentPlayerAnalytics().markActionTypeUsed(type);
+                }
+                else if (type.equals(ActionType.CHARTER_FLIGHT)) {
+                    charter(player, city, state);
+                    GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics().getCurrentPlayerAnalytics().markActionTypeUsed(type);
+                }
                 else if (type.equals(ActionType.TREAT_DISEASE)) {
                     if (args.length <= 0) {
                         throw new Exception("You need to provide the disease to treat.");
@@ -425,6 +439,7 @@ public class PlayerRepository implements IPlayerRepository {
                     try {
                         Color color = (Color) found;
                         treat(player, city, color, state);
+                        GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics().getCurrentPlayerAnalytics().markActionTypeUsed(type);
                     } catch (Exception e) {
                         throw new Exception("You need to provide the disease to treat.");
                     }
@@ -443,6 +458,7 @@ public class PlayerRepository implements IPlayerRepository {
                         PlayerCard card = (PlayerCard) cardObj;
                         share(player, target, city, card, state);
                         state.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
+                        GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics().getCurrentPlayerAnalytics().markActionTypeUsed(type);
                     } catch (Exception e) {
                         throw new Exception("You need to provide the player to negotiate with, the card you want, and whether you are giving that card.");
                     }
@@ -456,6 +472,7 @@ public class PlayerRepository implements IPlayerRepository {
                     try {
                         Cure cure = (Cure) found;
                         state.getDiseaseRepository().discoverCure(player, cure);
+                        GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics().getCurrentPlayerAnalytics().markActionTypeUsed(type);
                     } catch (Exception e) {
                         throw new Exception("You need to select a cure to discover");
                     }

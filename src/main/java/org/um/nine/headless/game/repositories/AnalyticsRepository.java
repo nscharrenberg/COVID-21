@@ -4,14 +4,20 @@ import org.um.nine.headless.game.contracts.repositories.IAnalyticsRepository;
 import org.um.nine.headless.game.domain.analytics.GameAnalytics;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class AnalyticsRepository implements IAnalyticsRepository {
+   private int gameId = -1;
    private int gameCount = 0;
    private int winCount = 0;
 
    private List<GameAnalytics> gameAnalytics = new ArrayList<>();
+
+   @Override
+   public void start() {
+       this.gameId++;
+       gameAnalytics.add(new GameAnalytics(this.gameId));
+   }
 
     /**
      * The game was won, add this to the analytics
@@ -106,7 +112,37 @@ public class AnalyticsRepository implements IAnalyticsRepository {
     }
 
     @Override
+    public GameAnalytics getCurrentGameAnalytics() {
+        GameAnalytics found = getGameAnalyticById(this.gameId);
+
+        if (found == null) {
+            start();
+        }
+
+        return getGameAnalyticById(this.gameId);
+    }
+
+    @Override
+    public GameAnalytics getGameAnalyticById(int id) {
+        try {
+            return this.gameAnalytics.get(id);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
     public void setGameAnalytics(List<GameAnalytics> gameAnalytics) {
         this.gameAnalytics = gameAnalytics;
+    }
+
+    @Override
+    public int getGameId() {
+        return gameId;
+    }
+
+    @Override
+    public void setGameId(int gameId) {
+        this.gameId = gameId;
     }
 }

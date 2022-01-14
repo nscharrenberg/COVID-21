@@ -1,5 +1,6 @@
 package org.um.nine.headless.game.domain.analytics;
 
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.game.domain.Color;
 
 import java.util.ArrayList;
@@ -7,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class GameAnalytics {
-    private String game;
+    private final int gameId;
     private int rounds = 0;
     private HashMap<String, PlayerAnalytics> playerAnalytics = new HashMap<>();
     private HashMap<Color, Integer> diseasesTreatedCount = new HashMap<>();
@@ -20,22 +21,34 @@ public class GameAnalytics {
     private HashMap<String, Integer> actionsUsed = new HashMap<>();
     private HashMap<String, Integer> knowledgeShared = new HashMap<>();
 
-    public GameAnalytics(String game) {
-        this.game = game;
+    public GameAnalytics(int id) {
+        this.gameId = id;
+
+        GameStateFactory.getInitialState().getPlayerRepository().getPlayers().forEach((k, v) -> {
+            this.playerAnalytics.put(v.getName(), new PlayerAnalytics(this.gameId, v));
+        });
     }
 
     public void summarize() {
         playerAnalytics.forEach((k, v) -> {
-            summarizeDiseaseTreated(v);
-            summarizeDiseaseCured(v);
-            summarizeCityVisited(v);
-            summarizeResearchStationUsed(v);
-            summarizeRoleActionUsed(v);
+//            summarizeDiseaseTreated(v);
+//            summarizeDiseaseCured(v);
+//            summarizeCityVisited(v);
+//            summarizeResearchStationUsed(v);
+//            summarizeRoleActionUsed(v);
             summarizeActionsUsed(v);
-            summarizeKnowledgeShared(v);
-            summarizeResearchStationsBuild(v);
-            summarizeRoleEventUsed(v);
+//            summarizeKnowledgeShared(v);
+//            summarizeResearchStationsBuild(v);
+//            summarizeRoleEventUsed(v);
         });
+    }
+
+    public PlayerAnalytics getPlayerAnalyticsByName(String name) {
+        return this.playerAnalytics.get(name);
+    }
+
+    public PlayerAnalytics getCurrentPlayerAnalytics() {
+        return getPlayerAnalyticsByName(GameStateFactory.getInitialState().getPlayerRepository().getCurrentPlayer().getName());
     }
 
     private void summarizeDiseaseTreated(PlayerAnalytics analytics) {
@@ -88,9 +101,13 @@ public class GameAnalytics {
 
     private void summarizeActionsUsed(PlayerAnalytics analytics) {
         analytics.getActionsUsed().forEach((k, v) -> {
-            int count = this.actionsUsed.get(k) + v;
+            int count = 0;
 
-            this.actionsUsed.put(k, count);
+            if (this.actionsUsed.containsKey(k)) {
+                count = this.actionsUsed.get(k);
+            }
+
+            this.actionsUsed.put(k, count + v);
         });
     }
 
@@ -106,8 +123,8 @@ public class GameAnalytics {
         this.researchStationBuild.addAll(analytics.getResearchStationBuild());
     }
 
-    public String getGame() {
-        return game;
+    public int getGame() {
+        return gameId;
     }
 
     public int getRounds() {
