@@ -1,6 +1,7 @@
 package org.um.nine.experiments.rhea;
 
 import org.apache.commons.io.FileUtils;
+import org.um.nine.experiments.rhea.graph.ActionTypeGraph;
 import org.um.nine.experiments.rhea.graph.WinLossRate;
 import org.um.nine.headless.agents.rhea.core.IAgent;
 import org.um.nine.headless.agents.rhea.core.Individual;
@@ -23,11 +24,14 @@ import static org.um.nine.headless.game.Settings.DEFAULT_RUNNING_GAME;
 
 public class ExperimentRunner {
     public static void main(String[] args) {
-        WinLossRate chart = new WinLossRate("Action Count Graph");
+//        WinLossRate winLoseChart = new WinLossRate("Win / Lose Stats");
+//
+//        winLoseChart.pack();
+//        winLoseChart.setVisible(true);
 
-        chart.pack();
-        chart.pack();
-        chart.setVisible(true);
+        ActionTypeGraph actionTypeGraph = new ActionTypeGraph("Actions Stats");
+        actionTypeGraph.pack();
+        actionTypeGraph.setVisible(true);
 
         runExperiments();
     }
@@ -51,10 +55,11 @@ public class ExperimentRunner {
         DEFAULT_MACRO_ACTIONS_EXECUTOR = new MacroActionsExecutor();
         DEFAULT_MUTATOR = new Mutator();
 
-        int n_rep = 500;
+        int n_rep = 10;
         for (int i = 0; i < n_rep; i++) {
             DEFAULT_RUNNING_GAME = new ExperimentalGame(GameStateFactory.createInitialState());
             IState state = DEFAULT_RUNNING_GAME.getCurrentState();
+            GameStateFactory.getAnalyticsRepository().start();
 
             String gamePath = IReportable.REPORT_PATH[0];
             IAgent[] agents = new IAgent[4];
@@ -65,9 +70,6 @@ public class ExperimentRunner {
             }
 
             DEFAULT_RUNNING_GAME.setPath(gamePath);
-
-
-
 
             for (int k = 0; k < DEFAULT_PLAYERS.size(); k++) {
                 IState mutationState = state.getClonedState();
@@ -88,6 +90,7 @@ public class ExperimentRunner {
             }
 
             DEFAULT_RUNNING_GAME.setPath(reportPath);
+            GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics().summarize();
         }
     }
 }

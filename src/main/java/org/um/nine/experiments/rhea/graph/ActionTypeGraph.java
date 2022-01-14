@@ -45,14 +45,14 @@ public class ActionTypeGraph extends ApplicationFrame {
             @Override
             public void run() {
                 IAnalyticsRepository repository = GameStateFactory.getAnalyticsRepository();
-                List<GameAnalytics> gameAnalytics = repository.getGameAnalytics();
+                GameAnalytics game = repository.getCurrentGameAnalytics();
 
-                if (gameAnalytics.size() >= 1) {
-                    GameAnalytics game = gameAnalytics.get(gameAnalytics.size() - 1);
-                    game.getActionsUsed().forEach((k, v) -> {
-                        dataset.setValue(v, k, k);
-                    });
-                }
+                game.getActionsUsed().forEach((k, v) -> {
+                    dataset.setValue(v, "Total", k);
+                    System.out.println("Key: " + k + " - " + v);
+                });
+
+                
             }
         }, 5000, 1000);
 

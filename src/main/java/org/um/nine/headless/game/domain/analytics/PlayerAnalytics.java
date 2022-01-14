@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class PlayerAnalytics {
-    private String game;
+    private int gameId;
     private String player;
     private String role;
     private HashMap<Color, Integer> diseasesTreatedCount = new HashMap<>();
@@ -23,8 +23,8 @@ public class PlayerAnalytics {
     private HashMap<String, Integer> actionsUsed = new HashMap<>();
     private HashMap<String, Integer> knowledgeShared = new HashMap<>();
 
-    public PlayerAnalytics(String game, Player player) {
-        this.game = game;
+    public PlayerAnalytics(int id, Player player) {
+        this.gameId = id;
         this.player = player.getName();
         this.role = player.getRole().getName();
     }
@@ -70,7 +70,11 @@ public class PlayerAnalytics {
     }
 
     public void markActionTypeUsed(ActionType actionType) {
-        int count = this.actionsUsed.get(actionType.getName());
+        int count = 0;
+
+        if (this.getActionsUsed().containsKey(actionType.getName())) {
+            count = this.actionsUsed.get(actionType.getName());
+        }
 
         this.actionsUsed.put(actionType.getName(), count + 1);
     }
@@ -81,8 +85,8 @@ public class PlayerAnalytics {
         this.knowledgeShared.put(card.getName(), count + 1);
     }
 
-    public String getGame() {
-        return game;
+    public int getGame() {
+        return gameId;
     }
 
     public String getPlayer() {

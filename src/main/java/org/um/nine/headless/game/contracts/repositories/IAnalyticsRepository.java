@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public interface IAnalyticsRepository {
+    void start();
+
     void won();
 
     void lost();
@@ -26,5 +28,13 @@ public interface IAnalyticsRepository {
 
     List<GameAnalytics> getGameAnalytics();
 
+    GameAnalytics getCurrentGameAnalytics();
+
+    GameAnalytics getGameAnalyticById(int id);
+
     void setGameAnalytics(List<GameAnalytics> gameAnalytics);
+
+    int getGameId();
+
+    void setGameId(int gameId);
 }

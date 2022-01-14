@@ -43,10 +43,6 @@ public class WinLossRate extends ApplicationFrame {
                 dataset.setValue(GameStateFactory.getAnalyticsRepository().winCount(), "Amount Won", "Won");
                 dataset.setValue(GameStateFactory.getAnalyticsRepository().lossCount(), "Amount Loss", "Loss");
                 dataset.setValue(GameStateFactory.getAnalyticsRepository().winLossRatio(), "Ratio", "Win / Loss Ratio");
-
-                System.out.println("WinCount: " + GameStateFactory.getAnalyticsRepository().winCount());
-                System.out.println("LossCount: " + GameStateFactory.getAnalyticsRepository().lossCount());
-                System.out.println("WinLossRatio: " + GameStateFactory.getAnalyticsRepository().winLossRatio());
             }
         }, 5000, 1000);
 
