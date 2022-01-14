@@ -60,7 +60,7 @@ public record MacroActionsExecutor() {
                         obj = new Object[]{requireNonNull(c).getKey()};
                     }
                 } catch (NullPointerException noDiseases) {
-                    noDiseases.printStackTrace();
+//                    noDiseases.printStackTrace();
                     System.err.println(noDiseases.getMessage() + " :: " + action + " :: " + IReportable.REPORT_PATH[0]);
                     //TODO: fix not allowed actions here
                     executedAction = ActionType.SKIP_ACTION;

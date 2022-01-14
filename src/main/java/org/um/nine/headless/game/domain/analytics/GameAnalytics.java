@@ -1,6 +1,6 @@
 package org.um.nine.headless.game.domain.analytics;
 
-import org.um.nine.headless.agents.rhea.state.GameStateFactory;
+import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.Color;
 
 import java.util.ArrayList;
@@ -20,11 +20,12 @@ public class GameAnalytics {
     private HashMap<String, Integer> roleEventUsed = new HashMap<>();
     private HashMap<String, Integer> actionsUsed = new HashMap<>();
     private HashMap<String, Integer> knowledgeShared = new HashMap<>();
+    private HashMap<String, Integer> macroActionsUsed = new HashMap<>();
 
-    public GameAnalytics(int id) {
+    public GameAnalytics(int id, IState state) {
         this.gameId = id;
 
-        GameStateFactory.getInitialState().getPlayerRepository().getPlayers().forEach((k, v) -> {
+        state.getPlayerRepository().getPlayers().forEach((k, v) -> {
             this.playerAnalytics.put(v.getName(), new PlayerAnalytics(this.gameId, v));
         });
     }
@@ -37,6 +38,7 @@ public class GameAnalytics {
 //            summarizeResearchStationUsed(v);
 //            summarizeRoleActionUsed(v);
             summarizeActionsUsed(v);
+            summarizeMacroActionsUsed(v);
 //            summarizeKnowledgeShared(v);
 //            summarizeResearchStationsBuild(v);
 //            summarizeRoleEventUsed(v);
@@ -47,8 +49,8 @@ public class GameAnalytics {
         return this.playerAnalytics.get(name);
     }
 
-    public PlayerAnalytics getCurrentPlayerAnalytics() {
-        return getPlayerAnalyticsByName(GameStateFactory.getInitialState().getPlayerRepository().getCurrentPlayer().getName());
+    public PlayerAnalytics getCurrentPlayerAnalytics(IState state) {
+        return getPlayerAnalyticsByName(state.getPlayerRepository().getCurrentPlayer().getName());
     }
 
     private void summarizeDiseaseTreated(PlayerAnalytics analytics) {
@@ -108,6 +110,18 @@ public class GameAnalytics {
             }
 
             this.actionsUsed.put(k, count + v);
+        });
+    }
+
+    private void summarizeMacroActionsUsed(PlayerAnalytics analytics) {
+        analytics.getMacroActionsUsed().forEach((k, v) -> {
+            int count = 0;
+
+            if (this.macroActionsUsed.containsKey(k)) {
+                count = this.macroActionsUsed.get(k);
+            }
+
+            this.macroActionsUsed.put(k, count + v);
         });
     }
 
@@ -213,5 +227,13 @@ public class GameAnalytics {
 
     public void markNextRound() {
         this.rounds++;
+    }
+
+    public HashMap<String, Integer> getMacroActionsUsed() {
+        return macroActionsUsed;
+    }
+
+    public void setMacroActionsUsed(HashMap<String, Integer> macroActionsUsed) {
+        this.macroActionsUsed = macroActionsUsed;
     }
 }

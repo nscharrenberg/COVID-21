@@ -1,6 +1,7 @@
 package org.um.nine.headless.agents.rhea.macro;
 
 import org.um.nine.headless.agents.rhea.pathfinder.PathFinder3;
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
@@ -41,7 +42,10 @@ public abstract class HPAMacroActionsFactory extends MacroActionFactory {
         int remaining = 4 - nextHPAMacro.size();
         if (remaining > 0) {
             return fillMacroAction(nextHPAMacro);
-        } else return nextHPAMacro;
+        }
+
+        GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markMacroActionUsed(nextHPAMacro);
+        return nextHPAMacro;
     }
     protected static List<MacroAction> buildHPAMacroActions() {
         getInstance().actions = new ArrayList<>();

@@ -1,5 +1,6 @@
 package org.um.nine.headless.game.domain.analytics;
 
+import org.um.nine.headless.agents.rhea.macro.MacroAction;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.RoleAction;
@@ -22,6 +23,7 @@ public class PlayerAnalytics {
     private HashMap<String, Integer> roleEventUsed = new HashMap<>();
     private HashMap<String, Integer> actionsUsed = new HashMap<>();
     private HashMap<String, Integer> knowledgeShared = new HashMap<>();
+    private HashMap<String, Integer> macroActionsUsed = new HashMap<>();
 
     public PlayerAnalytics(int id, Player player) {
         this.gameId = id;
@@ -77,6 +79,16 @@ public class PlayerAnalytics {
         }
 
         this.actionsUsed.put(actionType.getName(), count + 1);
+    }
+
+    public void markMacroActionUsed(MacroAction macroAction) {
+        int count = 0;
+
+        if (this.getMacroActionsUsed().containsKey(macroAction.toString())) {
+            count = this.macroActionsUsed.get(macroAction.toString());
+        }
+
+        this.macroActionsUsed.put(macroAction.toString(), count + 1);
     }
 
     public void shareKnowledge(PlayerCard card) {
@@ -167,5 +179,13 @@ public class PlayerAnalytics {
 
     public void setKnowledgeShared(HashMap<String, Integer> knowledgeShared) {
         this.knowledgeShared = knowledgeShared;
+    }
+
+    public HashMap<String, Integer> getMacroActionsUsed() {
+        return macroActionsUsed;
+    }
+
+    public void setMacroActionsUsed(HashMap<String, Integer> macroActionsUsed) {
+        this.macroActionsUsed = macroActionsUsed;
     }
 }

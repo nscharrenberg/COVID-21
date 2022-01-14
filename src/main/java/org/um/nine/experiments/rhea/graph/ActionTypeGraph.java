@@ -9,65 +9,122 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.game.contracts.repositories.IAnalyticsRepository;
 import org.um.nine.headless.game.domain.analytics.GameAnalytics;
-import org.um.nine.headless.game.repositories.AnalyticsRepository;
 
 import java.awt.*;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static org.um.nine.headless.game.Settings.DEFAULT_RUNNING_GAME;
+
 public class ActionTypeGraph extends ApplicationFrame {
-    private JFreeChart chart;
-    private ChartPanel chartPanel;
-    private DefaultCategoryDataset dataset;
+    // Actions
+    private JFreeChart actionChart;
+    private DefaultCategoryDataset actionDataset = new DefaultCategoryDataset();
+    private ChartPanel actionChartPanel;
+
+    // Macro Actions
+    private JFreeChart macroActionChart;
+    private DefaultCategoryDataset macroActionDataset = new DefaultCategoryDataset();
+    private ChartPanel macroActionChartPanel;
+
+    // Win Loss Ratio
+    private JFreeChart winLossChart;
+    private DefaultCategoryDataset winLossDataset = new DefaultCategoryDataset();
+    private ChartPanel winLossChartPanel;
+
     private Timer timer = new Timer();
 
     public ActionTypeGraph(String title) {
         super(title);
+        GridLayout layout = new GridLayout();
+        layout.setColumns(3);
+        setLayout(layout);
 
-        this.chart = ChartFactory.createBarChart(
-                "Action Types",
-                "ActionType", "Amount",
-                createDataset(),
+        renderWinLossChart();
+        renderActionChart();
+        renderMacroActionChart();
+
+        scheduler();
+    }
+
+    private void renderWinLossChart() {
+        this.winLossChart = ChartFactory.createBarChart(
+                "Win / Loss Ratio",
+                "Win or Loss", "Amount",
+                winLossDataset,
                 PlotOrientation.VERTICAL,
                 true, true, false
         );
 
-        chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new Dimension(560, 367));
-        setContentPane(chartPanel);
+        winLossChartPanel = new ChartPanel(winLossChart);
+        winLossChartPanel.setPreferredSize(new Dimension(560, 367));
+        add(winLossChartPanel);
     }
 
-    private DefaultCategoryDataset createDataset() {
-        dataset = new DefaultCategoryDataset();
+    private void renderActionChart() {
+        this.actionChart = ChartFactory.createBarChart(
+                "Action Types",
+                "ActionType", "Amount",
+                actionDataset,
+                PlotOrientation.VERTICAL,
+                true, true, false
+        );
 
+        actionChartPanel = new ChartPanel(actionChart);
+        actionChartPanel.setPreferredSize(new Dimension(560, 367));
+        add(actionChartPanel);
+    }
+
+    private void renderMacroActionChart() {
+        this.macroActionChart = ChartFactory.createBarChart(
+                "Macro Action Types",
+                "Macro Action", "Amount",
+                macroActionDataset,
+                PlotOrientation.VERTICAL,
+                true, true, false
+        );
+
+
+        macroActionChartPanel = new ChartPanel(macroActionChart);
+        macroActionChartPanel.setPreferredSize(new Dimension(560, 367));
+        add(macroActionChartPanel);
+    }
+
+    private void scheduler() {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 IAnalyticsRepository repository = GameStateFactory.getAnalyticsRepository();
-                GameAnalytics game = repository.getCurrentGameAnalytics();
+                GameAnalytics game = repository.getCurrentGameAnalytics(DEFAULT_RUNNING_GAME.getCurrentState());
 
-                game.getActionsUsed().forEach((k, v) -> {
-                    dataset.setValue(v, "Total", k);
-                    System.out.println("Key: " + k + " - " + v);
+                winLossDataset.setValue(repository.winCount(), "Total", "Won");
+                winLossDataset.setValue(repository.lossCount(), "Total", "Loss");
+                winLossDataset.setValue(repository.winLossRatio(), "Total", "Ratio");
+
+                game.getPlayerAnalytics().forEach((k, v) -> {
+                    v.getActionsUsed().forEach((kp, vp) -> {
+                        actionDataset.addValue(vp, k, kp);
+                    });
+
+                    v.getMacroActionsUsed().forEach((kp, vp) -> {
+                        macroActionDataset.addValue(vp, k, kp);
+                    });
                 });
 
-                
+                System.out.println(GameStateFactory.getInitialState().getPlayerRepository().getPlayers().size());
             }
         }, 5000, 1000);
-
-        return dataset;
     }
 
-    public JFreeChart getChart() {
-        return chart;
+    public JFreeChart getActionChart() {
+        return actionChart;
     }
 
-    public ChartPanel getChartPanel() {
-        return chartPanel;
+    public ChartPanel getActionChartPanel() {
+        return actionChartPanel;
     }
 
-    public DefaultCategoryDataset getDataset() {
-        return dataset;
+    public DefaultCategoryDataset getActionDataset() {
+        return actionDataset;
     }
 }

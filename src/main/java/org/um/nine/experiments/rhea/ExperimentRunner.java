@@ -2,7 +2,6 @@ package org.um.nine.experiments.rhea;
 
 import org.apache.commons.io.FileUtils;
 import org.um.nine.experiments.rhea.graph.ActionTypeGraph;
-import org.um.nine.experiments.rhea.graph.WinLossRate;
 import org.um.nine.headless.agents.rhea.core.IAgent;
 import org.um.nine.headless.agents.rhea.core.Individual;
 import org.um.nine.headless.agents.rhea.core.Mutator;
@@ -17,7 +16,6 @@ import org.um.nine.headless.game.exceptions.GameWonException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import static org.um.nine.headless.game.Settings.*;
 import static org.um.nine.headless.game.Settings.DEFAULT_RUNNING_GAME;
@@ -55,11 +53,11 @@ public class ExperimentRunner {
         DEFAULT_MACRO_ACTIONS_EXECUTOR = new MacroActionsExecutor();
         DEFAULT_MUTATOR = new Mutator();
 
-        int n_rep = 10;
+        int n_rep = 3;
         for (int i = 0; i < n_rep; i++) {
             DEFAULT_RUNNING_GAME = new ExperimentalGame(GameStateFactory.createInitialState());
             IState state = DEFAULT_RUNNING_GAME.getCurrentState();
-            GameStateFactory.getAnalyticsRepository().start();
+            GameStateFactory.getAnalyticsRepository().start(GameStateFactory.getInitialState());
 
             String gamePath = IReportable.REPORT_PATH[0];
             IAgent[] agents = new IAgent[4];
@@ -72,6 +70,7 @@ public class ExperimentRunner {
             DEFAULT_RUNNING_GAME.setPath(gamePath);
 
             for (int k = 0; k < DEFAULT_PLAYERS.size(); k++) {
+                System.out.println("k: " + k);
                 IState mutationState = state.getClonedState();
                 mutationState.getPlayerRepository().setCurrentPlayer(DEFAULT_PLAYERS.get(k));
                 try {
@@ -90,7 +89,8 @@ public class ExperimentRunner {
             }
 
             DEFAULT_RUNNING_GAME.setPath(reportPath);
-            GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics().summarize();
+
+            GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).summarize();
         }
     }
 }
