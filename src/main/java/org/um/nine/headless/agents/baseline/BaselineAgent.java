@@ -1,6 +1,8 @@
 package org.um.nine.headless.agents.baseline;
 
 import org.um.nine.headless.agents.rhea.state.IState;
+import org.um.nine.headless.agents.Agent;
+import org.um.nine.headless.agents.utils.Logger;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
@@ -14,7 +16,7 @@ import java.util.stream.Collectors;
 
 
 
-public class BaselineAgent {
+public class BaselineAgent implements Agent {
 
     private final boolean DEBUG = false;
 
@@ -55,8 +57,8 @@ public class BaselineAgent {
         return moveToCity(currentPlayer, toFollow.getCity(), state);
     }
 
-
-    public void randomAction(Player player, IState state) {
+    public void agentDecision(IState state) {
+        Player player = state.getPlayerRepository().getCurrentPlayer();
         int possibleActions = 9;
         int random = new Random().nextInt(possibleActions);
 
@@ -81,7 +83,7 @@ public class BaselineAgent {
                     state.getPlayerRepository().charter(player, temp.get(rnd), state);
                 } catch (Exception e) {
                     if (DEBUG) System.out.println("FAILED WITH ERROR");
-                    randomAction(player, state);
+                    agentDecision(state);
                 }
 
             }
@@ -95,12 +97,12 @@ public class BaselineAgent {
                         state.getPlayerRepository().direct(player, cityCard.getCity(), state);
                     }catch(Exception e){
                         if(DEBUG) System.out.println("FAILED WITH ERROR");
-                        randomAction(player, state);
+                        agentDecision(state);
                     }
                 }
                 else {
                     if(DEBUG) System.out.println("FAILED");
-                    randomAction(player, state);
+                    agentDecision(state);
                 }
             }
             case 3 -> {
@@ -122,7 +124,7 @@ public class BaselineAgent {
                 }
                 else {
                     if(DEBUG) System.out.println("FAILED");
-                    randomAction(player, state);
+                    agentDecision(state);
                 }
             }
             case 4 -> {
@@ -139,7 +141,7 @@ public class BaselineAgent {
                 }
                 else {
                     if(DEBUG) System.out.println("FAILED");
-                    randomAction(player, state);
+                    agentDecision(state);
                 }
             }
             case 5 -> {
@@ -153,7 +155,7 @@ public class BaselineAgent {
                 }
                 else {
                     if(DEBUG) System.out.println("FAILED");
-                    randomAction(player, state);
+                    agentDecision(state);
                 }
             }
             case 6 -> {
@@ -161,7 +163,7 @@ public class BaselineAgent {
                 Optional<PlayerCard> sameCityCard = player.getHand().stream().filter(c -> c instanceof CityCard && ((CityCard) c).getCity().equals(player.getCity())).findFirst();
                 if(!sameCityCard.isPresent() || player.getCity().getPawns().size() <= 1){
                     if(DEBUG) System.out.println("FAILED");
-                    randomAction(player, state);
+                    agentDecision(state);
                 }
                 else{
                     player.getHand().remove(sameCityCard.get());
@@ -213,17 +215,17 @@ public class BaselineAgent {
                             state.getPlayerRepository().getLog().addStep(" discovered cure", player.getCity(), player);
                         } catch (UnableToDiscoverCureException | GameWonException e) {
                             if (DEBUG) System.out.println("FAILED");
-                            randomAction(player, state);
+                            agentDecision(state);
                         }
                     }
                     else {
                         if(DEBUG) System.out.println("FAILED");
-                        randomAction(player, state);
+                        agentDecision(state);
                     }
                 }
                 else {
                     if(DEBUG) System.out.println("FAILED");
-                    randomAction(player, state);
+                    agentDecision(state);
                 }
             }
             case 8 -> {
@@ -231,7 +233,7 @@ public class BaselineAgent {
                 List<RoleAction> l = player.getRole().actions();
                 if(l.size() == 0){
                     if(DEBUG) System.out.println("FAILED");
-                    randomAction(player, state);
+                    agentDecision(state);
                 } else {
                     int rnd = new Random().nextInt(l.size());
                     roleAction(l.get(rnd), player, state);
@@ -247,6 +249,11 @@ public class BaselineAgent {
 
     }
 
+    @Override
+    public Logger getLog() { //todo
+        return null;
+    }
+
     public void roleAction(RoleAction roleAction, Player player, IState state) {
         try {
             if (roleAction.equals(RoleAction.TAKE_ANY_DISCARED_EVENT)) {
@@ -258,7 +265,7 @@ public class BaselineAgent {
                     state.getPlayerRepository().getLog().addStep(" uses Roleaction: Take discarded event card", player.getCity(), player);
                 } else {
                     if(DEBUG) System.out.println("Take event card - FAILED");
-                    randomAction(player, state);
+                    agentDecision(state);
                 }
             } else if (roleAction.equals(RoleAction.MOVE_FROM_A_RESEARCH_STATION_TO_ANY_CITY)) {
                 if(player.getCity().getResearchStation() != null){
@@ -272,12 +279,12 @@ public class BaselineAgent {
                     }
                     catch (InvalidMoveException e) {
                         if(DEBUG) System.out.println("Move from research station anywhere - FAILED WITH ERROR");
-                        randomAction(player, state);
+                        agentDecision(state);
                     }
                 }
                 else{
                     if(DEBUG) System.out.println("Move from research station anywhere - FAILED");
-                    randomAction(player, state);
+                    agentDecision(state);
                 }
             } else if (roleAction.equals(RoleAction.BUILD_RESEARCH_STATION)){
                 if(player.getCity().getResearchStation() == null) {
@@ -286,14 +293,14 @@ public class BaselineAgent {
                 }
                 else{
                     if(DEBUG) System.out.println("Build research station - FAILED");
-                    randomAction(player, state);
+                    agentDecision(state);
                 }
             } else if (roleAction.equals(RoleAction.MOVE_ANY_PAWN_TO_CITY_WITH_OTHER_PAWN)) {
                 //TODO add dispatcher stuff once event cards are merged in
                 state.getPlayerRepository().getLog().addStep(" uses Roleaction: Dispatcher", player.getCity(), player);
             } else{
                 if(DEBUG) System.out.println("Roleaction - FAILED");
-                randomAction(player, state);
+                agentDecision(state);
             }
         } catch (ResearchStationLimitException | InvalidMoveException | CityAlreadyHasResearchStationException e) {
             e.printStackTrace();

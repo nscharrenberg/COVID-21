@@ -1,11 +1,19 @@
 package org.um.nine.headless.game.repositories;
 
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.contracts.repositories.ICityRepository;
 import org.um.nine.headless.game.domain.City;
+import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.ResearchStation;
+import org.um.nine.headless.game.domain.cards.CityCard;
+import org.um.nine.headless.game.domain.cards.PlayerCard;
+import org.um.nine.headless.game.domain.roles.RoleAction;
+import org.um.nine.headless.game.exceptions.CityAlreadyHasResearchStationException;
+import org.um.nine.headless.game.exceptions.InvalidMoveException;
 import org.um.nine.headless.game.exceptions.ResearchStationLimitException;
 import org.um.nine.headless.game.utils.CityUtils;
+import org.um.nine.v1.Info;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,12 +37,40 @@ public class CityRepository implements ICityRepository {
 
     @Override
     public void addResearchStation(City city) throws Exception {
-        if (this.researchStations.size() >= 6) {
+        city.setResearchStation(new ResearchStation());
+        this.getResearchStations().add(city.getResearchStation());
+    }
+
+    @Override
+    public void addResearchStation(City city, Player player) throws Exception {
+        if (city.getResearchStation() != null) {
+            throw new CityAlreadyHasResearchStationException();
+        }
+
+        if ((researchStations.size() + 1) > Info.RESEARCH_STATION_THRESHOLD) {
             throw new ResearchStationLimitException();
         }
 
-        if (city.getResearchStation() != null) {
-            throw new Exception("There is already a research station on this city");
+        RoleAction action = RoleAction.BUILD_RESEARCH_STATION;
+        if (player!= null){
+            if (player.getRole().actions(action) && GameStateFactory.getInitialState().getBoardRepository().getSelectedRoleAction().equals(action) && !GameStateFactory.getInitialState().getBoardRepository().getUsedActions().contains(action)) {
+                GameStateFactory.getInitialState().getBoardRepository().getUsedActions().add(action);
+            } else {
+                PlayerCard pc = player.getHand().stream().filter(c -> {
+                    if (c instanceof CityCard cc) {
+                        return cc.getCity().equals(player.getCity());
+                    }
+
+                    return false;
+                }).findFirst().orElse(null);
+
+                // If player doesn't have city card of his current city, it can't make this move.
+                if (pc == null) {
+                    throw new InvalidMoveException(city, player);
+                }
+
+                player.getHand().remove(pc);
+            }
         }
 
         city.setResearchStation(new ResearchStation());

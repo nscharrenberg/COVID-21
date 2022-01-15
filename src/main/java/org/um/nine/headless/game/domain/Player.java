@@ -1,5 +1,7 @@
 package org.um.nine.headless.game.domain;
 
+import org.um.nine.headless.agents.Agent;
+import org.um.nine.headless.agents.mcts.MCTS;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 
 import java.util.ArrayList;
@@ -14,13 +16,13 @@ public class Player {
     private City city;
     private boolean isBot;
     private List<PlayerCard> hand;
+    private Agent agent;
 
     public Player(String name, boolean isBot) {
         this.id = INCREMENT;
         this.name = name;
         this.isBot = isBot;
         this.hand = new ArrayList<>();
-
         INCREMENT++;
     }
 
@@ -107,5 +109,13 @@ public class Player {
     @Override
     public String toString() {
         return name.trim().toLowerCase(Locale.ROOT) + "-" + role.getName();
+    }
+
+    public Agent getAgent() {
+        return agent;
+    }
+
+    public void setAgent(Agent agent) {
+        this.agent = agent;
     }
 }

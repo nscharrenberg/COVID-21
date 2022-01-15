@@ -13,6 +13,7 @@ import com.jme3.scene.Geometry;
 import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.jme.JmeMain;
 import org.um.nine.jme.screens.DialogBoxState;
+import org.um.nine.jme.utils.JmeFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -150,7 +151,7 @@ public class InputManager {
 
         if(GameStateFactory.getInitialState().getBoardRepository().getSelectedCity() != null) {
             try {
-                GameStateFactory.getInitialState().getPlayerRepository().playerAction(GameStateFactory.getInitialState().getBoardRepository().getSelectedPlayerAction(), GameStateFactory.getInitialState());
+                JmeFactory.getPlayerRepository().action(GameStateFactory.getInitialState().getBoardRepository().getSelectedPlayerAction());
             } catch (Exception e) {
                 DialogBoxState dialog = new DialogBoxState(e.getMessage());
                 JmeMain.getGameRepository().getApp().getStateManager().attach(dialog);

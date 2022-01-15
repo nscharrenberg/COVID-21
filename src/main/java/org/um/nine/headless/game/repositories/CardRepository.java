@@ -47,7 +47,8 @@ public class CardRepository implements ICardRepository {
      * When the hand limit is reached one of the cards must be discarded.
      *
      * @param toDiscard - The card to discard when exceeding the limit,
-     *                  if nothing is given then the card just drawn will be discarded
+     *                  if nothing is given then the card just drawn will be
+     *                  discarded
      */
     @Override
     public void drawPlayerCard(IState state, PlayerCard... toDiscard) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {

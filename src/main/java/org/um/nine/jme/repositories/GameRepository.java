@@ -16,6 +16,8 @@ import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.game.Settings;
 import org.um.nine.jme.JmeGame;
 import org.um.nine.jme.screens.MainMenuState;
+import org.um.nine.jme.utils.JmeFactory;
+import org.um.nine.jme.utils.managers.InputManager;
 
 import java.awt.*;
 
@@ -69,11 +71,12 @@ public class GameRepository {
         app.getCamera().setFrustumFar(3000);
         app.getCamera().setLocation(new Vector3f(0, 0, 1500));
 
-//        inputManager.init();
+        JmeFactory.getInputManager().init();
 
         // Initiate Game Graphics
-        GameStateFactory.getInitialState().reset();
-        GameStateFactory.getInitialState().start();
+        JmeFactory.getBoardRepository().reset();
+        GameStateFactory.getInitialState().getBoardRepository().setState(GameStateFactory.getInitialState());
+        JmeFactory.getBoardRepository().start();
     }
 
     private void addAmbientLight() {
@@ -139,5 +142,15 @@ public class GameRepository {
 
     public void setSpeed(int speed) {
         this.speed = speed;
+    }
+
+    public void cleanup() {
+        speed = 200;
+        //TODO add cleanup to everything
+        //GameStateFactory.getInitialState().getBoardRepository().cleanup();
+        backgroundGeom = null;
+        app.getRootNode().detachAllChildren();
+        app.restart();
+        create();
     }
 }

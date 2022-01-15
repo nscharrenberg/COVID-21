@@ -1,5 +1,6 @@
 package org.um.nine.headless.game.repositories;
 
+import org.um.nine.headless.agents.mcts.MCTS;
 import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.utils.Logger;
@@ -20,6 +21,7 @@ public class PlayerRepository implements IPlayerRepository {
     private static final int ACTION_COUNT = 4;
     private static final int DRAW_COUNT = 2;
     private static final int INFECTION_COUNT = 2;
+    private static final int mctsIterations = 3;
 
     private HashMap<String, Player> players = new HashMap<>();
     private Stack<Role> availableRoles;
@@ -189,13 +191,13 @@ public class PlayerRepository implements IPlayerRepository {
         // No need to charter when neighbouring city
         if (player.getCity().getNeighbors().contains(city)) {
             drive(player, city, state);
-            return; //todo needs to be fixed in main code
+            return;
         }
 
         // No need to charter when both cities have research station
         if (player.getCity().getResearchStation() != null && city.getResearchStation() != null) {
-            drive(player, city,state);
-            return; //todo needs to be fixed in main code
+            drive(player, city, state);
+            return;
         }
 
         PlayerCard pc = player.getHand().stream().filter(c -> {
@@ -379,6 +381,12 @@ public class PlayerRepository implements IPlayerRepository {
     public void playerAction(ActionType type, IState state, Object... args) throws Exception {
         if (this.getCurrentRoundState() == null) this.nextTurn(state);
         if (currentRoundState.equals(RoundState.ACTION)) {
+            if(currentPlayer.isBot()){
+                if(currentPlayer.getAgent() == null){
+                    currentPlayer.setAgent(new MCTS(state, mctsIterations));
+                }
+                currentPlayer.getAgent().agentDecision(state);
+            }
             if (type == null) type = ActionType.NO_ACTION;
             if (state.getBoardRepository().getSelectedRoleAction() == null)
                 state.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);

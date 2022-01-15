@@ -2,6 +2,8 @@ package org.um.nine.headless.game.contracts.repositories;
 
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.exceptions.*;
+import org.um.nine.jme.utils.JmeFactory;
+import org.um.nine.v1.Info;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,6 +70,9 @@ public interface IDiseaseRepository {
         if (city.addCube(disease)) {
             return;
         }
+        if(Info.visualize){
+            JmeFactory.getVisualRepository().renderDisease(disease, city.getCubePosition(disease));
+        }
 
         List<City> neighbors = city.getNeighbors();
         previousOutbreaks.add(city);
@@ -117,4 +122,14 @@ public interface IDiseaseRepository {
     HashMap<Color, List<Disease>> getCubes();
 
     void setCubes(HashMap<Color, List<Disease>> cubes);
+
+    OutbreakMarker getCurrentOutbreakMarker();
+
+    OutbreakMarker getLastOutbreakMarker();
+
+    InfectionRateMarker getCurrentInfectionRate();
+
+    InfectionRateMarker getLastInfectionRate();
+
+    Disease getDiseaseCube();
 }
