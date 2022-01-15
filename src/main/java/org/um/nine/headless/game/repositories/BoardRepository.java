@@ -19,6 +19,7 @@ public class BoardRepository implements IBoardRepository {
     private ActionType selectedPlayerAction;
     private List<RoleAction> usedActions = new ArrayList<>();
     private Difficulty difficulty;
+    private IState state;
     
     @Override
     public void preload() {
@@ -117,5 +118,10 @@ public class BoardRepository implements IBoardRepository {
     public void reset() {
         resetRound();
 
+    }
+
+    @Override
+    public void setState(IState initialState) {
+        this.state = initialState;
     }
 }

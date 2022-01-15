@@ -1,6 +1,6 @@
 package org.um.nine.headless.game.repositories;
 
-import org.um.nine.headless.agents.state.GameStateFactory;
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.contracts.repositories.ICityRepository;
 import org.um.nine.headless.game.domain.City;

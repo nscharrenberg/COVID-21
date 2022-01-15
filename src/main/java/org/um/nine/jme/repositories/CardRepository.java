@@ -1,11 +1,12 @@
 package org.um.nine.jme.repositories;
 
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
+import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.cards.InfectionCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.exceptions.GameOverException;
 import org.um.nine.headless.game.exceptions.NoCubesLeftException;
 import org.um.nine.headless.game.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
-import org.um.nine.headless.agents.state.GameStateFactory;
 
 import java.util.LinkedList;
 import java.util.Stack;
@@ -32,9 +33,9 @@ public class CardRepository {
      *                  discarded
      */
 
-    public void drawPlayerCard(PlayerCard... toDiscard)
+    public void drawPlayerCard(IState state,PlayerCard... toDiscard)
             throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
-        GameStateFactory.getInitialState().getCardRepository().drawPlayerCard(toDiscard);
+        GameStateFactory.getInitialState().getCardRepository().drawPlayerCard(state, toDiscard);
     }
 
     /**
@@ -49,10 +50,10 @@ public class CardRepository {
      *                                               the game
      */
 
-    public void drawInfectionCard()
+    public void drawInfectionCard(IState state)
             throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
 
-        GameStateFactory.getInitialState().getCardRepository().drawInfectionCard();
+        GameStateFactory.getInitialState().getCardRepository().drawInfectionCard(state);
     }
 
     /**
@@ -60,8 +61,8 @@ public class CardRepository {
      * setup)
      */
 
-    public void buildDecks() {
-        GameStateFactory.getInitialState().getCardRepository().buildDecks();
+    public void buildDecks(IState state) {
+        GameStateFactory.getInitialState().getCardRepository().buildDecks(state);
     }
 
     public Stack<PlayerCard> getPlayerDeck() {

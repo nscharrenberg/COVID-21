@@ -1,6 +1,5 @@
 package org.um.nine.headless.game.contracts.repositories;
 
-import org.um.nine.headless.agents.state.GameStateFactory;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.exceptions.*;
 import org.um.nine.jme.utils.JmeFactory;

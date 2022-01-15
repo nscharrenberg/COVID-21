@@ -1,7 +1,7 @@
 package org.um.nine.jme.repositories;
 
 import com.jme3.scene.Spatial;
-import org.um.nine.headless.agents.state.GameStateFactory;
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.roles.RoleEvent;
 import org.um.nine.headless.game.exceptions.*;

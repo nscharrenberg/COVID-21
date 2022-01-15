@@ -1,7 +1,7 @@
 package org.um.nine.jme.utils;
 
 
-import org.um.nine.headless.agents.state.GameStateFactory;
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.jme.repositories.*;
 import org.um.nine.jme.screens.dialogs.*;
 import org.um.nine.jme.screens.hud.*;

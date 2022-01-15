@@ -4,9 +4,9 @@ import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.um.nine.headless.agents.mcts.Actions;
 import org.um.nine.headless.agents.mcts.Node;
-import org.um.nine.headless.agents.state.IState;
-import org.um.nine.headless.agents.state.State;
-import org.um.nine.headless.agents.utils.ExperimentalGame;
+
+import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
+import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.exceptions.PlayerLimitException;
 
 public class TreeTests {
@@ -19,7 +19,6 @@ public class TreeTests {
         } catch (PlayerLimitException e) {
             e.printStackTrace();
         }
-        game.start();
         IState state = game.getCurrentState();
 
         Node root = new Node(state);
@@ -32,13 +31,6 @@ public class TreeTests {
     @Test
     public void childTests(){
         ExperimentalGame game = new ExperimentalGame();
-        try{
-            game.getCurrentState().getPlayerRepository().createPlayer("P1",true);
-            game.getCurrentState().getPlayerRepository().createPlayer("P2",true);
-        } catch (PlayerLimitException e) {
-            e.printStackTrace();
-        }
-        game.start();
         IState state = game.getCurrentState();
         Node root = new Node(state);
         Assertions.assertEquals(root.getChildren().isEmpty(),true);
@@ -53,13 +45,6 @@ public class TreeTests {
     @Test
     public void leafTest(){
         ExperimentalGame game = new ExperimentalGame();
-        try{
-            game.getCurrentState().getPlayerRepository().createPlayer("P1",true);
-            game.getCurrentState().getPlayerRepository().createPlayer("P2",true);
-        } catch (PlayerLimitException e) {
-            e.printStackTrace();
-        }
-        game.start();
         IState state = game.getCurrentState();
         Node root = new Node(state);
         Assertions.assertEquals(root.isLeaf(),true);

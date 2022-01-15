@@ -4,8 +4,8 @@ import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.um.nine.headless.agents.mcts.Actions;
 import org.um.nine.headless.agents.mcts.MCTS;
-import org.um.nine.headless.agents.state.IState;
-import org.um.nine.headless.agents.utils.ExperimentalGame;
+import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
+import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.cards.CityCard;
@@ -16,19 +16,13 @@ import org.um.nine.headless.game.exceptions.PlayerLimitException;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 public class MCTSAgentTests {
 
     @Test
     public void expansionTest(){
         ExperimentalGame game = new ExperimentalGame();
-        try{
-            game.getCurrentState().getPlayerRepository().createPlayer("P1",true);
-            game.getCurrentState().getPlayerRepository().createPlayer("P2",true);
-        } catch (PlayerLimitException e) {
-            e.printStackTrace();
-        }
-        game.start();
         IState state = game.getCurrentState();
         MCTS mcts = new MCTS(state,1);
         mcts.expand(mcts.getRoot());
@@ -41,13 +35,6 @@ public class MCTSAgentTests {
     @Test
     public void simulationTest(){
         ExperimentalGame game = new ExperimentalGame();
-        try{
-            game.getCurrentState().getPlayerRepository().createPlayer("P1",true);
-            game.getCurrentState().getPlayerRepository().createPlayer("P2",true);
-        } catch (PlayerLimitException e) {
-            e.printStackTrace();
-        }
-        game.start();
         IState state = game.getCurrentState();
         MCTS mcts = new MCTS(state,1);
 
@@ -92,7 +79,7 @@ public class MCTSAgentTests {
         try{ //todo sometimes fails without reason
             City city = state.getCityRepository().getCities().get("Hong Kong");
             state.getPlayerRepository().getCurrentPlayer().addHand(new CityCard(city));
-            state.getPlayerRepository().drive(state.getPlayerRepository().getCurrentPlayer(),city,false);
+            state.getPlayerRepository().drive(state.getPlayerRepository().getCurrentPlayer(),city,state,false);
             IState newState = mcts.simulate(Actions.BUILD_RESEARCH_STATION,state);
             city = newState.getCityRepository().getCities().get("Hong Kong");
             assert(city.getResearchStation() != null);
@@ -123,7 +110,7 @@ public class MCTSAgentTests {
             state.getPlayerRepository().getPlayers().values().forEach(p -> {
                 try {
                     if(!p.equals(state.getPlayerRepository().getCurrentPlayer())){
-                        state.getPlayerRepository().drive(p,finalCity,false);
+                        state.getPlayerRepository().drive(p,finalCity,state,false);
                     }
                 } catch (InvalidMoveException e) {
                     e.printStackTrace();
@@ -132,13 +119,16 @@ public class MCTSAgentTests {
             IState newState = mcts.simulate(Actions.SHARE_KNOWLEDGE,state);
 
             city = newState.getCityRepository().getCities().get("Hong Kong");
-            AtomicReference<Player> p2 = new AtomicReference<>();
-            newState.getPlayerRepository().getPlayers().values().forEach(p -> {
-                if(!p.equals(newState.getPlayerRepository().getCurrentPlayer())) p2.set(p);
-            });
+            AtomicBoolean found = new AtomicBoolean();
+            found.set(false);
             City finalCity1 = city;
-            PlayerCard pc = p2.get().getHand().stream().filter(c -> c instanceof CityCard && ((CityCard) c).getCity().equals(finalCity1)).findFirst().orElse(null);
-            assert(pc != null);
+            newState.getPlayerRepository().getPlayers().values().forEach(p -> {
+                if(!p.equals(newState.getPlayerRepository().getCurrentPlayer())){
+                    PlayerCard pc = p.getHand().stream().filter(c -> c instanceof CityCard && ((CityCard) c).getCity().equals(finalCity1)).findFirst().orElse(null);
+                    if(pc != null) found.set(true);
+                }
+            });
+            assert(found.get());
         } catch (Exception e) {
             System.out.println("Share");
             e.printStackTrace();
@@ -153,7 +143,7 @@ public class MCTSAgentTests {
             player.addHand(new CityCard(city));
             player.addHand(new CityCard(city));
 
-            state.getPlayerRepository().drive(state.getPlayerRepository().getCurrentPlayer(),city,false);
+            state.getPlayerRepository().drive(state.getPlayerRepository().getCurrentPlayer(),city,state,false);
 
             IState newState = mcts.simulate(Actions.DISCOVER_CURE,state);
             AtomicBoolean cured = new AtomicBoolean(false);
@@ -171,41 +161,11 @@ public class MCTSAgentTests {
     @Test
     public void functionalityTest(){
         ExperimentalGame game = new ExperimentalGame();
-        try{
-            game.getCurrentState().getPlayerRepository().createPlayer("P1",true);
-            game.getCurrentState().getPlayerRepository().createPlayer("P2",true);
-        } catch (PlayerLimitException e) {
-            assert(false);
-        }
-        game.start();
         IState state = game.getCurrentState();
         MCTS mcts = new MCTS(state,200);
         Actions a = mcts.run(state);
         System.out.println(a);
     }
 
-    @Test
-    public void experimentTest(){
-        ExperimentalGame game = new ExperimentalGame();
-        try{
-            game.getCurrentState().getPlayerRepository().createPlayer("P1",true);
-            game.getCurrentState().getPlayerRepository().createPlayer("P2",true);
-        } catch (PlayerLimitException e) {
-            assert(false);
-        }
-        game.start();
-        IState state = game.getCurrentState();
-        while(game.onGoing()){
-            try{
-                state.getPlayerRepository().playerAction(null);
-            }
-            catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-
-        if(state.isGameLost()) System.out.println("Lost");
-        else System.out.println("Won");
-    }
 
 }

@@ -8,7 +8,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import org.um.nine.headless.agents.rhea.state.GameStateFactory;
-import org.um.nine.headless.game.domain.Color;
+import org.um.nine.headless.game.domain.*;
 import org.um.nine.jme.JmeMain;
 import org.um.nine.jme.utils.JmeFactory;
 import org.um.nine.jme.utils.managers.RenderManager;

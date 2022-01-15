@@ -2,10 +2,10 @@ package org.um.nine.jme.repositories;
 
 import com.jme3.math.Vector3f;
 import org.um.nine.headless.agents.mcts.MCTS;
-import org.um.nine.headless.agents.state.GameStateFactory;
-import org.um.nine.headless.agents.utils.Log;
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
+import org.um.nine.headless.agents.rhea.state.IState;
+import org.um.nine.headless.agents.utils.Logger;
 import org.um.nine.headless.game.domain.*;
-import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.*;
 import org.um.nine.headless.game.exceptions.*;
 import org.um.nine.jme.screens.DialogBoxState;
@@ -42,6 +42,8 @@ public class PlayerRepository {
 
     private VisualRepository visualRepository = JmeFactory.getVisualRepository();
 
+    private IState state = GameStateFactory.getInitialState();
+
     /**
      * Resets state to its original data
      */
@@ -57,6 +59,7 @@ public class PlayerRepository {
         this.playerInfoState = JmeFactory.getPlayerInfoState();
         this.visualRepository = JmeFactory.getVisualRepository();
         GameStateFactory.getInitialState().getPlayerRepository().reset();
+        state = GameStateFactory.getInitialState();
     }
 
     /**
@@ -73,12 +76,12 @@ public class PlayerRepository {
      * @throws InvalidMoveException - thrown when the move is invalid
      */
     public void drive(Player player, City city, boolean careAboutNeighbors) throws InvalidMoveException {
-        GameStateFactory.getInitialState().getPlayerRepository().drive(player, city, careAboutNeighbors);
+        GameStateFactory.getInitialState().getPlayerRepository().drive(player, city, state, careAboutNeighbors);
         visualRepository.renderPlayer(player, city.getPawnPosition(player));
     }
 
     public void drive(Player player, City city) throws InvalidMoveException {
-        GameStateFactory.getInitialState().getPlayerRepository().drive(player, city);
+        GameStateFactory.getInitialState().getPlayerRepository().drive(player, city, state);
         visualRepository.renderPlayer(player, city.getPawnPosition(player));
     }
 
@@ -94,7 +97,7 @@ public class PlayerRepository {
      * @throws InvalidMoveException - thrown when the player does not have the card
      */
     public void direct(Player player, City city) throws InvalidMoveException {
-        GameStateFactory.getInitialState().getPlayerRepository().direct(player, city);
+        GameStateFactory.getInitialState().getPlayerRepository().direct(player, city, state);
         visualRepository.renderPlayer(player, city.getPawnPosition(player));
     }
 
@@ -111,7 +114,7 @@ public class PlayerRepository {
      * @throws InvalidMoveException - thrown when the player does not have the card
      */
     public void charter(Player player, City city) throws InvalidMoveException {
-        GameStateFactory.getInitialState().getPlayerRepository().charter(player, city);
+        GameStateFactory.getInitialState().getPlayerRepository().charter(player, city, state);
         visualRepository.renderPlayer(player, city.getPawnPosition(player));
     }
 
@@ -127,12 +130,8 @@ public class PlayerRepository {
      * @throws InvalidMoveException - thrown when the player does not have the card
      */
     public void shuttle(Player player, City city) throws InvalidMoveException {
-        GameStateFactory.getInitialState().getPlayerRepository().shuttle(player, city);
+        GameStateFactory.getInitialState().getPlayerRepository().shuttle(player, city, state);
         visualRepository.renderPlayer(player, city.getPawnPosition(player));
-    }
-
-    public RoundState nextTurn() {
-        return GameStateFactory.getInitialState().getPlayerRepository().nextTurn();
     }
 
     /**
@@ -141,7 +140,7 @@ public class PlayerRepository {
      * @param currentState
      * @return
      */
-    public RoundState nextTurn(RoundState currentState) {
+    public RoundState nextTurn(IState currentState) {
         return GameStateFactory.getInitialState().getPlayerRepository().nextTurn(currentState);
     }
 
@@ -154,7 +153,7 @@ public class PlayerRepository {
      * @throws Exception - Thrown when a disease couldn't be treated
      */
     public void treat(Player player, City city, Color color) throws Exception {
-        GameStateFactory.getInitialState().getPlayerRepository().treat(player, city, color);
+        GameStateFactory.getInitialState().getPlayerRepository().treat(player, city, color, state);
     }
 
     public void treat(Player player, City city) throws Exception {
@@ -195,11 +194,11 @@ public class PlayerRepository {
     }
 
     public void buildResearchStation(Player player, City city) throws Exception {
-        GameStateFactory.getInitialState().getPlayerRepository().buildResearchStation(player, city);
+        GameStateFactory.getInitialState().getPlayerRepository().buildResearchStation(player, city, state);
     }
 
     public void playerAction(ActionType type, Object... args) throws Exception {
-        GameStateFactory.getInitialState().getPlayerRepository().playerAction(type, args);
+        GameStateFactory.getInitialState().getPlayerRepository().playerAction(type, state, args);
     }
 
     public void createPlayer(String name, boolean isBot) throws PlayerLimitException {
@@ -416,7 +415,7 @@ public class PlayerRepository {
                 }
                 skipClicked = false;
             } else if (getCurrentRoundState().equals(RoundState.DRAW)) {
-                cardRepository.drawPlayerCard();
+                cardRepository.drawPlayerCard(state);
 
                 nextState(getCurrentRoundState());
                 if (getDrawLeft() >= 0) {
@@ -425,7 +424,7 @@ public class PlayerRepository {
                 }
 
             } else if (getCurrentRoundState().equals(RoundState.INFECT)) {
-                cardRepository.drawInfectionCard();
+                cardRepository.drawInfectionCard(state);
 
                 nextState(getCurrentRoundState());
                 if (getInfectionLeft() >= 0) {
@@ -440,7 +439,8 @@ public class PlayerRepository {
             if(currentPlayer.getAgent() == null) currentPlayer.setAgent(new MCTS(GameStateFactory.getInitialState(),100));
             try{
                 currentPlayer.getAgent().agentDecision(GameStateFactory.getInitialState());
-                LinkedList<Log.LogRecord> log = currentPlayer.getAgent().getLog().getLog();
+                /* todo implementation of updates when using ai
+                LinkedList<Logger.LogRecord> log = currentPlayer.getAgent().getLog().getLog();
                 String a = log.getLast().action();
                 City c = log.getLast().targetLocation();
                 Player p = log.getLast().player();
@@ -456,17 +456,17 @@ public class PlayerRepository {
                         visualRepository.renderPlayer(p, c.getPawnPosition(p));
                     case "research station":
                         visualRepository.renderResearchStation(c.getResearchStation(),new Vector3f(-20, 5, 0));
-                }
+                }*/
             }catch (Exception e){
                 e.printStackTrace();
             }
-            cardRepository.drawPlayerCard();
+            cardRepository.drawPlayerCard(state);
             nextState(getCurrentRoundState());
-            cardRepository.drawPlayerCard();
+            cardRepository.drawPlayerCard(state);
             nextState(getCurrentRoundState());
-            cardRepository.drawInfectionCard();
+            cardRepository.drawInfectionCard(state);
             nextState(getCurrentRoundState());
-            cardRepository.drawInfectionCard();
+            cardRepository.drawInfectionCard(state);
             nextState(getCurrentRoundState());
             boardRepository.setSelectedRoleAction(null);
 

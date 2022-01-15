@@ -1,6 +1,6 @@
 package org.um.nine.headless.agents.mcts;
 
-import org.um.nine.headless.agents.state.IState;
+import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.Cure;
 import org.um.nine.headless.game.domain.Marker;
 import org.um.nine.headless.game.domain.cards.CityCard;

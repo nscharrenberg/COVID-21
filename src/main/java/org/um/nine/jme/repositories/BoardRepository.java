@@ -1,6 +1,6 @@
 package org.um.nine.jme.repositories;
 
-import org.um.nine.headless.agents.state.GameStateFactory;
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Difficulty;
@@ -68,7 +68,7 @@ public class BoardRepository {
         visualRepository.renderOutbreakSection();
         visualRepository.renderInfectionSection();
 
-        cardRepository.buildDecks();
+        cardRepository.buildDecks(GameStateFactory.getInitialState());
 
         playerRepository.decidePlayerOrder();
         playerRepository.nextPlayer();

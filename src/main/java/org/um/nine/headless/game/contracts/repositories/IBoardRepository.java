@@ -36,4 +36,6 @@ public interface IBoardRepository {
     void resetRound();
 
     void reset();
+
+    void setState(IState initialState);
 }
