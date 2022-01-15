@@ -330,3 +330,5 @@ OpenAL64.dll
 .sensei/
 
 .vscode/
+
+/src/main/resources/report/

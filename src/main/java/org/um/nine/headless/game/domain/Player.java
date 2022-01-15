@@ -6,6 +6,7 @@ import org.um.nine.headless.game.domain.cards.PlayerCard;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class Player {
     private static int INCREMENT = 0;
@@ -107,10 +108,7 @@ public class Player {
 
     @Override
     public String toString() {
-        return (isBot ? "bot-" : "player-") +
-                name +
-                "-" +
-                role.getColor().getName();
+        return name.trim().toLowerCase(Locale.ROOT) + "-" + role.getName();
     }
 
     public Agent getAgent() {

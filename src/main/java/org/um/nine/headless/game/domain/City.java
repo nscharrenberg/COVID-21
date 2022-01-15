@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class City {
     public static int INCREMENT = 0;
-    private int id;
+    private final int id;
     private String name;
     private Color color;
     private Vector3f location;
@@ -187,7 +187,7 @@ public class City {
 
         City city = (City) o;
 
-        if (id != city.id) return false;
+        //if (id != city.id) return false;
         if (population != city.population) return false;
         if (!name.equals(city.name)) return false;
         if (color != city.color) return false;

@@ -1,44 +1,44 @@
 Epidemic
-Comodoro Rivadavia
 Calgary
 Tasiusaq
-Jakarta
 Perth
 Epidemic
 Calcutta
-Taipei
 Haixi
 Jakutsk
-Manila
 Milan
 Khartoum
 Istanbul
 Epidemic
 Moscow
 Luanda
-London
 Krasnoyarsk
 Astana
 Tehran
 Epidemic
-Santo Domingo
 Lagos
 Algiers
-Tokyo
 Cairo
 Fortaleza
-Hong Kong
 Karachi
+Sri Lanka
 Madrid
+Bangkok
 Atlanta
 Tolyatti
-Sri Lanka
-Manaus
-Sao Paolo
-Johannesburg
-Bangkok
-Montreal
-Beijing
-Kiev
 Bogota
 Mexico City
+Comodoro Rivadavia
+Jakarta
+Manila
+Taipei
+Tokyo
+London
+Beijing
+Santo Domingo
+Sao Paolo
+Johannesburg
+Montreal
+Kiev
+Manaus
+Hong Kong

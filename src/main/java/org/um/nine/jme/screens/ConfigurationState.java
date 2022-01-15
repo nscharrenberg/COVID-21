@@ -5,7 +5,7 @@ import com.jme3.app.state.BaseAppState;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.simsilica.lemur.*;
-import org.um.nine.headless.agents.state.GameStateFactory;
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.exceptions.PlayerLimitException;
 import org.um.nine.jme.JmeGame;

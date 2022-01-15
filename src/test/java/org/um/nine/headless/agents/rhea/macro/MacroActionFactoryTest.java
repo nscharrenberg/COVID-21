@@ -3,8 +3,8 @@ package org.um.nine.headless.agents.rhea.macro;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.um.nine.headless.agents.state.GameStateFactory;
-import org.um.nine.headless.agents.state.IState;
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
+import org.um.nine.headless.agents.rhea.state.IState;
 
 class MacroActionFactoryTest {
 
@@ -13,11 +13,15 @@ class MacroActionFactoryTest {
     @Test
     @DisplayName("getMacroActions")
     void getMacroActions() {
-        var macroActions = MacroActionFactory.init(this.state).getActions();
+        var macroActions = MacroActionFactory.init(
+                this.state,
+                this.state.getPlayerRepository().getCurrentPlayer().getCity(),
+                this.state.getPlayerRepository().getCurrentPlayer()
+        ).getActions();
 
-        System.out.println("Current city : "+this.state.getPlayerRepository().getCurrentPlayer().getCity().getName());
+        System.out.println("Current city : " + this.state.getPlayerRepository().getCurrentPlayer().getCity().getName());
 
-        for (MacroAction ma : macroActions){
+        for (MacroAction ma : macroActions) {
             System.out.println(ma);
         }
     }
@@ -26,7 +30,7 @@ class MacroActionFactoryTest {
     void setUp() {
         try {
             GameStateFactory.createInitialState();
-            GameStateFactory.getInitialState().getBoardRepository().reset();
+            GameStateFactory.getInitialState().reset();
 
             GameStateFactory.getInitialState().getCityRepository().addResearchStation(
                     GameStateFactory.getInitialState().getCityRepository().getCities().get("Tokyo")
@@ -34,7 +38,7 @@ class MacroActionFactoryTest {
             GameStateFactory.getInitialState().getCityRepository().addResearchStation(
                     GameStateFactory.getInitialState().getCityRepository().getCities().get("Cairo")
             );
-            GameStateFactory.getInitialState().getBoardRepository().start();
+            GameStateFactory.getInitialState().start();
 
 
         } catch (Exception e) {
