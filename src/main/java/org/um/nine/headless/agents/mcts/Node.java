@@ -115,8 +115,7 @@ public class Node {
             value += 2 * black.get();
             value += 2 * blue.get();
             value += 2 * yellow.get();
-        }
-
+        });
         long numberOfDiscoveredCures = state.getDiseaseRepository().getCures().values().stream()
                 .filter(Cure::isDiscovered).count();
         value += 100 * (double) numberOfDiscoveredCures;
