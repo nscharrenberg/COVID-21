@@ -1,4 +1,4 @@
-package org.um.nine.headless.agents.state;
+package org.um.nine.headless.agents.rhea.state;
 
 import org.um.nine.headless.game.domain.Color;
 import org.um.nine.headless.game.domain.Cure;
@@ -20,22 +20,21 @@ public class StateEvaluation {
      * Will evaluate over 5 cards, 4 if the role of the current player is Scientist role
      */
     public static double abilityCure(Color color, Player p) {
-        double hpt = sameColorCards(p.getHand(),color);
+        double hpt = sameColorCards(p.getHand(), color);
         double cd = Cd(p);
         if (hpt >= cd) return 1;
-        else return hpt/cd;
+        return hpt / cd;
     }
 
-    public static double abilityCure(Color color, List<PlayerCard> cards, Player p) {
-        double hpt = sameColorCards(cards,color);
-        double cd = Cd(p);
-        if (hpt >= cd) return 1;
-        else return hpt/cd;
+
+    public static double abilityCure2(IState state, Color color) {
+        if (state.getDiseaseRepository().getCures().get(color).isDiscovered()) return 1;
+        return state.getPlayerRepository().getPlayers().values().stream().map(p -> abilityCure(color, p)).max(Double::compareTo).get();
     }
 
-    public static double sameColorCards(List<PlayerCard> cards, Color color){
+    public static double sameColorCards(List<PlayerCard> cards, Color color) {
         return cards.stream().
-                filter(c-> c instanceof CityCard cc &&
+                filter(c -> c instanceof CityCard cc &&
                         cc.getCity().getColor().equals(color)).
                 count();
     }
@@ -44,16 +43,16 @@ public class StateEvaluation {
      * A(t)
      * Ability to find a cure based on it being already discovered or not
      */
-    public static double abilityCure (IState state,Cure cure) {
-        if (cure.isDiscovered()) return 1;
+    public static double abilityCure(IState state, Color color) {
+        if (state.getDiseaseRepository().getCures().get(color).isDiscovered()) return 1;
 
-        //TODO : this is other players Ac ability to cure the disease.. without share knowledge
-        // this value is completely irrelevant
+            //TODO : this is other players Ac ability to cure the disease.. without share knowledge
+            // this value is completely irrelevant
         else return state.getPlayerRepository().
                 getPlayers().
                 values().
                 stream().
-                map(p -> abilityCure(cure.getColor(),p)).
+                map(p -> abilityCure(color, p)).
                 max(Double::compareTo).
                 orElse(0d);
     }
@@ -91,7 +90,7 @@ public class StateEvaluation {
                 .count();
 
         state.getDiseaseRepository().
-                getCures().values().forEach(cure -> sA[0] += abilityCure(state, cure) + (0.3 * Nd));
+                getCures().values().forEach(cure -> sA[0] += abilityCure(state, cure.getColor()) + (0.3 * Nd));
         return sA[0] /4 * 1.3;
     };
 

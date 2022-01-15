@@ -10,7 +10,7 @@ import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import org.um.nine.headless.agents.state.GameStateFactory;
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.jme.JmeMain;
 import org.um.nine.jme.screens.DialogBoxState;
 
@@ -150,7 +150,7 @@ public class InputManager {
 
         if(GameStateFactory.getInitialState().getBoardRepository().getSelectedCity() != null) {
             try {
-                GameStateFactory.getInitialState().getPlayerRepository().playerAction(GameStateFactory.getInitialState().getBoardRepository().getSelectedPlayerAction());
+                GameStateFactory.getInitialState().getPlayerRepository().playerAction(GameStateFactory.getInitialState().getBoardRepository().getSelectedPlayerAction(), GameStateFactory.getInitialState());
             } catch (Exception e) {
                 DialogBoxState dialog = new DialogBoxState(e.getMessage());
                 JmeMain.getGameRepository().getApp().getStateManager().attach(dialog);

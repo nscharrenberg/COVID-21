@@ -3,9 +3,9 @@ package org.um.nine.headless.agents;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.um.nine.headless.agents.state.GameStateFactory;
-import org.um.nine.headless.agents.state.IState;
-import org.um.nine.headless.agents.utils.PathFinder;
+import org.um.nine.headless.agents.rhea.pathfinder.PathFinder;
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
+import org.um.nine.headless.agents.rhea.state.IState;
 
 class PathFinderTest {
 
@@ -16,7 +16,7 @@ class PathFinderTest {
     void setUp() {
         try {
             GameStateFactory.createInitialState();
-            GameStateFactory.getInitialState().getBoardRepository().reset();
+            GameStateFactory.getInitialState().reset();
 
             GameStateFactory.getInitialState().getCityRepository().addResearchStation(
                     GameStateFactory.getInitialState().getCityRepository().getCities().get("Tokyo")
@@ -24,7 +24,7 @@ class PathFinderTest {
             GameStateFactory.getInitialState().getCityRepository().addResearchStation(
                     GameStateFactory.getInitialState().getCityRepository().getCities().get("Cairo")
             );
-            GameStateFactory.getInitialState().getBoardRepository().start();
+            GameStateFactory.getInitialState().start();
 
 
         } catch (Exception e) {

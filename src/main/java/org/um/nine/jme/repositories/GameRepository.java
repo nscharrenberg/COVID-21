@@ -12,7 +12,7 @@ import com.jme3.scene.shape.Quad;
 import com.jme3.system.AppSettings;
 import com.simsilica.lemur.GuiGlobals;
 import com.simsilica.lemur.style.BaseStyles;
-import org.um.nine.headless.agents.state.GameStateFactory;
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.game.Settings;
 import org.um.nine.jme.JmeGame;
 import org.um.nine.jme.screens.MainMenuState;
@@ -67,13 +67,13 @@ public class GameRepository {
         app.getRootNode().detachAllChildren();
 
         app.getCamera().setFrustumFar(3000);
-        app.getCamera().setLocation(new Vector3f(0, 0,1500));
+        app.getCamera().setLocation(new Vector3f(0, 0, 1500));
 
 //        inputManager.init();
 
         // Initiate Game Graphics
-        GameStateFactory.getInitialState().getBoardRepository().reset();
-        GameStateFactory.getInitialState().getBoardRepository().start();
+        GameStateFactory.getInitialState().reset();
+        GameStateFactory.getInitialState().start();
     }
 
     private void addAmbientLight() {

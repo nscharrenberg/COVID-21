@@ -1,6 +1,6 @@
 package org.um.nine.headless.game.contracts.repositories;
 
-import org.um.nine.headless.agents.state.IState;
+import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.cards.InfectionCard;
 import org.um.nine.headless.game.exceptions.GameOverException;
 import org.um.nine.headless.game.exceptions.NoCubesLeftException;
@@ -9,44 +9,45 @@ import org.um.nine.headless.game.exceptions.NoDiseaseOrOutbreakPossibleDueToEven
 import java.util.Collections;
 import java.util.Stack;
 
+import static org.um.nine.headless.game.Settings.DEFAULT_INITIAL_STATE;
+import static org.um.nine.headless.game.Settings.RANDOM_PROVIDER;
+
 public interface IEpidemicRepository {
-    
-    IEpidemicRepository setState(IState state);
-    
-    IState getState();
-    default void increase() {
-        getState().getDiseaseRepository().nextInfectionMarker();
+
+    default void increase(IState state) {
+        state.getDiseaseRepository().nextInfectionMarker();
     }
 
-    default void infect() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
+    default void infect(IState state) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         for (int i = 0; i < 3; i++) {
-            InfectionCard infectionCard = getState().getCardRepository().getInfectionDeck().pop();
-            getState().getCardRepository().getInfectionDiscardPile().add(infectionCard);
+            InfectionCard infectionCard = state.getCardRepository().getInfectionDeck().pop();
+            state.getCardRepository().getInfectionDiscardPile().add(infectionCard);
 
             int amountCubes = infectionCard.getCity().getCubes().size();
 
             switch (amountCubes) {
                 case 2 -> {
-                    getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
-                    getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
+                    state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
+                    state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
                 }
-                case 3 -> getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
+                case 3 -> state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
                 default -> {
-                    getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
-                    getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
-                    getState().getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
+                    state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
+                    state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
+                    state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
                 }
             }
         }
     }
 
-    default void intensify() {
-        Stack<InfectionCard> pile = getState().getCardRepository().getInfectionDiscardPile();
-        Collections.shuffle(pile);
+    default void intensify(IState state) {
+        Stack<InfectionCard> pile = state.getCardRepository().getInfectionDiscardPile();
+        if (DEFAULT_INITIAL_STATE) Collections.shuffle(pile, RANDOM_PROVIDER);
+        else Collections.shuffle(pile);
 
-        getState().getCardRepository().getInfectionDeck().addAll(pile);
-        getState().getCardRepository().setInfectionDiscardPile(new Stack<>());
+        state.getCardRepository().getInfectionDeck().addAll(pile);
+        state.getCardRepository().setInfectionDiscardPile(new Stack<>());
     }
 
-    void action() throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
+    void action(IState state) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
 }

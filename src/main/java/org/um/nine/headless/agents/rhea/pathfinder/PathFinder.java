@@ -1,7 +1,7 @@
-package org.um.nine.headless.agents.utils;
+package org.um.nine.headless.agents.rhea.pathfinder;
 
-import org.um.nine.headless.agents.state.IState;
-import org.um.nine.headless.agents.state.StateEvaluation;
+import org.um.nine.headless.agents.rhea.state.IState;
+import org.um.nine.headless.agents.rhea.state.StateEvaluation;
 import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Color;
@@ -21,14 +21,27 @@ import static java.lang.Integer.MAX_VALUE;
 public class PathFinder {
 
     private final IState state;
+    private GCity currentCity;
+    private Player currentPlayer;
     private final List<GCity> costGraph;
     private final List<GCity> visitedCities = new ArrayList<>();
 
     private PathFinder(IState state) {
         this.state = state;
         costGraph = new ArrayList<>();
+        currentCity = getCurrentCity();
         for (City c : this.state.getCityRepository().getCities().values())
             costGraph.add(new GCity(c));
+    }
+
+    private PathFinder(IState state, City city, Player player) {
+        this.state = state;
+        costGraph = new ArrayList<>();
+        for (City c : this.state.getCityRepository().getCities().values())
+            costGraph.add(new GCity(c));
+
+        currentPlayer = player;
+        currentCity = findGCity(city);
     }
 
     public final void evaluateCostGraph() {
@@ -55,7 +68,7 @@ public class PathFinder {
 
     private void evaluateCostGraphCharterFlight() {
         List<CityCard> citiesInHand = new ArrayList<>();
-        Player p = state.getPlayerRepository().getCurrentPlayer();
+        Player p = getCurrentPlayer();
         for (PlayerCard pc : p.getHand()) {
             if (pc instanceof CityCard) citiesInHand.add((CityCard) pc);
         }
@@ -92,7 +105,7 @@ public class PathFinder {
 
     private void evaluateCostGraphDirectFlight() {
         List<CityCard> citiesInHand = new ArrayList<>();
-        Player p = state.getPlayerRepository().getCurrentPlayer();
+        Player p = getCurrentPlayer();
         for (PlayerCard pc : p.getHand()) {
             if (pc instanceof CityCard) citiesInHand.add(new CityCard(((CityCard) pc).getCity()));
         }
@@ -225,7 +238,16 @@ public class PathFinder {
     }
 
     public GCity getCurrentCity() {
-        return this.costGraph.stream().filter(gc -> gc.city.equals(this.state.getPlayerRepository().getCurrentPlayer().getCity())).findFirst().orElse(null);
+        return currentCity == null ?
+                this.currentCity = this.costGraph.stream().
+                        filter(gc ->
+                                gc.city.equals(getCurrentPlayer().getCity())).
+                        findFirst().orElse(null)
+                : this.currentCity;
+    }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer == null ? state.getPlayerRepository().getCurrentPlayer() : currentPlayer;
     }
 
     public GCity findGCity(City c) {
@@ -235,7 +257,7 @@ public class PathFinder {
     private Player getMaxAcPlayer(Color t) {
         double maxAc = 0;
         Player maxP = null;
-        for (Player p : state.getPlayerRepository().getPlayerOrder()) {
+        for (Player p : state.getPlayerRepository().getPlayers().values()) {
             double ac = Ac(p, t);
             maxAc = Math.max(maxAc, ac);
             maxP = p;
@@ -265,6 +287,11 @@ public class PathFinder {
             super.evaluateCostGraph();
         }
 
+        public Descriptor(IState state, City city, Player player) {
+            super(state, city, player);
+            super.evaluateCostGraph();
+        }
+
         private List<ActionType.MovingAction> buildWalkPath(GCity gc, int walkingActionDepth) {
             List<ActionType.MovingAction> actions = new ArrayList<>();
             if (gc.walkingPath.walking != null && (walkingActionDepth <= 4) && (walkingActionDepth > 0)) {
@@ -287,7 +314,6 @@ public class PathFinder {
             }
             return Map.entry(actions, gc);
         }
-
         private Map.Entry<List<ActionType.MovingAction>, GCity> buildWalkPathPostDirect(GCity gc, int walkingActionDepth) {
             List<ActionType.MovingAction> actions = new ArrayList<>();
             if (gc.directFlightPath.postDirectWalking != null) {
@@ -299,7 +325,6 @@ public class PathFinder {
             }
             return Map.entry(actions, gc);
         }
-
         private List<ActionType.MovingAction> buildShuttlePath(GCity gc) {
             List<ActionType.MovingAction> shuttlePath = new ArrayList<>();
             if (gc.shuttlePath.shuttleActionDepth > 0 && gc.shuttlePath.shuttleActionDepth <= 4) {
@@ -312,7 +337,6 @@ public class PathFinder {
             }
             return shuttlePath;
         }
-
         private List<ActionType.MovingAction> buildDirectFlightPath(GCity gc) {
             List<ActionType.MovingAction> directFlightPath = new ArrayList<>();
             if (gc.directFlightPath.directFlightActionDepth > 0 && gc.directFlightPath.directFlightActionDepth <= 4) {
@@ -325,8 +349,6 @@ public class PathFinder {
             }
             return directFlightPath;
         }
-
-
         private List<ActionType.MovingAction> buildCharterFlightPath(GCity gc) {
             List<ActionType.MovingAction> charterFlightPath = new ArrayList<>();
             if (gc.charterFlightPath.charterFlightActionDepth > 0 && gc.charterFlightPath.charterFlightActionDepth <= 4) {
@@ -344,6 +366,7 @@ public class PathFinder {
             if (dest.shortestWalkingPath == null) {
                 dest.shortestWalkingPath = buildWalkPath(dest, dest.walkingPath.walkingActionDepth);
             }
+
             if (dest.shortestShuttlingPath == null) {
                 dest.shortestShuttlingPath = buildShuttlePath(dest);
             }
@@ -353,13 +376,13 @@ public class PathFinder {
             if (dest.shortestCharterFlightPath == null) {
                 dest.shortestCharterFlightPath = buildCharterFlightPath(dest);
             }
-
-            /*
-            if (dest.shortestWalkingPath.isEmpty() && dest.shortestShuttlingPath.isEmpty() && dest.shortestCharterFlightPath.isEmpty() && dest.shortestDirectFlightPath.isEmpty()) return new ArrayList<>();
             int walkLength = dest.shortestWalkingPath.isEmpty() ? MAX_VALUE : dest.shortestWalkingPath.size();
             int shuttleLength = dest.shortestShuttlingPath.isEmpty() ? MAX_VALUE : dest.shortestShuttlingPath.size();
             int charterLength = dest.shortestCharterFlightPath.isEmpty() ? MAX_VALUE : dest.shortestCharterFlightPath.size();
             int directLength = dest.shortestDirectFlightPath.isEmpty() ? MAX_VALUE : dest.shortestDirectFlightPath.size();
+
+            /*
+            if (dest.shortestWalkingPath.isEmpty() && dest.shortestShuttlingPath.isEmpty() && dest.shortestCharterFlightPath.isEmpty() && dest.shortestDirectFlightPath.isEmpty()) return new ArrayList<>();
 
             if ((walkLength <= shuttleLength) && (walkLength <= dest.shortestCharterFlightPath.size()) && (walkLength <= directLength)) {
                 return dest.shortestWalkingPath;
@@ -414,13 +437,14 @@ public class PathFinder {
         private final DirectFlightPath directFlightPath = new DirectFlightPath();
         private final CharterFlightPath charterFlightPath = new CharterFlightPath();
         private List<Integer> directFlightActionsDepthList; //different value depending on which city card you use
-
         private List<ActionType.MovingAction> shortestWalkingPath, shortestShuttlingPath, shortestDirectFlightPath, shortestCharterFlightPath;
 
         private GCity(City city) {
             this.city = city;
             this.walkingPath.walkingActionDepth = -1;
             this.shuttlePath.shuttleActionDepth = -1;
+            this.directFlightPath.directFlightActionDepth = -1;
+            this.charterFlightPath.charterFlightActionDepth = -1;
         }
 
         private void setNActionsDirectFlight(List<Integer> nActionsDirectFlight) {

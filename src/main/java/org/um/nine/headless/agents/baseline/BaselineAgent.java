@@ -1,6 +1,6 @@
 package org.um.nine.headless.agents.baseline;
 
-import org.um.nine.headless.agents.state.IState;
+import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
@@ -25,7 +25,7 @@ public class BaselineAgent {
         if (currentPlayer.getCity().getName().equals(target.getName())) return true;
 
         if (currentPlayer.getCity().getNeighbors().contains(target)) {
-            state.getPlayerRepository().drive(currentPlayer, target, true);
+            state.getPlayerRepository().drive(currentPlayer, target, state, true);
             return true;
         }
 
@@ -39,7 +39,7 @@ public class BaselineAgent {
 
         if (pc != null) {
             currentPlayer.getHand().remove(pc);
-            state.getPlayerRepository().drive(currentPlayer, target, false);
+            state.getPlayerRepository().drive(currentPlayer, target, state, false);
             return true;
         }
 
@@ -67,7 +67,7 @@ public class BaselineAgent {
                 if (DEBUG) System.out.println("move");
                 City next = player.getCity().getNeighbors().get(new Random().nextInt(player.getCity().getNeighbors().size() - 1));
                 try {
-                    state.getPlayerRepository().drive(player, next, true);
+                    state.getPlayerRepository().drive(player, next, state, true);
                 }catch(Exception e){
                     e.printStackTrace();
                 }
@@ -78,7 +78,7 @@ public class BaselineAgent {
                 ArrayList<City> temp = new ArrayList<>(state.getCityRepository().getCities().values());
                 if (DEBUG) System.out.println("charter to " + temp.get(rnd));
                 try {
-                    state.getPlayerRepository().charter(player, temp.get(rnd));
+                    state.getPlayerRepository().charter(player, temp.get(rnd), state);
                 } catch (Exception e) {
                     if (DEBUG) System.out.println("FAILED WITH ERROR");
                     randomAction(player, state);
@@ -92,7 +92,7 @@ public class BaselineAgent {
                     if(DEBUG) System.out.println("direct to " + cityCard.getCity().getName());
                     state.getBoardRepository().setSelectedCity(cityCard.getCity());
                     try{
-                        state.getPlayerRepository().direct(player, cityCard.getCity());
+                        state.getPlayerRepository().direct(player, cityCard.getCity(), state);
                     }catch(Exception e){
                         if(DEBUG) System.out.println("FAILED WITH ERROR");
                         randomAction(player, state);
@@ -114,7 +114,7 @@ public class BaselineAgent {
                         state.getBoardRepository().setSelectedCity(city);
                         try {
                             name = city.getName();
-                            state.getPlayerRepository().shuttle(player, city);
+                            state.getPlayerRepository().shuttle(player, city, state);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -132,7 +132,7 @@ public class BaselineAgent {
                     return false;
                 }).findFirst().orElse(null) != null) {
                     try{
-                        state.getPlayerRepository().buildResearchStation(player, player.getCity());
+                        state.getPlayerRepository().buildResearchStation(player, player.getCity(), state);
                     }catch(Exception e){
                         e.printStackTrace();
                     }
@@ -146,7 +146,7 @@ public class BaselineAgent {
                 if(DEBUG) System.out.println("treat in " + player.getCity().getName());
                 if (!player.getCity().getCubes().isEmpty()) {
                     try {
-                        state.getPlayerRepository().treat(player, player.getCity(), player.getCity().getCubes().get(0).getColor());
+                        state.getPlayerRepository().treat(player, player.getCity(), player.getCity().getCubes().get(0).getColor(), state);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -268,7 +268,7 @@ public class BaselineAgent {
                         cities.add(c);
                     });
                     try{
-                        state.getPlayerRepository().shuttle(player, cities.get(random));
+                        state.getPlayerRepository().shuttle(player, cities.get(random), state);
                     }
                     catch (InvalidMoveException e) {
                         if(DEBUG) System.out.println("Move from research station anywhere - FAILED WITH ERROR");
@@ -281,7 +281,7 @@ public class BaselineAgent {
                 }
             } else if (roleAction.equals(RoleAction.BUILD_RESEARCH_STATION)){
                 if(player.getCity().getResearchStation() == null) {
-                    state.getPlayerRepository().buildResearchStation(player, player.getCity());
+                    state.getPlayerRepository().buildResearchStation(player, player.getCity(), state);
                     state.getPlayerRepository().getLog().addStep(" uses Roleaction: Build research station", player.getCity(), player);
                 }
                 else{
