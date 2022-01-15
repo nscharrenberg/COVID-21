@@ -9,6 +9,7 @@ import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.Player;
+import org.um.nine.headless.game.repositories.PlayerRepository;
 
 public class GameStartTest {
 
@@ -29,6 +30,7 @@ public class GameStartTest {
 
         new ExperimentalGame();
         IState initialState = GameStateFactory.getInitialState();
+        PlayerRepository.ignored = true;
 
         Player playerOneClass = initialState.getPlayerRepository().getPlayers().get(playerOne);
         Player playerTwoClass = initialState.getPlayerRepository().getPlayers().get(playerTwo);
@@ -58,8 +60,12 @@ public class GameStartTest {
 
         if (initialState.getPlayerRepository().getCurrentPlayer().equals(playerOneClass)) {
             Assertions.assertEquals(playerOneClass.getCity(), newCity);
-        } else {
+        } else if(initialState.getPlayerRepository().getCurrentPlayer().equals(playerTwoClass)){
             Assertions.assertEquals(playerTwoClass.getCity(), newCity);
+        } else if(initialState.getPlayerRepository().getCurrentPlayer().equals(playerThreeClass)){
+            Assertions.assertEquals(playerThreeClass.getCity(), newCity);
+        } else{
+            Assertions.assertEquals(playerFourClass.getCity(), newCity);
         }
     }
 
