@@ -20,7 +20,7 @@ import java.util.EmptyStackException;
 import java.util.LinkedList;
 import java.util.Stack;
 
-import static org.um.nine.headless.game.Settings.DEFAULT_INITIAL_STATE;
+import static org.um.nine.headless.game.Settings.*;
 
 public class CardRepository implements ICardRepository {
     private Stack<PlayerCard> playerDeck;
@@ -29,6 +29,22 @@ public class CardRepository implements ICardRepository {
     private Stack<InfectionCard> infectionDiscardPile;
 
     public CardRepository() {
+    }
+
+    @Override
+    public CardRepository clone() {
+        try {
+            CardRepository clone = (CardRepository) super.clone();
+            clone.setPlayerDeck(new CardUtils.StackCloner<PlayerCard>().cloneStack(this.playerDeck));
+            clone.setEventDiscardPile(new LinkedList<>());
+            Collections.copy(this.eventDiscardPile, clone.getEventDiscardPile());
+            clone.setInfectionDeck(new CardUtils.StackCloner<InfectionCard>().cloneStack(this.infectionDeck));
+            clone.setInfectionDiscardPile(new CardUtils.StackCloner<InfectionCard>().cloneStack(this.infectionDiscardPile));
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -54,6 +70,8 @@ public class CardRepository implements ICardRepository {
         PlayerCard drawn;
         try {
             drawn = this.playerDeck.pop();
+            if (LOG && DEFAULT_RUNNING_GAME != null)
+                DEFAULT_RUNNING_GAME.append("Drawing player card " + drawn.getName());
         } catch (EmptyStackException e) {
             throw new GameOverException();
         }
@@ -91,6 +109,8 @@ public class CardRepository implements ICardRepository {
     @Override
     public void drawInfectionCard(IState state) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         InfectionCard infectionCard = this.infectionDeck.pop();
+        if (LOG && DEFAULT_RUNNING_GAME != null)
+            DEFAULT_RUNNING_GAME.append("Drawing infection card " + infectionCard.getName());
         state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
         this.infectionDiscardPile.push(infectionCard);
     }
@@ -176,3 +196,4 @@ public class CardRepository implements ICardRepository {
         this.infectionDiscardPile = infectionDiscardPile;
     }
 }
+

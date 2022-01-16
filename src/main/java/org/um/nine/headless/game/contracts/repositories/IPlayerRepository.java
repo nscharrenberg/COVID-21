@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Queue;
 import java.util.Stack;
 
-public interface IPlayerRepository {
+public interface IPlayerRepository extends Cloneable {
     void reset();
 
     void drive(Player player, City city, IState state, boolean careAboutNeighbors) throws InvalidMoveException;
@@ -82,4 +82,6 @@ public interface IPlayerRepository {
     void createPlayer(String name, boolean isBot) throws PlayerLimitException;
 
     Logger getLog();
+
+    IPlayerRepository clone();
 }

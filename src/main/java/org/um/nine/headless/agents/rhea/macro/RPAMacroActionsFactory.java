@@ -1,6 +1,5 @@
 package org.um.nine.headless.agents.rhea.macro;
 
-import org.um.nine.headless.agents.rhea.pathfinder.PathFinder3;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
@@ -11,17 +10,14 @@ import java.util.List;
 
 import static org.um.nine.headless.game.Settings.RANDOM_PROVIDER;
 
-public class RPAMacroActionsFactory extends MacroActionFactory {
-
+public abstract class RPAMacroActionsFactory extends MacroActionFactory2 {
     @Override
     public MacroAction getNextMacroAction() {
-        Collections.shuffle(getActions(), RANDOM_PROVIDER);
-        MacroAction nextRPAMacro = this.getActions().get(0);
-
-        int remaining = 4 - nextRPAMacro.size();
-        if (remaining > 0) {
-            return fillMacroAction(nextRPAMacro);
-        } else return nextRPAMacro;
+        List<MacroAction> allActions;
+        if (getActions().isEmpty()) throw new IllegalStateException();
+        allActions = new ArrayList<>(getActions());
+        Collections.shuffle(allActions, RANDOM_PROVIDER);
+        return fillMacroAction(allActions.get(0));
     }
 
     protected static RPAMacroActionsFactory getInstance() {
@@ -31,30 +27,8 @@ public class RPAMacroActionsFactory extends MacroActionFactory {
     }
 
     public static RPAMacroActionsFactory init(IState state, City city, Player player) {
-        return getInstance().initialise(state, city, player);
-    }
-
-    public RPAMacroActionsFactory initialise(IState state, City city, Player player) {
-        getInstance().state = state;
-        getInstance().currentPlayer = player;
-        getInstance().pathFinder = new PathFinder3(state, player, city);
-        getInstance().pathFinder.evaluatePaths();
-        getInstance().actions = null;
+        getInstance().initialise(state, city, player);
         return getInstance();
     }
-
-    protected static List<MacroAction> buildRPAMacroActions() {
-        getInstance().actions = new ArrayList<>();
-        getInstance().actions.addAll(buildDiscoverCureMacroActions());
-        getInstance().actions.addAll(buildTreatDiseaseMacroActions());
-        getInstance().actions.addAll(buildResearchStationMacroActions());
-        return getInstance().actions;
-    }
-
-    @Override
-    public List<MacroAction> getActions() {
-        return getInstance().actions == null ? (getInstance().actions = buildRPAMacroActions()) : getInstance().actions;
-    }
-
 
 }

@@ -1,8 +1,41 @@
 package org.um.nine.headless.agents.rhea.state;
 
 import org.um.nine.headless.game.contracts.repositories.*;
+import org.um.nine.headless.game.domain.City;
+import org.um.nine.headless.game.domain.Disease;
+import org.um.nine.headless.game.domain.Player;
+import org.um.nine.headless.game.domain.RoundState;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class State implements IState {
+
+    public static void main(String[] args) {
+        IState original = (GameStateFactory.createInitialState());
+        IState cloned = original.clone();
+
+
+        original.getPlayerRepository().setCurrentRoundState(RoundState.DRAW);
+        try {
+            original.getPlayerRepository().playerAction(null, original);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        debugState(original, original.getDiseaseRepository());
+        System.out.println("=========================================================================================================================");
+        debugState(cloned, original.getDiseaseRepository());
+
+    }
+
+    public static void debugState(IState original, IDiseaseRepository diseaseRepository) {
+        original.getCityRepository().getCities().values().stream().map(City::getCubes).filter(list -> !list.isEmpty()).forEach(System.out::println);
+        System.out.println();
+        diseaseRepository.getCubes().forEach((color, list) -> {
+            System.out.println(color + " -> " + list.stream().filter(disease -> disease.getCity() != null).map(disease -> disease.getCity().getName() + " " + disease.getColor()).collect(Collectors.toList()));
+        });
+    }
 
     private IDiseaseRepository iDiseaseRepository;
     private IPlayerRepository iPlayerRepository;
@@ -10,9 +43,11 @@ public class State implements IState {
     private ICityRepository iCityRepository;
     private ICardRepository iCardRepository;
     private IBoardRepository iBoardRepository;
-    public State() {}
 
-    public State( IDiseaseRepository iDiseaseRepository,
+    public State() {
+    }
+
+    public State(IDiseaseRepository iDiseaseRepository,
                   IPlayerRepository iPlayerRepository,
                   ICardRepository iCardRepository,
                   ICityRepository iCityRepository,
@@ -78,8 +113,60 @@ public class State implements IState {
     public void setEpidemicRepository(IEpidemicRepository iEpidemicRepository) {
         this.iEpidemicRepository = iEpidemicRepository;
     }
+
     @Override
     public IEpidemicRepository getEpidemicRepository() {
         return this.iEpidemicRepository;
+    }
+
+    @Override
+    public IState clone() {
+        try {
+            IState clone = (IState) super.clone();
+            clone.setPlayerRepository(this.getPlayerRepository().clone());
+            clone.setBoardRepository(this.getBoardRepository().clone());
+            clone.setCardRepository(this.getCardRepository().clone());
+            clone.setCityRepository(this.getCityRepository().clone());
+            clone.setEpidemicRepository(this.getEpidemicRepository().clone());
+            clone.setDiseaseRepository(this.getDiseaseRepository().clone());
+
+
+            clone.getCityRepository().getCities().forEach(
+                    (s, city) -> {
+                        City thisCity = this.getCityRepository().getCities().get(s);
+                        city.setPawns(thisCity.getPawns().stream().map(player -> clone.getPlayerRepository().getPlayers().get(player.getName())).collect(Collectors.toCollection(ArrayList::new)));
+                        List<Disease> diseases = thisCity.
+                                getCubes().
+                                stream().
+                                map(disease -> clone.getDiseaseRepository().getCubes().get(disease.getColor())).
+                                map(allCubesSameColor -> allCubesSameColor.
+                                        stream().
+                                        filter(disease1 -> disease1.getCity() != null && disease1.getCity().equals(thisCity)).
+                                        peek(disease -> disease.setCity(city)).
+                                        collect(Collectors.toList())).
+                                findFirst().
+                                orElse(new ArrayList<>());
+                        city.setCubes(diseases);
+                        List<Player> pawns = thisCity.
+                                getPawns().
+                                stream().
+                                map(player -> clone.getPlayerRepository().getPlayers().get(player.getName())).
+                                peek(player -> player.setCityField(city)).
+                                collect(Collectors.toList());
+                        city.setPawns(pawns);
+
+                        List<City> neighbours = thisCity.
+                                getNeighbors().
+                                stream().
+                                map(city1 -> clone.getCityRepository().getCities().get(city1.getName())).
+                                collect(Collectors.toList());
+                        city.setNeighbors(neighbours);
+                    }
+            );
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

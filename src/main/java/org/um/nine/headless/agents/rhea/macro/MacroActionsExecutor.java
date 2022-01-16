@@ -1,10 +1,8 @@
 package org.um.nine.headless.agents.rhea.macro;
 
 import org.um.nine.headless.agents.rhea.state.IState;
-import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
-import org.um.nine.headless.game.domain.roles.Medic;
 
 import java.util.Comparator;
 import java.util.List;
@@ -28,14 +26,12 @@ public record MacroActionsExecutor() {
             } else if (c == 's') {
                 List<ActionType.StandingAction> toTreat = actionCity.get(macro.standingActions().get(s).applyTo());
                 int d = toTreat == null ? 0 : toTreat.size() - treated;
-                treated += executeStandingAction(d, state, macro.standingActions().get(s));
+                treated += executeStandingAction(state, macro.standingActions().get(s));
                 s++;
             }
         }
         if (draw)
             state.getPlayerRepository().playerAction(null, state);
-        else
-            state.getPlayerRepository().nextPlayer();
     }
 
     public void executeMovingAction(IState state, ActionType.MovingAction action) throws Exception {
@@ -43,28 +39,16 @@ public record MacroActionsExecutor() {
         state.getPlayerRepository().playerAction(action.action(), state);
     }
 
-    public int executeStandingAction(int n, IState state, ActionType.StandingAction action) throws Exception {
+    public int executeStandingAction(IState state, ActionType.StandingAction action) throws Exception {
         int treated = 0;
         state.getBoardRepository().setSelectedCity(state.getCityRepository().getCities().get(action.applyTo().getName()));
         Object[] obj = null;
         ActionType executedAction = action.action();
         switch (action.action()) {
             case TREAT_DISEASE -> {
-                try {
-                    Map<Color, List<Disease>> grouped = state.getPlayerRepository().getCurrentPlayer().getCity().getCubes().stream().collect(Collectors.groupingBy(Disease::getColor));
-                    if (state.getPlayerRepository().getCurrentPlayer().getRole() instanceof Medic) {
-                        var x = grouped.values().stream().max(Comparator.comparingInt(List::size)).orElse(null);
-                        obj = new Object[]{requireNonNull(requireNonNull(x).get(0).getColor())};
-                    } else {
-                        var c = grouped.entrySet().stream().filter(list -> list.getValue().size() >= n).findFirst().orElse(null);
-                        obj = new Object[]{requireNonNull(c).getKey()};
-                    }
-                } catch (NullPointerException noDiseases) {
-                    noDiseases.printStackTrace();
-                    System.err.println(noDiseases.getMessage() + " :: " + action + " :: " + IReportable.REPORT_PATH[0]);
-                    //TODO: fix not allowed actions here
-                    executedAction = ActionType.SKIP_ACTION;
-                }
+                Map<Color, List<Disease>> grouped = state.getPlayerRepository().getCurrentPlayer().getCity().getCubes().stream().collect(Collectors.groupingBy(Disease::getColor));
+                var x = grouped.values().stream().max(Comparator.comparingInt(List::size)).orElse(null);
+                obj = new Object[]{requireNonNull(requireNonNull(x).get(0).getColor())};
                 treated = 1;
             }
             case SHARE_KNOWLEDGE -> {

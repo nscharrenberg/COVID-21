@@ -8,7 +8,7 @@ public class InvalidMoveException extends Exception {
     private final Player player;
 
     public InvalidMoveException(City city, Player player) {
-        super("Unable to move " + player.getName() + " to " + city.getName());
+        super("Unable to move " + player.getName() + " from " + player.getCity().getName() + " to " + city.getName());
         this.city = city;
         this.player = player;
     }

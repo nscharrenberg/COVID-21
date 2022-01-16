@@ -1,6 +1,7 @@
 package org.um.nine.headless.game.utils;
 
 import org.um.nine.headless.game.contracts.repositories.IPlayerRepository;
+import org.um.nine.headless.game.domain.Card;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.Player;
@@ -125,5 +126,18 @@ public class CardUtils {
         }
 
         return shuffle(difficulty, deck);
+    }
+
+    public static class StackCloner<T extends Card> {
+        public Stack<T> cloneStack(Stack<T> stack) {
+            Stack<T> reversed = new Stack<>(), clone = new Stack<>();
+            while (!stack.isEmpty()) reversed.push(stack.pop());
+            while (!reversed.isEmpty()) {
+                var item = reversed.pop();
+                stack.push(item);
+                clone.push((T) item.clone());
+            }
+            return clone;
+        }
     }
 }

@@ -10,11 +10,38 @@ import org.um.nine.headless.game.utils.CityUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CityRepository implements ICityRepository {
     private HashMap<String, City> cities;
     private List<ResearchStation> researchStations;
+
     public CityRepository() {
+    }
+
+    @Override
+    public CityRepository clone() {
+        try {
+            CityRepository clone = (CityRepository) super.clone();
+            HashMap<String, City> clonedCities = new HashMap<>();
+            this.cities.forEach((s, city) -> {
+                City cloned = city.clone();
+                clonedCities.put(s, cloned);
+            });
+            clone.cities = clonedCities;
+            clone.researchStations = this.getResearchStations().
+                    stream().
+                    map(ResearchStation::clone).
+                    peek(rs -> rs.setCity(
+                            clone.cities.get(rs.getCity().getName())
+                    )).
+                    collect(Collectors.toList());
+
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

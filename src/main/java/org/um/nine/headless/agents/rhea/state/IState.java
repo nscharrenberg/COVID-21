@@ -5,18 +5,16 @@ import org.um.nine.headless.game.domain.Color;
 import org.um.nine.headless.game.domain.Cure;
 import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.cards.CityCard;
+import org.um.nine.headless.game.domain.cards.InfectionCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.stream.Collectors.groupingBy;
 import static org.um.nine.headless.agents.rhea.state.StateEvaluation.abilityCure2;
 import static org.um.nine.headless.game.Settings.DEFAULT_CLONER;
 
-public interface IState {
+public interface IState extends Cloneable {
 
     default void reset() {
         getBoardRepository().reset();
@@ -75,8 +73,18 @@ public interface IState {
     }
 
     default IState getClonedState() {
-        return DEFAULT_CLONER.deepClone(this);
+        Stack<PlayerCard> playerDeck = (Stack<PlayerCard>) getCardRepository().getPlayerDeck().clone();
+        Stack<InfectionCard> infectionDeck = (Stack<InfectionCard>) getCardRepository().getInfectionDeck().clone();
+        Stack<InfectionCard> infectionDiscard = (Stack<InfectionCard>) getCardRepository().getInfectionDiscardPile().clone();
+        IState clone = DEFAULT_CLONER.deepClone(this);
+        clone.getCardRepository().setPlayerDeck(playerDeck);
+        clone.getCardRepository().setInfectionDeck(infectionDeck);
+        clone.getCardRepository().setInfectionDiscardPile(infectionDiscard);
+        return clone;
     }
+
+
+    IState clone();
 
     default PlayerCard[] getDiscardingCard() {
         PlayerCard discarding = null;

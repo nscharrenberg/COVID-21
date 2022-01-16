@@ -37,14 +37,13 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
 
     public Individual initGenome(IState state) {
         IState initState = state.getClonedState();
-        Player player = initState.getPlayerRepository().getCurrentPlayer();
-        String gamePath = getPath();
-        String initGenomePath = gamePath + "/" + player.toString() + "/genome-init";
-        if (LOG) setPath(initGenomePath);
 
+        Player player = initState.getPlayerRepository().getCurrentPlayer();
+        String gamePath = this.getPath();
+        String initGenomePath = gamePath + "/" + player + "/genome-init";
+        if (LOG) this.setPath(initGenomePath);
         for (int i = 0; i < this.genome().length; i++) {
             ROUND_INDEX = i;
-
             City currentCity = player.getCity();
             if (LOG) setPath(initGenomePath + "/round-" + ROUND_INDEX + "-" + currentCity.getName() + ".txt");
             MacroAction nextMacro = HPAMacroActionsFactory.init(initState, currentCity, player).getNextMacroAction();
@@ -56,7 +55,10 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
             try {
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(initState, nextMacro, true);
             } catch (Exception e) {
+                e.printStackTrace();
                 System.err.println(e.getMessage() + " :: " + REPORT_PATH[0]);
+                this.report();
+                break;
             }
 
             initState.getPlayerRepository().setCurrentPlayer(player); //trick the game logic here to allow fault turn
@@ -64,7 +66,13 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         }
 
         ROUND_INDEX = 0;
-        if (LOG) setPath(gamePath);
+
+        if (LOG) {
+            this.setPath(gamePath + "/" + player);
+            this.reportInitialState(initState, "/after-init-state-report.txt");
+            this.logGenome(this.genome());
+            this.setPath(gamePath);
+        }
         return this;
     }
 
@@ -95,7 +103,7 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
             Individual child = ancestor.generateChild();
 
             try {
-                DEFAULT_MUTATOR.mutateIndividual(mutationState, child, mutationRate);
+                DEFAULT_MUTATOR.mutateIndividual(mutationState.getClonedState(), child, mutationRate);
                 if (child.betterThan(ancestor, mutationState)) {  //all macro actions are better
                     successfulMutations++;
                     ancestor = child.generateChild(); //cloned
@@ -104,6 +112,7 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
             } catch (GameOverException ignored) {
             } catch (Exception e) {
                 e.printStackTrace();
+                System.err.println(e.getMessage() + " :: " + IReportable.REPORT_PATH[0]);
             }
         }
         if (LOG) setPath(gamePath);

@@ -4,6 +4,7 @@ import org.um.nine.headless.agents.rhea.pathfinder.PathFinder2;
 import org.um.nine.headless.agents.rhea.pathfinder.PathFinder3;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.rhea.state.StateEvaluation;
+import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
@@ -21,7 +22,7 @@ import static org.um.nine.headless.agents.rhea.macro.MacroAction.combine;
 import static org.um.nine.headless.agents.rhea.macro.MacroAction.macro;
 import static org.um.nine.headless.game.domain.ActionType.*;
 
-public abstract class MacroActionFactory {
+public abstract class MacroActionFactory implements IReportable {
 
     protected PathFinder3 pathFinder;
     protected IState state;
@@ -71,7 +72,7 @@ public abstract class MacroActionFactory {
         for (City c : getInstance().state.getCityRepository().getCities().values()) {
             List<MovingAction> shortestPath = getInstance().pathFinder.lightestPath(c);
             List<StandingAction> s = new ArrayList<>();
-            if (shortestPath.size() <= N) {
+            if (shortestPath.size() != 0 && shortestPath.size() <= N) {
                 for (int i = 0; i < N - shortestPath.size(); i++)
                     s.add(new ActionType.StandingAction(NO_ACTION, c, null, null));
                 actions.add(macro(shortestPath, s));
@@ -119,7 +120,6 @@ public abstract class MacroActionFactory {
 
     protected static List<MacroAction> buildDiscoverCureMacroActions() {
         List<MacroAction> curingActions = new ArrayList<>();
-
         Player current = getInstance().getCurrentPlayer();
         int needed = StateEvaluation.Cd(current);
 
@@ -337,35 +337,34 @@ public abstract class MacroActionFactory {
         return new ArrayList<>();
     }
 
-    protected static List<MacroAction> buildTreatDiseaseMacroActions(int t) {
+    protected static List<MacroAction> buildTreatDiseaseMacroActions(int nDiseases) {
         var treatDiseaseMacroActionList = new ArrayList<MacroAction>();
         for (Map.Entry<String, City> sc : getInstance().state.getCityRepository().getCities().entrySet()) {
-            List<ActionType.MovingAction> shortestPath =
-                    t == 3 ? getInstance().pathFinder.getPath(sc.getValue(), false) :
-                            getInstance().pathFinder.lightestPath(sc.getValue());
-            if (shortestPath.size() == 0 && !sc.getValue().equals(getInstance().getCurrentPlayer().getCity()))
-                continue;
-            Map<Color, List<Disease>> grouped = sc.getValue().getCubes().stream().collect(
-                    Collectors.groupingBy(Disease::getColor)
-            );
+            List<ActionType.MovingAction> shortestPath = nDiseases == 3 ? getInstance().pathFinder.getPath(sc.getValue(), false) : getInstance().pathFinder.lightestPath(sc.getValue());
+
+            if (shortestPath.size() == 0 && !sc.getValue().equals(getInstance().getCurrentPlayer().getCity())) continue;
+
+            Map<Color, List<Disease>> grouped = sc.getValue().getCubes().stream().collect(Collectors.groupingBy(Disease::getColor));
 
             for (Map.Entry<Color, List<Disease>> diseases : grouped.entrySet()) {
-                int cubes = diseases.getValue().size();
+                int cubesOfColor = diseases.getValue().size();
                 int movingActions = shortestPath.size();
-                if (cubes >= 1 && movingActions <= 3) {
-                    int treats = 0;
+                if (cubesOfColor >= 1 && movingActions <= 3) {
+                    int treated = 0;
                     int availableMoves = 4 - movingActions;
+                    if (availableMoves < nDiseases) continue;
+
                     List<ActionType.StandingAction> standingActions = new ArrayList<>();
-                    boolean medic = getInstance().getCurrentPlayer().getRole() instanceof Medic
-                            || getInstance().state.getDiseaseRepository().getCures().get(diseases.getKey()).isDiscovered();
-                    while (treats < t) {
-                        boolean m = treats >= 1 && medic;
-                        if (availableMoves > treats && cubes > treats && !m)
+                    boolean medic = getInstance().getCurrentPlayer().getRole() instanceof Medic;
+                    boolean discovered = getInstance().state.getDiseaseRepository().getCures().get(diseases.getKey()).isDiscovered();
+                    while (treated < nDiseases) {
+                        boolean addOneTreatDisease = (medic || discovered) && treated >= 1;   //if medic or discovered
+                        if (availableMoves > treated && cubesOfColor > treated && !addOneTreatDisease)
                             //if medic or cure discovered add only one treat disease action no matter how many cubes
                             standingActions.add(new ActionType.StandingAction(TREAT_DISEASE, sc.getValue(), null, null));
-                        treats++;
+                        treated++;
                     }
-                    if (standingActions.size() == t || (medic && cubes == t))
+                    if (standingActions.size() == nDiseases || (medic && cubesOfColor == nDiseases))
                         treatDiseaseMacroActionList.add(new MacroAction.TreatDiseaseMacro(shortestPath, standingActions));
                 }
             }
@@ -374,6 +373,15 @@ public abstract class MacroActionFactory {
         return treatDiseaseMacroActionList;
     }
 
+    @SafeVarargs
+    protected static List<String> logMacros(List<MacroAction>... lists) {
+        List<String> log = new ArrayList<>();
+        for (List<MacroAction> list : lists) {
+            list.forEach(macro -> log.add(macro.toString()));
+            log.add("\n");
+        }
+        return log;
+    }
 
     protected Player getCurrentPlayer() {
         return getInstance().currentPlayer == null ? getInstance().state.getPlayerRepository().getCurrentPlayer() : getInstance().currentPlayer;

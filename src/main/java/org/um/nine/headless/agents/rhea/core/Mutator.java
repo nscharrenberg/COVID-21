@@ -12,7 +12,7 @@ import static org.um.nine.headless.game.Settings.*;
 public record Mutator() implements IReportable {
     //public static final int N_EVALUATION_SIMULATIONS = 5;
     public static final double INITIAL_MUTATION_RATE = 1d, FINAL_MUTATION_RATE = 0.5;
-    public static final int N_MUTATIONS = 10;
+    public static final int N_MUTATIONS = 3;
     public static int successfulMutations = 0;
 
     public static double map(double value, double min1, double max1, double min2, double max2) {
@@ -68,7 +68,9 @@ public record Mutator() implements IReportable {
 
             try {
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(initialState, macroIndex, true);
-            } catch (GameOverException ignored) {
+            } catch (GameOverException e) {
+                System.err.println(e.getMessage() + " :: " + REPORT_PATH[0]);
+                return;
             } catch (Exception e) {
                 System.err.println(e.getMessage() + " :: " + REPORT_PATH[0]);
             }

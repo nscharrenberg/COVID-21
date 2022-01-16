@@ -5,8 +5,9 @@ import org.um.nine.headless.game.domain.cards.PlayerCard;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
-public class Player {
+public class Player implements Cloneable {
     private static int INCREMENT = 0;
     private int id;
     private String name;
@@ -15,12 +16,20 @@ public class Player {
     private boolean isBot;
     private List<PlayerCard> hand;
 
+    public Player clone() {
+        Player other = new Player(this.name, this.getCity(), this.isBot);
+        other.setId(this.id);
+        other.setRole(this.role);
+        other.city = this.getCity();
+        other.setHand(this.getHand().stream().map(PlayerCard::clone).peek(card -> card.setPlayer(this)).collect(Collectors.toList()));
+        return other;
+    }
+
     public Player(String name, boolean isBot) {
         this.id = INCREMENT;
         this.name = name;
         this.isBot = isBot;
         this.hand = new ArrayList<>();
-
         INCREMENT++;
     }
 
@@ -60,6 +69,10 @@ public class Player {
 
     public City getCity() {
         return city;
+    }
+
+    public void setCityField(City cityField) {
+        this.city = cityField;
     }
 
     public void setCity(City city) {

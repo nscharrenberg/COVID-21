@@ -8,9 +8,13 @@ import org.um.nine.headless.game.domain.roles.RoleEvent;
 import org.um.nine.headless.game.exceptions.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.um.nine.headless.game.Settings.DEFAULT_REPORTER;
+import static org.um.nine.headless.game.Settings.DEFAULT_RUNNING_GAME;
 
 public class DiseaseRepository implements IDiseaseRepository {
 
@@ -19,11 +23,34 @@ public class DiseaseRepository implements IDiseaseRepository {
     private HashMap<Color, Cure> cures;
     private HashMap<Color, List<Disease>> cubes;
     private boolean gameOver;
+
     public DiseaseRepository() {
+    }
+
+    @Override
+    public DiseaseRepository clone() {
+        try {
+            DiseaseRepository clone = (DiseaseRepository) super.clone();
+            clone.setInfectionRates(new ArrayList<>());
+            clone.setOutbreakMarkers(new ArrayList<>());
+            Collections.copy(this.getInfectionRates(), clone.getInfectionRates());
+            Collections.copy(this.getOutbreakMarkers(), clone.getOutbreakMarkers());
+
+            clone.setCubes(new HashMap<>());
+            this.getCubes().forEach((color, diseases) -> clone.getCubes().put(color, diseases.stream().map(Disease::clone).collect(Collectors.toList())));
+
+            clone.setCures(new HashMap<>());
+            this.getCures().forEach((color, cure) -> clone.getCures().put(color, cure.clone()));
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
      * "Move" the outbreak marker to the next position.
+     *
      * @throws GameOverException - Thrown when its trying to exceed the last marker.
      */
     @Override
@@ -40,6 +67,7 @@ public class DiseaseRepository implements IDiseaseRepository {
 
         if (nextMarker == null) {
             this.gameOver = true;
+            DEFAULT_RUNNING_GAME.append("GAME OVER MAX OUTBREAKS");
             throw new GameOverException();
         }
 
@@ -116,8 +144,10 @@ public class DiseaseRepository implements IDiseaseRepository {
         }
 
         found.setCity(city);
+        DEFAULT_REPORTER.append("Infecting city " + city);
         if(!city.addCube(found)) {
             initOutbreak(city, found);
+            DEFAULT_REPORTER.append("Outbreak occured in "+city);
         }
     }
 
@@ -206,9 +236,9 @@ public class DiseaseRepository implements IDiseaseRepository {
         this.cubes.put(Color.BLACK, new ArrayList<>());
         this.gameOver = false;
 
-        initCubes();
-        initCures();
-        initMarkers();
+        this.initCubes();
+        this.initCures();
+        this.initMarkers();
     }
 
     @Override

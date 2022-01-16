@@ -8,6 +8,7 @@ import org.um.nine.headless.agents.utils.IReportable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.um.nine.headless.game.Settings.DEFAULT_REPORTER;
 import static org.um.nine.headless.game.Settings.LOG;
 
 public class ExperimentalGame implements IReportable {
@@ -20,7 +21,10 @@ public class ExperimentalGame implements IReportable {
         this.currentState = state;
         this.actions = new ArrayList<>();
         this.id = INCREMENT++;
-        if (LOG) this.setPath(REPORT_PATH[0] + "/game-" + this.getId());
+        if (LOG) {
+            this.setPath(REPORT_PATH[0] + "/game-" + this.getId());
+            DEFAULT_REPORTER.reportInitialState(this.currentState, "/initial-state-report.txt");
+        }
     }
 
     public ExperimentalGame() {

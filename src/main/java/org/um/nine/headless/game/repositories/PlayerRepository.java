@@ -13,6 +13,7 @@ import org.um.nine.headless.game.domain.roles.*;
 import org.um.nine.headless.game.exceptions.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.um.nine.headless.game.Settings.*;
 
@@ -32,6 +33,31 @@ public class PlayerRepository implements IPlayerRepository {
     private int infectionLeft = INFECTION_COUNT;
     private Logger log = new Logger();
     private boolean logged = false;
+
+    @Override
+    public PlayerRepository clone() {
+        try {
+            PlayerRepository other = (PlayerRepository) super.clone();
+            other.players = new HashMap<>();
+            this.players.forEach((k, v) -> other.players.put(k, v.clone()));
+            if (this.availableRoles != null) {
+                other.availableRoles = new Stack<>();
+                Collections.copy(this.availableRoles, other.availableRoles);
+            }
+            other.currentPlayer = other.players.get(this.getCurrentPlayer().getName());
+            other.playerOrder = this.playerOrder.stream().map(player -> other.players.get(player.getName())).collect(Collectors.toCollection(LinkedList::new));
+            other.currentRoundState = this.getCurrentRoundState();
+            other.actionsLeft = this.actionsLeft;
+            other.drawLeft = this.drawLeft;
+            other.infectionLeft = this.infectionLeft;
+            other.log = this.log;
+            other.logged = this.logged;
+            return other;
+        } catch (CloneNotSupportedException | ClassCastException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public PlayerRepository() {
 
@@ -54,12 +80,19 @@ public class PlayerRepository implements IPlayerRepository {
         this.infectionLeft = INFECTION_COUNT;
 
         if (DEFAULT_INITIAL_STATE) {
-            DEFAULT_ROLES.entrySet().stream().forEachOrdered(e -> {
-                Player p = new Player(e.getKey(), true);
-                p.setRole(e.getValue());
-                this.getPlayers().put(e.getKey(), p);
-                DEFAULT_PLAYERS.add(p);
+            DEFAULT_ROLES.forEach((key, value) -> {
+                Player p = new Player(key, true);
+                p.setRole(value);
+                this.getPlayers().put(key, p);
             });
+
+            this.getPlayers().
+                    entrySet().
+                    stream().
+                    sorted(Comparator.comparing(
+                            kv -> Integer.parseInt(kv.getKey().split(" ")[1])
+                    )).
+                    forEach(kv -> DEFAULT_PLAYERS.add(kv.getValue()));
         }
         else {
             //save some memory
@@ -77,6 +110,7 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
     }
+
 
     /**
      * Move a player to an adjacent city of its current city.
@@ -465,10 +499,12 @@ public class PlayerRepository implements IPlayerRepository {
 
                 }
                 else if (type.equals(ActionType.DISCOVER_CURE)) {
+                    Object found;
                     if (args.length <= 0) {
                         throw new Exception("You need to select a cure to discover.");
-                    }
-                    Object found = args[0];
+                    } else
+                        found = args[0];
+
                     try {
                         Cure cure = (Cure) found;
                         state.getDiseaseRepository().discoverCure(player, cure);

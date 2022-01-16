@@ -8,7 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public interface IDiseaseRepository {
+import static org.um.nine.headless.game.Settings.DEFAULT_REPORTER;
+
+public interface IDiseaseRepository extends Cloneable {
+    IDiseaseRepository clone();
+
     default void initMarkers() {
         getInfectionRates().add(new InfectionRateMarker(2, true));
         getInfectionRates().add(new InfectionRateMarker(2));
@@ -69,6 +73,7 @@ public interface IDiseaseRepository {
             return;
         }
 
+        DEFAULT_REPORTER.append("Chained outbreak in " + city);
         List<City> neighbors = city.getNeighbors();
         previousOutbreaks.add(city);
 

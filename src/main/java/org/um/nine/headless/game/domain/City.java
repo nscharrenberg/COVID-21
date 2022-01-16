@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class City {
+public class City implements Cloneable {
     public static int INCREMENT = 0;
-    private final int id;
+    private int id;
     private String name;
     private Color color;
     private Vector3f location;
@@ -19,13 +19,29 @@ public class City {
     private List<Player> pawns = new ArrayList<>();
     private List<City> neighbors = new ArrayList<>();
 
+    public City clone() {
+        try {
+            City other = (City) super.clone();
+            other.setName(this.getName());
+            other.setColor(this.getColor());
+            other.setLocation(this.getLocation());
+            other.setId(this.getId());
+            other.setPopulation(this.getPopulation());
+            // TODO: set cubes, pawns, neighbours
+            return other;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public City(String name, Color color, Vector3f location) {
         this.id = INCREMENT;
         this.name = name;
         this.color = color;
         this.location = location;
 
-        INCREMENT = INCREMENT > 48? 0 : INCREMENT+1;
+        INCREMENT = INCREMENT > 48 ? 0 : INCREMENT + 1;
     }
 
     public int getId() {
@@ -202,5 +218,9 @@ public class City {
         result = 31 * result + location.hashCode();
         result = 31 * result + population;
         return result;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

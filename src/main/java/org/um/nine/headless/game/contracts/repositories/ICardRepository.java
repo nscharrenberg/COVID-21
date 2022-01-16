@@ -10,7 +10,9 @@ import org.um.nine.headless.game.exceptions.NoDiseaseOrOutbreakPossibleDueToEven
 import java.util.LinkedList;
 import java.util.Stack;
 
-public interface ICardRepository {
+public interface ICardRepository extends Cloneable {
+    ICardRepository clone();
+
     void reset();
 
     void drawPlayerCard(IState state, PlayerCard... toDiscard) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException;
