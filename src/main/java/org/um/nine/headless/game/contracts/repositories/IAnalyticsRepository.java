@@ -1,5 +1,6 @@
 package org.um.nine.headless.game.contracts.repositories;
 
+import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.analytics.GameAnalytics;
 
 import java.beans.PropertyChangeListener;
@@ -8,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public interface IAnalyticsRepository {
-    void start();
+    void start(IState state);
 
     void won();
 
@@ -28,7 +29,7 @@ public interface IAnalyticsRepository {
 
     List<GameAnalytics> getGameAnalytics();
 
-    GameAnalytics getCurrentGameAnalytics();
+    GameAnalytics getCurrentGameAnalytics(IState state);
 
     GameAnalytics getGameAnalyticById(int id);
 

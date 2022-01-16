@@ -1,5 +1,6 @@
 package org.um.nine.headless.game.repositories;
 
+import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.contracts.repositories.IAnalyticsRepository;
 import org.um.nine.headless.game.domain.analytics.GameAnalytics;
 
@@ -14,9 +15,9 @@ public class AnalyticsRepository implements IAnalyticsRepository {
    private List<GameAnalytics> gameAnalytics = new ArrayList<>();
 
    @Override
-   public void start() {
+   public void start(IState state) {
        this.gameId++;
-       gameAnalytics.add(new GameAnalytics(this.gameId));
+       gameAnalytics.add(new GameAnalytics(this.gameId, state));
    }
 
     /**
@@ -112,11 +113,11 @@ public class AnalyticsRepository implements IAnalyticsRepository {
     }
 
     @Override
-    public GameAnalytics getCurrentGameAnalytics() {
+    public GameAnalytics getCurrentGameAnalytics(IState state) {
         GameAnalytics found = getGameAnalyticById(this.gameId);
 
         if (found == null) {
-            start();
+            start(state);
         }
 
         return getGameAnalyticById(this.gameId);
