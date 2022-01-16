@@ -175,7 +175,7 @@ public class MCTSAgentTests {
         IState state = game.getCurrentState();
         MacroMCTS mcts = new MacroMCTS(state,200);
         MacroAction m = mcts.run(state);
-        System.out.println(m);
+        System.out.println("Final move: " + m);
     }
 
 
