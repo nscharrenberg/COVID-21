@@ -8,9 +8,9 @@ import org.um.nine.headless.game.domain.roles.RoleEvent;
 import org.um.nine.headless.game.exceptions.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.um.nine.headless.game.Settings.DEFAULT_REPORTER;
@@ -31,11 +31,8 @@ public class DiseaseRepository implements IDiseaseRepository {
     public DiseaseRepository clone() {
         try {
             DiseaseRepository clone = (DiseaseRepository) super.clone();
-            clone.setInfectionRates(new ArrayList<>());
-            clone.setOutbreakMarkers(new ArrayList<>());
-            Collections.copy(this.getInfectionRates(), clone.getInfectionRates());
-            Collections.copy(this.getOutbreakMarkers(), clone.getOutbreakMarkers());
-
+            clone.setInfectionRates(new ArrayList<>(List.copyOf(this.getInfectionRates())));
+            clone.setOutbreakMarkers(new ArrayList<>(List.copyOf(this.getOutbreakMarkers())));
             clone.setCubes(new HashMap<>());
             this.getCubes().forEach((color, diseases) -> clone.getCubes().put(color, diseases.stream().map(Disease::clone).collect(Collectors.toList())));
 
@@ -280,4 +277,17 @@ public class DiseaseRepository implements IDiseaseRepository {
     public void setCubes(HashMap<Color, List<Disease>> cubes) {
         this.cubes = cubes;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DiseaseRepository that = (DiseaseRepository) o;
+        return gameOver == that.gameOver &&
+                Objects.equals(infectionRates, that.infectionRates) &&
+                Objects.equals(outbreakMarkers, that.outbreakMarkers) &&
+                Objects.equals(cures, that.cures) &&
+                Objects.equals(cubes, that.cubes);
+    }
+
 }

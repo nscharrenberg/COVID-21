@@ -15,10 +15,7 @@ import org.um.nine.headless.game.exceptions.NoDiseaseOrOutbreakPossibleDueToEven
 import org.um.nine.headless.game.utils.CardUtils;
 import org.um.nine.headless.game.utils.CityUtils;
 
-import java.util.Collections;
-import java.util.EmptyStackException;
-import java.util.LinkedList;
-import java.util.Stack;
+import java.util.*;
 
 import static org.um.nine.headless.game.Settings.*;
 
@@ -36,8 +33,7 @@ public class CardRepository implements ICardRepository {
         try {
             CardRepository clone = (CardRepository) super.clone();
             clone.setPlayerDeck(new CardUtils.StackCloner<PlayerCard>().cloneStack(this.playerDeck));
-            clone.setEventDiscardPile(new LinkedList<>());
-            Collections.copy(this.eventDiscardPile, clone.getEventDiscardPile());
+            clone.setEventDiscardPile(new LinkedList<>(List.copyOf(this.getEventDiscardPile())));
             clone.setInfectionDeck(new CardUtils.StackCloner<InfectionCard>().cloneStack(this.infectionDeck));
             clone.setInfectionDiscardPile(new CardUtils.StackCloner<InfectionCard>().cloneStack(this.infectionDiscardPile));
             return clone;
@@ -195,5 +191,20 @@ public class CardRepository implements ICardRepository {
     public void setInfectionDiscardPile(Stack<InfectionCard> infectionDiscardPile) {
         this.infectionDiscardPile = infectionDiscardPile;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CardRepository that = (CardRepository) o;
+
+        return Objects.equals(playerDeck, that.playerDeck) &&
+                Objects.equals(eventDiscardPile, that.eventDiscardPile) &&
+                Objects.equals(infectionDeck, that.infectionDeck) &&
+                Objects.equals(infectionDiscardPile, that.infectionDiscardPile);
+    }
+
+
 }
 

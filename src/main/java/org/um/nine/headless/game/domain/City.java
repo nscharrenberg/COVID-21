@@ -5,6 +5,7 @@ import com.jme3.math.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class City implements Cloneable {
@@ -204,20 +205,10 @@ public class City implements Cloneable {
         City city = (City) o;
 
         //if (id != city.id) return false;
-        if (population != city.population) return false;
-        if (!name.equals(city.name)) return false;
-        if (color != city.color) return false;
-        return location.equals(city.location);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id;
-        result = 31 * result + name.hashCode();
-        result = 31 * result + color.hashCode();
-        result = 31 * result + location.hashCode();
-        result = 31 * result + population;
-        return result;
+        return population == city.population &&
+                Objects.equals(name, city.name) &&
+                color == city.color &&
+                Objects.equals(location, city.location);
     }
 
     public void setId(int id) {

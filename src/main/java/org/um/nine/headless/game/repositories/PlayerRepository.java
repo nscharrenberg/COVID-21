@@ -41,8 +41,7 @@ public class PlayerRepository implements IPlayerRepository {
             other.players = new HashMap<>();
             this.players.forEach((k, v) -> other.players.put(k, v.clone()));
             if (this.availableRoles != null) {
-                other.availableRoles = new Stack<>();
-                Collections.copy(this.availableRoles, other.availableRoles);
+                other.availableRoles = (Stack<Role>) this.availableRoles.clone();
             }
             other.currentPlayer = other.players.get(this.getCurrentPlayer().getName());
             other.playerOrder = this.playerOrder.stream().map(player -> other.players.get(player.getName())).collect(Collectors.toCollection(LinkedList::new));
@@ -685,4 +684,25 @@ public class PlayerRepository implements IPlayerRepository {
     public Logger getLog() {
         return log;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PlayerRepository that = (PlayerRepository) o;
+
+        return actionsLeft == that.actionsLeft &&
+                drawLeft == that.drawLeft &&
+                infectionLeft == that.infectionLeft &&
+                logged == that.logged &&
+                Objects.equals(players, that.players) &&
+                Objects.equals(availableRoles, that.availableRoles) &&
+                Objects.equals(currentPlayer, that.currentPlayer) &&
+                Objects.equals(playerOrder, that.playerOrder) &&
+                currentRoundState == that.currentRoundState &&
+                Objects.equals(log, that.log);
+    }
+
+
 }

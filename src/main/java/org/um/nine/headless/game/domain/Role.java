@@ -4,10 +4,11 @@ import org.um.nine.headless.game.domain.roles.RoleAction;
 import org.um.nine.headless.game.domain.roles.RoleEvent;
 
 import java.util.List;
+import java.util.Objects;
 
 public abstract class Role {
     private static int INCREMENT = 0;
-    private int id;
+    private final int id;
     private String name;
     private Color color;
 
@@ -19,11 +20,24 @@ public abstract class Role {
         INCREMENT++;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Role role = (Role) o;
+        return id == role.id &&
+                color == role.color &&
+                Objects.equals(name, role.name);
+    }
+
+
     /**
      * Perform a specific action that a user can take.
      * e.g. Build a research station in the city you are in (no discord needed)
      */
     public abstract boolean actions(RoleAction key);
+
     public abstract List<org.um.nine.headless.game.domain.roles.RoleAction> actions();
 
     /**

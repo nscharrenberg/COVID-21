@@ -7,6 +7,17 @@ public class Cure implements Cloneable {
     private boolean discovered;
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Cure cure = (Cure) o;
+        return id == cure.id &&
+                discovered == cure.discovered &&
+                color == cure.color;
+    }
+
+
+    @Override
     public Cure clone() {
         try {
             Cure clone = (Cure) super.clone();

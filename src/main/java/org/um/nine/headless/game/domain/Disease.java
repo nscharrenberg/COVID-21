@@ -1,5 +1,7 @@
 package org.um.nine.headless.game.domain;
 
+import java.util.Objects;
+
 public class Disease implements Cloneable {
     private static int INCREMENT = 0;
     private int id;
@@ -47,6 +49,19 @@ public class Disease implements Cloneable {
     public void setCity(City city) {
         this.city = city;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Disease disease = (Disease) o;
+
+        return id == disease.id &&
+                color == disease.color &&
+                Objects.equals(city, disease.city);
+    }
+
 
     @Override
     public String toString() {

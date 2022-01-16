@@ -8,6 +8,7 @@ import org.um.nine.headless.game.domain.RoundState;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class State implements IState {
@@ -16,6 +17,8 @@ public class State implements IState {
         IState original = (GameStateFactory.createInitialState());
         IState cloned = original.clone();
 
+        System.out.println(original.equals(cloned));
+
 
         original.getPlayerRepository().setCurrentRoundState(RoundState.DRAW);
         try {
@@ -23,18 +26,24 @@ public class State implements IState {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        debugState(original, original.getDiseaseRepository());
+
+        System.out.println(original.equals(cloned));
+
+        debugState(original);
         System.out.println("=========================================================================================================================");
-        debugState(cloned, original.getDiseaseRepository());
+        debugState(cloned);
 
     }
 
-    public static void debugState(IState original, IDiseaseRepository diseaseRepository) {
-        original.getCityRepository().getCities().values().stream().map(City::getCubes).filter(list -> !list.isEmpty()).forEach(System.out::println);
+    public static void debugState(IState state) {
+
+        state.getCityRepository().getCities().values().stream().map(City::getCubes).filter(list -> !list.isEmpty()).forEach(System.out::println);
         System.out.println();
-        diseaseRepository.getCubes().forEach((color, list) -> {
+        state.getDiseaseRepository().getCubes().forEach((color, list) -> {
             System.out.println(color + " -> " + list.stream().filter(disease -> disease.getCity() != null).map(disease -> disease.getCity().getName() + " " + disease.getColor()).collect(Collectors.toList()));
         });
+
+
     }
 
     private IDiseaseRepository iDiseaseRepository;
@@ -169,4 +178,18 @@ public class State implements IState {
         }
         return null;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        State state = (State) o;
+        return Objects.equals(iDiseaseRepository, state.iDiseaseRepository) &&
+                Objects.equals(iPlayerRepository, state.iPlayerRepository) &&
+                Objects.equals(iEpidemicRepository, state.iEpidemicRepository) &&
+                Objects.equals(iCityRepository, state.iCityRepository) &&
+                Objects.equals(iCardRepository, state.iCardRepository) &&
+                Objects.equals(iBoardRepository, state.iBoardRepository);
+    }
+
 }

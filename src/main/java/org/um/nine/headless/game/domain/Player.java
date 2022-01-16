@@ -5,6 +5,7 @@ import org.um.nine.headless.game.domain.cards.PlayerCard;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Player implements Cloneable {
@@ -86,6 +87,22 @@ public class Player implements Cloneable {
             this.city.addPawn(this);
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Player player = (Player) o;
+
+        return id == player.id &&
+                isBot == player.isBot &&
+                Objects.equals(name, player.name) &&
+                Objects.equals(role, player.role) &&
+                Objects.equals(city, player.city) &&
+                Objects.equals(hand, player.hand);
+    }
+
 
     public boolean isBot() {
         return isBot;

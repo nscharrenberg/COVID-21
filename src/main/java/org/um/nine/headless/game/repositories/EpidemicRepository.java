@@ -25,4 +25,8 @@ public class EpidemicRepository implements IEpidemicRepository {
         intensify(state);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof EpidemicRepository;
+    }
 }

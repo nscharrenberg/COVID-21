@@ -9,8 +9,8 @@ import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.roles.RoleAction;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static org.um.nine.headless.game.Settings.DEFAULT_INITIAL_STATE;
 
@@ -28,8 +28,7 @@ public class BoardRepository implements IBoardRepository {
             clone.setSelectedCity(this.getSelectedCity());
             clone.setSelectedRoleAction(this.getSelectedRoleAction());
             clone.setSelectedPlayerAction(this.getSelectedPlayerAction());
-            clone.setUsedActions(new ArrayList<>());
-            Collections.copy(this.usedActions, clone.getUsedActions());
+            clone.setUsedActions(new ArrayList<>(List.copyOf(this.usedActions)));
             clone.setDifficulty(this.getDifficulty());
             return clone;
         } catch (CloneNotSupportedException e) {
@@ -136,4 +135,19 @@ public class BoardRepository implements IBoardRepository {
         resetRound();
 
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BoardRepository that = (BoardRepository) o;
+
+        return Objects.equals(selectedCity, that.selectedCity) &&
+                selectedRoleAction == that.selectedRoleAction &&
+                selectedPlayerAction == that.selectedPlayerAction &&
+                Objects.equals(usedActions, that.usedActions) &&
+                difficulty == that.difficulty;
+    }
+
 }

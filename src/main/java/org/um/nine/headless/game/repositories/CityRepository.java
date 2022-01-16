@@ -10,6 +10,7 @@ import org.um.nine.headless.game.utils.CityUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class CityRepository implements ICityRepository {
@@ -112,4 +113,17 @@ public class CityRepository implements ICityRepository {
     public void setResearchStations(List<ResearchStation> researchStations) {
         this.researchStations = researchStations;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CityRepository that = (CityRepository) o;
+
+        return Objects.equals(cities, that.cities) &&
+                Objects.equals(researchStations, that.researchStations);
+    }
+
+
 }

@@ -44,4 +44,5 @@ public class Card implements Cloneable {
                 ", name='" + name + '\'' +
                 '}';
     }
+
 }

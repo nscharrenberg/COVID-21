@@ -3,6 +3,18 @@ package org.um.nine.headless.game.domain;
 import org.um.nine.headless.game.Settings;
 
 public class OutbreakMarker extends Marker {
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        OutbreakMarker that = (OutbreakMarker) o;
+
+        return color == that.color;
+    }
+
+
     private static int INCREMENT = 0;
     private Color color;
 
