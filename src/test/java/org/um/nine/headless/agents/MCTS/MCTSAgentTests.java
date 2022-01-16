@@ -4,7 +4,9 @@ import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.um.nine.headless.agents.mcts.Actions;
 import org.um.nine.headless.agents.mcts.MCTS;
+import org.um.nine.headless.agents.mcts.MacroMCTS;
 import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
+import org.um.nine.headless.agents.rhea.macro.MacroAction;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
@@ -165,6 +167,15 @@ public class MCTSAgentTests {
         MCTS mcts = new MCTS(state,200);
         Actions a = mcts.run(state);
         System.out.println(a);
+    }
+
+    @Test
+    public void macroActionTest(){
+        ExperimentalGame game = new ExperimentalGame();
+        IState state = game.getCurrentState();
+        MacroMCTS mcts = new MacroMCTS(state,200);
+        MacroAction m = mcts.run(state);
+        System.out.println(m);
     }
 
 
