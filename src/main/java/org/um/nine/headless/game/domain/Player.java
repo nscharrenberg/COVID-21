@@ -5,8 +5,10 @@ import org.um.nine.headless.game.domain.cards.PlayerCard;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-public class Player {
+public class Player implements Cloneable {
     private static int INCREMENT = 0;
     private int id;
     private String name;
@@ -15,12 +17,32 @@ public class Player {
     private boolean isBot;
     private List<PlayerCard> hand;
 
+    public Player clone() {
+        Player other = new Player(this.name);
+        other.setBot(this.isBot);
+        other.city = this.city;
+        other.setId(this.id);
+        other.setRole(this.role);
+        other.setHand(this.getHand().stream().map(PlayerCard::clone).peek(card -> card.setPlayer(this)).collect(Collectors.toList()));
+        return other;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (role != null ? role.hashCode() : 0);
+        result = 31 * result + (city != null ? city.hashCode() : 0);
+        result = 31 * result + (isBot ? 1 : 0);
+        result = 31 * result + (hand != null ? hand.hashCode() : 0);
+        return result;
+    }
+
     public Player(String name, boolean isBot) {
         this.id = INCREMENT;
         this.name = name;
         this.isBot = isBot;
         this.hand = new ArrayList<>();
-
         INCREMENT++;
     }
 
@@ -62,6 +84,10 @@ public class Player {
         return city;
     }
 
+    public void setCityField(City cityField) {
+        this.city = cityField;
+    }
+
     public void setCity(City city) {
         if (this.city != null) {
             this.city.getPawns().remove(this);
@@ -73,6 +99,22 @@ public class Player {
             this.city.addPawn(this);
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Player player = (Player) o;
+
+        return id == player.id &&
+                isBot == player.isBot &&
+                Objects.equals(name, player.name) &&
+                Objects.equals(role, player.role) &&
+                Objects.equals(city, player.city) &&
+                Objects.equals(hand, player.hand);
+    }
+
 
     public boolean isBot() {
         return isBot;

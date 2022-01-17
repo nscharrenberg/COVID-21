@@ -6,7 +6,9 @@ import org.um.nine.headless.game.domain.ResearchStation;
 import java.util.HashMap;
 import java.util.List;
 
-public interface ICityRepository {
+public interface ICityRepository extends Cloneable {
+
+    ICityRepository clone();
 
     HashMap<String, City> getCities();
 

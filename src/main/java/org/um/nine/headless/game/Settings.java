@@ -5,6 +5,7 @@ import org.um.nine.headless.agents.rhea.core.Mutator;
 import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
 import org.um.nine.headless.agents.rhea.macro.MacroActionsExecutor;
 import org.um.nine.headless.agents.rhea.state.StateHeuristic;
+import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.agents.utils.Logger;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.Player;
@@ -35,8 +36,6 @@ public class Settings {
     public static final boolean DEFAULT_INITIAL_STATE = true;
     public static final List<Player> DEFAULT_PLAYERS = new ArrayList<>();
     public static int ROUND_INDEX = 0;
-
-
     private static final StateHeuristic f = s -> (FoA.evaluateState(s) + Fcm.evaluateState(s)) / 2;
     public static final StateHeuristic BEST_HEURISTIC = state -> p(f, state);
 
@@ -64,6 +63,8 @@ public class Settings {
     public static final Logger DEFAULT_LOGGER = new Logger();
     public static ExperimentalGame DEFAULT_RUNNING_GAME;
     public static MacroActionsExecutor DEFAULT_MACRO_ACTIONS_EXECUTOR;
-
     public static Mutator DEFAULT_MUTATOR;
+    public static IReportable DEFAULT_REPORTER = new IReportable() {
+    };
+
 }

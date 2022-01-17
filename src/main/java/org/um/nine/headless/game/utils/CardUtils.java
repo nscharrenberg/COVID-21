@@ -1,6 +1,7 @@
 package org.um.nine.headless.game.utils;
 
 import org.um.nine.headless.game.contracts.repositories.IPlayerRepository;
+import org.um.nine.headless.game.domain.Card;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.Player;
@@ -12,15 +13,20 @@ import org.um.nine.headless.game.domain.cards.events.*;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CardUtils {
+    public static List<PlayerCard> cloneOf(List<PlayerCard> cards) {
+        return cards.stream().map(PlayerCard::clone).collect(Collectors.toList());
+    }
+
     public static Stack<PlayerCard> shuffle(Difficulty difficulty, Stack<PlayerCard> deck) {
         Collections.shuffle(deck);
         Stack<PlayerCard> shuffled = new Stack<>();
 
         Stack<PlayerCard>[] split = new Stack[difficulty.getCount()];
 
-        for(int i = 0; i < split.length; i++){
+        for (int i = 0; i < split.length; i++) {
             split[i] = new Stack<>();
         }
 
@@ -125,5 +131,18 @@ public class CardUtils {
         }
 
         return shuffle(difficulty, deck);
+    }
+
+    public static class StackCloner<T extends Card> {
+        public Stack<T> cloneStack(Stack<T> stack) {
+            Stack<T> reversed = new Stack<>(), clone = new Stack<>();
+            while (!stack.isEmpty()) reversed.push(stack.pop());
+            while (!reversed.isEmpty()) {
+                var item = reversed.pop();
+                stack.push(item);
+                clone.push((T) item.clone());
+            }
+            return clone;
+        }
     }
 }

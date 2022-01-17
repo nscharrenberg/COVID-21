@@ -10,6 +10,7 @@ import org.um.nine.headless.game.domain.roles.RoleAction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.um.nine.headless.game.Settings.DEFAULT_INITIAL_STATE;
 
@@ -19,10 +20,26 @@ public class BoardRepository implements IBoardRepository {
     private ActionType selectedPlayerAction;
     private List<RoleAction> usedActions = new ArrayList<>();
     private Difficulty difficulty;
-    
+
+    @Override
+    public BoardRepository clone() {
+        try {
+            BoardRepository clone = (BoardRepository) super.clone();
+            clone.setSelectedCity(this.getSelectedCity());
+            clone.setSelectedRoleAction(this.getSelectedRoleAction());
+            clone.setSelectedPlayerAction(this.getSelectedPlayerAction());
+            clone.setUsedActions(new ArrayList<>(List.copyOf(this.usedActions)));
+            clone.setDifficulty(this.getDifficulty());
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     @Override
     public void preload() {
-        this.difficulty = this.difficulty == null? Settings.DEFAULT_DIFFICULTY : this.difficulty;
+        this.difficulty = this.difficulty == null ? Settings.DEFAULT_DIFFICULTY : this.difficulty;
     }
 
     /**
@@ -118,4 +135,19 @@ public class BoardRepository implements IBoardRepository {
         resetRound();
 
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BoardRepository that = (BoardRepository) o;
+
+        return Objects.equals(selectedCity, that.selectedCity) &&
+                selectedRoleAction == that.selectedRoleAction &&
+                selectedPlayerAction == that.selectedPlayerAction &&
+                Objects.equals(usedActions, that.usedActions) &&
+                difficulty == that.difficulty;
+    }
+
 }

@@ -61,7 +61,7 @@ public enum ActionType {
 
             MovingAction a1 = (MovingAction) o;
 
-            return (this.action != a1.action) &&
+            return this.action == a1.action &&
                     Objects.equals(this.fromCity, a1.fromCity) &&
                     Objects.equals(this.toCity, a1.toCity);
         }
