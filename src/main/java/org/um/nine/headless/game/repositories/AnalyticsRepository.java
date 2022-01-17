@@ -16,7 +16,7 @@ public class AnalyticsRepository implements IAnalyticsRepository {
 
    @Override
    public void start(IState state) {
-       this.gameId++;
+       this.gameId = gameCount;
        gameAnalytics.add(new GameAnalytics(this.gameId, state));
    }
 
