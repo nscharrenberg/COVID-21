@@ -8,12 +8,13 @@ import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.EpidemicCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
-import org.um.nine.headless.game.domain.cards.events.*;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.um.nine.headless.game.Settings.RANDOM_PROVIDER;
 
 public class CardUtils {
     public static List<PlayerCard> cloneOf(List<PlayerCard> cards) {
@@ -21,7 +22,7 @@ public class CardUtils {
     }
 
     public static Stack<PlayerCard> shuffle(Difficulty difficulty, Stack<PlayerCard> deck) {
-        Collections.shuffle(deck);
+        Collections.shuffle(deck, RANDOM_PROVIDER);
         Stack<PlayerCard> shuffled = new Stack<>();
 
         Stack<PlayerCard>[] split = new Stack[difficulty.getCount()];
@@ -40,7 +41,7 @@ public class CardUtils {
 
         for (Stack<PlayerCard> playerCards : split) {
             playerCards.add(new EpidemicCard("Epidemic!"));
-            Collections.shuffle(playerCards);
+            Collections.shuffle(playerCards, RANDOM_PROVIDER);
         }
 
         for (Stack<PlayerCard> playerCards : split) {
@@ -93,14 +94,14 @@ public class CardUtils {
 
     public static Stack<PlayerCard> buildPlayerDeck(IPlayerRepository playerRepository, Difficulty difficulty, HashMap<String, City> cities, HashMap<String, Player> players) {
         Stack<PlayerCard> deck = new Stack<>();
-        deck.push(new GovernmentGrandEvent());
-        deck.push(new PrognosisEvent());
-        deck.push(new AirliftEvent());
-        deck.push(new QuietNightEvent());
-        deck.push(new ResilientPopulationEvent());
+//        deck.push(new GovernmentGrandEvent());
+//        deck.push(new PrognosisEvent());
+//        deck.push(new AirliftEvent());
+//        deck.push(new QuietNightEvent());
+//        deck.push(new ResilientPopulationEvent());
         cities.values().stream().map(CityCard::new).forEach(deck::push);
 
-        Collections.shuffle(deck);
+        Collections.shuffle(deck, RANDOM_PROVIDER);
         int amountCards = switch (players.values().size()) {
             case 2 -> 4;
             case 3 -> 3;

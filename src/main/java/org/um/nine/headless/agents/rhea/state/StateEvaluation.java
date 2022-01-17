@@ -91,7 +91,7 @@ public class StateEvaluation {
 
         state.getDiseaseRepository().
                 getCures().values().forEach(cure -> sA[0] += abilityCure(state, cure.getColor()) + (0.3 * Nd));
-        return sA[0] /4 * 1.3;
+        return sA[0] / 4 * 1.3d;
     };
 
 
@@ -103,7 +103,7 @@ public class StateEvaluation {
         state.getDiseaseRepository()
                 .getCubes().values()
                 .forEach((diseases) -> s[0] += diseases.size()/24.);
-        return s[0]/4;
+        return s[0] / 4d;
     };
 
 
@@ -112,11 +112,11 @@ public class StateEvaluation {
      */
     public static StateHeuristic Fcm = state -> {
         double red, blue, black, yellow;
-        red = state.getDiseaseRepository().getCubes().get(Color.RED).size()/24.;
-        blue = state.getDiseaseRepository().getCubes().get(Color.BLUE).size()/24.;
-        black = state.getDiseaseRepository().getCubes().get(Color.BLACK).size()/24.;
-        yellow = state.getDiseaseRepository().getCubes().get(Color.YELLOW).size()/24.;
-        return min(red,blue,black,yellow);
+        red = state.getDiseaseRepository().getCubes().get(Color.RED).size() / 24d;
+        blue = state.getDiseaseRepository().getCubes().get(Color.BLUE).size() / 24d;
+        black = state.getDiseaseRepository().getCubes().get(Color.BLACK).size() / 24d;
+        yellow = state.getDiseaseRepository().getCubes().get(Color.YELLOW).size() / 24d;
+        return min(red, blue, black, yellow);
     };
 
 
@@ -136,12 +136,12 @@ public class StateEvaluation {
      *  Evaluate the state based on the number of outbreaks occured
      */
     public static StateHeuristic Fb = state -> {
-        final int [] b = new int[]{0};
+        final double[] b = new double[]{0};
         state.getDiseaseRepository().getOutbreakMarkers().forEach(outbreakMarker -> {
             if (outbreakMarker.isCurrent())
                 b[0] = outbreakMarker.getId();
         });
-        return 1- (b[0]/8.);
+        return (1 - (b[0] / 8d));
     };
 
 

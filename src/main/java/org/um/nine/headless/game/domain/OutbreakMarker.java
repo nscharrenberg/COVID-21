@@ -50,6 +50,13 @@ public class OutbreakMarker extends Marker {
     }
 
     @Override
+    public OutbreakMarker clone() {
+        OutbreakMarker clone = (OutbreakMarker) super.clone();
+        clone.color = this.color;
+        return clone;
+    }
+
+    @Override
     public String toString() {
         return "outbreak-marker-" +
                 color.getName() +
