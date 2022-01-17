@@ -1,7 +1,7 @@
 package org.um.nine.experiments.mcts;
 
 import org.apache.commons.io.FileUtils;
-import org.um.nine.experiments.mcts.graph.StatGraph;
+import org.um.nine.experiments.rhea.graph.StatGraph;
 import org.um.nine.headless.agents.mcts.MCTS;
 import org.um.nine.headless.agents.mcts.MacroMCTS;
 import org.um.nine.headless.agents.rhea.core.IAgent;
@@ -56,7 +56,7 @@ public class ExperimentRunnerMacroMCTS {
         ITERATIONS = 4;
 
 
-        int n_rep = 1;
+        int n_rep = 10;
         gamesLoop:
         for (int i = 0; i < n_rep; i++) {
 
@@ -94,6 +94,10 @@ public class ExperimentRunnerMacroMCTS {
                     try{
                         mae.executeIndexedMacro(gameState,macroNode.macroAction(),true);
                         System.out.println("Reached here");
+                        if(gameState.getDiseaseRepository().isGameOver()) {
+                            GameStateFactory.getAnalyticsRepository().lost();
+                            break gameRunning;
+                        }
                         GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(gameState).getCurrentPlayerAnalytics(gameState).markMacroActionUsed(macroNode.macroAction());
                     } catch (GameOverException e) {
                         GameStateFactory.getAnalyticsRepository().lost();

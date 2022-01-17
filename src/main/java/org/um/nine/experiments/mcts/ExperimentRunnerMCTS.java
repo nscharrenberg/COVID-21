@@ -1,7 +1,7 @@
 package org.um.nine.experiments.mcts;
 
 import org.apache.commons.io.FileUtils;
-import org.um.nine.experiments.mcts.graph.StatGraph;
+import org.um.nine.experiments.rhea.graph.StatGraph;
 import org.um.nine.headless.agents.mcts.MCTS;
 import org.um.nine.headless.agents.mcts.MacroMCTS;
 import org.um.nine.headless.agents.rhea.core.IAgent;

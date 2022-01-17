@@ -124,9 +124,12 @@ public class Node {
                 .filter(c -> c.getResearchStation() != null).count();
         value += 2 * (double) numberOfResearchstations;
 
-        double infectionRate = Objects.requireNonNull(this.state.getDiseaseRepository().getInfectionRates().stream()
-                .filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
-        value -= 100 * infectionRate;
+        try{
+            double infectionRate = Objects.requireNonNull(this.state.getDiseaseRepository().getInfectionRates().stream()
+                    .filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
+            value -= 100 * infectionRate;
+        }catch (NullPointerException Ignored){
+        }
 
         if (state.isGameWon())
             value = Integer.MAX_VALUE;

@@ -105,8 +105,7 @@ public class MacroMCTS {
         MacroActionsExecutor executor = new MacroActionsExecutor();
         try{
             executor.executeIndexedMacro(nextState,a,true);
-        }catch (Exception e) {
-            e.printStackTrace();
+        }catch (Exception ignored) {
         }
 
         return nextState;
@@ -152,7 +151,8 @@ public class MacroMCTS {
         int iterations = 0;
         endState = false;
         //simulation
-        while(iterations < maxIterations-1 && !endState){
+        while(iterations < maxIterations && !endState){
+            endState = false;
             //selection step
             MacroNode currentNode = root;
             while(!currentNode.isLeaf()){
@@ -169,24 +169,7 @@ public class MacroMCTS {
             if(currentNode.getState().isGameLost() || currentNode.getState().isGameWon()) {
                 endState = true;
             }
-            if(currentNode.getDepth()%4 == 0 && currentNode.getDepth() != 0){
-                //cloning the player decks and shuffling them for the simulation
-                Stack<PlayerCard> simulationPD = (Stack<PlayerCard>) currentNode.getState().getCardRepository().getPlayerDeck().clone();
-                Stack<InfectionCard> simulationID = (Stack<InfectionCard>) currentNode.getState().getCardRepository().getInfectionDeck().clone();
-                Collections.shuffle(simulationPD);
-                Collections.shuffle(simulationID);
-                currentNode.getState().getPlayerRepository().getCurrentPlayer().addHand(simulationPD.pop());
-                currentNode.getState().getPlayerRepository().getCurrentPlayer().addHand(simulationPD.pop());
-
-                for(int i = 0; i < Objects.requireNonNull(currentNode.getState().getDiseaseRepository().getInfectionRates().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount(); i++) {
-                    InfectionCard ic = simulationID.pop();
-                    try {
-                        currentNode.getState().getDiseaseRepository().infect(ic.getCity().getColor(), ic.getCity());
-                    } catch (NoCubesLeftException | NoDiseaseOrOutbreakPossibleDueToEvent | GameOverException ignored) {
-                    }
-                }
-                currentNode.getState().getPlayerRepository().nextPlayer();
-            }
+            currentNode.getState().getPlayerRepository().nextPlayer();
             iterations++;
         }
         //playing the highest valued node
@@ -324,14 +307,17 @@ public class MacroMCTS {
                     .filter(c -> c.getResearchStation() != null).count();
             value += 4 * (double) numberOfResearchstations;
 
-            double infectionRate = Objects.requireNonNull(this.state.getDiseaseRepository().getInfectionRates().stream()
-                    .filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
-            value -= 100 * infectionRate;
+            try{
+                double infectionRate = Objects.requireNonNull(this.state.getDiseaseRepository().getInfectionRates().stream()
+                        .filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
+                value -= 100 * infectionRate;
+            }catch (NullPointerException Ignored){
+            }
 
             if (state.isGameWon())
-                value = Integer.MAX_VALUE;
+                value = Integer.MAX_VALUE - 100;
             if (state.isGameLost())
-                value = Integer.MIN_VALUE;
+                value = Integer.MIN_VALUE + 100;
         }
 
         public boolean isLeaf() {

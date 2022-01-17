@@ -4,6 +4,7 @@ import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.exceptions.GameOverException;
+import org.um.nine.headless.game.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
 
 import java.util.Comparator;
 import java.util.List;
@@ -31,7 +32,13 @@ public record MacroActionsExecutor() {
         }
         if (draw) {
             state.getPlayerRepository().setCurrentRoundState(RoundState.DRAW);
-            state.getPlayerRepository().playerAction(null, state);
+            try{
+                state.getPlayerRepository().playerAction(null, state);
+            } catch (NoDiseaseOrOutbreakPossibleDueToEvent ignored){
+
+            } catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 

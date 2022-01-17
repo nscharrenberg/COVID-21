@@ -310,25 +310,6 @@ public class MCTS implements Agent {
             if(currentNode.getState().isGameLost() || currentNode.getState().isGameWon()) {
                 endState = true;
             }
-            if(currentNode.getDepth()%4 == 0 && currentNode.getDepth() != 0){
-                //cloning the player decks and shuffling them for the simulation
-                Stack<PlayerCard> simulationPD = (Stack<PlayerCard>) currentNode.getState().getCardRepository().getPlayerDeck().clone();
-                Stack<InfectionCard> simulationID = (Stack<InfectionCard>) currentNode.getState().getCardRepository().getInfectionDeck().clone();
-                Collections.shuffle(simulationPD);
-                Collections.shuffle(simulationID);
-                currentNode.getState().getPlayerRepository().getCurrentPlayer().addHand(simulationPD.pop());
-                currentNode.getState().getPlayerRepository().getCurrentPlayer().addHand(simulationPD.pop());
-
-                for(int i = 0; i < Objects.requireNonNull(currentNode.getState().getDiseaseRepository().getInfectionRates().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount(); i++){
-                    InfectionCard ic = simulationID.pop();
-                    try {
-                        currentNode.getState().getDiseaseRepository().infect(ic.getCity().getColor(), ic.getCity());
-                    } catch (NoCubesLeftException | NoDiseaseOrOutbreakPossibleDueToEvent | GameOverException e) {
-                        e.printStackTrace();
-                    }
-                }
-                currentNode.getState().getPlayerRepository().nextPlayer();
-            }
             iterations++;
         }
         //playing the highest valued node
