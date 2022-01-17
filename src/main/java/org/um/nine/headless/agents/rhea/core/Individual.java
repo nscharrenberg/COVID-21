@@ -88,7 +88,7 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
     public Individual initGenome(IState state) {
         IState initState = state.clone();
         Player player = initState.getPlayerRepository().getCurrentPlayer();
-        String playerPath = this.getPath();
+
         for (int i = 0; i < this.genome().length; i++) {
             ROUND_INDEX = i;
             City currentCity = player.getCity();
@@ -99,7 +99,6 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(initState, nextMacro, true);
             } catch (GameOverException gameOver) {
                 //System.err.println(gameOver.getMessage() + " : " + IReportable.getDescription());
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -108,7 +107,7 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         ROUND_INDEX = 0;
 
 
-        this.setPath(playerPath);
+        this.setPath(this.getPath() + "/" + player);
         this.logGenome(this.genome(), "/genome-init.txt");
         return this;
     }

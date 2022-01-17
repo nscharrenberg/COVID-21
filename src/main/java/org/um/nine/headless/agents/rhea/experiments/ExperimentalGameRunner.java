@@ -6,7 +6,6 @@ import org.um.nine.headless.agents.rhea.core.Individual;
 import org.um.nine.headless.agents.rhea.core.Mutator;
 import org.um.nine.headless.agents.rhea.macro.MacroAction;
 import org.um.nine.headless.agents.rhea.macro.MacroActionsExecutor;
-import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.game.exceptions.GameOverException;
@@ -65,23 +64,16 @@ public class ExperimentalGameRunner {
 
             gameRunningLoop:
             while (DEFAULT_RUNNING_GAME.onGoing()) {
-
-                DEFAULT_REPORTER.setPath(gamePath);
                 MacroNode[] allPlayersMacro = new MacroNode[DEFAULT_PLAYERS.size()];
-
                 // for each player
                 for (int k = 0; k < DEFAULT_PLAYERS.size(); k++) {
-
-                    DEFAULT_REPORTER.setPath(gamePath + "/" + DEFAULT_PLAYERS.get(k));
+                    DEFAULT_REPORTER.setPath(gamePath);
                     gameState.getPlayerRepository().setCurrentPlayer(DEFAULT_PLAYERS.get(k));
-                    DEFAULT_REPORTER.reportState(gameState, "/before-action-state.txt");
                     MacroNode macroNode = null;
                     try {
                         // apply evolutionary algorithm to get the best macro
                         MacroAction nextMacro = agents[k].getNextMacroAction(gameState).executableNow(gameState);
                         DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(gameState, nextMacro, true);
-                        DEFAULT_REPORTER.setPath(gamePath + "/" + DEFAULT_PLAYERS.get(k));
-                        DEFAULT_REPORTER.reportState(gameState, "/after-action-state.txt");
                         // if no exceptions arise then we can keep the macro
                         macroNode = new MacroNode(DEFAULT_PLAYERS.get(k), nextMacro);
 

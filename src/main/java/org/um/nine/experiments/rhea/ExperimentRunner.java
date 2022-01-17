@@ -57,13 +57,13 @@ public class ExperimentRunner {
         DEFAULT_MUTATOR = new Mutator();
 
 
-        int n_rep = 10;
+        int n_rep = 4;
         gamesLoop:
         for (int i = 0; i < n_rep; i++) {
 
             // initialise the game
             DEFAULT_REPORTER.clear();
-
+            System.out.println("New Game");
             DEFAULT_RUNNING_GAME = new ExperimentalGame();
             IState gameState = DEFAULT_RUNNING_GAME.getCurrentState();
             String gamePath = IReportable.REPORT_PATH[0];
@@ -84,12 +84,17 @@ public class ExperimentRunner {
 
                     DEFAULT_RUNNING_GAME.setPath(gamePath + "/" + DEFAULT_PLAYERS.get(k));
                     gameState.getPlayerRepository().setCurrentPlayer(DEFAULT_PLAYERS.get(k));
+                    DEFAULT_REPORTER.reportState(gameState, "/before-action-state.txt");
+
                     MacroNode macroNode = null;
                     try {
                         IState cloned = gameState.clone();
                         // apply evolutionary algorithm to get the best macro
                         MacroAction nextMacro = agents[k].getNextMacroAction(gameState).executableNow(gameState);
                         DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(gameState, nextMacro, true);
+                        DEFAULT_REPORTER.setPath(gamePath + "/" + DEFAULT_PLAYERS.get(k));
+                        DEFAULT_REPORTER.reportState(gameState, "/after-action-state.txt");
+
                         // if no exceptions arise then we can keep the macro
                         macroNode = new MacroNode(DEFAULT_PLAYERS.get(k), nextMacro);
 
@@ -99,6 +104,8 @@ public class ExperimentRunner {
 
                     } catch (GameOverException e) {
                         GameStateFactory.getAnalyticsRepository().lost();
+                        DEFAULT_REPORTER.setPath(gamePath);
+                        DEFAULT_REPORTER.reportState(gameState, "/game-lost.txt");
                         // if neither the mutation was successful just break the game and start a new one
                         break gameRunning;
                     } catch (GameWonException e) {

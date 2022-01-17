@@ -109,6 +109,8 @@ public abstract class MacroActionFactory2 implements IReportable {
         }
         return curingActions;
     }
+
+
     protected List<MacroAction> buildTreatDiseaseMacroActions(int diseasesToTreat) {
         List<MacroAction> treatingActions = new ArrayList<>();
 
