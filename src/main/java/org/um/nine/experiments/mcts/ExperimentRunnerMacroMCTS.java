@@ -56,7 +56,7 @@ public class ExperimentRunnerMacroMCTS {
         ITERATIONS = 4;
 
 
-        int n_rep = 10;
+        int n_rep = 1;
         gamesLoop:
         for (int i = 0; i < n_rep; i++) {
 
@@ -93,6 +93,8 @@ public class ExperimentRunnerMacroMCTS {
                     MacroActionsExecutor mae = new MacroActionsExecutor();
                     try{
                         mae.executeIndexedMacro(gameState,macroNode.macroAction(),true);
+                        System.out.println("Reached here");
+                        GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(gameState).getCurrentPlayerAnalytics(gameState).markMacroActionUsed(macroNode.macroAction());
                     } catch (GameOverException e) {
                         GameStateFactory.getAnalyticsRepository().lost();
                         break gameRunning;

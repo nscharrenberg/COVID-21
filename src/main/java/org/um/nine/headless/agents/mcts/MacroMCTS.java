@@ -200,8 +200,6 @@ public class MacroMCTS {
             }
         });
 
-        GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(getRoot().state).getCurrentPlayerAnalytics(getRoot().state).markMacroActionUsed(node.get().getMacro());
-
         return node.get().getMacro();
     }
 
