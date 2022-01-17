@@ -355,12 +355,4 @@ public abstract class MacroActionFactory2 implements IReportable {
         }
         return log;
     }
-
-    public static MacroAction skipMacroAction(int size, City currentCity) {
-        List<ActionType.StandingAction> skip = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            skip.add(new ActionType.StandingAction(ActionType.SKIP_ACTION, currentCity, null, null));
-        }
-        return macro(new ArrayList<>(), skip);
-    }
 }
