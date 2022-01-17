@@ -13,6 +13,13 @@ public class InfectionRateMarker extends Marker {
                 Arrays.equals(draws, that.draws);
     }
 
+    @Override
+    public InfectionRateMarker clone() {
+        InfectionRateMarker clone = (InfectionRateMarker) super.clone();
+        clone.count = this.count;
+        clone.draws = this.draws;
+        return clone;
+    }
 
     private static int INCREMENT = 0;
     private int count;

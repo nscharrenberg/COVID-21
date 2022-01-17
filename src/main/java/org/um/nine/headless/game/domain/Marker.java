@@ -1,7 +1,7 @@
 package org.um.nine.headless.game.domain;
 
-public class Marker {
-    private final int id;
+public class Marker implements Cloneable {
+    private int id;
     private boolean isCurrent;
 
     public Marker(int id) {
@@ -23,6 +23,19 @@ public class Marker {
 
     public void setCurrent(boolean current) {
         isCurrent = current;
+    }
+
+    @Override
+    public Marker clone() {
+        try {
+            Marker clone = (Marker) super.clone();
+            clone.id = this.id;
+            clone.setCurrent(this.isCurrent);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

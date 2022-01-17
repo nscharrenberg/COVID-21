@@ -7,6 +7,8 @@ import org.um.nine.v1.domain.cards.InfectionCard;
 import java.util.Collections;
 import java.util.Stack;
 
+import static org.um.nine.headless.game.Settings.RANDOM_PROVIDER;
+
 public class EpidemicRepository implements IEpidemicRepository {
 
     @Inject
@@ -56,7 +58,7 @@ public class EpidemicRepository implements IEpidemicRepository {
 
     private void intensify() {
         Stack<InfectionCard> pile = cardRepository.getInfectionDiscardPile();
-        Collections.shuffle(pile);
+        Collections.shuffle(pile, RANDOM_PROVIDER);
         cardRepository.getInfectionDeck().addAll(pile);
         cardRepository.setInfectionDiscardPile(new Stack<>());
     }

@@ -11,9 +11,8 @@ import org.um.nine.headless.game.contracts.repositories.IAnalyticsRepository;
 import org.um.nine.headless.game.domain.analytics.GameAnalytics;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.ItemEvent;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -58,7 +57,7 @@ public class StatGraph extends ApplicationFrame {
 
     private Timer timer = new Timer();
     private JPanel panel;
-    private JSlider slider;
+    private JComboBox<Integer> gameComboBox;
 
     private JTextArea gameInfo;
 
@@ -86,29 +85,31 @@ public class StatGraph extends ApplicationFrame {
     }
 
     private void renderGameSlider() {
-        slider = new JSlider(JSlider.HORIZONTAL, 0, GameStateFactory.getAnalyticsRepository().getGameAnalytics().size());
-        slider.setMinorTickSpacing(1);
-        slider.setMajorTickSpacing(10);
-        slider.setPaintTicks(true);
-        slider.setPaintLabels(true);
+        gameComboBox = new JComboBox<Integer>();
 
-        panel.add(slider);
+        populateGameSlider();
 
-        slider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                JSlider source = (JSlider) e.getSource();
+        panel.add(gameComboBox);
 
-                if (!source.getValueIsAdjusting()) {
-                    int game = source.getValue();
+        gameComboBox.addItemListener(e -> {
+            int game = (Integer)e.getItem();
 
-                    GameStateFactory.getAnalyticsRepository().setGameId(game);
-
-                    resetDataset();
-                    populateDataset();
-                }
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                GameStateFactory.getAnalyticsRepository().setGameId(game);
+                lastKnownGameId = game;
+                resetDataset();
+                populateDataset();
             }
+
         });
+    }
+
+    private void populateGameSlider() {
+        gameComboBox.removeAllItems();
+
+        for (int i = 0; i <= GameStateFactory.getAnalyticsRepository().getGameCount(); i++) {
+            gameComboBox.insertItemAt(i, i);
+        }
     }
 
     private void resetDataset() {
@@ -240,13 +241,15 @@ public class StatGraph extends ApplicationFrame {
     }
 
     private void populateDataset() {
-        if (GameStateFactory.getAnalyticsRepository().getGameId() > lastKnownGameId) {
+        if (GameStateFactory.getAnalyticsRepository().getGameId() != lastKnownGameId) {
             lastKnownGameId = GameStateFactory.getAnalyticsRepository().getGameId();
+            populateGameSlider();
+            gameComboBox.setSelectedItem(lastKnownGameId);
+
             resetDataset();
         }
 
         updateGameData();
-        slider.setMaximum(GameStateFactory.getAnalyticsRepository().getGameAnalytics().size());
 
         IAnalyticsRepository repository = GameStateFactory.getAnalyticsRepository();
         GameAnalytics game = repository.getCurrentGameAnalytics(DEFAULT_RUNNING_GAME.getCurrentState());

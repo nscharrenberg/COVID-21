@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static org.um.nine.headless.game.Settings.RESEARCH_STATION_THRESHOLD;
+
 public class CityRepository implements ICityRepository {
     private HashMap<String, City> cities;
     private List<ResearchStation> researchStations;
@@ -38,16 +40,9 @@ public class CityRepository implements ICityRepository {
                 clonedCities.put(s, cloned);
             });
             clone.cities = clonedCities;
-            clone.researchStations = this.getResearchStations().
-                    stream().
-                    map(ResearchStation::clone).
-                    peek(rs -> rs.setCity(
-                            clone.cities.get(rs.getCity().getName())
-                    )).
-                    collect(Collectors.toList());
-
+            clone.researchStations = this.researchStations.stream().map(ResearchStation::clone).collect(Collectors.toList());
             return clone;
-        } catch (CloneNotSupportedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;

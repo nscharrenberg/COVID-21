@@ -12,15 +12,19 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Stack;
 
+import static org.um.nine.headless.game.Settings.RANDOM_PROVIDER;
+
 public class Shuffle {
+
 
     /**
      * Shuffles the deck and then splitting the deck in the amount of difficulty.
      * Those get a epidemic card added and then shuffled again.
+     *
      * @return a shuffled deck of cards including difficulty*epidemic cards mixed in every quarter
      */
-    public static Stack<PlayerCard> difficultyShuffle(Difficulty difficulty, Stack<PlayerCard> deck){
-        Collections.shuffle(deck);
+    public static Stack<PlayerCard> difficultyShuffle(Difficulty difficulty, Stack<PlayerCard> deck) {
+        Collections.shuffle(deck, RANDOM_PROVIDER);
         Stack<PlayerCard> shuffled = new Stack<>();
 
         Stack<PlayerCard>[] split = new Stack[difficulty.getCount()];
@@ -39,7 +43,7 @@ public class Shuffle {
 
         for(int i = 0; i < split.length; i++){
             split[i].add(new EpidemicCard("Epidemic!"));
-            Collections.shuffle(split[i]);
+            Collections.shuffle(split[i], RANDOM_PROVIDER);
         }
 
         for(int i = 0; i < split.length; i++){
@@ -59,7 +63,7 @@ public class Shuffle {
         deck.push(new ResilientPopulationEvent());
         cities.values().stream().map(CityCard::new).forEach(deck::push);
 
-        Collections.shuffle(deck);
+        Collections.shuffle(deck, RANDOM_PROVIDER);
         int amountCards = switch (players.values().size()) {
             case 2 -> 4;
             case 3 -> 3;

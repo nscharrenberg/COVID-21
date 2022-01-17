@@ -1,10 +1,7 @@
 package org.um.nine.headless.agents.rhea.state;
 
 import org.um.nine.headless.game.contracts.repositories.*;
-import org.um.nine.headless.game.domain.City;
-import org.um.nine.headless.game.domain.Disease;
-import org.um.nine.headless.game.domain.Player;
-import org.um.nine.headless.game.domain.RoundState;
+import org.um.nine.headless.game.domain.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -129,9 +126,9 @@ public class State implements IState {
     }
 
     @Override
-    public IState clone() {
+    public State clone() {
         try {
-            IState clone = (IState) super.clone();
+            State clone = (State) super.clone();
             clone.setPlayerRepository(this.getPlayerRepository().clone());
             clone.setBoardRepository(this.getBoardRepository().clone());
             clone.setCardRepository(this.getCardRepository().clone());
@@ -144,24 +141,29 @@ public class State implements IState {
                     (s, city) -> {
                         City thisCity = this.getCityRepository().getCities().get(s);
                         city.setPawns(thisCity.getPawns().stream().map(player -> clone.getPlayerRepository().getPlayers().get(player.getName())).collect(Collectors.toCollection(ArrayList::new)));
+
                         List<Disease> diseases = thisCity.
                                 getCubes().
                                 stream().
                                 map(disease -> clone.getDiseaseRepository().getCubes().get(disease.getColor())).
                                 map(allCubesSameColor -> allCubesSameColor.
                                         stream().
-                                        filter(disease1 -> disease1.getCity() != null && disease1.getCity().equals(thisCity)).
-                                        peek(disease -> disease.setCity(city)).
+                                        filter(thisDisease -> thisDisease.getCity() != null && thisDisease.getCity().equals(thisCity)).
+                                        peek(thatDisease -> thatDisease.setCity(city)).
                                         collect(Collectors.toList())).
                                 findFirst().
                                 orElse(new ArrayList<>());
+
                         city.setCubes(diseases);
+
+
                         List<Player> pawns = thisCity.
                                 getPawns().
                                 stream().
                                 map(player -> clone.getPlayerRepository().getPlayers().get(player.getName())).
                                 peek(player -> player.setCityField(city)).
                                 collect(Collectors.toList());
+
                         city.setPawns(pawns);
 
                         List<City> neighbours = thisCity.
@@ -170,11 +172,15 @@ public class State implements IState {
                                 map(city1 -> clone.getCityRepository().getCities().get(city1.getName())).
                                 collect(Collectors.toList());
                         city.setNeighbors(neighbours);
+
+                        ResearchStation researchStation = this.getCityRepository().getResearchStations().stream().filter(Objects::nonNull).filter(rs -> rs.getCity().equals(city)).findFirst().orElse(null);
+
+
                     }
             );
 
+
             if (!clone.equals(this)) {
-                clone.equals(this);
                 throw new IllegalStateException("Error when cloning state");
             }
 

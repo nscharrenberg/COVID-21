@@ -9,6 +9,7 @@ import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.exceptions.GameOverException;
 
 import java.util.Arrays;
+import java.util.function.BooleanSupplier;
 import java.util.stream.IntStream;
 
 import static org.um.nine.headless.agents.rhea.core.Mutator.*;
@@ -19,8 +20,7 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
 
     @Override
     protected Individual clone() {
-        MacroAction[] clonedGene = Arrays.stream(this.genome()).map(MacroAction::clone).toArray(MacroAction[]::new);
-        return new Individual(clonedGene);
+        return new Individual(Arrays.stream(genome()).map(macro -> macro == null ? null : macro.clone()).toArray(MacroAction[]::new));
     }
 
     public double[] evaluateIndividual(IState state) throws Exception {
@@ -45,16 +45,45 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         return eval;
     }
 
-    public boolean betterThan(Individual other, IState state) throws Exception {
+    public boolean betterThan(Individual other, IState state, EvaluationType evaluationType) throws Exception {
         IState evaluationState = state.clone();
-        double[] eval1 = this.evaluateIndividual(evaluationState);
-        double[] eval2 = other.evaluateIndividual(evaluationState);
+        double[] thisEvaluation = this.evaluateIndividual(evaluationState);
+        double[] thatEvaluation = other.evaluateIndividual(evaluationState);
         // all better or false
-        for (int i = 0; i < genome.length; i++) {
-            if (eval2[i] > eval1[i]) return false;
+
+        BooleanSupplier evaluator = null;
+        switch (evaluationType) {
+            case ALL_BETTER -> evaluator = () -> {
+                for (int i = 0; i < this.genome().length; i++) if (thatEvaluation[i] >= thisEvaluation[i]) return false;
+                return true;
+            };
+
+            case ONE_BETTER -> evaluator = () -> {
+                for (int i = 0; i < this.genome().length; i++) if (thisEvaluation[i] < thatEvaluation[i]) return true;
+                return false;
+            };
+
+            case AVERAGE_BETTER -> evaluator = () -> {
+                double avgThis = 0, avgThat = 0;
+                for (int i = 0; i < this.genome().length; i++) {
+                    avgThis += thisEvaluation[i];
+                    avgThat += thatEvaluation[i];
+                }
+                avgThis /= thisEvaluation.length;
+                avgThat /= thatEvaluation.length;
+                return avgThis > avgThat;
+            };
         }
-        return true;
+
+        return evaluator.getAsBoolean();
     }
+
+    public enum EvaluationType {
+        ALL_BETTER,
+        ONE_BETTER,
+        AVERAGE_BETTER
+    }
+
 
     public Individual initGenome(IState state) {
         IState initState = state.clone();
@@ -99,19 +128,15 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         return allSkip;
     }
 
-    public Individual generateChild() {
-        return new Individual(Arrays.stream(genome()).map(macro -> macro == null ? null : macro.clone()).toArray(MacroAction[]::new));
-    }
-
     public MacroAction getNextMacroAction(IState initialGameState) {
 
         // first we initialise the individual within its horizon
         // this will be a set of (#ROLLING_HORIZON) macro actions to be applied in a row
 
 
-        //Individual ancestor = this.initGenome(initialGameState);
-
-        Individual ancestor = this.initSkipActionGenome(initialGameState);
+        //init genome until rolling horizon
+        Individual ancestor = this.initGenome(initialGameState);
+        //Individual ancestor = this.initSkipActionGenome(initialGameState);
 
         successfulMutations = 0;
         String playerPath = getPath();
@@ -119,6 +144,7 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
 
         // for a fixed amount of iterations
         for (int i = 0; i < N_MUTATIONS; i++) {
+
             double mutationRate = map(
                     ((double) (i + 1)) / N_MUTATIONS,
                     0,
@@ -128,17 +154,17 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
             );
 
             // copy the genome for the mutation
-            Individual child = ancestor.generateChild();
+            Individual child = ancestor.clone();
 
             try {
 
                 // mutate the individual starting from the initial state
                 DEFAULT_MUTATOR.mutateIndividual(initialGameState, child, mutationRate);
                 // use heuristic to evaluate the (#ROLLING HORIZON) states produced by all macros being applied
-                if (child.betterThan(ancestor, initialGameState)) {  //all macro actions are better
+                if (child.betterThan(ancestor, initialGameState, EvaluationType.ONE_BETTER)) {  //all macro actions are better
                     successfulMutations++;
-                    ancestor = child.clone(); //clone the current individual
-                    this.logGenome(ancestor.genome(), "/successful-mutation-" + i + ".txt");
+                    ancestor = child.clone();   // take macro actions from the better scoring mutated individual
+                    this.logGenome(ancestor.genome(), "/mutation-" + i + ".txt");
                 }
 
             } catch (GameOverException gameOver) {

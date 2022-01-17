@@ -1,7 +1,6 @@
 package org.um.nine.v1.repositories.local;
 
 import com.google.inject.Inject;
-
 import org.um.nine.v1.Info;
 import org.um.nine.v1.contracts.repositories.*;
 import org.um.nine.v1.domain.City;
@@ -21,6 +20,8 @@ import org.um.nine.v1.utils.cardmanaging.Shuffle;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Stack;
+
+import static org.um.nine.headless.game.Settings.RANDOM_PROVIDER;
 
 public class CardRepository implements ICardRepository {
     @Inject
@@ -106,7 +107,7 @@ public class CardRepository implements ICardRepository {
                 playerRepository.getPlayers());
         infectionDeck = CityCardReader.generateInfectionDeck(cityRepository.getCities().values().toArray(new City[0]));
         infectionDiscardPile = new Stack<>();
-        Collections.shuffle(infectionDeck);
+        Collections.shuffle(infectionDeck, RANDOM_PROVIDER);
 
         // Set initial infection:
         // draw 3 cards 3 cubes, 3 cards 2 cubes, 3 cards 1 cube

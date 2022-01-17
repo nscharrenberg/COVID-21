@@ -5,6 +5,7 @@ import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.RoleAction;
 import org.um.nine.headless.game.domain.roles.RoleEvent;
+import org.um.nine.headless.game.repositories.AnalyticsRepository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +33,8 @@ public class PlayerAnalytics {
     }
 
     public void markDiseaseTreat(Color color) {
+        if (!AnalyticsRepository.ENABLED) return;
+
         int count = 0;
 
         if (this.diseasesTreatedCount.containsKey(color)) {
@@ -42,6 +45,8 @@ public class PlayerAnalytics {
     }
 
     public void markDiseaseCure(Color color) {
+        if (!AnalyticsRepository.ENABLED) return;
+
         int count = 0;
 
         if (this.diseasesCuredCount.containsKey(color)) {
@@ -52,6 +57,8 @@ public class PlayerAnalytics {
     }
 
     public void markCityVisited(City city) {
+        if (!AnalyticsRepository.ENABLED) return;
+
         int count = 0;
 
         if (this.cityVisitedCount.containsKey(city.getName())) {
@@ -62,10 +69,14 @@ public class PlayerAnalytics {
     }
 
     public void markResearchStationBuild(City city) {
+        if (!AnalyticsRepository.ENABLED) return;
+
         this.researchStationBuild.add(city.getName());
     }
 
     public void markUseResearchStation(City city) {
+        if (!AnalyticsRepository.ENABLED) return;
+
         int count = 0;
 
         if (this.researchStationUsed.containsKey(city.getName())) {
@@ -76,6 +87,8 @@ public class PlayerAnalytics {
     }
 
     public void markRoleActionUsed(RoleAction action) {
+        if (!AnalyticsRepository.ENABLED) return;
+
         int count = 0;
 
         if (this.roleActionUsed.containsKey(action.getName())) {
@@ -86,6 +99,8 @@ public class PlayerAnalytics {
     }
 
     public void markRoleEventUsed(RoleEvent event) {
+        if (!AnalyticsRepository.ENABLED) return;
+
         int count = 0;
 
         if (this.getRoleEventUsed().containsKey(event.getName())) {
@@ -96,6 +111,8 @@ public class PlayerAnalytics {
     }
 
     public void markActionTypeUsed(ActionType actionType) {
+        if (!AnalyticsRepository.ENABLED) return;
+
         int count = 0;
 
         if (this.getActionsUsed().containsKey(actionType.getName())) {
@@ -106,6 +123,8 @@ public class PlayerAnalytics {
     }
 
     public void markMacroActionUsed(MacroAction macroAction) {
+        if (!AnalyticsRepository.ENABLED) return;
+
         int count = 0;
 
         if (this.getMacroActionsUsed().containsKey(macroAction.toString())) {
@@ -116,6 +135,8 @@ public class PlayerAnalytics {
     }
 
     public void shareKnowledge(PlayerCard card) {
+        if (!AnalyticsRepository.ENABLED) return;
+
         int count = 0;
 
         if (this.knowledgeShared.containsKey(card.getName())) {
