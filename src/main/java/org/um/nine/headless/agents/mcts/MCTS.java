@@ -352,7 +352,7 @@ public class MCTS implements Agent {
      * @return the next state
      * @throws MoveNotPossibleException if the action cannot be performed
      */
-    public void agentDecision(IState current) throws MoveNotPossibleException {
+    public void agentDecision(IState current) throws MoveNotPossibleException, GameWonException {
         Actions a = run(current);
         Player player = current.getPlayerRepository().getCurrentPlayer();
         switch(a){
@@ -492,8 +492,10 @@ public class MCTS implements Agent {
                         try {
                             current.getDiseaseRepository().discoverCure(player, cure.get());
                             log.addStep(" discovered cure", player.getCity(), player);
-                        } catch (UnableToDiscoverCureException | GameWonException e) {
+                        } catch (UnableToDiscoverCureException e) {
                             throw new MoveNotPossibleException();
+                        } catch (GameWonException e){
+                            throw e;
                         }
                     }
                     else {

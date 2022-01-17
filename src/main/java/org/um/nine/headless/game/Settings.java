@@ -10,10 +10,7 @@ import org.um.nine.headless.agents.utils.Logger;
 import org.um.nine.headless.game.domain.Difficulty;
 import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.Role;
-import org.um.nine.headless.game.domain.roles.Medic;
-import org.um.nine.headless.game.domain.roles.OperationsExpert;
-import org.um.nine.headless.game.domain.roles.Researcher;
-import org.um.nine.headless.game.domain.roles.Scientist;
+import org.um.nine.headless.game.domain.roles.*;
 
 import java.util.*;
 
@@ -42,7 +39,7 @@ public class Settings {
 
     public static final Map<String, ? extends Role> DEFAULT_ROLES = Map.of(
             "Bot 1", new OperationsExpert(),
-            "Bot 2", new Medic(),
+            "Bot 2", new QuarantineSpecialist(),
             "Bot 3", new Researcher(),
             "Bot 4", new Scientist()
     );

@@ -14,6 +14,7 @@ import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.game.exceptions.GameOverException;
 import org.um.nine.headless.game.exceptions.GameWonException;
+import org.um.nine.headless.game.repositories.PlayerRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,6 +65,7 @@ public class ExperimentRunner {
             DEFAULT_RUNNING_GAME = new ExperimentalGame();
             IState gameState = DEFAULT_RUNNING_GAME.getCurrentState();
             String gamePath = IReportable.REPORT_PATH[0];
+            PlayerRepository.ignored = true;
 
             GameStateFactory.getAnalyticsRepository().start(gameState);
 

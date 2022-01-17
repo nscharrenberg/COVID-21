@@ -13,9 +13,7 @@ import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
-import org.um.nine.headless.game.exceptions.InvalidMoveException;
-import org.um.nine.headless.game.exceptions.MoveNotPossibleException;
-import org.um.nine.headless.game.exceptions.PlayerLimitException;
+import org.um.nine.headless.game.exceptions.*;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -183,18 +181,20 @@ public class MCTSAgentTests {
     public void macroTest(){
         ExperimentalGame game = new ExperimentalGame();
         IState state = game.getCurrentState();
-        MacroMCTS mcts = new MacroMCTS(state,3);
+        MacroMCTS mcts = new MacroMCTS(state,10);
         MacroActionsExecutor executor = new MacroActionsExecutor();
         while(!state.isGameLost() && !state.isGameWon()){
-            MacroAction m = mcts.run(state);
             try{
+                MacroAction m = mcts.run(state);
                 executor.executeIndexedMacro(state,m,true);
+            } catch(GameOverException e){
+                break;
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        if(state.isGameLost()) System.out.println("Lost");
-        else System.out.println("Won");
+        if(state.isGameWon()) System.out.println("Won");
+        else System.out.println("Lost");
     }
 
 }

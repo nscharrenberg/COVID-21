@@ -103,9 +103,8 @@ public class MacroMCTS {
         IState nextState = current.clone();
         MacroActionsExecutor executor = new MacroActionsExecutor();
         try{
-            executor.executeIndexedMacro(nextState,a,false);
-        }
-        catch (Exception e){
+            executor.executeIndexedMacro(nextState,a,true);
+        }catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -146,7 +145,7 @@ public class MacroMCTS {
         }
     }
 
-    public MacroAction run(IState current){
+    public MacroAction run(IState current) {
 
         root = new MacroNode(current);
         int iterations = 0;
@@ -178,12 +177,11 @@ public class MacroMCTS {
                 currentNode.getState().getPlayerRepository().getCurrentPlayer().addHand(simulationPD.pop());
                 currentNode.getState().getPlayerRepository().getCurrentPlayer().addHand(simulationPD.pop());
 
-                for(int i = 0; i < Objects.requireNonNull(currentNode.getState().getDiseaseRepository().getInfectionRates().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount(); i++){
+                for(int i = 0; i < Objects.requireNonNull(currentNode.getState().getDiseaseRepository().getInfectionRates().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount(); i++) {
                     InfectionCard ic = simulationID.pop();
                     try {
                         currentNode.getState().getDiseaseRepository().infect(ic.getCity().getColor(), ic.getCity());
-                    } catch (NoCubesLeftException | NoDiseaseOrOutbreakPossibleDueToEvent | GameOverException e) {
-                        e.printStackTrace();
+                    } catch (NoCubesLeftException | NoDiseaseOrOutbreakPossibleDueToEvent | GameOverException ignored) {
                     }
                 }
                 currentNode.getState().getPlayerRepository().nextPlayer();

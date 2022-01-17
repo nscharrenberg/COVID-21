@@ -3,6 +3,7 @@ package org.um.nine.headless.agents.rhea.macro;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
+import org.um.nine.headless.game.exceptions.GameOverException;
 
 import java.util.Comparator;
 import java.util.List;
@@ -14,7 +15,7 @@ import static org.um.nine.headless.agents.rhea.state.StateEvaluation.Cd;
 
 public record MacroActionsExecutor() {
 
-    public void executeIndexedMacro(IState state, MacroAction macro, boolean draw) throws Exception {
+    public void executeIndexedMacro(IState state, MacroAction macro, boolean draw) throws GameOverException, Exception {
         state.getPlayerRepository().setCurrentRoundState(null);
         //System.out.println("Executing macro : "+macro);
         char[] index = macro.index().toCharArray();

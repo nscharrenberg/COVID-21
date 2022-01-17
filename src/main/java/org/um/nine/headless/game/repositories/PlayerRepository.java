@@ -414,7 +414,7 @@ public class PlayerRepository implements IPlayerRepository {
     }
 
     @Override
-    public void playerAction(ActionType type, IState state, Object... args) throws Exception {
+    public void playerAction(ActionType type, IState state, Object... args) throws GameOverException, Exception {
         if (this.getCurrentRoundState() == null) this.nextTurn(state);
         if (currentRoundState.equals(RoundState.ACTION)) {
             if(currentPlayer.isBot() && !ignored){

@@ -85,18 +85,30 @@ public class ExperimentRunner {
                     DEFAULT_RUNNING_GAME.setPath(gamePath + "/" + DEFAULT_PLAYERS.get(k));
                     gameState.getPlayerRepository().setCurrentPlayer(DEFAULT_PLAYERS.get(k));
                     MacroNode macroNode = null;
-                    try {
-                       MacroMCTS mcts = new MacroMCTS(gameState, ITERATIONS);
-                       MacroAction m = mcts.run(gameState);
-                       macroNode = new MacroNode(gameState.getPlayerRepository().getCurrentPlayer(), m);
-                    } catch (Exception e) {
+                    MacroMCTS mcts = new MacroMCTS(gameState, ITERATIONS);
+                    MacroAction m = mcts.run(gameState);
+                    macroNode = new MacroNode(gameState.getPlayerRepository().getCurrentPlayer(), m);
+                    // finally, store the successful mutation macro
+                    if (macroNode != null) allPlayersMacro[k] = macroNode;
+
+                    MacroActionsExecutor mae = new MacroActionsExecutor();
+                    try{
+                        mae.executeIndexedMacro(gameState,macroNode.macroAction(),true);
+                    } catch (GameOverException e) {
+                        GameStateFactory.getAnalyticsRepository().lost();
+                        // if neither the mutation was successful just break the game and start a new one
+                        break gameRunning;
+                    } catch (GameWonException e) {
+                        GameStateFactory.getAnalyticsRepository().won();
+                        // if neither the mutation was successful just break the game and start a new one
+                        break gameRunning;
+                    }catch (Exception e) {
                         //System.err.println(e.getMessage() + " :: " + IReportable.getDescription());
                         e.printStackTrace();
                     } finally {
                         DEFAULT_REPORTER.setPath(reportPath);
                     }
-                    // finally, store the successful mutation macro
-                    if (macroNode != null) allPlayersMacro[k] = macroNode;
+                    gameState.getPlayerRepository().nextPlayer();
 
                 }
                 // add to the game history the state and the 4 macro to apply with the default player order
