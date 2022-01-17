@@ -32,17 +32,40 @@ public class StatGraph extends ApplicationFrame {
     private DefaultCategoryDataset winLossDataset = new DefaultCategoryDataset();
     private ChartPanel winLossChartPanel;
 
+    // Treat Diseases
+    private JFreeChart treatDiseaseChart;
+    private DefaultCategoryDataset treatDiseaseDataset = new DefaultCategoryDataset();
+    private ChartPanel treatDiseaseChartPanel;
+
+    // Cure Diseases
+    private JFreeChart cureDiseaseChart;
+    private DefaultCategoryDataset cureDiseaseDataset = new DefaultCategoryDataset();
+    private ChartPanel cureDiseaseChartPanel;
+
+    // Research Station
+    private JFreeChart buildResearchStationChart;
+    private DefaultCategoryDataset buildResearchStationDataset = new DefaultCategoryDataset();
+    private ChartPanel buildResearchStationChartPanel;
+
+    // Visited Cities
+    private JFreeChart cityVisitedChart;
+    private DefaultCategoryDataset cityVisitedDataset = new DefaultCategoryDataset();
+    private ChartPanel cityVisitedChartPanel;
+
     private Timer timer = new Timer();
 
     public StatGraph(String title) {
         super(title);
-        GridLayout layout = new GridLayout();
-        layout.setColumns(3);
+        GridLayout layout = new GridLayout(3, 12);
         setLayout(layout);
 
         renderWinLossChart();
         renderActionChart();
         renderMacroActionChart();
+        renderTreatedDiseasesChart();
+        renderCuredDiseasesChart();
+        renderBuildResearchStationChart();
+        renderCitiesVisited();
 
         scheduler();
     }
@@ -59,6 +82,62 @@ public class StatGraph extends ApplicationFrame {
         winLossChartPanel = new ChartPanel(winLossChart);
         winLossChartPanel.setPreferredSize(new Dimension(560, 367));
         add(winLossChartPanel);
+    }
+
+    private void renderBuildResearchStationChart() {
+        this.buildResearchStationChart = ChartFactory.createBarChart(
+                "Research Stations Build",
+                "City", "Build",
+                buildResearchStationDataset,
+                PlotOrientation.VERTICAL,
+                false, true, false
+        );
+
+        buildResearchStationChartPanel = new ChartPanel(buildResearchStationChart);
+        buildResearchStationChartPanel.setPreferredSize(new Dimension(560, 367));
+        add(buildResearchStationChartPanel);
+    }
+
+    private void renderCuredDiseasesChart() {
+        this.cureDiseaseChart = ChartFactory.createBarChart(
+                "Cure Diseases",
+                "Diseases", "Cured",
+                cureDiseaseDataset,
+                PlotOrientation.VERTICAL,
+                false, true, false
+        );
+
+        cureDiseaseChartPanel = new ChartPanel(cureDiseaseChart);
+        cureDiseaseChartPanel.setPreferredSize(new Dimension(560, 367));
+        add(cureDiseaseChartPanel);
+    }
+
+    private void renderCitiesVisited() {
+        this.cityVisitedChart = ChartFactory.createBarChart(
+                "Cities Visited",
+                "City", "Visited Count",
+                cityVisitedDataset,
+                PlotOrientation.VERTICAL,
+                false, true, false
+        );
+
+        cityVisitedChartPanel = new ChartPanel(cityVisitedChart);
+        cityVisitedChartPanel.setPreferredSize(new Dimension(560, 367));
+        add(cityVisitedChartPanel);
+    }
+
+    private void renderTreatedDiseasesChart() {
+        this.treatDiseaseChart = ChartFactory.createBarChart(
+                "Treat Diseases",
+                "Diseases", "Treated",
+                treatDiseaseDataset,
+                PlotOrientation.VERTICAL,
+                false, true, false
+        );
+
+        treatDiseaseChartPanel = new ChartPanel(treatDiseaseChart);
+        treatDiseaseChartPanel.setPreferredSize(new Dimension(560, 367));
+        add(treatDiseaseChartPanel);
     }
 
     private void renderActionChart() {
@@ -109,6 +188,20 @@ public class StatGraph extends ApplicationFrame {
                     v.getMacroActionsUsed().forEach((kp, vp) -> {
                         macroActionDataset.addValue(vp, kp, k);
                     });
+
+                    v.getDiseasesTreatedCount().forEach((kp, vp) -> {
+                        treatDiseaseDataset.addValue(vp, kp, k);
+                    });
+
+                    v.getDiseasesCuredCount().forEach((kp, vp) -> {
+                        cureDiseaseDataset.addValue(vp, kp, kp);
+                    });
+
+                    v.getCityVisitedCount().forEach((kp, vp) -> {
+                        cityVisitedDataset.addValue(vp, kp, k);
+                    });
+
+                    buildResearchStationDataset.addValue(v.getResearchStationBuild().size(), "Build", k);
                 });
             }
         }, 5000, 1000);
