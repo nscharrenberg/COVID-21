@@ -14,6 +14,7 @@ import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.game.exceptions.GameOverException;
 import org.um.nine.headless.game.exceptions.GameWonException;
+import org.um.nine.headless.game.repositories.AnalyticsRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +32,8 @@ public class ExperimentRunner {
     }
 
     private static void runExperiments() {
+        AnalyticsRepository.ENABLED = false;
+
         assert HEADLESS;
         assert DEFAULT_INITIAL_STATE;
 
@@ -83,11 +86,16 @@ public class ExperimentRunner {
                     gameState.getPlayerRepository().setCurrentPlayer(DEFAULT_PLAYERS.get(k));
                     MacroNode macroNode = null;
                     try {
+                        IState cloned = gameState.clone();
                         // apply evolutionary algorithm to get the best macro
                         MacroAction nextMacro = agents[k].getNextMacroAction(gameState).executableNow(gameState);
                         DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(gameState, nextMacro, true);
                         // if no exceptions arise then we can keep the macro
                         macroNode = new MacroNode(DEFAULT_PLAYERS.get(k), nextMacro);
+
+                        AnalyticsRepository.ENABLED = true;
+                        macroNode.macroAction().executableNow(cloned);
+                        AnalyticsRepository.ENABLED = false;
 
                     } catch (GameOverException e) {
                         GameStateFactory.getAnalyticsRepository().lost();
@@ -110,7 +118,6 @@ public class ExperimentRunner {
                 // add to the game history the state and the 4 macro to apply with the default player order
                 DEFAULT_RUNNING_GAME.getActionsHistory().put(gameState.clone(), allPlayersMacro);
             }
-
 
             final int[] stateIndex = {0};
             DEFAULT_RUNNING_GAME.getActionsHistory().forEach(
