@@ -32,7 +32,6 @@ public class ExperimentRunner {
     }
 
     private static void runExperiments() {
-        AnalyticsRepository.ENABLED = false;
 
         assert HEADLESS;
         assert DEFAULT_INITIAL_STATE;
@@ -98,9 +97,9 @@ public class ExperimentRunner {
                         // if no exceptions arise then we can keep the macro
                         macroNode = new MacroNode(DEFAULT_PLAYERS.get(k), nextMacro);
 
-                        AnalyticsRepository.ENABLED = true;
-                        macroNode.macroAction().executableNow(cloned);
-                        AnalyticsRepository.ENABLED = false;
+//                        AnalyticsRepository.ENABLED = true;
+//                        macroNode.macroAction().executableNow(cloned);
+//                        AnalyticsRepository.ENABLED = false;
 
                     } catch (GameOverException e) {
                         GameStateFactory.getAnalyticsRepository().lost();
@@ -146,7 +145,11 @@ public class ExperimentRunner {
                     }
             );
 
+            GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(gameState).summarize();
+
             DEFAULT_REPORTER.setPath(reportPath);
         }
+
+        System.out.println("Experiments Finished");
     }
 }
