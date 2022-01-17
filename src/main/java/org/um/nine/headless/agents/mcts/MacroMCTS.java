@@ -100,7 +100,7 @@ public class MacroMCTS {
      * @throws MoveNotPossibleException if a move is not possible this will be thrown
      */
     public IState simulate(MacroAction a, IState current) throws MoveNotPossibleException {
-        IState nextState = current.getClonedState();
+        IState nextState = current.clone();
         MacroActionsExecutor executor = new MacroActionsExecutor();
         try{
             executor.executeIndexedMacro(current,a,false);

@@ -334,7 +334,7 @@ public abstract class MacroActionFactory2 implements IReportable {
         return filledMacro;
     }
 
-    protected List<MacroAction> getActions() {
+    public List<MacroAction> getActions() {
         return actions == null ? actions = buildAllMacroActions() : actions;
     }
 

@@ -96,7 +96,7 @@ public class MCTS implements Agent {
      * @throws MoveNotPossibleException if a move is not possible this will be thrown
      */
     public IState simulate(Actions a, IState current) throws MoveNotPossibleException {
-        IState nextState = current.getClonedState();
+        IState nextState = current.clone();
         Player player = nextState.getPlayerRepository().getCurrentPlayer();
         switch(a){
             case DRIVE -> {

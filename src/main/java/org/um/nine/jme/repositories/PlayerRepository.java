@@ -5,6 +5,7 @@ import org.um.nine.headless.agents.mcts.MCTS;
 import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.utils.Logger;
+import org.um.nine.headless.game.domain.Role;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.roles.*;
 import org.um.nine.headless.game.exceptions.*;
@@ -141,7 +142,14 @@ public class PlayerRepository {
      * @return
      */
     public RoundState nextTurn(IState currentState) {
-        return GameStateFactory.getInitialState().getPlayerRepository().nextTurn(currentState);
+        RoundState s = null;
+        try{
+            s = GameStateFactory.getInitialState().getPlayerRepository().nextTurn(currentState);
+        }
+        catch (GameOverException e){
+            e.printStackTrace();
+        }
+        return s;
     }
 
     /**
