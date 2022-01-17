@@ -1,4 +1,5 @@
 package org.um.nine.headless.agents.rhea.core;
+
 import org.um.nine.headless.agents.rhea.macro.HPAMacroActionsFactory;
 import org.um.nine.headless.agents.rhea.macro.MacroAction;
 import org.um.nine.headless.agents.rhea.macro.RPAMacroActionsFactory;
@@ -7,12 +8,13 @@ import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.exceptions.GameOverException;
 
+import static java.lang.System.arraycopy;
 import static org.um.nine.headless.game.Settings.*;
 
 public record Mutator() implements IReportable {
     //public static final int N_EVALUATION_SIMULATIONS = 5;
     public static final double INITIAL_MUTATION_RATE = 1d, FINAL_MUTATION_RATE = 0.5;
-    public static final int N_MUTATIONS = 10;
+    public static final int N_MUTATIONS = 100;
     public static int successfulMutations = 0;
 
     public static double map(double value, double min1, double max1, double min2, double max2) {
@@ -20,59 +22,59 @@ public record Mutator() implements IReportable {
     }
 
     public void mutateIndividual(IState initialState, Individual individual, double mutationRate) throws GameOverException {
+
         IState mutationState = initialState.clone();
         boolean atLeastOneMutated = false;
+        MacroAction[] newGenome = null;
 
         for (int i = 0; i < ROLLING_HORIZON; i++) {
             double mutationChance = RANDOM_PROVIDER.nextDouble();
             if (mutationChance < mutationRate) {
                 atLeastOneMutated = true;
-                mutateGene(mutationState, individual, i);
+                newGenome = mutateGene(mutationState, individual, i);
             }
         }
 
         if (!atLeastOneMutated) {
-            //mutate at least one
             int mutationIndex = RANDOM_PROVIDER.nextInt(ROLLING_HORIZON);
-            mutateGene(mutationState, individual, mutationIndex);
+            newGenome = mutateGene(mutationState, individual, mutationIndex);
         }
+
+        arraycopy(newGenome, 0, individual.genome(), 0, individual.genome().length);
+
     }
 
-    private void mutateGene(IState individualMutationState, Individual individual, int mutationIndex) throws GameOverException {
+    private MacroAction[] mutateGene(IState individualMutationState, Individual individual, int mutationIndex) throws GameOverException {
         IState mutationState = individualMutationState.clone();
         Player p = mutationState.getPlayerRepository().getCurrentPlayer();
 
-
-        //TODO : if executing previous macro throws exception replace with skip
-
-        //TODO: make method applicableOnState now in macro actions where return the okay ones
-
-        //public MacroAction applicableNow(IState stateNow, Macro toApply)
-        // use it here and in genome
-        // check also if game lost before applying it
+        MacroAction[] newGene = new MacroAction[individual.genome().length];
 
 
         for (int i = 0; i < ROLLING_HORIZON; i++) {
             ROUND_INDEX = i;
-            MacroAction macroIndex =
-                    individual.genome()[i];
+            MacroAction macroIndex = newGene[i];  // copy the existing macro
             mutationState.getPlayerRepository().setCurrentPlayer(p);
-            if (i == mutationIndex || macroIndex == null) {
+
+            if (i == mutationIndex || macroIndex == null)
                 macroIndex = HPAMacroActionsFactory.init(mutationState, p.getCity(), p).getNextMacroAction();
-            } else if (i > mutationIndex) {
+            else if (i > mutationIndex)
                 macroIndex = RPAMacroActionsFactory.init(mutationState, p.getCity(), p).getNextMacroAction();
-            }
+
             macroIndex = macroIndex.executableNow(mutationState);
+
             try {
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(mutationState, macroIndex, true);
             } catch (GameOverException e) {
                 //System.err.println(e.getMessage() + " : " + IReportable.getDescription());
-                throw e;   // we want to break the mutation at the upper level, so keep throwing the exception just if it's game over
+                //we want to break the mutation at the upper level, so keep throwing the exception just if it's game over
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                newGene[i] = macroIndex;
             }
-            individual.genome()[i] = macroIndex;
         }
+        return newGene;
 
     }
 

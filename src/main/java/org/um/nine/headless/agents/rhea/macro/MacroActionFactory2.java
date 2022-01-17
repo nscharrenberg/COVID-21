@@ -109,7 +109,7 @@ public abstract class MacroActionFactory2 implements IReportable {
         }
         if (closestRS != null) {
             List<ActionType.StandingAction> cure = new ArrayList<>();
-            cure.add(new ActionType.StandingAction(ActionType.DISCOVER_CURE, closestRS, null, null));
+            cure.add(new ActionType.StandingAction(ActionType.DISCOVER_CURE, closestRS));
             curingActions.add(macro(pathToClosestRs, cure));
         }
         return curingActions;
@@ -167,19 +167,19 @@ public abstract class MacroActionFactory2 implements IReportable {
 
             if (discovered) {
                 for (int i = 0; i < diseasesToTreat && i < discoveredTreatable; i++) {
-                    treatingCity.add(new ActionType.StandingAction(ActionType.TREAT_DISEASE, reachable, null, null));  //add the discovered
+                    treatingCity.add(new ActionType.StandingAction(ActionType.TREAT_DISEASE, reachable));  //add the discovered
                     discoveredTreatable--;
                     treatingActionsCount++;
                 }
                 for (int i = actionsLeft - discoveredTreatable; i < diseasesToTreat && i < notDiscoveredTreatable; i++) {
-                    treatingCity.add(new ActionType.StandingAction(ActionType.TREAT_DISEASE, reachable, null, null));  //add the not discovered
+                    treatingCity.add(new ActionType.StandingAction(ActionType.TREAT_DISEASE, reachable));  //add the not discovered
                     notDiscoveredTreatable--;
                     treatingActionsCount++;
                 }
 
             } else {
                 for (int i = 0; i < diseasesToTreat; i++) {
-                    treatingCity.add(new ActionType.StandingAction(ActionType.TREAT_DISEASE, reachable, null, null));   // just add treating actions until diseases to treat
+                    treatingCity.add(new ActionType.StandingAction(ActionType.TREAT_DISEASE, reachable));   // just add treating actions until diseases to treat
                     notDiscoveredTreatable--;
                     treatingActionsCount++;
                 }
@@ -218,7 +218,7 @@ public abstract class MacroActionFactory2 implements IReportable {
             List<ActionType.StandingAction> treatingCity = new ArrayList<>();
 
             for (int i = 0; i < diseasesToTreat; i++) {
-                treatingCity.add(new ActionType.StandingAction(ActionType.TREAT_DISEASE, reachable, null, null));
+                treatingCity.add(new ActionType.StandingAction(ActionType.TREAT_DISEASE, reachable));
                 nTreatableDisease--;
                 treatingActionsCount++;
                 actionsLeft--;
@@ -273,7 +273,7 @@ public abstract class MacroActionFactory2 implements IReportable {
 
         for (City buildable : buildCities) {
             List<ActionType.StandingAction> building = new ArrayList<>();
-            building.add(new ActionType.StandingAction(ActionType.BUILD_RESEARCH_STATION, buildable, null, null));
+            building.add(new ActionType.StandingAction(ActionType.BUILD_RESEARCH_STATION, buildable));
             buildingActions.add(macro(pathFinder.getPath(buildable, true), building));
         }
 
@@ -317,18 +317,18 @@ public abstract class MacroActionFactory2 implements IReportable {
                             stream().
                             filter(macro -> macro.size() == remaining).
                             findFirst().
-                            orElse(skipMacroAction(remaining, currentPlayer.getCity()));
+                            orElse(MacroAction.skipMacroAction(remaining, currentPlayer.getCity()));
 
             filledMacro = combine(toFill, next);
 
         } catch (Exception e) {
-            System.out.println("Error when filling macro " + toFill + " -> " + e.getMessage());
+            //System.out.println("Error when filling macro " + toFill + " -> " + e.getMessage());
             //e.printStackTrace();
         } finally {
             if (filledMacro == null) filledMacro = toFill;
             if (filledMacro.size() < 4) {
-                combine(filledMacro, skipMacroAction(remaining, lastReachedCity));
-                System.out.println("Fixed : " + filledMacro);
+                combine(filledMacro, MacroAction.skipMacroAction(remaining, lastReachedCity));
+                //System.out.println("Fixed : " + filledMacro);
             }
         }
         return filledMacro;
@@ -337,7 +337,6 @@ public abstract class MacroActionFactory2 implements IReportable {
     public List<MacroAction> getActions() {
         return actions == null ? actions = buildAllMacroActions() : actions;
     }
-
 
     protected Player getCurrentPlayer() {
         return this.currentPlayer == null ? this.state.getPlayerRepository().getCurrentPlayer() : this.currentPlayer;

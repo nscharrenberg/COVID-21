@@ -74,7 +74,7 @@ public abstract class MacroActionFactory implements IReportable {
             List<StandingAction> s = new ArrayList<>();
             if (shortestPath.size() != 0 && shortestPath.size() <= N) {
                 for (int i = 0; i < N - shortestPath.size(); i++)
-                    s.add(new ActionType.StandingAction(NO_ACTION, c, null, null));
+                    s.add(new ActionType.StandingAction(NO_ACTION, c));
                 actions.add(macro(shortestPath, s));
             }
         }
@@ -109,7 +109,7 @@ public abstract class MacroActionFactory implements IReportable {
                     List<ActionType.MovingAction> shortestPath = getInstance().pathFinder.getPath(cc.getCity(), true);
                     if (shortestPath.size() > 0 && shortestPath.size() < 4) {
                         List<StandingAction> s = new ArrayList<>();
-                        s.add(new ActionType.StandingAction(BUILD_RESEARCH_STATION, cc.getCity(), null, null));
+                        s.add(new ActionType.StandingAction(BUILD_RESEARCH_STATION, cc.getCity()));
                         actions.add(macro(shortestPath, s));
                     }
                 }
@@ -135,9 +135,8 @@ public abstract class MacroActionFactory implements IReportable {
                     curingActions.add(macro(new ArrayList<>(), new ArrayList<>(
                             List.of(new StandingAction(
                                     DISCOVER_CURE,
-                                    current.getCity(),
-                                    null,
-                                    null)))
+                                    current.getCity()
+                            )))
                     ));
                     return curingActions;
                 }
@@ -161,7 +160,7 @@ public abstract class MacroActionFactory implements IReportable {
                         MacroAction curingLater = macro(shortestPath, new ArrayList<>());
                         curingActions.add(curingLater);
                     } else {
-                        curingActions.add(macro(shortestPath, new ArrayList<>(List.of(new ActionType.StandingAction(DISCOVER_CURE, closestResearchStation, null, null)))));
+                        curingActions.add(macro(shortestPath, new ArrayList<>(List.of(new ActionType.StandingAction(DISCOVER_CURE, closestResearchStation)))));
                     }
                 }
 
@@ -309,9 +308,9 @@ public abstract class MacroActionFactory implements IReportable {
     private static void addShareAndWait(int N, List<MacroAction> shareKnowledgeActions, Player give, Player take, City c) {
         List<MovingAction> shortestPath = getInstance().pathFinder.getPath(c, true);
         List<StandingAction> standing = new ArrayList<>();
-        standing.add(new StandingAction(SHARE_KNOWLEDGE, c, give, take));
+        standing.add(new StandingAction(SHARE_KNOWLEDGE, c));
         for (int i = 0; i < N-shortestPath.size()-1; i++) {
-            standing.add(new StandingAction(SKIP_ACTION,c,null,null));
+            standing.add(new StandingAction(SKIP_ACTION, c));
         }
         shareKnowledgeActions.add(macro(shortestPath, standing));
     }
@@ -320,7 +319,7 @@ public abstract class MacroActionFactory implements IReportable {
             List<MovingAction> shortestPath = getInstance().pathFinder.getPath(c, true);
             List<StandingAction> skip = new ArrayList<>();
             for (int i = 0; i < N-shortestPath.size(); i++) {
-                skip.add(new StandingAction(SKIP_ACTION,c,null,null));
+                skip.add(new StandingAction(SKIP_ACTION, c));
             }
             shareKnowledgeActions.add(macro(shortestPath, skip));
         }
@@ -361,7 +360,7 @@ public abstract class MacroActionFactory implements IReportable {
                         boolean addOneTreatDisease = (medic || discovered) && treated >= 1;   //if medic or discovered
                         if (availableMoves > treated && cubesOfColor > treated && !addOneTreatDisease)
                             //if medic or cure discovered add only one treat disease action no matter how many cubes
-                            standingActions.add(new ActionType.StandingAction(TREAT_DISEASE, sc.getValue(), null, null));
+                            standingActions.add(new ActionType.StandingAction(TREAT_DISEASE, sc.getValue()));
                         treated++;
                     }
                     if (standingActions.size() == nDiseases || (medic && cubesOfColor == nDiseases))
@@ -399,10 +398,10 @@ public abstract class MacroActionFactory implements IReportable {
 
             if (ma.fromCity().getCubes().size() > 0) {
                 if (getInstance().getCurrentPlayer().getRole() instanceof Medic) {
-                    s.add(new StandingAction(TREAT_DISEASE, ma.fromCity(), null, null));
+                    s.add(new StandingAction(TREAT_DISEASE, ma.fromCity()));
                 } else {
                     for (int i = 0, j = ma.fromCity().getCubes().size(); i < remainingActions && j > 0; i++, j--) {
-                        s.add(new StandingAction(TREAT_DISEASE, ma.fromCity(), null, null));
+                        s.add(new StandingAction(TREAT_DISEASE, ma.fromCity()));
                     }
                 }
 
@@ -433,7 +432,7 @@ public abstract class MacroActionFactory implements IReportable {
         switch (remainingActions) {
             case 1 -> {
                 if (diseasesLeft >= 1) {
-                    s.add(new StandingAction(TREAT_DISEASE, current, null, null));
+                    s.add(new StandingAction(TREAT_DISEASE, current));
                     return combine(toFill, macro(m, s));
                 }
                 City n = current.getNeighbors().get(0);
@@ -442,14 +441,14 @@ public abstract class MacroActionFactory implements IReportable {
             }
             case 2 -> {
                 if (diseasesLeft >= 2) {
-                    s.add(new StandingAction(TREAT_DISEASE, current, null, null));
-                    s.add(new StandingAction(TREAT_DISEASE, current, null, null));
+                    s.add(new StandingAction(TREAT_DISEASE, current));
+                    s.add(new StandingAction(TREAT_DISEASE, current));
                     return combine(toFill, macro(m, s));
                 }
                 for (City c : current.getNeighbors()) {
                     if (diseasesLeft >= 1 && c.getCubes().size() >= 1) {
                         m.add(new MovingAction(DRIVE, current, c));
-                        s.add(new StandingAction(TREAT_DISEASE, c, null, null));
+                        s.add(new StandingAction(TREAT_DISEASE, c));
                         return combine(toFill, macro(m, s));
                     }
                 }
@@ -460,9 +459,9 @@ public abstract class MacroActionFactory implements IReportable {
             }
             case 3 -> {
                 if (diseasesLeft >= 3) {
-                    s.add(new StandingAction(TREAT_DISEASE, current, null, null));
-                    s.add(new StandingAction(TREAT_DISEASE, current, null, null));
-                    s.add(new StandingAction(TREAT_DISEASE, current, null, null));
+                    s.add(new StandingAction(TREAT_DISEASE, current));
+                    s.add(new StandingAction(TREAT_DISEASE, current));
+                    s.add(new StandingAction(TREAT_DISEASE, current));
                     return combine(toFill, macro(m, s));
                 }
                 City save = null;
@@ -470,15 +469,15 @@ public abstract class MacroActionFactory implements IReportable {
                     if (c.getCubes().size() == 1) save = c;
                     if (c.getCubes().size() >= 2) {
                         m.add(new MovingAction(DRIVE, getInstance().getCurrentPlayer().getCity(), c));
-                        s.add(new StandingAction(TREAT_DISEASE, current, null, null));
-                        s.add(new StandingAction(TREAT_DISEASE, current, null, null));
+                        s.add(new StandingAction(TREAT_DISEASE, current));
+                        s.add(new StandingAction(TREAT_DISEASE, current));
                         return combine(toFill, macro(m, s));
                     }
                 }
                 if (save != null) {
                     m.add(new MovingAction(DRIVE, getInstance().getCurrentPlayer().getCity(), save));
-                    s.add(new StandingAction(TREAT_DISEASE, current, null, null));
-                    s.add(new StandingAction(TREAT_DISEASE, current, null, null));
+                    s.add(new StandingAction(TREAT_DISEASE, current));
+                    s.add(new StandingAction(TREAT_DISEASE, current));
                     return combine(toFill, macro(m, s));
                 }
                 City n = current.getNeighbors().get(0), nn = n.getNeighbors().get(0);
