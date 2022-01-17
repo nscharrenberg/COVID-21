@@ -35,7 +35,7 @@ public class ExperimentalGameRunner {
         }
 
         //FIXME: UNCOMMENT AND RUN BEFORE GIT COMMITTING
-        System.exit(0);
+        //System.exit(0);
 
 
         //initialise constants
@@ -43,7 +43,7 @@ public class ExperimentalGameRunner {
         DEFAULT_MUTATOR = new Mutator();
 
 
-        int n_rep = 1;
+        int n_rep = 4;
         gamesLoop:
         for (int i = 0; i < n_rep; i++) {
 
@@ -59,6 +59,7 @@ public class ExperimentalGameRunner {
             IntStream.range(0, DEFAULT_PLAYERS.size()).forEach(k -> agents[k] = new Individual(new MacroAction[5]));
 
 
+            gameRunning:
             while (DEFAULT_RUNNING_GAME.onGoing()) {
 
                 DEFAULT_RUNNING_GAME.setPath(gamePath);
@@ -72,7 +73,7 @@ public class ExperimentalGameRunner {
                     MacroNode macroNode = null;
                     try {
                         // apply evolutionary algorithm to get the best macro
-                        MacroAction nextMacro = agents[k].getNextMacroAction(gameState);
+                        MacroAction nextMacro = agents[k].getNextMacroAction(gameState).executableNow(gameState);
                         DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(gameState, nextMacro, true);
                         // if no exceptions arise then we can keep the macro
                         macroNode = new MacroNode(DEFAULT_PLAYERS.get(k), nextMacro);
@@ -80,9 +81,9 @@ public class ExperimentalGameRunner {
                     } catch (GameOverException | GameWonException e) {
                         //System.err.println(e.getMessage() + " :: " + IReportable.getDescription());
                         // if neither the mutation was successful just break the game and start a new one
-                        continue gamesLoop;
+                        break gameRunning;
                     } catch (Exception e) {
-                        System.err.println(e.getMessage() + " :: " + IReportable.getDescription());
+                        //System.err.println(e.getMessage() + " :: " + IReportable.getDescription());
                         e.printStackTrace();
                     } finally {
                         DEFAULT_REPORTER.setPath(reportPath);
@@ -93,8 +94,30 @@ public class ExperimentalGameRunner {
                 }
                 // add to the game history the state and the 4 macro to apply with the default player order
                 DEFAULT_RUNNING_GAME.getActionsHistory().put(gameState.clone(), allPlayersMacro);
-
             }
+
+
+            final int[] stateIndex = {0};
+            DEFAULT_RUNNING_GAME.getActionsHistory().forEach(
+                    (state, macroNodes) -> {
+
+                        DEFAULT_REPORTER.clear();
+                        DEFAULT_REPORTER.setPath(gamePath + "/state-" + stateIndex[0] + ".txt");
+                        DEFAULT_REPORTER.logState(state).forEach(DEFAULT_REPORTER::append);
+                        DEFAULT_REPORTER.append("\n\n");
+                        DEFAULT_REPORTER.append("Round " + stateIndex[0]);
+
+                        for (MacroNode macroNode : macroNodes) {
+                            DEFAULT_REPORTER.append("Player " + macroNode.player());
+                            DEFAULT_REPORTER.append("Macro " + macroNode.macroAction());
+                        }
+                        DEFAULT_REPORTER.report();
+                        DEFAULT_REPORTER.clear();
+                        stateIndex[0]++;
+                    }
+            );
+
+            DEFAULT_REPORTER.setPath(reportPath);
         }
 
 

@@ -249,9 +249,10 @@ public abstract class MacroActionFactory2 implements IReportable {
                         filter(city -> {
                     Optional<CityCard> pc = getCurrentPlayer().getHand().stream().map(playerCard -> (CityCard) playerCard).filter(cityCard -> cityCard.getCity().equals(city)).findFirst();
                     boolean canBuild = pc.isPresent() && pathFinder.isDiscardableCard(pc.get(), getCurrentPlayer().getHand().indexOf(pc.get()));
-                    if (canBuild)
-                        return pc.get().getCity().getResearchStation() == null && (city.equals(getCurrentCity()) ||
-                                pathFinder.getPath(city, true).size() > 0);
+                    if (canBuild) {
+                        var path = pathFinder.getPath(city, true);
+                        return pc.get().getCity().getResearchStation() == null && (city.equals(getCurrentCity()) || (path.size() > 0 && path.size() < 4));
+                    }
                     return false;
                 }).
                 filter(possibleRS -> {
@@ -293,6 +294,7 @@ public abstract class MacroActionFactory2 implements IReportable {
     protected MacroAction fillMacroAction(MacroAction toFill) {
         int remaining = 4 - toFill.size();
         if (remaining == 0) return toFill;
+        if (remaining < 0) throw new IllegalArgumentException();
         MacroAction filledMacro = null;
         Record lastAction = toFill.getAtIndex(3 - remaining);
         City lastReachedCity = null;
@@ -308,6 +310,7 @@ public abstract class MacroActionFactory2 implements IReportable {
             currentPlayer = forward.getPlayerRepository().getPlayers().get(currentPlayer.getName());
 
             new MacroActionsExecutor().executeIndexedMacro(forward, toFill, false);
+
             var next =
                     initialise(forward, lastReachedCity, currentPlayer).
                             getActions().
@@ -319,12 +322,13 @@ public abstract class MacroActionFactory2 implements IReportable {
             filledMacro = combine(toFill, next);
 
         } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println(e.getMessage() + " :: filling " + toFill + " :: " + IReportable.REPORT_PATH[0]);
+            System.out.println("Error when filling macro " + toFill + " -> " + e.getMessage());
+            //e.printStackTrace();
         } finally {
             if (filledMacro == null) filledMacro = toFill;
             if (filledMacro.size() < 4) {
                 combine(filledMacro, skipMacroAction(remaining, lastReachedCity));
+                System.out.println("Fixed : " + filledMacro);
             }
         }
         return filledMacro;

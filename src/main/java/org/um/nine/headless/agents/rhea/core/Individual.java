@@ -26,8 +26,11 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         double[] eval = new double[genome.length];
         IState evaluationState = state.clone();
         Player player = evaluationState.getPlayerRepository().getCurrentPlayer();
+
         for (int i = 0; i < genome().length; i++) {
             evaluationState.getPlayerRepository().setCurrentPlayer(player);
+            //if (genome[i] == null) genome[i] = skipMacroAction(4, player.getCity());
+
             try {
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(evaluationState, genome[i], true);
                 eval[i] = BEST_HEURISTIC.evaluateState(evaluationState);
@@ -35,7 +38,6 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
                 eval[i] = 0;
             } catch (Exception e) {
                 e.printStackTrace();
-                System.err.println(IReportable.getDescription());
             }
         }
         return eval;
@@ -55,16 +57,19 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         IState initState = state.clone();
         Player player = initState.getPlayerRepository().getCurrentPlayer();
         String playerPath = this.getPath();
+
         for (int i = 0; i < this.genome().length; i++) {
             ROUND_INDEX = i;
             City currentCity = player.getCity();
             MacroAction nextMacro = HPAMacroActionsFactory.init(initState, currentCity, player).getNextMacroAction();
+
+            this.genome()[i] = nextMacro = nextMacro.executableNow(initState);
+
             try {
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(initState, nextMacro, true);
-                this.genome()[i] = nextMacro;
             } catch (GameOverException gameOver) {
-                System.err.println(gameOver.getMessage() + " : " + IReportable.getDescription());
-                break;
+                //System.err.println(gameOver.getMessage() + " : " + IReportable.getDescription());
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -122,7 +127,6 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
                 //System.err.println(gameOver.getMessage() + " :: " + IReportable.REPORT_PATH[0]);
             } catch (Exception e) {
                 e.printStackTrace();
-
             }
         }
         if (LOG) setPath(playerPath);

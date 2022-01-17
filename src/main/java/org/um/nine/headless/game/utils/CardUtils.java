@@ -13,15 +13,20 @@ import org.um.nine.headless.game.domain.cards.events.*;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CardUtils {
+    public static List<PlayerCard> cloneOf(List<PlayerCard> cards) {
+        return cards.stream().map(PlayerCard::clone).collect(Collectors.toList());
+    }
+
     public static Stack<PlayerCard> shuffle(Difficulty difficulty, Stack<PlayerCard> deck) {
         Collections.shuffle(deck);
         Stack<PlayerCard> shuffled = new Stack<>();
 
         Stack<PlayerCard>[] split = new Stack[difficulty.getCount()];
 
-        for(int i = 0; i < split.length; i++){
+        for (int i = 0; i < split.length; i++) {
             split[i] = new Stack<>();
         }
 

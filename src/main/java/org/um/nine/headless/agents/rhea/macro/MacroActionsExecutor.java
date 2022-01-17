@@ -1,13 +1,11 @@
 package org.um.nine.headless.agents.rhea.macro;
 
 import org.um.nine.headless.agents.rhea.state.IState;
-import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.Color;
 import org.um.nine.headless.game.domain.Disease;
 import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.cards.CityCard;
-import org.um.nine.headless.game.exceptions.GameOverException;
 
 import java.util.Comparator;
 import java.util.List;
@@ -72,13 +70,7 @@ public record MacroActionsExecutor() {
                 }
             }
         }
-        try {
-            state.getPlayerRepository().playerAction(executedAction, state, obj == null ? new Object[]{} : obj);
-        } catch (GameOverException gameOver) {
-            System.err.println(gameOver.getMessage() + " :: " + IReportable.REPORT_PATH[0]);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        state.getPlayerRepository().playerAction(executedAction, state, obj == null ? new Object[]{} : obj);
     }
 
 }

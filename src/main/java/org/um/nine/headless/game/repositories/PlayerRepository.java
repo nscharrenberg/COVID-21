@@ -284,7 +284,7 @@ public class PlayerRepository implements IPlayerRepository {
     }
 
     @Override
-    public RoundState nextTurn(IState state) {
+    public RoundState nextTurn(IState state) throws GameOverException {
         return this.nextTurn(this.currentRoundState, state);
     }
 
@@ -295,7 +295,7 @@ public class PlayerRepository implements IPlayerRepository {
      * @return
      */
     @Override
-    public RoundState nextTurn(RoundState currentState, IState state) {
+    public RoundState nextTurn(RoundState currentState, IState state) throws GameOverException {
         if (currentState == null) {
             this.currentRoundState = RoundState.ACTION;
             return this.currentRoundState;
@@ -311,7 +311,7 @@ public class PlayerRepository implements IPlayerRepository {
         } else if (currentState == RoundState.INFECT) {
             infectionLeft--;
             if (infectionLeft <= 0) {
-                infectionLeft = Objects.requireNonNull(state.getDiseaseRepository().getInfectionRates().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
+                infectionLeft = Objects.requireNonNull(state.getDiseaseRepository().getInfectionRates().stream().filter(Marker::isCurrent).findFirst().orElseThrow(GameOverException::new)).getCount();
                 this.currentRoundState = null;
                 this.nextPlayer();
             }
@@ -371,7 +371,7 @@ public class PlayerRepository implements IPlayerRepository {
         player.addHand(card);
 
         log.addStep(" shared " + city.getName() + " with " + target.getName(), city, player);
-        nextTurn(this.currentRoundState, state);
+        //nextTurn(this.currentRoundState, state);
     }
 
     @Override
@@ -411,14 +411,14 @@ public class PlayerRepository implements IPlayerRepository {
 
     @Override
     public void playerAction(ActionType type, IState state, Object... args) throws Exception {
-        if (this.getCurrentRoundState() == null) this.nextTurn(state);
-        if (currentRoundState.equals(RoundState.ACTION)) {
+        if (state.getPlayerRepository().getCurrentRoundState() == null) this.nextTurn(state);
+        if (state.getPlayerRepository().getCurrentRoundState().equals(RoundState.ACTION)) {
             if (type == null) type = ActionType.NO_ACTION;
             if (state.getBoardRepository().getSelectedRoleAction() == null)
                 state.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
             if (!type.equals(ActionType.SKIP_ACTION)) {
                 City city = state.getBoardRepository().getSelectedCity();
-                Player player = this.currentPlayer;
+                Player player = state.getPlayerRepository().getCurrentPlayer();
 
                 IBoardRepository boardRepository = state.getBoardRepository();
 
@@ -514,22 +514,22 @@ public class PlayerRepository implements IPlayerRepository {
                     }
                 }
             }
-           this.nextTurn(state);
+            this.nextTurn(state);
 
-        } else if (currentRoundState.equals(RoundState.DRAW)) {
+        } else if (state.getPlayerRepository().getCurrentRoundState().equals(RoundState.DRAW)) {
             state.getCardRepository().drawPlayerCard(state,
                     getCurrentPlayer().getHand().size() >= HAND_LIMIT ?
                             state.getDiscardingCard() : new PlayerCard[]{}
             );
             this.nextTurn(state);
-            if (drawLeft >= 0) {
-                this.playerAction(null,state);
+            if (state.getPlayerRepository().getDrawLeft() >= 0) {
+                this.playerAction(null, state);
             }
-        } else if (currentRoundState.equals(RoundState.INFECT)) {
+        } else if (state.getPlayerRepository().getCurrentRoundState().equals(RoundState.INFECT)) {
             state.getCardRepository().drawInfectionCard(state);
             this.nextTurn(state);
-            if (infectionLeft >= 0 && currentRoundState != null) {
-                this.playerAction(null,state);
+            if (state.getPlayerRepository().getInfectionLeft() >= 0 && state.getPlayerRepository().getCurrentRoundState() != null) {
+                this.playerAction(null, state);
             }
         }
     }

@@ -12,7 +12,7 @@ import static org.um.nine.headless.game.Settings.*;
 public record Mutator() implements IReportable {
     //public static final int N_EVALUATION_SIMULATIONS = 5;
     public static final double INITIAL_MUTATION_RATE = 1d, FINAL_MUTATION_RATE = 0.5;
-    public static final int N_MUTATIONS = 3;
+    public static final int N_MUTATIONS = 10;
     public static int successfulMutations = 0;
 
     public static double map(double value, double min1, double max1, double min2, double max2) {
@@ -54,22 +54,24 @@ public record Mutator() implements IReportable {
 
         for (int i = 0; i < ROLLING_HORIZON; i++) {
             ROUND_INDEX = i;
-            MacroAction macroIndex = individual.genome()[i];
+            MacroAction macroIndex =
+                    individual.genome()[i];
             mutationState.getPlayerRepository().setCurrentPlayer(p);
             if (i == mutationIndex || macroIndex == null) {
                 macroIndex = HPAMacroActionsFactory.init(mutationState, p.getCity(), p).getNextMacroAction();
             } else if (i > mutationIndex) {
                 macroIndex = RPAMacroActionsFactory.init(mutationState, p.getCity(), p).getNextMacroAction();
             }
-            individual.genome()[i] = macroIndex;
+            macroIndex = macroIndex.executableNow(mutationState);
             try {
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(mutationState, macroIndex, true);
             } catch (GameOverException e) {
-                System.err.println(e.getMessage() + " : " + IReportable.getDescription());
-                throw e;
+                //System.err.println(e.getMessage() + " : " + IReportable.getDescription());
+                throw e;   // we want to break the mutation at the upper level, so keep throwing the exception just if it's game over
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            individual.genome()[i] = macroIndex;
         }
 
     }

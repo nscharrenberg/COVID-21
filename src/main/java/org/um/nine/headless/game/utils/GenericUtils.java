@@ -8,7 +8,6 @@ public class GenericUtils<T> {
 
     public GenericUtils() {
     }
-
     public static record MapEquals<T>(Map<?, T> map1, Map<?, T> map2) {
         public boolean test() {
             return new ListEquals<T>(
@@ -17,7 +16,6 @@ public class GenericUtils<T> {
             ).test();
         }
     }
-
     public static record ListEquals<T>(List<T> list1, List<T> list2) {
 
         public boolean test() {

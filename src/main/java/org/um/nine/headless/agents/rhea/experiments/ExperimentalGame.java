@@ -23,7 +23,7 @@ public class ExperimentalGame implements IReportable {
         this.id = INCREMENT++;
         if (LOG) {
             this.setPath(REPORT_PATH[0] + "/game-" + this.getId());
-            DEFAULT_REPORTER.reportInitialState(this.currentState, "/initial-state-report.txt");
+            DEFAULT_REPORTER.reportState(this.currentState, "/initial-state-report.txt");
         }
     }
 

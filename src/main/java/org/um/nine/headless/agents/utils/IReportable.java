@@ -125,20 +125,27 @@ public interface IReportable {
         return s;
     }
 
-    default void reportInitialState(IState state, String path) {
+    default List<String> logState(IState state) {
+        List<String> log = new ArrayList<>();
+        log.add("Player order : " + DEFAULT_PLAYERS);
+        log.addAll(this.logPlayers(state));
+        log.add(this.logDiseasesByCityAndColor(state).toString());
+        var outbreaks = state.getDiseaseRepository().getOutbreakMarkers().stream().filter(Marker::isCurrent).findAny().orElse(null);
+        log.add("Outbreaks count : " + (outbreaks == null ? "NULL" : outbreaks.getId()));
+        log.addAll(this.logDecks(state));
+        return log;
+    }
+
+    default void reportState(IState state, String path) {
         String gamePath = getPath();
         this.setPath(gamePath + path);
-        if (this instanceof ExperimentalGame game) this.append("Game : " + game.getId() + " - Initial State");
-        this.append("Player order : " + DEFAULT_PLAYERS);
-        this.logPlayers(state).forEach(this::append);
-        this.append(this.logDiseasesByCityAndColor(state).toString());
-        var outbreaks = state.getDiseaseRepository().getOutbreakMarkers().stream().filter(Marker::isCurrent).findAny().orElse(null);
-        this.append("Outbreaks count : " + (outbreaks == null ? "NULL" : outbreaks.getId()));
-        this.logDecks(state).forEach(this::append);
+        if (this instanceof ExperimentalGame game) this.append("Game : " + game.getId() + " - Complete State");
+        this.logState(state).forEach(this::append);
         this.report();
         this.setPath(gamePath);
         this.clear();
     }
+
 
     default void logGenome(MacroAction[] genome, String appendix) {
         String prevPath = getPath();
