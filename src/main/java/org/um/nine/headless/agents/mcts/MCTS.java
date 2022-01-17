@@ -23,6 +23,7 @@ public class MCTS implements Agent {
 
     private Node root;
     private int maxIterations;
+    private int maxDepth = Integer.MAX_VALUE;
     private boolean endState = false;
     //important for the selection step. higher C = higher exploration
     private final double C = 0.5;

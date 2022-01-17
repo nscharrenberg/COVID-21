@@ -6,6 +6,7 @@ import org.um.nine.headless.agents.mcts.Node;
 import org.um.nine.headless.agents.rhea.core.IAgent;
 import org.um.nine.headless.agents.rhea.core.Individual;
 import org.um.nine.headless.agents.rhea.experiments.MacroNode;
+import org.um.nine.headless.agents.rhea.macro.HPAMacroActionsFactory;
 import org.um.nine.headless.agents.rhea.macro.MacroAction;
 import org.um.nine.headless.agents.rhea.macro.MacroActionsExecutor;
 import org.um.nine.headless.agents.rhea.state.IState;
@@ -26,7 +27,7 @@ public class hybrid {
         //RHEA
         Individual agent = new Individual(new MacroAction[5]);
         agent = agent.initGenome(state);
-        MacroAction RHEAAction = agent.getNextMacroAction(state);
+        MacroAction RHEAAction = HPAMacroActionsFactory.init(state, state.getPlayerRepository().getCurrentPlayer().getCity(), state.getPlayerRepository().getCurrentPlayer()).getNextMacroAction();
 
         if(MCTSAction.equals(RHEAAction)) return MCTSAction;
         double MCTSValue = evaluate(MCTSAction,state);
