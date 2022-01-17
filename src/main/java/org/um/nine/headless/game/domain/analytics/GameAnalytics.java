@@ -264,4 +264,8 @@ public class GameAnalytics {
     public void setMacroActionsUsed(HashMap<String, Integer> macroActionsUsed) {
         this.macroActionsUsed = macroActionsUsed;
     }
+
+    public void setRounds(int rounds) {
+        this.rounds = rounds;
+    }
 }

@@ -23,11 +23,6 @@ import static org.um.nine.headless.game.Settings.*;
 
 public class ExperimentRunner {
     public static void main(String[] args) {
-//        WinLossRate winLoseChart = new WinLossRate("Win / Lose Stats");
-//
-//        winLoseChart.pack();
-//        winLoseChart.setVisible(true);
-
         StatGraph actionTypeGraph = new StatGraph("Actions Stats");
         actionTypeGraph.pack();
         actionTypeGraph.setVisible(true);
@@ -59,7 +54,7 @@ public class ExperimentRunner {
         DEFAULT_MUTATOR = new Mutator();
 
 
-        int n_rep = 4;
+        int n_rep = 10;
         gamesLoop:
         for (int i = 0; i < n_rep; i++) {
 
@@ -70,10 +65,10 @@ public class ExperimentRunner {
             IState gameState = DEFAULT_RUNNING_GAME.getCurrentState();
             String gamePath = IReportable.REPORT_PATH[0];
 
+            GameStateFactory.getAnalyticsRepository().start(gameState);
 
             IAgent[] agents = new IAgent[4];
             IntStream.range(0, DEFAULT_PLAYERS.size()).forEach(k -> agents[k] = new Individual(new MacroAction[5]));
-
 
             gameRunning:
             while (DEFAULT_RUNNING_GAME.onGoing()) {
