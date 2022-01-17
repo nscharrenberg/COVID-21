@@ -9,10 +9,24 @@ import org.um.nine.headless.game.exceptions.NoDiseaseOrOutbreakPossibleDueToEven
 public class EpidemicRepository implements IEpidemicRepository {
 
     @Override
+    public EpidemicRepository clone() {
+        try {
+            return (EpidemicRepository) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
     public void action(IState state) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         increase(state);
         infect(state);
         intensify(state);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof EpidemicRepository;
+    }
 }

@@ -18,11 +18,39 @@ import org.um.nine.v1.Info;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class CityRepository implements ICityRepository {
     private HashMap<String, City> cities;
     private List<ResearchStation> researchStations;
+
     public CityRepository() {
+    }
+
+    @Override
+    public CityRepository clone() {
+        try {
+            CityRepository clone = (CityRepository) super.clone();
+            HashMap<String, City> clonedCities = new HashMap<>();
+            this.cities.forEach((s, city) -> {
+                City cloned = city.clone();
+                clonedCities.put(s, cloned);
+            });
+            clone.cities = clonedCities;
+            clone.researchStations = this.getResearchStations().
+                    stream().
+                    map(ResearchStation::clone).
+                    peek(rs -> rs.setCity(
+                            clone.cities.get(rs.getCity().getName())
+                    )).
+                    collect(Collectors.toList());
+
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -121,4 +149,17 @@ public class CityRepository implements ICityRepository {
     public void setResearchStations(List<ResearchStation> researchStations) {
         this.researchStations = researchStations;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CityRepository that = (CityRepository) o;
+
+        return Objects.equals(cities, that.cities) &&
+                Objects.equals(researchStations, that.researchStations);
+    }
+
+
 }

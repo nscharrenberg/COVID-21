@@ -32,16 +32,16 @@ public class GameAnalytics {
 
     public void summarize() {
         playerAnalytics.forEach((k, v) -> {
-//            summarizeDiseaseTreated(v);
-//            summarizeDiseaseCured(v);
-//            summarizeCityVisited(v);
-//            summarizeResearchStationUsed(v);
-//            summarizeRoleActionUsed(v);
+            summarizeDiseaseTreated(v);
+            summarizeDiseaseCured(v);
+            summarizeCityVisited(v);
+            summarizeResearchStationUsed(v);
+            summarizeRoleActionUsed(v);
             summarizeActionsUsed(v);
             summarizeMacroActionsUsed(v);
-//            summarizeKnowledgeShared(v);
-//            summarizeResearchStationsBuild(v);
-//            summarizeRoleEventUsed(v);
+            summarizeKnowledgeShared(v);
+            summarizeResearchStationsBuild(v);
+            summarizeRoleEventUsed(v);
         });
     }
 
@@ -55,49 +55,73 @@ public class GameAnalytics {
 
     private void summarizeDiseaseTreated(PlayerAnalytics analytics) {
         analytics.getDiseasesTreatedCount().forEach((k, v) -> {
-            int count = this.diseasesTreatedCount.get(k) + v;
+            int count = 0;
 
-            this.diseasesTreatedCount.put(k, count);
+            if (this.diseasesTreatedCount.containsKey(k)) {
+                count = this.diseasesTreatedCount.get(k);
+            }
+
+            this.diseasesTreatedCount.put(k, count + v);
         });
     }
 
     private void summarizeDiseaseCured(PlayerAnalytics analytics) {
         analytics.getDiseasesCuredCount().forEach((k, v) -> {
-            int count = this.diseasesCuredCount.get(k) + v;
+            int count = 0;
 
-            this.diseasesCuredCount.put(k, count);
+            if (this.diseasesCuredCount.containsKey(k)) {
+                count = this.diseasesCuredCount.get(k);
+            }
+
+            this.diseasesCuredCount.put(k, count + v);
         });
     }
 
     private void summarizeCityVisited(PlayerAnalytics analytics) {
         analytics.getCityVisitedCount().forEach((k, v) -> {
-            int count = this.cityVisitedCount.get(k) + v;
+            int count = 0;
 
-            this.cityVisitedCount.put(k, count);
+            if (this.cityVisitedCount.containsKey(k)) {
+                count = this.cityVisitedCount.get(k);
+            }
+
+            this.cityVisitedCount.put(k, count + v);
         });
     }
 
     private void summarizeResearchStationUsed(PlayerAnalytics analytics) {
         analytics.getResearchStationUsed().forEach((k, v) -> {
-            int count = this.researchStationUsed.get(k) + v;
+            int count = 0;
 
-            this.researchStationUsed.put(k, count);
+            if (this.researchStationUsed.containsKey(k)) {
+                count = this.researchStationUsed.get(k);
+            }
+
+            this.researchStationUsed.put(k, count + v);
         });
     }
 
     private void summarizeRoleActionUsed(PlayerAnalytics analytics) {
         analytics.getRoleActionUsed().forEach((k, v) -> {
-            int count = this.roleActionUsed.get(k) + v;
+            int count = 0;
 
-            this.roleActionUsed.put(k, count);
+            if (this.roleActionUsed.containsKey(k)) {
+                count = this.roleActionUsed.get(k);
+            }
+
+            this.roleActionUsed.put(k, count + v);
         });
     }
 
     private void summarizeRoleEventUsed(PlayerAnalytics analytics) {
         analytics.getRoleEventUsed().forEach((k, v) -> {
-            int count = this.roleEventUsed.get(k) + v;
+            int count = 0;
 
-            this.roleEventUsed.put(k, count);
+            if (this.roleEventUsed.containsKey(k)) {
+                count = this.roleEventUsed.get(k);
+            }
+
+            this.roleEventUsed.put(k, count + v);
         });
     }
 
@@ -127,9 +151,13 @@ public class GameAnalytics {
 
     private void summarizeKnowledgeShared(PlayerAnalytics analytics) {
         analytics.getKnowledgeShared().forEach((k, v) -> {
-            int count = this.knowledgeShared.get(k) + v;
+            int count = 0;
 
-            this.knowledgeShared.put(k, count);
+            if (this.knowledgeShared.containsKey(k)) {
+                count = this.knowledgeShared.get(k);
+            }
+
+            this.knowledgeShared.put(k, count + v);
         });
     }
 

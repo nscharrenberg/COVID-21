@@ -1,6 +1,19 @@
 package org.um.nine.headless.game.domain;
 
+import java.util.Arrays;
+
 public class InfectionRateMarker extends Marker {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        InfectionRateMarker that = (InfectionRateMarker) o;
+        return count == that.count &&
+                Arrays.equals(draws, that.draws);
+    }
+
+
     private static int INCREMENT = 0;
     private int count;
     private int[] draws = {2, 2, 2, 3, 3, 4, 4};

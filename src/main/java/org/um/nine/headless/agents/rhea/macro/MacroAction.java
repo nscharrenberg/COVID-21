@@ -1,13 +1,17 @@
 package org.um.nine.headless.agents.rhea.macro;
 
+import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.ActionType;
+import org.um.nine.headless.game.domain.City;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public interface MacroAction {
+import static org.um.nine.headless.game.Settings.DEFAULT_MACRO_ACTIONS_EXECUTOR;
+
+public interface MacroAction extends Cloneable {
     List<ActionType.MovingAction> movingActions();
 
     List<ActionType.StandingAction> standingActions();
@@ -17,9 +21,52 @@ public interface MacroAction {
     void setIndex(String s);
 
     static MacroAction combine(MacroAction ma1, MacroAction ma2) {
+        if (ma1.size() + ma2.size() > 4) throw new IllegalArgumentException();
         for (ActionType.MovingAction m : ma2.movingActions()) ma1.add(m);
         for (ActionType.StandingAction s : ma2.standingActions()) ma1.add(s);
         return ma1;
+    }
+
+    default MacroAction executableNow(IState currentState) {
+
+        if (currentState.isGameLost())
+            return MacroActionFactory2.skipMacroAction(4, currentState.getPlayerRepository().getCurrentPlayer().getCity());
+
+
+        IState forwardState = currentState.clone();
+        //start from the current city (there shouldn't be any error staying here)
+        City currentCity = forwardState.getPlayerRepository().getCurrentPlayer().getCity();
+        MacroAction executable = macro(new ArrayList<>(), new ArrayList<>()); //empty macro
+
+        int actionsExecuted;
+        int m, s = m = 0;
+        forwardState.getPlayerRepository().setCurrentRoundState(null);
+
+        for (char c : index().toCharArray()) {
+            try {                    //try executing the macro
+                if (c == 'm') {
+                    DEFAULT_MACRO_ACTIONS_EXECUTOR.executeMovingAction(forwardState, movingActions().get(m));
+                    // if no exceptions
+                    currentCity = movingActions().get(m).toCity();  //update current city when moving
+                    executable.add(movingActions().get(m));  // append it to executable
+                    m++;  // update the executed actions count
+                } else if (c == 's') {
+                    DEFAULT_MACRO_ACTIONS_EXECUTOR.executeStandingAction(forwardState, standingActions().get(s));
+                    // if no exceptions
+                    executable.add(standingActions().get(s));
+                    s++;
+                }
+            } catch (Exception ignored) {
+                break;  // stop the forwarding process
+            }
+        }
+
+        //count the actions which have been successfully applied
+        actionsExecuted = s + m;
+        for (int i = actionsExecuted; i < 4; i++)
+            executable.add(new ActionType.StandingAction(ActionType.SKIP_ACTION, currentCity, null, null));
+
+        return executable;
     }
 
     static MacroAction combine(MacroAction... ms) {
@@ -46,10 +93,14 @@ public interface MacroAction {
         }
         return desc.toString();
     }
-
     static MacroAction macro(List<ActionType.MovingAction> ma, List<ActionType.StandingAction> sa) {
         return new MacroAction() {
             String index;
+
+            @Override
+            public MacroAction clone() {
+                return MacroAction.super.clone();
+            }
 
             @Override
             public List<ActionType.MovingAction> movingActions() {
@@ -76,13 +127,11 @@ public interface MacroAction {
             }
         };
     }
-
     default MacroAction add(ActionType.MovingAction action) {
         setIndex(index() + "m");
         movingActions().add(action);
         return this;
     }
-
     default Record getAtIndex(int index) {
         int standingIndex = 0, movingIndex = 0;
         for (int i = 0; i < index().length(); i++) {
@@ -95,25 +144,21 @@ public interface MacroAction {
         }
         return null;
     }
-
     default MacroAction add(ActionType.StandingAction action) {
         setIndex(index() + "s");
         standingActions().add(action);
         return this;
     }
-
-    default MacroAction getClone() {
+    default MacroAction clone() {
         ArrayList<ActionType.StandingAction> sa = standingActions().stream().map(ActionType.StandingAction::getClone).collect(Collectors.toCollection(ArrayList::new));
         ArrayList<ActionType.MovingAction> ma = movingActions().stream().map(ActionType.MovingAction::getClone).collect(Collectors.toCollection(ArrayList::new));
         MacroAction m = macro(ma, sa);
         m.setIndex(index());
         return m;
     }
-
     default int size() {
         return movingActions().size() + standingActions().size();
     }
-
     class TreatDiseaseMacro implements MacroAction {
 
         private final List<ActionType.MovingAction> movingActions;
@@ -148,6 +193,11 @@ public interface MacroAction {
         @Override
         public void setIndex(String s) {
             this.index = s;
+        }
+
+        @Override
+        public MacroAction clone() {
+            return MacroAction.super.clone();
         }
     }
 }

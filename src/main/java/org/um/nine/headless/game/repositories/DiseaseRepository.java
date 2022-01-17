@@ -12,6 +12,7 @@ import org.um.nine.v1.Info;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class DiseaseRepository implements IDiseaseRepository {
@@ -29,8 +30,27 @@ public class DiseaseRepository implements IDiseaseRepository {
     public DiseaseRepository() {
     }
 
+    @Override
+    public DiseaseRepository clone() {
+        try {
+            DiseaseRepository clone = (DiseaseRepository) super.clone();
+            clone.setInfectionRates(new ArrayList<>(List.copyOf(this.getInfectionRates())));
+            clone.setOutbreakMarkers(new ArrayList<>(List.copyOf(this.getOutbreakMarkers())));
+            clone.setCubes(new HashMap<>());
+            this.getCubes().forEach((color, diseases) -> clone.getCubes().put(color, diseases.stream().map(Disease::clone).collect(Collectors.toList())));
+
+            clone.setCures(new HashMap<>());
+            this.getCures().forEach((color, cure) -> clone.getCures().put(color, cure.clone()));
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     /**
      * "Move" the outbreak marker to the next position.
+     *
      * @throws GameOverException - Thrown when its trying to exceed the last marker.
      */
     @Override
@@ -219,9 +239,9 @@ public class DiseaseRepository implements IDiseaseRepository {
         this.cubes.put(Color.BLACK, new ArrayList<>());
         this.gameOver = false;
 
-        initCubes();
-        initCures();
-        initMarkers();
+        this.initCubes();
+        this.initCures();
+        this.initMarkers();
     }
 
     @Override
@@ -263,6 +283,19 @@ public class DiseaseRepository implements IDiseaseRepository {
     public void setCubes(HashMap<Color, List<Disease>> cubes) {
         this.cubes = cubes;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DiseaseRepository that = (DiseaseRepository) o;
+        return gameOver == that.gameOver &&
+                Objects.equals(infectionRates, that.infectionRates) &&
+                Objects.equals(outbreakMarkers, that.outbreakMarkers) &&
+                Objects.equals(cures, that.cures) &&
+                Objects.equals(cubes, that.cubes);
+    }
+
 
     @Override
     public OutbreakMarker getCurrentOutbreakMarker() {

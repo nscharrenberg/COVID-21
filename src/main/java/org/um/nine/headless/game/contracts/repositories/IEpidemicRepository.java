@@ -6,13 +6,17 @@ import org.um.nine.headless.game.exceptions.GameOverException;
 import org.um.nine.headless.game.exceptions.NoCubesLeftException;
 import org.um.nine.headless.game.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Stack;
 
 import static org.um.nine.headless.game.Settings.DEFAULT_INITIAL_STATE;
 import static org.um.nine.headless.game.Settings.RANDOM_PROVIDER;
 
-public interface IEpidemicRepository {
+public interface IEpidemicRepository extends Cloneable {
+
+    IEpidemicRepository clone();
 
     default void increase(IState state) {
         state.getDiseaseRepository().nextInfectionMarker();
@@ -21,7 +25,7 @@ public interface IEpidemicRepository {
     default void infect(IState state) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         for (int i = 0; i < 3; i++) {
             InfectionCard infectionCard = state.getCardRepository().getInfectionDeck().pop();
-            state.getCardRepository().getInfectionDiscardPile().add(infectionCard);
+            state.getCardRepository().getInfectionDiscardPile().push(infectionCard);
 
             int amountCubes = infectionCard.getCity().getCubes().size();
 
@@ -42,10 +46,15 @@ public interface IEpidemicRepository {
 
     default void intensify(IState state) {
         Stack<InfectionCard> pile = state.getCardRepository().getInfectionDiscardPile();
-        if (DEFAULT_INITIAL_STATE) Collections.shuffle(pile, RANDOM_PROVIDER);
-        else Collections.shuffle(pile);
+        List<InfectionCard> shuffled = new ArrayList<>();
+        while (!pile.isEmpty()) {
+            shuffled.add(pile.pop());
+        }
 
-        state.getCardRepository().getInfectionDeck().addAll(pile);
+        if (DEFAULT_INITIAL_STATE) Collections.shuffle(shuffled, RANDOM_PROVIDER);
+        else Collections.shuffle(shuffled);
+        shuffled.forEach(ic -> state.getCardRepository().getInfectionDeck().push(ic));
+
         state.getCardRepository().setInfectionDiscardPile(new Stack<>());
     }
 

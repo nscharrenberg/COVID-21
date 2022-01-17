@@ -8,7 +8,9 @@ import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.Medic;
 import org.um.nine.headless.game.domain.roles.RoleAction;
-import org.um.nine.headless.game.exceptions.*;
+import org.um.nine.headless.game.exceptions.GameWonException;
+import org.um.nine.headless.game.exceptions.InvalidMoveException;
+import org.um.nine.headless.game.exceptions.UnableToDiscoverCureException;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -302,8 +304,6 @@ public class BaselineAgent implements Agent {
                 if(DEBUG) System.out.println("Roleaction - FAILED");
                 agentDecision(state);
             }
-        } catch (ResearchStationLimitException | InvalidMoveException | CityAlreadyHasResearchStationException e) {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }

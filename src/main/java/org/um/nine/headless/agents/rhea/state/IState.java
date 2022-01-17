@@ -14,9 +14,8 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.groupingBy;
 import static org.um.nine.headless.agents.rhea.state.StateEvaluation.abilityCure2;
-import static org.um.nine.headless.game.Settings.DEFAULT_CLONER;
 
-public interface IState {
+public interface IState extends Cloneable {
 
     default void reset() {
         getBoardRepository().reset();
@@ -73,11 +72,7 @@ public interface IState {
     default boolean isGameWon() {
         return this.getDiseaseRepository().getCures().values().stream().filter(Cure::isDiscovered).count() ==4;
     }
-
-    default IState getClonedState() {
-        return DEFAULT_CLONER.deepClone(this);
-    }
-
+    IState clone();
     default PlayerCard[] getDiscardingCard() {
         PlayerCard discarding = null;
         Player player = getPlayerRepository().getCurrentPlayer();

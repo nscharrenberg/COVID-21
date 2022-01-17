@@ -2,14 +2,10 @@ package org.um.nine.headless.agents.rhea.pathfinder;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.nd4j.common.util.ArrayUtil;
-import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.rhea.state.StateEvaluation;
 import org.um.nine.headless.agents.utils.IReportable;
-import org.um.nine.headless.game.domain.ActionType;
-import org.um.nine.headless.game.domain.Card;
-import org.um.nine.headless.game.domain.City;
-import org.um.nine.headless.game.domain.Player;
+import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 
@@ -20,7 +16,6 @@ import java.util.stream.IntStream;
 import static java.lang.Integer.MAX_VALUE;
 import static java.util.Arrays.stream;
 import static org.um.nine.headless.agents.rhea.pathfinder.PathFinder3.Path.fromList;
-import static org.um.nine.headless.game.Settings.LOG;
 import static org.um.nine.headless.game.domain.ActionType.*;
 
 public class PathFinder3 implements IReportable {
@@ -42,7 +37,7 @@ public class PathFinder3 implements IReportable {
     public void evaluatePaths() {
         this.evaluateLightPaths();
         this.evaluateExpensivePaths();
-        this.logGraph();
+        //this.logGraph();
     }
 
     protected void evaluateLightPaths() {
@@ -127,18 +122,30 @@ public class PathFinder3 implements IReportable {
         log.add(currentPlayer.getName() + (" ") + currentPlayer.getRole().getName());
         log.add("Cards in hand : " + state.getPlayerRepository().getCurrentPlayer().getHand().stream().map(Card::getName).collect(Collectors.toList()));
         log.add("Diseases around : ");
-        log.add(this.logDiseases(this.state).toString());
+        log.add(this.logDiseasesByCityAndColor(this.state).toString());
         log.add("============================================================================================");
         for (GCity gc : this.costGraph) {
-            log.add(String.format("%1$-20s", gc.city.getName()) + "\t" + lightestPath(gc.city).toString());
-            log.add(String.format("%1$-20s", gc.city.getName()) + "\t" + shortestPath(gc.city).toString());
+            String cubes = gc.city.getCubes().stream().collect(
+                            Collectors.groupingBy(Disease::getColor)).
+                    entrySet().stream().map(entry -> entry.getKey() + " " + entry.getValue().size()).
+                    collect(Collectors.toList()).toString();
+
+            log.add(
+                    String.format("%1$-20s", gc.city.getName()) +
+                            String.format("%1$30s", cubes + "\t") +
+                            String.format("%1$-4s", gc.city.getResearchStation() == null ? "" : "RS") +
+                            String.format("%1$-150s", lightestPath(gc.city).toString()) +
+                            String.format("%1$-20s", gc.city.getName()) +
+                            String.format("%1$-150s", shortestPath(gc.city).toString())
+            );
         }
+
         log.add("============================================================================================");
-        if (LOG) log.forEach(this::append);
+        // if (LOG) log.forEach(this::append);
         return log;
     }
 
-    protected boolean isDiscardableCard(CityCard cc, int i) {
+    public boolean isDiscardableCard(CityCard cc, int i) {
         // we remove it to check if discarding wouldn't affect the best ability to cure disease
         double[] acAll = evaluateAbilityCureOfCards();
         currentPlayer.getHand().remove(cc);
@@ -196,7 +203,8 @@ public class PathFinder3 implements IReportable {
         return new Path(new MovingAction[0]);
     }
 
-    protected static class WalkingPathFinder extends PathFinder3 {
+
+    public static class WalkingPathFinder extends PathFinder3 {
         public WalkingPathFinder(IState state, Player player, City city) {
             super(state, player, city);
             this.evaluatePaths();
@@ -234,7 +242,7 @@ public class PathFinder3 implements IReportable {
             }
         }
 
-        protected List<MovingAction> getPath(City toCity) {
+        public List<MovingAction> getPath(City toCity) {
             GCity gc = findGCity(toCity);
             if (gc.lightPath == null || gc.lightPath.depth() == 0) return new ArrayList<>();
             return stream(gc.lightPath.path).filter(Objects::nonNull).collect(Collectors.toList());
@@ -470,11 +478,5 @@ public class PathFinder3 implements IReportable {
             return Arrays.equals(path, path1.path);
         }
     }
-    public static void main(String[] args) throws Exception {
-        ExperimentalGame game = new ExperimentalGame();
-        Player p = game.getCurrentState().getPlayerRepository().getCurrentPlayer();
-        PathFinder3 pf = new PathFinder3(game.getCurrentState(), p, p.getCity());
-        pf.evaluatePaths();
-        pf.logGraph().forEach(System.out::println);
-    }
+
 }

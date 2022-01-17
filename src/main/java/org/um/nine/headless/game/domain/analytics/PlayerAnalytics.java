@@ -32,41 +32,65 @@ public class PlayerAnalytics {
     }
 
     public void markDiseaseTreat(Color color) {
-        int count = this.diseasesTreatedCount.get(color);
+        int count = 0;
+
+        if (this.diseasesTreatedCount.containsKey(color)) {
+            count = this.diseasesTreatedCount.get(color);
+        }
 
         this.diseasesTreatedCount.put(color, count + 1);
     }
 
     public void markDiseaseCure(Color color) {
-        int count = this.diseasesCuredCount.get(color);
+        int count = 0;
+
+        if (this.diseasesCuredCount.containsKey(color)) {
+            count = this.diseasesCuredCount.get(color);
+        }
 
         this.diseasesCuredCount.put(color, count + 1);
     }
 
     public void markCityVisited(City city) {
-        int count = this.cityVisitedCount.get(city.getName());
+        int count = 0;
+
+        if (this.cityVisitedCount.containsKey(city.getName())) {
+            count = this.cityVisitedCount.get(city.getName());
+        }
 
         this.cityVisitedCount.put(city.getName(), count + 1);
     }
 
-    public void markResearchStationBuild(ResearchStation station) {
-        this.researchStationBuild.add(station.getCity().getName());
+    public void markResearchStationBuild(City city) {
+        this.researchStationBuild.add(city.getName());
     }
 
-    public void markUseResearchStation(ResearchStation station) {
-        int count = this.researchStationUsed.get(station.getCity().getName());
+    public void markUseResearchStation(City city) {
+        int count = 0;
 
-        this.researchStationUsed.put(station.getCity().getName(), count + 1);
+        if (this.researchStationUsed.containsKey(city.getName())) {
+            count = this.researchStationUsed.get(city.getName());
+        }
+
+        this.researchStationUsed.put(city.getName(), count + 1);
     }
 
     public void markRoleActionUsed(RoleAction action) {
-       int count = this.roleActionUsed.get(action.getName());
+        int count = 0;
+
+        if (this.roleActionUsed.containsKey(action.getName())) {
+            count = this.roleActionUsed.get(action.getName());
+        }
 
        this.roleActionUsed.put(action.getName(), count + 1);
     }
 
     public void markRoleEventUsed(RoleEvent event) {
-        int count = this.roleEventUsed.get(event.getName());
+        int count = 0;
+
+        if (this.getRoleEventUsed().containsKey(event.getName())) {
+            count = this.actionsUsed.get(event.getName());
+        }
 
         this.roleEventUsed.put(event.getName(), count + 1);
     }
@@ -92,7 +116,11 @@ public class PlayerAnalytics {
     }
 
     public void shareKnowledge(PlayerCard card) {
-        int count = this.knowledgeShared.get(card.getName());
+        int count = 0;
+
+        if (this.knowledgeShared.containsKey(card.getName())) {
+            count = this.knowledgeShared.get(card.getName());
+        }
 
         this.knowledgeShared.put(card.getName(), count + 1);
     }

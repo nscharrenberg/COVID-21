@@ -5,11 +5,12 @@ import com.jme3.math.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class City {
+public class City implements Cloneable {
     public static int INCREMENT = 0;
-    private final int id;
+    private int id;
     private String name;
     private Color color;
     private Vector3f location;
@@ -19,13 +20,29 @@ public class City {
     private List<Player> pawns = new ArrayList<>();
     private List<City> neighbors = new ArrayList<>();
 
+    public City clone() {
+        try {
+            City other = (City) super.clone();
+            other.setName(this.getName());
+            other.setColor(this.getColor());
+            other.setLocation(this.getLocation());
+            other.setId(this.getId());
+            other.setPopulation(this.getPopulation());
+            // TODO: set cubes, pawns, neighbours
+            return other;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public City(String name, Color color, Vector3f location) {
         this.id = INCREMENT;
         this.name = name;
         this.color = color;
         this.location = location;
 
-        INCREMENT = INCREMENT > 48? 0 : INCREMENT+1;
+        INCREMENT = INCREMENT > 48 ? 0 : INCREMENT + 1;
     }
 
     public int getId() {
@@ -188,20 +205,14 @@ public class City {
         City city = (City) o;
 
         //if (id != city.id) return false;
-        if (population != city.population) return false;
-        if (!name.equals(city.name)) return false;
-        if (color != city.color) return false;
-        return location.equals(city.location);
+        return population == city.population &&
+                Objects.equals(name, city.name) &&
+                color == city.color &&
+                Objects.equals(location, city.location);
     }
 
-    @Override
-    public int hashCode() {
-        int result = id;
-        result = 31 * result + name.hashCode();
-        result = 31 * result + color.hashCode();
-        result = 31 * result + location.hashCode();
-        result = 31 * result + population;
-        return result;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public Vector3f getCubePosition(Disease disease) {

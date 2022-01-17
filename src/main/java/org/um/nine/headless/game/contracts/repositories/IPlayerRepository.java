@@ -5,6 +5,7 @@ import org.um.nine.headless.agents.utils.Logger;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.RoleAction;
+import org.um.nine.headless.game.exceptions.GameOverException;
 import org.um.nine.headless.game.exceptions.InvalidMoveException;
 import org.um.nine.headless.game.exceptions.PlayerLimitException;
 
@@ -12,7 +13,7 @@ import java.util.HashMap;
 import java.util.Queue;
 import java.util.Stack;
 
-public interface IPlayerRepository {
+public interface IPlayerRepository extends Cloneable {
     void reset();
 
     void drive(Player player, City city, IState state, boolean careAboutNeighbors) throws InvalidMoveException;
@@ -25,9 +26,9 @@ public interface IPlayerRepository {
 
     void shuttle(Player player, City city, IState state) throws InvalidMoveException;
 
-    RoundState nextTurn(IState state);
+    RoundState nextTurn(IState state) throws GameOverException;
 
-    RoundState nextTurn(RoundState currentState, IState state);
+    RoundState nextTurn(RoundState currentState, IState state) throws GameOverException;
 
     void treat(Player player, City city, Color color, IState state) throws Exception;
 
@@ -82,4 +83,6 @@ public interface IPlayerRepository {
     void createPlayer(String name, boolean isBot) throws PlayerLimitException;
 
     Logger getLog();
+
+    IPlayerRepository clone();
 }

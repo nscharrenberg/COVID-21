@@ -8,7 +8,11 @@ import org.um.nine.headless.game.domain.roles.RoleAction;
 
 import java.util.List;
 
-public interface IBoardRepository {
+public interface IBoardRepository extends Cloneable {
+
+
+    IBoardRepository clone();
+
     void preload();
 
     void start(IState state);

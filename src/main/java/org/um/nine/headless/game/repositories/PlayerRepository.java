@@ -12,8 +12,10 @@ import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.*;
 import org.um.nine.headless.game.exceptions.*;
+import org.um.nine.headless.game.utils.GenericUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.um.nine.headless.game.Settings.*;
 
@@ -36,6 +38,30 @@ public class PlayerRepository implements IPlayerRepository {
     private Logger log = new Logger();
     private boolean logged = false;
 
+    @Override
+    public PlayerRepository clone() {
+        try {
+            PlayerRepository other = (PlayerRepository) super.clone();
+            other.players = new HashMap<>();
+            this.players.forEach((k, v) -> other.players.put(k, v.clone()));
+            if (this.availableRoles != null) {
+                other.availableRoles = (Stack<Role>) this.availableRoles.clone();
+            }
+            other.currentPlayer = other.players.get(this.getCurrentPlayer().getName());
+            other.playerOrder = this.playerOrder.stream().map(player -> other.players.get(player.getName())).collect(Collectors.toCollection(LinkedList::new));
+            other.currentRoundState = this.getCurrentRoundState();
+            other.actionsLeft = this.actionsLeft;
+            other.drawLeft = this.drawLeft;
+            other.infectionLeft = this.infectionLeft;
+            other.log = this.log;
+            other.logged = this.logged;
+            return other;
+        } catch (CloneNotSupportedException | ClassCastException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public PlayerRepository() {
 
     }
@@ -57,12 +83,19 @@ public class PlayerRepository implements IPlayerRepository {
         this.infectionLeft = INFECTION_COUNT;
 
         if (DEFAULT_INITIAL_STATE) {
-            DEFAULT_ROLES.entrySet().stream().forEachOrdered(e -> {
-                Player p = new Player(e.getKey(), true);
-                p.setRole(e.getValue());
-                this.getPlayers().put(e.getKey(), p);
-                DEFAULT_PLAYERS.add(p);
+            DEFAULT_ROLES.forEach((key, value) -> {
+                Player p = new Player(key, true);
+                p.setRole(value);
+                this.getPlayers().put(key, p);
             });
+
+            this.getPlayers().
+                    entrySet().
+                    stream().
+                    sorted(Comparator.comparing(
+                            kv -> Integer.parseInt(kv.getKey().split(" ")[1])
+                    )).
+                    forEach(kv -> DEFAULT_PLAYERS.add(kv.getValue()));
         }
         else {
             //save some memory
@@ -80,6 +113,7 @@ public class PlayerRepository implements IPlayerRepository {
         }
 
     }
+
 
     /**
      * Move a player to an adjacent city of its current city.
@@ -100,15 +134,15 @@ public class PlayerRepository implements IPlayerRepository {
         city.addPawn(player);
 
         if (player.getRole().events(RoleEvent.AUTO_REMOVE_CUBES_OF_CURED_DISEASE)) {
-            city.getCubes().forEach(c -> {
-                Cure found = state.getDiseaseRepository().getCures().get(c.getColor());
-
-                if (found != null) {
-                    if (found.isDiscovered()) {
-                        city.getCubes().removeIf(cb -> cb.getColor().equals(found.getColor()));
-                    }
-                }
-            });
+            city.getCubes().
+                    removeIf(cube -> state.getDiseaseRepository().
+                            getCures().
+                            values().
+                            stream().
+                            filter(Cure::isDiscovered).
+                            map(Cure::getColor).
+                            anyMatch(color -> color.equals(cube.getColor()))
+                    );
         }
 
         if(!logged){
@@ -253,7 +287,7 @@ public class PlayerRepository implements IPlayerRepository {
     }
 
     @Override
-    public RoundState nextTurn(IState state) {
+    public RoundState nextTurn(IState state) throws GameOverException {
         return this.nextTurn(this.currentRoundState, state);
     }
 
@@ -264,7 +298,7 @@ public class PlayerRepository implements IPlayerRepository {
      * @return
      */
     @Override
-    public RoundState nextTurn(RoundState currentState, IState state) {
+    public RoundState nextTurn(RoundState currentState, IState state) throws GameOverException {
         if (currentState == null) {
             this.currentRoundState = RoundState.ACTION;
             return this.currentRoundState;
@@ -280,7 +314,7 @@ public class PlayerRepository implements IPlayerRepository {
         } else if (currentState == RoundState.INFECT) {
             infectionLeft--;
             if (infectionLeft <= 0) {
-                infectionLeft = Objects.requireNonNull(state.getDiseaseRepository().getInfectionRates().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
+                infectionLeft = Objects.requireNonNull(state.getDiseaseRepository().getInfectionRates().stream().filter(Marker::isCurrent).findFirst().orElseThrow(GameOverException::new)).getCount();
                 this.currentRoundState = null;
                 this.nextPlayer();
             }
@@ -376,6 +410,7 @@ public class PlayerRepository implements IPlayerRepository {
 
         state.getCityRepository().addResearchStation(city);
         log.addStep(" build research station in " + city.getName(), city, player);
+        GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markResearchStationBuild(city);
     }
 
     @Override
@@ -393,7 +428,7 @@ public class PlayerRepository implements IPlayerRepository {
                 state.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
             if (!type.equals(ActionType.SKIP_ACTION)) {
                 City city = state.getBoardRepository().getSelectedCity();
-                Player player = this.currentPlayer;
+                Player player = state.getPlayerRepository().getCurrentPlayer();
 
                 IBoardRepository boardRepository = state.getBoardRepository();
 
@@ -423,6 +458,8 @@ public class PlayerRepository implements IPlayerRepository {
                     shuttle(player, city, state);
                     state.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
                     GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markActionTypeUsed(type);
+                    GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markUseResearchStation(city);
+                    GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markCityVisited(city);
                 } else if (boardRepository.getSelectedRoleAction() != null && boardRepository.getSelectedRoleAction().equals(RoleAction.BUILD_RESEARCH_STATION)
                         || type.equals(ActionType.BUILD_RESEARCH_STATION)) {
                     state.getPlayerRepository().buildResearchStation(player, city, state);
@@ -431,14 +468,17 @@ public class PlayerRepository implements IPlayerRepository {
                 } else if (type.equals(ActionType.DRIVE)) {
                     drive(player, city, state);
                     GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markActionTypeUsed(type);
+                    GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markCityVisited(city);
                 }
                 else if (type.equals(ActionType.DIRECT_FLIGHT)) {
                     direct(player, city, state);
                     GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markActionTypeUsed(type);
+                    GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markCityVisited(city);
                 }
                 else if (type.equals(ActionType.CHARTER_FLIGHT)) {
                     charter(player, city, state);
                     GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markActionTypeUsed(type);
+                    GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markCityVisited(city);
                 }
                 else if (type.equals(ActionType.TREAT_DISEASE)) {
                     if (args.length <= 0) {
@@ -449,6 +489,7 @@ public class PlayerRepository implements IPlayerRepository {
                         Color color = (Color) found;
                         treat(player, city, color, state);
                         GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markActionTypeUsed(type);
+                        GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markDiseaseTreat(color);
                     } catch (Exception e) {
                         throw new Exception("You need to provide the disease to treat.");
                     }
@@ -468,41 +509,45 @@ public class PlayerRepository implements IPlayerRepository {
                         share(player, target, city, card, state);
                         state.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);
                         GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markActionTypeUsed(type);
+                        GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).shareKnowledge(card);
                     } catch (Exception e) {
                         throw new Exception("You need to provide the player to negotiate with, the card you want, and whether you are giving that card.");
                     }
 
                 }
                 else if (type.equals(ActionType.DISCOVER_CURE)) {
+                    Object found;
                     if (args.length <= 0) {
                         throw new Exception("You need to select a cure to discover.");
-                    }
-                    Object found = args[0];
+                    } else
+                        found = args[0];
+
                     try {
                         Cure cure = (Cure) found;
                         state.getDiseaseRepository().discoverCure(player, cure);
                         GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markActionTypeUsed(type);
+                        GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markDiseaseCure(cure.getColor());
                     } catch (Exception e) {
                         throw new Exception("You need to select a cure to discover");
                     }
                 }
             }
-           this.nextTurn(state);
+            this.nextTurn(state);
 
-        } else if (currentRoundState.equals(RoundState.DRAW)) {
+        } else if (state.getPlayerRepository().getCurrentRoundState().equals(RoundState.DRAW)) {
             state.getCardRepository().drawPlayerCard(state,
                     getCurrentPlayer().getHand().size() >= HAND_LIMIT ?
                             state.getDiscardingCard() : new PlayerCard[]{}
             );
             this.nextTurn(state);
-            if (drawLeft >= 0) {
-                this.playerAction(null,state);
+            if (state.getPlayerRepository().getDrawLeft() >= 0) {
+                this.playerAction(null, state);
             }
-        } else if (currentRoundState.equals(RoundState.INFECT)) {
+        } else if (state.getPlayerRepository().getCurrentRoundState().equals(RoundState.INFECT)) {
             state.getCardRepository().drawInfectionCard(state);
             this.nextTurn(state);
-            if (infectionLeft >= 0 && currentRoundState != null) {
-                this.playerAction(null,state);
+            if (state.getPlayerRepository().getInfectionLeft() >= 0 && state.getPlayerRepository().getCurrentRoundState() != null) {
+                this.playerAction(null, state);
             }
         }
     }
@@ -658,4 +703,25 @@ public class PlayerRepository implements IPlayerRepository {
     public Logger getLog() {
         return log;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PlayerRepository that = (PlayerRepository) o;
+
+        return actionsLeft == that.actionsLeft &&
+                drawLeft == that.drawLeft &&
+                infectionLeft == that.infectionLeft &&
+                logged == that.logged &&
+                new GenericUtils.MapEquals<>(players, that.players).test() &&
+                Objects.equals(availableRoles, that.availableRoles) &&
+                Objects.equals(currentPlayer, that.currentPlayer) &&
+                Objects.equals(playerOrder, that.playerOrder) &&
+                currentRoundState == that.currentRoundState &&
+                Objects.equals(log, that.log);
+    }
+
+
 }
