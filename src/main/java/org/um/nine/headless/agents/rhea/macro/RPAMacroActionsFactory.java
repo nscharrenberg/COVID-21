@@ -8,15 +8,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.um.nine.headless.game.Settings.RANDOM_PROVIDER;
-
 public abstract class RPAMacroActionsFactory extends MacroActionFactory2 {
     @Override
     public MacroAction getNextMacroAction() {
         List<MacroAction> allActions;
         if (getActions().isEmpty()) throw new IllegalStateException();
         allActions = new ArrayList<>(getActions());
-        Collections.shuffle(allActions, RANDOM_PROVIDER);
+        //Collections.shuffle(allActions, RANDOM_PROVIDER);
+        Collections.shuffle(allActions);
         return fillMacroAction(allActions.get(0));
     }
 

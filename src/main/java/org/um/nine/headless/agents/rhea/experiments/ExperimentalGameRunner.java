@@ -23,6 +23,7 @@ public class ExperimentalGameRunner {
     public static void main(String[] args) throws Exception {
         assert HEADLESS;
         assert DEFAULT_INITIAL_STATE;
+        assert LOG;
 
         String reportPath = IReportable.REPORT_PATH[0];
 
@@ -44,9 +45,11 @@ public class ExperimentalGameRunner {
         DEFAULT_MUTATOR = new Mutator();
 
 
-        int n_rep = 4;
+        int numGames = 10;
+        int gamesWon = 0;
         gamesLoop:
-        for (int i = 0; i < n_rep; i++) {
+        for (int i = 0; i < numGames; i++) {
+
             // initialise the game
             DEFAULT_REPORTER.clear();
 
@@ -81,6 +84,7 @@ public class ExperimentalGameRunner {
                     } catch (GameOverException | GameWonException e) {
                         //System.err.println(e.getMessage() + " :: " + IReportable.getDescription());
                         // if neither the mutation was successful just break the game and start a new one
+                        if (e instanceof GameWonException) gamesWon++;
                         break gameRunning;
                     } catch (Exception e) {
                         //System.err.println(e.getMessage() + " :: " + IReportable.getDescription());
@@ -119,6 +123,8 @@ public class ExperimentalGameRunner {
 
             DEFAULT_REPORTER.setPath(reportPath);
         }
+
+        System.out.println("Games won : " + gamesWon);
 
 
     }
