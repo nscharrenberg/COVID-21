@@ -60,6 +60,7 @@ public class Settings {
     }
 
 
+    public static int ITERATIONS;
     public static final Logger DEFAULT_LOGGER = new Logger();
     public static ExperimentalGame DEFAULT_RUNNING_GAME;
     public static MacroActionsExecutor DEFAULT_MACRO_ACTIONS_EXECUTOR;

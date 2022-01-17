@@ -102,7 +102,7 @@ public class MCTS implements Agent {
             case DRIVE -> {
                 City next = player.getCity().getNeighbors().get(new Random().nextInt(player.getCity().getNeighbors().size() - 1));
                 try {
-                    nextState.getPlayerRepository().drive(player, next, current, true);
+                    nextState.getPlayerRepository().drive(player, next, nextState, true);
                 }catch(Exception e){
                     throw new MoveNotPossibleException();
                 }
@@ -111,7 +111,7 @@ public class MCTS implements Agent {
                 int rnd = new Random().nextInt(nextState.getCityRepository().getCities().size() - 1);
                 ArrayList<City> temp = new ArrayList<>(nextState.getCityRepository().getCities().values());
                 try {
-                    nextState.getPlayerRepository().charter(player, temp.get(rnd), current);
+                    nextState.getPlayerRepository().charter(player, temp.get(rnd), nextState);
                 } catch (Exception e) {
                     throw new MoveNotPossibleException();
                 }
@@ -121,7 +121,7 @@ public class MCTS implements Agent {
                 if (cityCard!= null){
                     nextState.getBoardRepository().setSelectedCity(cityCard.getCity());
                     try{
-                        nextState.getPlayerRepository().direct(player, cityCard.getCity(), current);
+                        nextState.getPlayerRepository().direct(player, cityCard.getCity(), nextState);
                     }catch(Exception e){
                         throw new MoveNotPossibleException();
                     }
@@ -137,7 +137,7 @@ public class MCTS implements Agent {
                     if (city != null) {
                         nextState.getBoardRepository().setSelectedCity(city);
                         try {
-                            nextState.getPlayerRepository().shuttle(player, city, current);
+                            nextState.getPlayerRepository().shuttle(player, city, nextState);
                         } catch (Exception e) {
                             throw new MoveNotPossibleException();
                         }
@@ -153,7 +153,7 @@ public class MCTS implements Agent {
                     return false;
                 }).findFirst().orElse(null) != null) {
                     try{
-                        nextState.getPlayerRepository().buildResearchStation(player, player.getCity(), current);
+                        nextState.getPlayerRepository().buildResearchStation(player, player.getCity(), nextState);
                     }catch(Exception e){
                         throw new MoveNotPossibleException();
                     }
@@ -165,7 +165,7 @@ public class MCTS implements Agent {
             case TREAT_DISEASE -> {
                 if (!player.getCity().getCubes().isEmpty()) {
                     try {
-                        nextState.getPlayerRepository().treat(player, player.getCity(), player.getCity().getCubes().get(0).getColor(), current);
+                        nextState.getPlayerRepository().treat(player, player.getCity(), player.getCity().getCubes().get(0).getColor(), nextState);
                     } catch (Exception e) {
                         throw new MoveNotPossibleException();
                     }

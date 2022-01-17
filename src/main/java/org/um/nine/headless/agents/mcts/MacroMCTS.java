@@ -103,7 +103,7 @@ public class MacroMCTS {
         IState nextState = current.clone();
         MacroActionsExecutor executor = new MacroActionsExecutor();
         try{
-            executor.executeIndexedMacro(current,a,false);
+            executor.executeIndexedMacro(nextState,a,false);
         }
         catch (Exception e){
             e.printStackTrace();
@@ -323,7 +323,7 @@ public class MacroMCTS {
 
             long numberOfResearchstations = state.getCityRepository().getCities().values().stream()
                     .filter(c -> c.getResearchStation() != null).count();
-            value += 2 * (double) numberOfResearchstations;
+            value += 4 * (double) numberOfResearchstations;
 
             double infectionRate = Objects.requireNonNull(this.state.getDiseaseRepository().getInfectionRates().stream()
                     .filter(Marker::isCurrent).findFirst().orElse(null)).getCount();
