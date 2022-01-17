@@ -1,10 +1,13 @@
 package org.um.nine.headless.agents.rhea.macro;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.um.nine.headless.agents.rhea.state.GameStateFactory;
+import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
 import org.um.nine.headless.agents.rhea.state.IState;
+
+import static org.um.nine.headless.game.Settings.*;
 
 class MacroActionFactoryTest {
 
@@ -13,14 +16,26 @@ class MacroActionFactoryTest {
     @Test
     @DisplayName("getMacroActions")
     void getMacroActions() {
-        var macroActions = MacroActionFactory.init(
+        var macroActions = HPAMacroActionsFactory.init(
                 this.state,
                 this.state.getPlayerRepository().getCurrentPlayer().getCity(),
                 this.state.getPlayerRepository().getCurrentPlayer()
         ).getActions();
-
         System.out.println("Current city : " + this.state.getPlayerRepository().getCurrentPlayer().getCity().getName());
+        for (MacroAction ma : macroActions) {
+            System.out.println(ma);
+        }
 
+        for (MacroAction ma : macroActions) {
+            if (ma.size() < 4) {
+                ma = HPAMacroActionsFactory.init(
+                        this.state,
+                        this.state.getPlayerRepository().getCurrentPlayer().getCity(),
+                        this.state.getPlayerRepository().getCurrentPlayer()
+                ).fillMacroAction(ma);
+            }
+        }
+        System.out.println("\n");
         for (MacroAction ma : macroActions) {
             System.out.println(ma);
         }
@@ -29,22 +44,14 @@ class MacroActionFactoryTest {
     @BeforeEach
     void setUp() {
         try {
-            GameStateFactory.createInitialState();
-            GameStateFactory.getInitialState().reset();
+            Assertions.assertTrue(DEFAULT_INITIAL_STATE);
+            Assertions.assertTrue(HEADLESS);
 
-            GameStateFactory.getInitialState().getCityRepository().addResearchStation(
-                    GameStateFactory.getInitialState().getCityRepository().getCities().get("Tokyo")
-            );
-            GameStateFactory.getInitialState().getCityRepository().addResearchStation(
-                    GameStateFactory.getInitialState().getCityRepository().getCities().get("Cairo")
-            );
-            GameStateFactory.getInitialState().start();
-
-
+            DEFAULT_RUNNING_GAME = new ExperimentalGame();
+            this.state = DEFAULT_RUNNING_GAME.getCurrentState();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.state = GameStateFactory.getInitialState();
     }
 
 

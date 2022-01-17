@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.um.nine.headless.game.Settings.*;
-import static org.um.nine.headless.game.Settings.DEFAULT_RUNNING_GAME;
 
 public class ExperimentRunner {
     public static void main(String[] args) {
@@ -62,7 +61,7 @@ public class ExperimentRunner {
             String gamePath = IReportable.REPORT_PATH[0];
             IAgent[] agents = new IAgent[4];
             for (int k = 0; k < DEFAULT_PLAYERS.size(); k++) {
-                IState initState = state.getClonedState();
+                IState initState = state.clone();
                 initState.getPlayerRepository().setCurrentPlayer(DEFAULT_PLAYERS.get(k));
                 agents[k] = new Individual(new MacroAction[5]).initGenome(initState);
             }
@@ -71,7 +70,7 @@ public class ExperimentRunner {
 
             for (int k = 0; k < DEFAULT_PLAYERS.size(); k++) {
                 System.out.println("k: " + k);
-                IState mutationState = state.getClonedState();
+                IState mutationState = state.clone();
                 mutationState.getPlayerRepository().setCurrentPlayer(DEFAULT_PLAYERS.get(k));
                 try {
                     MacroAction nextMacro = agents[k].getNextMacroAction(mutationState);

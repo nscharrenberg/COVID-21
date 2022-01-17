@@ -74,6 +74,7 @@ public abstract class MacroActionFactory2 implements IReportable {
 
         City closestRS;
         List<ActionType.MovingAction> pathToClosestRs;
+        boolean cureLater = false;
         if (getCurrentCity().getResearchStation() != null) {
             closestRS = getCurrentCity();
             pathToClosestRs = new ArrayList<>();
@@ -84,8 +85,13 @@ public abstract class MacroActionFactory2 implements IReportable {
                     stream().
                     map(ResearchStation::getCity).
                     map(city -> {
-                        List<ActionType.MovingAction> path = pathFinder.getPath(city, true);
-                        for (CityCard cc : getCurrentPlayer().getHand().stream().map(pc -> (CityCard) pc).filter(cc -> cc.getCity().getColor().equals(cureColor)).collect(Collectors.toList()))
+                        List<ActionType.MovingAction> path = pathFinder.getPath(city, false);
+
+                        for (CityCard cc : getCurrentPlayer().
+                                getHand().stream().
+                                map(pc -> (CityCard) pc).
+                                filter(cc -> cc.getCity().getColor().equals(cureColor)).
+                                collect(Collectors.toList()))
                             if (pathFinder.isSpendingCard(path, cc.getCity()))
                                 path = pathFinder.lightestPath(city);
                         return path;
@@ -95,6 +101,11 @@ public abstract class MacroActionFactory2 implements IReportable {
                     orElse(null);
 
             closestRS = pathToClosestRs == null ? null : pathToClosestRs.get(pathToClosestRs.size() - 1).toCity();
+            cureLater = pathToClosestRs != null && pathToClosestRs.size() == 4;
+        }
+        if (cureLater) {
+            curingActions.add(macro(pathToClosestRs, new ArrayList<>()));
+            return curingActions;
         }
         if (closestRS != null) {
             List<ActionType.StandingAction> cure = new ArrayList<>();
@@ -235,22 +246,16 @@ public abstract class MacroActionFactory2 implements IReportable {
                 getCities().
                 values().
                 stream().     // loop all cities
-                        map(city -> getCurrentPlayer().
-                        getHand().
-                        stream().
-                        map(pc -> (CityCard) pc).
-                        filter(cc -> cc.getCity().equals(city)).    //find the cities which the player has a card of
-                                findFirst().
-                        orElse(null)).
-
-                filter(Objects::nonNull).     // if there's any
-                        filter(cc -> pathFinder.isDiscardableCard(cc, getCurrentPlayer().getHand().indexOf(cc))).  // see if it's discardable
-                        map(CityCard::getCity).
-                filter(city -> city.getResearchStation() != null).   // see if it doesn't have a RS already
-                        filter(city -> city.equals(getCurrentCity()) || pathFinder.getPath(city, true).size() > 0).   // see if we can reach it
-                        filter(possibleRS -> {
+                        filter(city -> {
+                    Optional<CityCard> pc = getCurrentPlayer().getHand().stream().map(playerCard -> (CityCard) playerCard).filter(cityCard -> cityCard.getCity().equals(city)).findFirst();
+                    boolean canBuild = pc.isPresent() && pathFinder.isDiscardableCard(pc.get(), getCurrentPlayer().getHand().indexOf(pc.get()));
+                    if (canBuild)
+                        return pc.get().getCity().getResearchStation() == null && (city.equals(getCurrentCity()) ||
+                                pathFinder.getPath(city, true).size() > 0);
+                    return false;
+                }).
+                filter(possibleRS -> {
                     PathFinder3.WalkingPathFinder walkingPathFinder = new PathFinder3.WalkingPathFinder(state, getCurrentPlayer(), possibleRS);
-
                     // see if there's a RS in a min walking distance <= 3 we skip this city
                     for (ResearchStation existingRS : state.getCityRepository().getResearchStations()) {
                         List<ActionType.MovingAction> pathToExistingRs = walkingPathFinder.getPath(existingRS.getCity());
@@ -298,15 +303,24 @@ public abstract class MacroActionFactory2 implements IReportable {
         }
         if (lastReachedCity == null) throw new IllegalStateException("Error");
         try {
-            //TODO: is this fucking up the state??
-            IState forward = state.getClonedState();
+
+            IState forward = this.state.clone();
+            currentPlayer = forward.getPlayerRepository().getPlayers().get(currentPlayer.getName());
+
             new MacroActionsExecutor().executeIndexedMacro(forward, toFill, false);
-            var next = initialise(forward, forward.getPlayerRepository().getCurrentPlayer().getCity(), getCurrentPlayer()).getActions().stream().filter(macro -> macro.size() == remaining).findFirst().orElse(null);
-            if (next != null) filledMacro = combine(toFill, next);
+            var next =
+                    initialise(forward, lastReachedCity, currentPlayer).
+                            getActions().
+                            stream().
+                            filter(macro -> macro.size() == remaining).
+                            findFirst().
+                            orElse(skipMacroAction(remaining, currentPlayer.getCity()));
+
+            filledMacro = combine(toFill, next);
 
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println(e.getMessage() + " :: " + IReportable.REPORT_PATH[0]);
+            System.err.println(e.getMessage() + " :: filling " + toFill + " :: " + IReportable.REPORT_PATH[0]);
         } finally {
             if (filledMacro == null) filledMacro = toFill;
             if (filledMacro.size() < 4) {

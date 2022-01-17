@@ -18,12 +18,24 @@ public class Player implements Cloneable {
     private List<PlayerCard> hand;
 
     public Player clone() {
-        Player other = new Player(this.name, this.getCity(), this.isBot);
+        Player other = new Player(this.name);
+        other.setBot(this.isBot);
+        other.city = this.city;
         other.setId(this.id);
         other.setRole(this.role);
-        other.city = this.getCity();
         other.setHand(this.getHand().stream().map(PlayerCard::clone).peek(card -> card.setPlayer(this)).collect(Collectors.toList()));
         return other;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (role != null ? role.hashCode() : 0);
+        result = 31 * result + (city != null ? city.hashCode() : 0);
+        result = 31 * result + (isBot ? 1 : 0);
+        result = 31 * result + (hand != null ? hand.hashCode() : 0);
+        return result;
     }
 
     public Player(String name, boolean isBot) {

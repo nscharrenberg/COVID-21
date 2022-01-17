@@ -2,7 +2,6 @@ package org.um.nine.headless.agents.rhea.pathfinder;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.nd4j.common.util.ArrayUtil;
-import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.rhea.state.StateEvaluation;
 import org.um.nine.headless.agents.utils.IReportable;
@@ -17,7 +16,6 @@ import java.util.stream.IntStream;
 import static java.lang.Integer.MAX_VALUE;
 import static java.util.Arrays.stream;
 import static org.um.nine.headless.agents.rhea.pathfinder.PathFinder3.Path.fromList;
-import static org.um.nine.headless.game.Settings.LOG;
 import static org.um.nine.headless.game.domain.ActionType.*;
 
 public class PathFinder3 implements IReportable {
@@ -39,7 +37,7 @@ public class PathFinder3 implements IReportable {
     public void evaluatePaths() {
         this.evaluateLightPaths();
         this.evaluateExpensivePaths();
-        this.logGraph();
+        //this.logGraph();
     }
 
     protected void evaluateLightPaths() {
@@ -143,7 +141,7 @@ public class PathFinder3 implements IReportable {
         }
 
         log.add("============================================================================================");
-        if (LOG) log.forEach(this::append);
+        // if (LOG) log.forEach(this::append);
         return log;
     }
 
@@ -480,11 +478,5 @@ public class PathFinder3 implements IReportable {
             return Arrays.equals(path, path1.path);
         }
     }
-    public static void main(String[] args) throws Exception {
-        ExperimentalGame game = new ExperimentalGame();
-        Player p = game.getCurrentState().getPlayerRepository().getCurrentPlayer();
-        PathFinder3 pf = new PathFinder3(game.getCurrentState(), p, p.getCity());
-        pf.evaluatePaths();
-        pf.logGraph().forEach(System.out::println);
-    }
+
 }

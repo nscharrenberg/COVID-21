@@ -15,12 +15,28 @@ import static org.um.nine.headless.game.Settings.*;
 
 public final record Individual(MacroAction[] genome) implements IAgent, IReportable {
 
+
+    @Override
+    protected Individual clone() {
+        MacroAction[] clonedGene = Arrays.stream(this.genome()).map(MacroAction::clone).toArray(MacroAction[]::new);
+        return new Individual(clonedGene);
+    }
+
     public double[] evaluateIndividual(IState state) throws Exception {
         double[] eval = new double[genome.length];
-        IState evaluationState = state.getClonedState();
+        IState evaluationState = state.clone();
+        Player player = evaluationState.getPlayerRepository().getCurrentPlayer();
         for (int i = 0; i < genome().length; i++) {
-            DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(evaluationState, genome[i], true);
-            eval[i] = BEST_HEURISTIC.evaluateState(evaluationState);
+            evaluationState.getPlayerRepository().setCurrentPlayer(player);
+            try {
+                DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(evaluationState, genome[i], true);
+                eval[i] = BEST_HEURISTIC.evaluateState(evaluationState);
+            } catch (GameOverException gameOver) {
+                eval[i] = 0;
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.err.println(IReportable.getDescription());
+            }
         }
         return eval;
     }
@@ -36,62 +52,50 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
     }
 
     public Individual initGenome(IState state) {
-        IState initState = state.getClonedState();
-
+        IState initState = state.clone();
         Player player = initState.getPlayerRepository().getCurrentPlayer();
-        String gamePath = this.getPath();
-        String initGenomePath = gamePath + "/" + player + "/genome-init";
-        if (LOG) this.setPath(initGenomePath);
+        String playerPath = this.getPath();
         for (int i = 0; i < this.genome().length; i++) {
             ROUND_INDEX = i;
             City currentCity = player.getCity();
-            if (LOG) setPath(initGenomePath + "/round-" + ROUND_INDEX + "-" + currentCity.getName() + ".txt");
             MacroAction nextMacro = HPAMacroActionsFactory.init(initState, currentCity, player).getNextMacroAction();
-
-            if (LOG) append("\nChosen macro : " + nextMacro);
-
-            this.genome()[i] = nextMacro;
-
             try {
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(initState, nextMacro, true);
+                this.genome()[i] = nextMacro;
+            } catch (GameOverException gameOver) {
+                System.err.println(gameOver.getMessage() + " : " + IReportable.getDescription());
+                break;
             } catch (Exception e) {
                 e.printStackTrace();
-                System.err.println(e.getMessage() + " :: " + REPORT_PATH[0]);
-                this.report();
-                break;
             }
-
             initState.getPlayerRepository().setCurrentPlayer(player); //trick the game logic here to allow fault turn
-            if (LOG) report();
         }
-
         ROUND_INDEX = 0;
 
         if (LOG) {
-            this.setPath(gamePath + "/" + player);
-            this.reportInitialState(initState, "/after-init-state-report.txt");
-            this.logGenome(this.genome());
-            this.setPath(gamePath);
+            this.setPath(playerPath);
+            this.logGenome(this.genome(), "/genome-init.txt");
         }
         return this;
     }
 
     public Individual generateChild() {
-        return new Individual(Arrays.stream(genome()).map(MacroAction::getClone).toArray(MacroAction[]::new));
+        return new Individual(Arrays.stream(genome()).map(macro -> macro == null ? null : macro.clone()).toArray(MacroAction[]::new));
     }
 
     public MacroAction getNextMacroAction(IState initialGameState) {
-        Individual ancestor = this;
+
+        // first we initialise the individual within its horizon
+        // this will be a set of (#ROLLING_HORIZON) macro actions to be applied in a row
+        Individual ancestor = this.initGenome(initialGameState);
+
+
         successfulMutations = 0;
-        String gamePath = getPath();
+        String playerPath = getPath();
 
 
+        // for a fixed amount of iterations
         for (int i = 0; i < N_MUTATIONS; i++) {
-            IState mutationState = initialGameState.getClonedState();
-
-            String mutationPath = gamePath + "/" + mutationState.getPlayerRepository().getCurrentPlayer().toString() + "/mutation-" + i;
-            if (LOG) setPath(mutationPath);
-
             double mutationRate = map(
                     ((double) (i + 1)) / N_MUTATIONS,
                     0,
@@ -100,22 +104,28 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
                     FINAL_MUTATION_RATE
             );
 
+            // copy the genome for the mutation
             Individual child = ancestor.generateChild();
 
             try {
-                DEFAULT_MUTATOR.mutateIndividual(mutationState.getClonedState(), child, mutationRate);
-                if (child.betterThan(ancestor, mutationState)) {  //all macro actions are better
+
+                // mutate the individual starting from the initial state
+                DEFAULT_MUTATOR.mutateIndividual(initialGameState, child, mutationRate);
+                // use heuristic to evaluate the (#ROLLING HORIZON) states produced by all macros being applied
+                if (child.betterThan(ancestor, initialGameState)) {  //all macro actions are better
                     successfulMutations++;
-                    ancestor = child.generateChild(); //cloned
+                    ancestor = child.clone(); //clone the current individual
+                    this.logGenome(ancestor.genome(), "/mutation-" + i + ".txt");
                 }
 
-            } catch (GameOverException ignored) {
+            } catch (GameOverException gameOver) {
+                //System.err.println(gameOver.getMessage() + " :: " + IReportable.REPORT_PATH[0]);
             } catch (Exception e) {
                 e.printStackTrace();
-                System.err.println(e.getMessage() + " :: " + IReportable.REPORT_PATH[0]);
+
             }
         }
-        if (LOG) setPath(gamePath);
+        if (LOG) setPath(playerPath);
         return ancestor.genome()[0];
     }
 

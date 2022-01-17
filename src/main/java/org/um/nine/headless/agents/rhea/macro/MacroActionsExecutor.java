@@ -1,8 +1,13 @@
 package org.um.nine.headless.agents.rhea.macro;
 
 import org.um.nine.headless.agents.rhea.state.IState;
-import org.um.nine.headless.game.domain.*;
+import org.um.nine.headless.agents.utils.IReportable;
+import org.um.nine.headless.game.domain.ActionType;
+import org.um.nine.headless.game.domain.Color;
+import org.um.nine.headless.game.domain.Disease;
+import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.cards.CityCard;
+import org.um.nine.headless.game.exceptions.GameOverException;
 
 import java.util.Comparator;
 import java.util.List;
@@ -15,32 +20,30 @@ import static org.um.nine.headless.agents.rhea.state.StateEvaluation.Cd;
 public record MacroActionsExecutor() {
 
     public void executeIndexedMacro(IState state, MacroAction macro, boolean draw) throws Exception {
+        state.getPlayerRepository().setCurrentRoundState(null);
+        //System.out.println("Executing macro : "+macro);
         char[] index = macro.index().toCharArray();
-        int m, s = m = 0, treated = 0;
-        Map<City, List<ActionType.StandingAction>> actionCity = macro.standingActions().stream().filter(sa -> sa.action().equals(ActionType.TREAT_DISEASE)).collect(Collectors.groupingBy(ActionType.StandingAction::applyTo));
+        int m, s = m = 0;
         for (char c : index) {
             if (c == 'm') {
                 executeMovingAction(state, macro.movingActions().get(m));
                 m++;
-                treated = 0;
             } else if (c == 's') {
-                List<ActionType.StandingAction> toTreat = actionCity.get(macro.standingActions().get(s).applyTo());
-                int d = toTreat == null ? 0 : toTreat.size() - treated;
-                treated += executeStandingAction(state, macro.standingActions().get(s));
+                executeStandingAction(state, macro.standingActions().get(s));
                 s++;
             }
         }
-        if (draw)
-            state.getPlayerRepository().playerAction(null, state);
+        if (draw) state.getPlayerRepository().playerAction(null, state);
     }
 
     public void executeMovingAction(IState state, ActionType.MovingAction action) throws Exception {
+        //System.out.println("Executing standing action "+action);
         state.getBoardRepository().setSelectedCity(state.getCityRepository().getCities().get(action.toCity().getName()));
         state.getPlayerRepository().playerAction(action.action(), state);
     }
 
-    public int executeStandingAction(IState state, ActionType.StandingAction action) throws Exception {
-        int treated = 0;
+    public void executeStandingAction(IState state, ActionType.StandingAction action) throws Exception {
+        //System.out.println("Executing moving action "+action);
         state.getBoardRepository().setSelectedCity(state.getCityRepository().getCities().get(action.applyTo().getName()));
         Object[] obj = null;
         ActionType executedAction = action.action();
@@ -48,8 +51,10 @@ public record MacroActionsExecutor() {
             case TREAT_DISEASE -> {
                 Map<Color, List<Disease>> grouped = state.getPlayerRepository().getCurrentPlayer().getCity().getCubes().stream().collect(Collectors.groupingBy(Disease::getColor));
                 var x = grouped.values().stream().max(Comparator.comparingInt(List::size)).orElse(null);
-                obj = new Object[]{requireNonNull(requireNonNull(x).get(0).getColor())};
-                treated = 1;
+                obj = new Object[]{
+                        requireNonNull(
+                                requireNonNull(x).get(0).getColor())
+                };
             }
             case SHARE_KNOWLEDGE -> {
                 obj = new Object[]{
@@ -67,8 +72,13 @@ public record MacroActionsExecutor() {
                 }
             }
         }
-        state.getPlayerRepository().playerAction(executedAction, state, obj == null ? new Object[]{} : obj);
-        return treated;
+        try {
+            state.getPlayerRepository().playerAction(executedAction, state, obj == null ? new Object[]{} : obj);
+        } catch (GameOverException gameOver) {
+            System.err.println(gameOver.getMessage() + " :: " + IReportable.REPORT_PATH[0]);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

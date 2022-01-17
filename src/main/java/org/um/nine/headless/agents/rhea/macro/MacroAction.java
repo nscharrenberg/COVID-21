@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public interface MacroAction {
+public interface MacroAction extends Cloneable {
     List<ActionType.MovingAction> movingActions();
 
     List<ActionType.StandingAction> standingActions();
@@ -17,6 +17,7 @@ public interface MacroAction {
     void setIndex(String s);
 
     static MacroAction combine(MacroAction ma1, MacroAction ma2) {
+        if (ma1.size() + ma2.size() > 4) throw new IllegalArgumentException();
         for (ActionType.MovingAction m : ma2.movingActions()) ma1.add(m);
         for (ActionType.StandingAction s : ma2.standingActions()) ma1.add(s);
         return ma1;
@@ -50,6 +51,11 @@ public interface MacroAction {
     static MacroAction macro(List<ActionType.MovingAction> ma, List<ActionType.StandingAction> sa) {
         return new MacroAction() {
             String index;
+
+            @Override
+            public MacroAction clone() {
+                return MacroAction.super.clone();
+            }
 
             @Override
             public List<ActionType.MovingAction> movingActions() {
@@ -102,7 +108,7 @@ public interface MacroAction {
         return this;
     }
 
-    default MacroAction getClone() {
+    default MacroAction clone() {
         ArrayList<ActionType.StandingAction> sa = standingActions().stream().map(ActionType.StandingAction::getClone).collect(Collectors.toCollection(ArrayList::new));
         ArrayList<ActionType.MovingAction> ma = movingActions().stream().map(ActionType.MovingAction::getClone).collect(Collectors.toCollection(ArrayList::new));
         MacroAction m = macro(ma, sa);
@@ -148,6 +154,11 @@ public interface MacroAction {
         @Override
         public void setIndex(String s) {
             this.index = s;
+        }
+
+        @Override
+        public MacroAction clone() {
+            return MacroAction.super.clone();
         }
     }
 }

@@ -19,17 +19,12 @@ public record Mutator() implements IReportable {
         return (value - min1) / (max1 - min1) * (max2 - min2) + min2;
     }
 
-    public void mutateIndividual(IState initialState, Individual individual, double mutationRate) {
+    public void mutateIndividual(IState initialState, Individual individual, double mutationRate) throws GameOverException {
+        IState mutationState = initialState.clone();
         boolean atLeastOneMutated = false;
-        String mutationIndexPath = getPath();
-
 
         for (int i = 0; i < ROLLING_HORIZON; i++) {
-            if (LOG) setPath(mutationIndexPath + "/gene-" + i);
-
-            IState mutationState = initialState.getClonedState();
             double mutationChance = RANDOM_PROVIDER.nextDouble();
-
             if (mutationChance < mutationRate) {
                 atLeastOneMutated = true;
                 mutateGene(mutationState, individual, i);
@@ -39,50 +34,42 @@ public record Mutator() implements IReportable {
         if (!atLeastOneMutated) {
             //mutate at least one
             int mutationIndex = RANDOM_PROVIDER.nextInt(ROLLING_HORIZON);
-            if (LOG) setPath(mutationIndexPath + "/gene-" + mutationIndex);
-
-            IState mutationState = initialState.getClonedState();
             mutateGene(mutationState, individual, mutationIndex);
         }
-
-        if (LOG) setPath(mutationIndexPath);
     }
 
-    private void mutateGene(IState initialState, Individual individual, int mutationIndex) {
-        Player p = initialState.getPlayerRepository().getCurrentPlayer();
-        String mutatedGeneIndexPath = getPath();
+    private void mutateGene(IState individualMutationState, Individual individual, int mutationIndex) throws GameOverException {
+        IState mutationState = individualMutationState.clone();
+        Player p = mutationState.getPlayerRepository().getCurrentPlayer();
+
+
+        //TODO : if executing previous macro throws exception replace with skip
+
+        //TODO: make method applicableOnState now in macro actions where return the okay ones
+
+        //public MacroAction applicableNow(IState stateNow, Macro toApply)
+        // use it here and in genome
+        // check also if game lost before applying it
+
 
         for (int i = 0; i < ROLLING_HORIZON; i++) {
             ROUND_INDEX = i;
             MacroAction macroIndex = individual.genome()[i];
-            if (LOG) {
-                setPath(mutatedGeneIndexPath + "/round-" + ROUND_INDEX + "-" + p.getCity().getName() + ".txt");
-                append("Given macro action " + macroIndex.toString());
-            }
-            boolean mutated = i >= mutationIndex;
-            if (i == mutationIndex) {
-                macroIndex = HPAMacroActionsFactory.init(initialState, p.getCity(), p).getNextMacroAction();
+            mutationState.getPlayerRepository().setCurrentPlayer(p);
+            if (i == mutationIndex || macroIndex == null) {
+                macroIndex = HPAMacroActionsFactory.init(mutationState, p.getCity(), p).getNextMacroAction();
             } else if (i > mutationIndex) {
-                macroIndex = RPAMacroActionsFactory.init(initialState, p.getCity(), p).getNextMacroAction();
-            }
-
-            try {
-                DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(initialState, macroIndex, true);
-            } catch (GameOverException e) {
-                System.err.println(e.getMessage() + " :: " + REPORT_PATH[0]);
-                return;
-            } catch (Exception e) {
-                System.err.println(e.getMessage() + " :: " + REPORT_PATH[0]);
-            }
-
-            initialState.getPlayerRepository().setCurrentPlayer(p);
-            if (LOG) {
-                if (mutated)
-                    append("Mutated by " + (i == mutationIndex ? "HPA" : "RPA") + " macro action " + macroIndex);
-                else append("Given macro action is being kept");
-                report();
+                macroIndex = RPAMacroActionsFactory.init(mutationState, p.getCity(), p).getNextMacroAction();
             }
             individual.genome()[i] = macroIndex;
+            try {
+                DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(mutationState, macroIndex, true);
+            } catch (GameOverException e) {
+                System.err.println(e.getMessage() + " : " + IReportable.getDescription());
+                throw e;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
     }

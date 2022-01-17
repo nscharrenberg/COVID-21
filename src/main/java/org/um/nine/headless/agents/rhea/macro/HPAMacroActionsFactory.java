@@ -1,12 +1,9 @@
 package org.um.nine.headless.agents.rhea.macro;
 
-import org.um.nine.headless.agents.rhea.pathfinder.PathFinder3;
 import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
-
-import static org.um.nine.headless.game.Settings.LOG;
 
 public abstract class HPAMacroActionsFactory extends MacroActionFactory2 {
     protected static HPAMacroActionsFactory getInstance() {
@@ -21,7 +18,7 @@ public abstract class HPAMacroActionsFactory extends MacroActionFactory2 {
     }
 
     public MacroAction getNextMacroAction() {
-        if (LOG) logMacros(getActions()).forEach(this::append);
+        // if (LOG) logMacros(getActions()).forEach(this::append);
         MacroAction nextHPAMacro = getActions().get(0);
         int remaining = 4 - nextHPAMacro.size();
         if (remaining > 0) {

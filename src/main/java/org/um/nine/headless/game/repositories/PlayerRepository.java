@@ -11,6 +11,7 @@ import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.*;
 import org.um.nine.headless.game.exceptions.*;
+import org.um.nine.headless.game.utils.GenericUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -130,15 +131,15 @@ public class PlayerRepository implements IPlayerRepository {
         city.addPawn(player);
 
         if (player.getRole().events(RoleEvent.AUTO_REMOVE_CUBES_OF_CURED_DISEASE)) {
-            city.getCubes().forEach(c -> {
-                Cure found = state.getDiseaseRepository().getCures().get(c.getColor());
-
-                if (found != null) {
-                    if (found.isDiscovered()) {
-                        city.getCubes().removeIf(cb -> cb.getColor().equals(found.getColor()));
-                    }
-                }
-            });
+            city.getCubes().
+                    removeIf(cube -> state.getDiseaseRepository().
+                            getCures().
+                            values().
+                            stream().
+                            filter(Cure::isDiscovered).
+                            map(Cure::getColor).
+                            anyMatch(color -> color.equals(cube.getColor()))
+                    );
         }
 
         if(!logged){
@@ -696,7 +697,7 @@ public class PlayerRepository implements IPlayerRepository {
                 drawLeft == that.drawLeft &&
                 infectionLeft == that.infectionLeft &&
                 logged == that.logged &&
-                Objects.equals(players, that.players) &&
+                new GenericUtils.MapEquals<>(players, that.players).test() &&
                 Objects.equals(availableRoles, that.availableRoles) &&
                 Objects.equals(currentPlayer, that.currentPlayer) &&
                 Objects.equals(playerOrder, that.playerOrder) &&

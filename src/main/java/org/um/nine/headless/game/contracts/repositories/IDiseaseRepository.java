@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.um.nine.headless.game.Settings.DEFAULT_REPORTER;
-
 public interface IDiseaseRepository extends Cloneable {
     IDiseaseRepository clone();
 
@@ -73,7 +71,6 @@ public interface IDiseaseRepository extends Cloneable {
             return;
         }
 
-        DEFAULT_REPORTER.append("Chained outbreak in " + city);
         List<City> neighbors = city.getNeighbors();
         previousOutbreaks.add(city);
 

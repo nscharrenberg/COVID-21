@@ -13,9 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static org.um.nine.headless.game.Settings.DEFAULT_REPORTER;
-import static org.um.nine.headless.game.Settings.DEFAULT_RUNNING_GAME;
-
 public class DiseaseRepository implements IDiseaseRepository {
 
     private List<InfectionRateMarker> infectionRates;
@@ -64,7 +61,6 @@ public class DiseaseRepository implements IDiseaseRepository {
 
         if (nextMarker == null) {
             this.gameOver = true;
-            DEFAULT_RUNNING_GAME.append("GAME OVER MAX OUTBREAKS");
             throw new GameOverException();
         }
 
@@ -141,10 +137,8 @@ public class DiseaseRepository implements IDiseaseRepository {
         }
 
         found.setCity(city);
-        DEFAULT_REPORTER.append("Infecting city " + city);
         if(!city.addCube(found)) {
             initOutbreak(city, found);
-            DEFAULT_REPORTER.append("Outbreak occured in "+city);
         }
     }
 

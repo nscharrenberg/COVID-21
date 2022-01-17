@@ -24,6 +24,14 @@ import static org.um.nine.headless.game.Settings.DEFAULT_PLAYERS;
 public interface IReportable {
     String[] REPORT_PATH = new String[]{"src/main/resources/report"};
 
+    static String getDescription() {
+        String[] path = REPORT_PATH[0].split("/");
+        StringBuilder desc = new StringBuilder();
+        for (int k = 4; k < path.length; k++)
+            desc.append(path[k]).append(" ");
+        return desc.toString().trim().replace("-", " ").replace(".txt", " ");
+    }
+
     default void setPath(String path) {
         REPORT_PATH[0] = path;
         File file = new File(REPORT_PATH[0]);
@@ -132,14 +140,15 @@ public interface IReportable {
         this.clear();
     }
 
-    default void logGenome(MacroAction[] genome) {
-        String initGenomePath = this.getPath();
-        this.setPath(initGenomePath + "/genome-init-report.txt");
+    default void logGenome(MacroAction[] genome, String appendix) {
+        String prevPath = getPath();
+        this.setPath(prevPath + appendix);
         IntStream.range(0, genome.length).
                 mapToObj(i -> "Round " + i + " : " + genome[i]).
                 forEach(this::append);
         this.report();
         this.clear();
+        this.setPath(prevPath);
     }
 
 }

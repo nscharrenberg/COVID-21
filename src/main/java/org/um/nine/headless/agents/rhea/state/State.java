@@ -28,7 +28,7 @@ public class State implements IState {
         }
 
         System.out.println(original.equals(cloned));
-
+        System.out.println(cloned.equals(cloned.clone()));
         debugState(original);
         System.out.println("=========================================================================================================================");
         debugState(cloned);
@@ -172,6 +172,12 @@ public class State implements IState {
                         city.setNeighbors(neighbours);
                     }
             );
+
+            if (!clone.equals(this)) {
+                clone.equals(this);
+                throw new IllegalStateException("Error when cloning state");
+            }
+
             return clone;
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
