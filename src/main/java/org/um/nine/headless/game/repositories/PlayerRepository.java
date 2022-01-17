@@ -477,8 +477,7 @@ public class PlayerRepository implements IPlayerRepository {
                     } catch (Exception e) {
                         throw new Exception("You need to provide the disease to treat.");
                     }
-                } else if (type.equals(ActionType.SHARE_KNOWLEDGE)
-                        || boardRepository.getSelectedRoleAction() != null &&
+                } else if (type.equals(ActionType.SHARE_KNOWLEDGE) || boardRepository.getSelectedRoleAction() != null &&
                         state.getBoardRepository().getSelectedRoleAction().equals(RoleAction.GIVE_PLAYER_CITY_CARD)) {
                     if (args.length <= 0) {
                         throw new Exception("You need to provide the player to negotiate with, the card you want, and whether you are giving that card.");

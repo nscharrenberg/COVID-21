@@ -55,23 +55,22 @@ public interface IState extends Cloneable {
     default boolean isGameLost() {
         if (getDiseaseRepository().isGameOver()) return true;
 
-        var redCubes = getDiseaseRepository().getCubes().get(Color.RED).stream().filter(c -> c.getCity() == null).count();
-        if (redCubes == 0) return true;
-        var blueCubes = getDiseaseRepository().getCubes().get(Color.BLUE).stream().filter(c -> c.getCity() == null).count();
-        if (blueCubes == 0) return true;
-        var blackCubes = getDiseaseRepository().getCubes().get(Color.BLACK).stream().filter(c -> c.getCity() == null).count();
-        if (blackCubes == 0) return true;
-        var yellowCubes = getDiseaseRepository().getCubes().get(Color.YELLOW).stream().filter(c -> c.getCity() == null).count();
-        if (yellowCubes == 0) return true;
+        if (
+                getDiseaseRepository().getCubes().get(Color.RED).stream().noneMatch(c -> c.getCity() == null) ||
+                        getDiseaseRepository().getCubes().get(Color.BLUE).stream().noneMatch(c -> c.getCity() == null) ||
+                        getDiseaseRepository().getCubes().get(Color.BLACK).stream().noneMatch(c -> c.getCity() == null) ||
+                        getDiseaseRepository().getCubes().get(Color.YELLOW).stream().noneMatch(c -> c.getCity() == null)
+        ) return true;
+
 
         return getCardRepository().getPlayerDeck().isEmpty();
-
-
         //TODO: missing some losing conditions
     }
+
     default boolean isGameWon() {
-        return this.getDiseaseRepository().getCures().values().stream().filter(Cure::isDiscovered).count() ==4;
+        return this.getDiseaseRepository().getCures().values().stream().allMatch(Cure::isDiscovered);
     }
+
     IState clone();
     default PlayerCard[] getDiscardingCard() {
         PlayerCard discarding = null;

@@ -1,10 +1,7 @@
 package org.um.nine.headless.agents.rhea.macro;
 
 import org.um.nine.headless.agents.rhea.state.IState;
-import org.um.nine.headless.game.domain.ActionType;
-import org.um.nine.headless.game.domain.Color;
-import org.um.nine.headless.game.domain.Disease;
-import org.um.nine.headless.game.domain.Player;
+import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
 
 import java.util.Comparator;
@@ -31,7 +28,10 @@ public record MacroActionsExecutor() {
                 s++;
             }
         }
-        if (draw) state.getPlayerRepository().playerAction(null, state);
+        if (draw) {
+            state.getPlayerRepository().setCurrentRoundState(RoundState.DRAW);
+            state.getPlayerRepository().playerAction(null, state);
+        }
     }
 
     public void executeMovingAction(IState state, ActionType.MovingAction action) throws Exception {
@@ -49,15 +49,19 @@ public record MacroActionsExecutor() {
             case TREAT_DISEASE -> {
                 Map<Color, List<Disease>> grouped = state.getPlayerRepository().getCurrentPlayer().getCity().getCubes().stream().collect(Collectors.groupingBy(Disease::getColor));
                 var x = grouped.values().stream().max(Comparator.comparingInt(List::size)).orElse(null);
-                obj = new Object[]{
-                        requireNonNull(
-                                requireNonNull(x).get(0).getColor())
-                };
+
+                try {
+                    obj = new Object[]{requireNonNull(requireNonNull(x).get(0).getColor())};
+                } catch (NullPointerException noDiseases) {
+                    executedAction = ActionType.SKIP_ACTION;
+                }
+
             }
             case SHARE_KNOWLEDGE -> {
-                obj = new Object[]{
-                        action.receiving(), state.getPlayerRepository().getCurrentPlayer().getHand().stream().filter(pc -> ((CityCard) pc).getCity().equals(action.applyTo()))
-                };
+                Player sharingWith = state.getPlayerRepository().getPlayers().values().stream().filter(player -> player.getCity().equals(action.applyTo()) && !player.equals(state.getPlayerRepository().getCurrentPlayer())).findFirst().orElseThrow();
+                CityCard toShare = state.getPlayerRepository().getCurrentPlayer().getHand().stream().map(pc -> (CityCard) pc).filter(cc -> cc.getCity().equals(action.applyTo()) && cc.getCity().equals(state.getPlayerRepository().getCurrentPlayer().getCity())).findFirst().orElseThrow();
+
+                obj = new Object[]{sharingWith, toShare};
             }
 
             case DISCOVER_CURE -> {

@@ -20,17 +20,50 @@ public interface MacroAction extends Cloneable {
 
     void setIndex(String s);
 
-    static MacroAction combine(MacroAction ma1, MacroAction ma2) {
-        if (ma1.size() + ma2.size() > 4) throw new IllegalArgumentException();
-        for (ActionType.MovingAction m : ma2.movingActions()) ma1.add(m);
-        for (ActionType.StandingAction s : ma2.standingActions()) ma1.add(s);
-        return ma1;
+
+    default int size() {
+        return movingActions().size() + standingActions().size();
+    }
+
+    default Record getAtIndex(int index) {
+        int standingIndex = 0, movingIndex = 0;
+        for (int i = 0; i < index().length(); i++) {
+            if (i == index) {
+                if (index().charAt(i) == 's') return standingActions().get(standingIndex);
+                if (index().charAt(i) == 'm') return movingActions().get(movingIndex);
+            }
+            if (index().charAt(i) == 's') standingIndex++;
+            else if (index().charAt(i) == 'm') movingIndex++;
+        }
+        return null;
+    }
+
+    default MacroAction add(ActionType.MovingAction action) {
+        if (this.size() == 4) throw new IllegalArgumentException();
+        this.setIndex(index() + "m");
+        this.movingActions().add(action);
+        return this;
+    }
+
+    default MacroAction add(ActionType.StandingAction action) {
+        if (this.size() == 4) throw new IllegalArgumentException();
+        setIndex(index() + "s");
+        standingActions().add(action);
+        return this;
+    }
+
+    default MacroAction clone() {
+        ArrayList<ActionType.StandingAction> sa = this.standingActions().stream().map(ActionType.StandingAction::getClone).collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<ActionType.MovingAction> ma = this.movingActions().stream().map(ActionType.MovingAction::getClone).collect(Collectors.toCollection(ArrayList::new));
+        MacroAction m = macro(ma, sa);
+        m.setIndex(this.index());
+        return m;
     }
 
     default MacroAction executableNow(IState currentState) {
 
         if (currentState.isGameLost())
-            return MacroActionFactory2.skipMacroAction(4, currentState.getPlayerRepository().getCurrentPlayer().getCity());
+            return skipMacroAction(4, currentState.getPlayerRepository().getCurrentPlayer().getCity());
 
 
         IState forwardState = currentState.clone();
@@ -64,21 +97,17 @@ public interface MacroAction extends Cloneable {
         //count the actions which have been successfully applied
         actionsExecuted = s + m;
         for (int i = actionsExecuted; i < 4; i++)
-            executable.add(new ActionType.StandingAction(ActionType.SKIP_ACTION, currentCity, null, null));
+            executable.add(new ActionType.StandingAction(ActionType.SKIP_ACTION, currentCity));
 
         return executable;
     }
 
-    static MacroAction combine(MacroAction... ms) {
-        IntStream.range(1, ms.length).forEach(i -> combine(ms[0], ms[i]));
-        return ms[0];
-    }
+
 
     static String index(MacroAction m) {
         return "m".repeat(m.movingActions().size()) +
                 "s".repeat(m.standingActions().size());
     }
-
     static String getDescription(MacroAction macro) {
         StringBuilder desc = new StringBuilder();
         int s = 0, m = 0;
@@ -93,6 +122,31 @@ public interface MacroAction extends Cloneable {
         }
         return desc.toString();
     }
+
+    static MacroAction combine(MacroAction ma1, MacroAction ma2) {
+        if (ma1.size() + ma2.size() > 4) throw new IllegalArgumentException();
+        for (ActionType.MovingAction m : ma2.movingActions()) ma1.add(m);
+        for (ActionType.StandingAction s : ma2.standingActions()) ma1.add(s);
+        return ma1;
+    }
+
+    static MacroAction combine(MacroAction... ms) {
+        IntStream.range(1, ms.length).forEach(i -> combine(ms[0], ms[i]));
+        return ms[0];
+    }
+
+    static MacroAction skipMacroAction(int size, City currentCity) {
+        List<ActionType.StandingAction> skip = IntStream.range(0, size).
+                mapToObj(i ->
+                        new ActionType.StandingAction(
+                                ActionType.SKIP_ACTION,
+                                currentCity
+                        ))
+                .collect(Collectors.toList());
+        return macro(new ArrayList<>(), skip);
+    }
+
+
     static MacroAction macro(List<ActionType.MovingAction> ma, List<ActionType.StandingAction> sa) {
         return new MacroAction() {
             String index;
@@ -126,38 +180,6 @@ public interface MacroAction extends Cloneable {
                 return getDescription(this);
             }
         };
-    }
-    default MacroAction add(ActionType.MovingAction action) {
-        setIndex(index() + "m");
-        movingActions().add(action);
-        return this;
-    }
-    default Record getAtIndex(int index) {
-        int standingIndex = 0, movingIndex = 0;
-        for (int i = 0; i < index().length(); i++) {
-            if (i == index) {
-                if (index().charAt(i) == 's') return standingActions().get(standingIndex);
-                if (index().charAt(i) == 'm') return movingActions().get(movingIndex);
-            }
-            if (index().charAt(i) == 's') standingIndex++;
-            else if (index().charAt(i) == 'm') movingIndex++;
-        }
-        return null;
-    }
-    default MacroAction add(ActionType.StandingAction action) {
-        setIndex(index() + "s");
-        standingActions().add(action);
-        return this;
-    }
-    default MacroAction clone() {
-        ArrayList<ActionType.StandingAction> sa = standingActions().stream().map(ActionType.StandingAction::getClone).collect(Collectors.toCollection(ArrayList::new));
-        ArrayList<ActionType.MovingAction> ma = movingActions().stream().map(ActionType.MovingAction::getClone).collect(Collectors.toCollection(ArrayList::new));
-        MacroAction m = macro(ma, sa);
-        m.setIndex(index());
-        return m;
-    }
-    default int size() {
-        return movingActions().size() + standingActions().size();
     }
     class TreatDiseaseMacro implements MacroAction {
 
