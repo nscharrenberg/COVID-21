@@ -7,6 +7,7 @@ import org.um.nine.headless.agents.mcts.MCTS;
 import org.um.nine.headless.agents.mcts.MacroMCTS;
 import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
 import org.um.nine.headless.agents.rhea.macro.MacroAction;
+import org.um.nine.headless.agents.rhea.macro.MacroActionsExecutor;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
@@ -178,5 +179,22 @@ public class MCTSAgentTests {
         System.out.println("Final move: " + m);
     }
 
+    @Test
+    public void macroTest(){
+        ExperimentalGame game = new ExperimentalGame();
+        IState state = game.getCurrentState();
+        MacroMCTS mcts = new MacroMCTS(state,3);
+        MacroActionsExecutor executor = new MacroActionsExecutor();
+        while(!state.isGameLost() && !state.isGameWon()){
+            MacroAction m = mcts.run(state);
+            try{
+                executor.executeIndexedMacro(state,m,true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if(state.isGameLost()) System.out.println("Lost");
+        else System.out.println("Won");
+    }
 
 }
