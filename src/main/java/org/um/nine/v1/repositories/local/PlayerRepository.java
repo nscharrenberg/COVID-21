@@ -11,13 +11,18 @@ import org.um.nine.v1.domain.cards.CityCard;
 import org.um.nine.v1.domain.cards.PlayerCard;
 import org.um.nine.v1.domain.roles.*;
 import org.um.nine.v1.exceptions.*;
-import org.um.nine.v1.screens.dialogs.*;
+import org.um.nine.v1.screens.dialogs.DiscardCardDialog;
+import org.um.nine.v1.screens.dialogs.DiscoverCureDialogBox;
+import org.um.nine.v1.screens.dialogs.ShareCityCardDialogBox;
+import org.um.nine.v1.screens.dialogs.TreatDiseaseDialogBox;
 import org.um.nine.v1.screens.hud.ContingencyPlannerState;
 import org.um.nine.v1.screens.hud.OptionHudState;
 import org.um.nine.v1.screens.hud.PlayerInfoState;
 import org.um.nine.v1.utils.managers.RenderManager;
 
 import java.util.*;
+
+import static org.um.nine.headless.game.Settings.RANDOM_PROVIDER;
 
 public class PlayerRepository implements IPlayerRepository {
     private HashMap<String, Player> players;
@@ -99,7 +104,7 @@ public class PlayerRepository implements IPlayerRepository {
         availableRoles.add(new ResearcherRole());
         availableRoles.add(new ScientistRole());
 
-        Collections.shuffle(availableRoles);
+        Collections.shuffle(availableRoles, RANDOM_PROVIDER);
     }
 
     @Override

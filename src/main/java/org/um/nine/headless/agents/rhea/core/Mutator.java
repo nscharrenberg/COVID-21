@@ -14,13 +14,12 @@ import static org.um.nine.headless.game.Settings.*;
 public record Mutator() implements IReportable {
     //public static final int N_EVALUATION_SIMULATIONS = 5;
     public static final double INITIAL_MUTATION_RATE = 1d, FINAL_MUTATION_RATE = 0.5;
-    public static final int N_MUTATIONS = 100;
+    public static final int N_MUTATIONS = 120;
     public static int successfulMutations = 0;
 
     public static double map(double value, double min1, double max1, double min2, double max2) {
         return (value - min1) / (max1 - min1) * (max2 - min2) + min2;
     }
-
     public void mutateIndividual(IState initialState, Individual individual, double mutationRate) throws GameOverException {
 
         IState mutationState = initialState.clone();
@@ -53,7 +52,8 @@ public record Mutator() implements IReportable {
 
         for (int i = 0; i < ROLLING_HORIZON; i++) {
             ROUND_INDEX = i;
-            MacroAction macroIndex = newGene[i];  // copy the existing macro
+            MacroAction macroIndex = individual.genome()[i];  // copy the existing macro
+            newGene[i] = macroIndex;
             mutationState.getPlayerRepository().setCurrentPlayer(p);
 
             if (i == mutationIndex || macroIndex == null)
@@ -61,10 +61,8 @@ public record Mutator() implements IReportable {
             else if (i > mutationIndex)
                 macroIndex = RPAMacroActionsFactory.init(mutationState, p.getCity(), p).getNextMacroAction();
 
-            macroIndex = macroIndex.executableNow(mutationState);
-
             try {
-                DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(mutationState, macroIndex, true);
+                DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(mutationState, macroIndex.executableNow(mutationState), true);
             } catch (GameOverException e) {
                 //System.err.println(e.getMessage() + " : " + IReportable.getDescription());
                 //we want to break the mutation at the upper level, so keep throwing the exception just if it's game over

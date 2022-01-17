@@ -17,6 +17,8 @@ import org.um.nine.headless.game.utils.CityUtils;
 
 import java.util.*;
 
+import static org.um.nine.headless.game.Settings.RANDOM_PROVIDER;
+
 public class CardRepository implements ICardRepository {
     private Stack<PlayerCard> playerDeck;
     private LinkedList<PlayerCard> eventDiscardPile;
@@ -111,13 +113,13 @@ public class CardRepository implements ICardRepository {
     @Override
     public void buildDecks(IState state) {
         //if (DEFAULT_INITIAL_STATE) {  TODO: implement randomness in substacks
-        if (true) {
+        if (false) {
             this.playerDeck = CardUtils.loadPlayerDeck(state.getCityRepository().getCities(), state.getPlayerRepository().getPlayers(), state.getPlayerRepository());
             this.infectionDeck = CityUtils.loadInfectionDeck(state.getCityRepository().getCities());
         } else {
             this.playerDeck = CardUtils.buildPlayerDeck(state.getPlayerRepository(), state.getBoardRepository().getDifficulty(), state.getCityRepository().getCities(), state.getPlayerRepository().getPlayers());
             this.infectionDeck = CityUtils.generateInfectionDeck(state.getCityRepository().getCities().values().toArray(new City[0]));
-            Collections.shuffle(this.infectionDeck);
+            Collections.shuffle(this.infectionDeck, RANDOM_PROVIDER);
         }
 
 

@@ -72,6 +72,7 @@ public interface IState extends Cloneable {
     }
 
     IState clone();
+
     default PlayerCard[] getDiscardingCard() {
         PlayerCard discarding = null;
         Player player = getPlayerRepository().getCurrentPlayer();

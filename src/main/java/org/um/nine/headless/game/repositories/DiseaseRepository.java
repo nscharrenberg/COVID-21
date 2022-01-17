@@ -28,11 +28,10 @@ public class DiseaseRepository implements IDiseaseRepository {
     public DiseaseRepository clone() {
         try {
             DiseaseRepository clone = (DiseaseRepository) super.clone();
-            clone.setInfectionRates(new ArrayList<>(List.copyOf(this.getInfectionRates())));
-            clone.setOutbreakMarkers(new ArrayList<>(List.copyOf(this.getOutbreakMarkers())));
+            clone.setInfectionRates(this.getInfectionRates().stream().map(InfectionRateMarker::clone).collect(Collectors.toList()));
+            clone.setOutbreakMarkers(this.getOutbreakMarkers().stream().map(OutbreakMarker::clone).collect(Collectors.toList()));
             clone.setCubes(new HashMap<>());
             this.getCubes().forEach((color, diseases) -> clone.getCubes().put(color, diseases.stream().map(Disease::clone).collect(Collectors.toList())));
-
             clone.setCures(new HashMap<>());
             this.getCures().forEach((color, cure) -> clone.getCures().put(color, cure.clone()));
             return clone;

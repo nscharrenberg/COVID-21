@@ -17,8 +17,7 @@ import org.um.nine.headless.game.domain.roles.Scientist;
 
 import java.util.*;
 
-import static org.um.nine.headless.agents.rhea.state.StateEvaluation.Fcm;
-import static org.um.nine.headless.agents.rhea.state.StateEvaluation.FoA;
+import static org.um.nine.headless.agents.rhea.state.StateEvaluation.*;
 import static org.um.nine.headless.agents.rhea.state.StateHeuristic.p;
 
 public class Settings {
@@ -36,7 +35,11 @@ public class Settings {
     public static final boolean DEFAULT_INITIAL_STATE = true;
     public static final List<Player> DEFAULT_PLAYERS = new ArrayList<>();
     public static int ROUND_INDEX = 0;
-    private static final StateHeuristic f = s -> (FoA.evaluateState(s) + Fcm.evaluateState(s)) / 2;
+    private static final StateHeuristic f = s -> {
+        double f1 = (FoA.evaluateState(s) + Fcm.evaluateState(s)) / 2;
+        double f2 = Fb.evaluateState(s) / 4;
+        return (f1 + f2) / 2;
+    };
     public static final StateHeuristic BEST_HEURISTIC = state -> p(f, state);
 
 

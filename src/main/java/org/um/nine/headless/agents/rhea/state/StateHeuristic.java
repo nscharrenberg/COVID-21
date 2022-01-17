@@ -3,7 +3,7 @@ package org.um.nine.headless.agents.rhea.state;
 public interface StateHeuristic {
 
 
-    double cp = 0.1;
+    double cp = 0.1f;
 
     double evaluateState(IState state);
 

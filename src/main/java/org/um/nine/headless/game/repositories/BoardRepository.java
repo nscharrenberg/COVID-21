@@ -28,7 +28,7 @@ public class BoardRepository implements IBoardRepository {
             clone.setSelectedCity(this.getSelectedCity());
             clone.setSelectedRoleAction(this.getSelectedRoleAction());
             clone.setSelectedPlayerAction(this.getSelectedPlayerAction());
-            clone.setUsedActions(new ArrayList<>(List.copyOf(this.usedActions)));
+            clone.setUsedActions(this.usedActions);
             clone.setDifficulty(this.getDifficulty());
             return clone;
         } catch (CloneNotSupportedException e) {
