@@ -3,7 +3,6 @@ package org.um.nine.headless.agents.rhea.macro;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
-import org.um.nine.headless.game.exceptions.GameOverException;
 import org.um.nine.headless.game.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
 
 import java.util.Comparator;
@@ -16,8 +15,9 @@ import static org.um.nine.headless.agents.rhea.state.StateEvaluation.Cd;
 
 public record MacroActionsExecutor() {
 
-    public void executeIndexedMacro(IState state, MacroAction macro, boolean draw) throws GameOverException, Exception {
-        state.getPlayerRepository().setCurrentRoundState(null);
+    public void executeIndexedMacro(IState state, MacroAction macro, boolean draw) throws Exception {
+        state.getPlayerRepository().resetRound();
+        state.getPlayerRepository().setCurrentRoundState(RoundState.ACTION);
         //System.out.println("Executing macro : "+macro);
         char[] index = macro.index().toCharArray();
         int m, s = m = 0;
@@ -32,12 +32,9 @@ public record MacroActionsExecutor() {
         }
         if (draw) {
             state.getPlayerRepository().setCurrentRoundState(RoundState.DRAW);
-            try{
+            try {
                 state.getPlayerRepository().playerAction(null, state);
-            } catch (NoDiseaseOrOutbreakPossibleDueToEvent ignored){
-
-            } catch (Exception e){
-                e.printStackTrace();
+            } catch (NoDiseaseOrOutbreakPossibleDueToEvent ignored) {
             }
         }
     }

@@ -13,6 +13,7 @@ import java.util.function.BooleanSupplier;
 import java.util.stream.IntStream;
 
 import static org.um.nine.headless.agents.rhea.core.Mutator.*;
+import static org.um.nine.headless.agents.rhea.macro.MacroAction.skipMacroAction;
 import static org.um.nine.headless.game.Settings.*;
 
 public final record Individual(MacroAction[] genome) implements IAgent, IReportable {
@@ -30,8 +31,8 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
 
         for (int i = 0; i < genome().length; i++) {
             evaluationState.getPlayerRepository().setCurrentPlayer(player);
-            //if (genome[i] == null) genome[i] = skipMacroAction(4, player.getCity());
-            MacroAction executable = genome[i].executableNow(evaluationState);
+            if (genome[i] == null) genome()[i] = skipMacroAction(4, player.getCity());
+            MacroAction executable = genome()[i].executableNow(evaluationState);
             try {
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(evaluationState, executable, true);
             } catch (GameOverException ignored) {
@@ -90,7 +91,6 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         Player player = initState.getPlayerRepository().getCurrentPlayer();
         String playerPath = this.getPath();
         for (int i = 0; i < this.genome().length; i++) {
-            ROUND_INDEX = i;
             City currentCity = player.getCity();
             MacroAction nextMacro = HPAMacroActionsFactory.init(initState, currentCity, player).getNextMacroAction();
             this.genome()[i] = nextMacro = nextMacro.executableNow(initState);
@@ -105,8 +105,6 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
             }
             initState.getPlayerRepository().setCurrentPlayer(player); //trick the game logic here to allow fault turn
         }
-        ROUND_INDEX = 0;
-
 
         this.setPath(playerPath);
         this.logGenome(this.genome(), "/genome-init.txt");
@@ -118,7 +116,7 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         String playerPath = this.getPath();
         MacroAction[] skipMacros =
                 IntStream.range(0, ROLLING_HORIZON).
-                        mapToObj(i -> MacroAction.skipMacroAction(4, player.getCity()
+                        mapToObj(i -> skipMacroAction(4, player.getCity()
                         )).
                         toArray(MacroAction[]::new);
 

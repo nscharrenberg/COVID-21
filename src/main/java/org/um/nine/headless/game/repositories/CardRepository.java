@@ -142,8 +142,7 @@ public class CardRepository implements ICardRepository {
                     } catch (NoCubesLeftException | GameOverException noDiseaseOrOutbreakPossibleDueToEvent) {
                         noDiseaseOrOutbreakPossibleDueToEvent.printStackTrace();
                     } catch (NoDiseaseOrOutbreakPossibleDueToEvent noDiseaseOrOutbreakPossibleDueToEvent) {
-                        System.err.println("Prevented a disease from being added or outbreak from happening in " +
-                                noDiseaseOrOutbreakPossibleDueToEvent.getCity());
+                        //System.err.println("Prevented a disease from being added or outbreak from happening in " + noDiseaseOrOutbreakPossibleDueToEvent.getCity());
                     }
                 }
             }

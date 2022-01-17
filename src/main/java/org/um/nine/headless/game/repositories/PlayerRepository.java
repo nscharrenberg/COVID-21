@@ -1,6 +1,5 @@
 package org.um.nine.headless.game.repositories;
 
-import org.um.nine.headless.agents.mcts.MCTS;
 import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.utils.Logger;
@@ -414,15 +413,15 @@ public class PlayerRepository implements IPlayerRepository {
     }
 
     @Override
-    public void playerAction(ActionType type, IState state, Object... args) throws GameOverException, Exception {
+    public void playerAction(ActionType type, IState state, Object... args) throws Exception {
         if (this.getCurrentRoundState() == null) this.nextTurn(state);
         if (currentRoundState.equals(RoundState.ACTION)) {
-            if(currentPlayer.isBot() && !ignored){
-                if(currentPlayer.getAgent() == null){
-                    currentPlayer.setAgent(new MCTS(state, mctsIterations));
-                }
-                currentPlayer.getAgent().agentDecision(state);
-            }
+//            if(currentPlayer.isBot() && !ignored){
+//                if(currentPlayer.getAgent() == null){
+//                    currentPlayer.setAgent(new MCTS(state, mctsIterations));
+//                }
+//                currentPlayer.getAgent().agentDecision(state);
+//            }
             if (type == null) type = ActionType.NO_ACTION;
             if (state.getBoardRepository().getSelectedRoleAction() == null)
                 state.getBoardRepository().setSelectedRoleAction(RoleAction.NO_ACTION);

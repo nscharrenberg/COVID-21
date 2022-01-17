@@ -6,7 +6,6 @@ import org.um.nine.headless.agents.rhea.core.Individual;
 import org.um.nine.headless.agents.rhea.core.Mutator;
 import org.um.nine.headless.agents.rhea.macro.MacroAction;
 import org.um.nine.headless.agents.rhea.macro.MacroActionsExecutor;
-import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.game.exceptions.GameOverException;
@@ -63,6 +62,7 @@ public class ExperimentalGameRunner {
             IntStream.range(0, DEFAULT_PLAYERS.size()).forEach(k -> agents[k] = new Individual(new MacroAction[5]));
 
 
+            ROUND_INDEX = 0;
             gameRunningLoop:
             while (DEFAULT_RUNNING_GAME.onGoing()) {
 
@@ -72,7 +72,7 @@ public class ExperimentalGameRunner {
                 // for each player
                 for (int k = 0; k < DEFAULT_PLAYERS.size(); k++) {
 
-                    DEFAULT_REPORTER.setPath(gamePath + "/" + DEFAULT_PLAYERS.get(k));
+                    DEFAULT_REPORTER.setPath(gamePath + "/Round-" + ROUND_INDEX + "/" + DEFAULT_PLAYERS.get(k));
                     gameState.getPlayerRepository().setCurrentPlayer(DEFAULT_PLAYERS.get(k));
                     DEFAULT_REPORTER.reportState(gameState, "/before-action-state.txt");
                     MacroNode macroNode = null;
@@ -104,6 +104,7 @@ public class ExperimentalGameRunner {
                 }
                 // add to the game history the state and the 4 macro to apply with the default player order
                 DEFAULT_RUNNING_GAME.getActionsHistory().put(gameState.clone(), allPlayersMacro);
+                ROUND_INDEX++;
             }
 
 

@@ -60,6 +60,10 @@ public interface MacroAction extends Cloneable {
         return m;
     }
 
+    default boolean isSkipAction() {
+        return standingActions().isEmpty() && movingActions().stream().allMatch(ma -> ma.action().equals(ActionType.SKIP_ACTION));
+    }
+
     default MacroAction executableNow(IState currentState) {
 
         if (currentState.isGameLost())
