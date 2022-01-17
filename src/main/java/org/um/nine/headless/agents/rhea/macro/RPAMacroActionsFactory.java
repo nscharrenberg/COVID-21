@@ -1,5 +1,6 @@
 package org.um.nine.headless.agents.rhea.macro;
 
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
@@ -16,7 +17,12 @@ public abstract class RPAMacroActionsFactory extends MacroActionFactory2 {
         allActions = new ArrayList<>(getActions());
         //Collections.shuffle(allActions, RANDOM_PROVIDER);
         Collections.shuffle(allActions);
-        return fillMacroAction(allActions.get(0));
+
+        MacroAction action = fillMacroAction(allActions.get(0));
+
+        GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(state).getCurrentPlayerAnalytics(state).markMacroActionUsed(action);
+
+        return action;
     }
 
     protected static RPAMacroActionsFactory getInstance() {

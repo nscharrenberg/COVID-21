@@ -6,6 +6,7 @@ import org.um.nine.headless.agents.Agent;
 import org.um.nine.headless.agents.rhea.macro.HPAMacroActionsFactory;
 import org.um.nine.headless.agents.rhea.macro.MacroAction;
 import org.um.nine.headless.agents.rhea.macro.MacroActionsExecutor;
+import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.utils.Logger;
 import org.um.nine.headless.game.domain.*;
@@ -198,6 +199,8 @@ public class MacroMCTS {
                 node.set(n);
             }
         });
+
+        GameStateFactory.getAnalyticsRepository().getCurrentGameAnalytics(getRoot().state).getCurrentPlayerAnalytics(getRoot().state).markMacroActionUsed(node.get().getMacro());
 
         return node.get().getMacro();
     }

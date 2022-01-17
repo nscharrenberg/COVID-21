@@ -56,7 +56,7 @@ public class ExperimentRunnerMacroMCTS {
         ITERATIONS = 4;
 
 
-        int n_rep = 100;
+        int n_rep = 10;
         gamesLoop:
         for (int i = 0; i < n_rep; i++) {
 
