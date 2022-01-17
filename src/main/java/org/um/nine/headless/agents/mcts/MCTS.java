@@ -352,7 +352,7 @@ public class MCTS implements Agent {
      * @return the next state
      * @throws MoveNotPossibleException if the action cannot be performed
      */
-    public void agentDecision(IState current) throws MoveNotPossibleException, GameWonException {
+    public void agentDecision(IState current) throws MoveNotPossibleException, GameWonException, GameOverException {
         Actions a = run(current);
         Player player = current.getPlayerRepository().getCurrentPlayer();
         switch(a){
@@ -416,6 +416,8 @@ public class MCTS implements Agent {
                     try{
                         current.getPlayerRepository().buildResearchStation(player, player.getCity(), current);
                         log.addStep("research station", player.getCity(), player);
+                    }catch(GameOverException e){
+                        throw e;
                     }catch(Exception e){
                         throw new MoveNotPossibleException();
                     }
@@ -430,7 +432,9 @@ public class MCTS implements Agent {
                         current.getPlayerRepository().treat(player, player.getCity(), player.getCity().getCubes().get(0).getColor(), current);
                         log.addStep("treat", player.getCity(), player);
 
-                    } catch (Exception e) {
+                    } catch(GameOverException e){
+                        throw e;
+                    }catch (Exception e) {
                         throw new MoveNotPossibleException();
                     }
                 }

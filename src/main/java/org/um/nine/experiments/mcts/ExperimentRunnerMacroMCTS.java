@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 
 import static org.um.nine.headless.game.Settings.*;
 
-public class ExperimentRunner {
+public class ExperimentRunnerMacroMCTS {
     public static void main(String[] args) {
         StatGraph actionTypeGraph = new StatGraph("Actions Stats");
         actionTypeGraph.pack();
@@ -56,7 +56,7 @@ public class ExperimentRunner {
         ITERATIONS = 4;
 
 
-        int n_rep = 10;
+        int n_rep = 100;
         gamesLoop:
         for (int i = 0; i < n_rep; i++) {
 
@@ -88,7 +88,6 @@ public class ExperimentRunner {
                     MacroMCTS mcts = new MacroMCTS(gameState, ITERATIONS);
                     MacroAction m = mcts.run(gameState);
                     macroNode = new MacroNode(gameState.getPlayerRepository().getCurrentPlayer(), m);
-                    // finally, store the successful mutation macro
                     if (macroNode != null) allPlayersMacro[k] = macroNode;
 
                     MacroActionsExecutor mae = new MacroActionsExecutor();
@@ -96,11 +95,9 @@ public class ExperimentRunner {
                         mae.executeIndexedMacro(gameState,macroNode.macroAction(),true);
                     } catch (GameOverException e) {
                         GameStateFactory.getAnalyticsRepository().lost();
-                        // if neither the mutation was successful just break the game and start a new one
                         break gameRunning;
                     } catch (GameWonException e) {
                         GameStateFactory.getAnalyticsRepository().won();
-                        // if neither the mutation was successful just break the game and start a new one
                         break gameRunning;
                     }catch (Exception e) {
                         //System.err.println(e.getMessage() + " :: " + IReportable.getDescription());
