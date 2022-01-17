@@ -14,6 +14,7 @@ import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.game.exceptions.GameOverException;
 import org.um.nine.headless.game.exceptions.GameWonException;
+import org.um.nine.headless.game.repositories.AnalyticsRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,11 +24,6 @@ import static org.um.nine.headless.game.Settings.*;
 
 public class ExperimentRunner {
     public static void main(String[] args) {
-//        WinLossRate winLoseChart = new WinLossRate("Win / Lose Stats");
-//
-//        winLoseChart.pack();
-//        winLoseChart.setVisible(true);
-
         StatGraph actionTypeGraph = new StatGraph("Actions Stats");
         actionTypeGraph.pack();
         actionTypeGraph.setVisible(true);
@@ -36,6 +32,8 @@ public class ExperimentRunner {
     }
 
     private static void runExperiments() {
+        AnalyticsRepository.ENABLED = false;
+
         assert HEADLESS;
         assert DEFAULT_INITIAL_STATE;
 
@@ -59,7 +57,7 @@ public class ExperimentRunner {
         DEFAULT_MUTATOR = new Mutator();
 
 
-        int n_rep = 4;
+        int n_rep = 10;
         gamesLoop:
         for (int i = 0; i < n_rep; i++) {
 
@@ -70,10 +68,10 @@ public class ExperimentRunner {
             IState gameState = DEFAULT_RUNNING_GAME.getCurrentState();
             String gamePath = IReportable.REPORT_PATH[0];
 
+            GameStateFactory.getAnalyticsRepository().start(gameState);
 
             IAgent[] agents = new IAgent[4];
             IntStream.range(0, DEFAULT_PLAYERS.size()).forEach(k -> agents[k] = new Individual(new MacroAction[5]));
-
 
             gameRunning:
             while (DEFAULT_RUNNING_GAME.onGoing()) {
@@ -88,11 +86,16 @@ public class ExperimentRunner {
                     gameState.getPlayerRepository().setCurrentPlayer(DEFAULT_PLAYERS.get(k));
                     MacroNode macroNode = null;
                     try {
+                        IState cloned = gameState.clone();
                         // apply evolutionary algorithm to get the best macro
                         MacroAction nextMacro = agents[k].getNextMacroAction(gameState).executableNow(gameState);
                         DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(gameState, nextMacro, true);
                         // if no exceptions arise then we can keep the macro
                         macroNode = new MacroNode(DEFAULT_PLAYERS.get(k), nextMacro);
+
+                        AnalyticsRepository.ENABLED = true;
+                        macroNode.macroAction().executableNow(cloned);
+                        AnalyticsRepository.ENABLED = false;
 
                     } catch (GameOverException e) {
                         GameStateFactory.getAnalyticsRepository().lost();
@@ -115,7 +118,6 @@ public class ExperimentRunner {
                 // add to the game history the state and the 4 macro to apply with the default player order
                 DEFAULT_RUNNING_GAME.getActionsHistory().put(gameState.clone(), allPlayersMacro);
             }
-
 
             final int[] stateIndex = {0};
             DEFAULT_RUNNING_GAME.getActionsHistory().forEach(

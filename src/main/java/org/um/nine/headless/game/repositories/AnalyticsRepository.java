@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AnalyticsRepository implements IAnalyticsRepository {
+    public static boolean ENABLED = true;
    private int gameId = -1;
    private int gameCount = 0;
    private int winCount = 0;
@@ -16,7 +17,7 @@ public class AnalyticsRepository implements IAnalyticsRepository {
 
    @Override
    public void start(IState state) {
-       this.gameId++;
+       this.gameId = gameCount;
        gameAnalytics.add(new GameAnalytics(this.gameId, state));
    }
 
