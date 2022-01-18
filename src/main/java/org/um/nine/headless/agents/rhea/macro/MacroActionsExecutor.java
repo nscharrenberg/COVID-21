@@ -80,9 +80,9 @@ public record MacroActionsExecutor() {
                 CityCard toShare;
 
                 if (currentPlayer.getRole() instanceof Researcher) {
-                    toShare = findMostValuableCityCardForPlayer(sharingWith, currentPlayer);
-                } else if (sharingWith.getRole() instanceof Researcher) {
                     toShare = findMostValuableCityCardForPlayer(currentPlayer, sharingWith);
+                } else if (sharingWith.getRole() instanceof Researcher) {
+                    toShare = findMostValuableCityCardForPlayer(sharingWith, currentPlayer);
                 } else {
                     //then if not current player can only share the city card with the city where it's in
                     toShare = currentPlayer.

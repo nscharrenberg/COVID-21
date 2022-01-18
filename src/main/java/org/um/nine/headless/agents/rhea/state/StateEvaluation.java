@@ -28,11 +28,12 @@ public class StateEvaluation {
     }
 
     public static CityCard findMostValuableCityCardForPlayer(Player givingPlayer, Player takingPlayer) {
+        final CityCard c = (CityCard) givingPlayer.getHand().get(0);
         return givingPlayer.getHand().
                 stream().
                 map(pc -> (CityCard) pc).
                 max(Comparator.comparingDouble(cc -> StateEvaluation.abilityCure(cc.getCity().getColor(), takingPlayer))).
-                orElseGet(() -> ((CityCard) givingPlayer.getHand().get(0)));
+                orElse(c);
     }
 
 

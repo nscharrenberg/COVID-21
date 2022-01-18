@@ -139,7 +139,6 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         successfulMutations = 0;
         String playerPath = getPath();
 
-
         // for a fixed amount of iterations
         for (int i = 0; i < N_MUTATIONS; i++) {
 
@@ -156,9 +155,8 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
             try {
 
                 // mutate the individual starting from the initial state
-                Individual child = ancestor.clone();
-                DEFAULT_MUTATOR.mutateIndividual(initialGameState, ancestor, mutationRate);
-                //Individual child = DEFAULT_MUTATOR.mutateIndividual2(initialGameState,ancestor,mutationRate);
+                //Individual child = DEFAULT_MUTATOR.mutateIndividual(initialGameState, ancestor, mutationRate);
+                Individual child = DEFAULT_MUTATOR.mutateIndividual2(initialGameState, ancestor, mutationRate);
 
                 // use heuristic to evaluate the (#ROLLING HORIZON) states produced by all macros being applied
                 if (child.betterThan(ancestor, initialGameState, EvaluationType.ONE_BETTER)) {  //all macro actions are better

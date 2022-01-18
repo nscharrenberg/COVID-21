@@ -27,7 +27,7 @@ public class Settings {
     public static final int OUTBREAK_THRESHOLD = 3;
     public static final int MAX_OUTBREAKS = 8;
     public static final int HAND_LIMIT = 7;
-    public static final int ROLLING_HORIZON = 4;
+    public static final int ROLLING_HORIZON = 7;
     public static final List<String> RS = List.of("Atlanta");
     public static final String START_CITY = RS.get(0);
     public static final boolean HEADLESS = true;

@@ -8,13 +8,12 @@ import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.exceptions.GameOverException;
 
-import static java.lang.System.arraycopy;
 import static org.um.nine.headless.game.Settings.*;
 
 public record Mutator() implements IReportable {
     //public static final int N_EVALUATION_SIMULATIONS = 5;
     public static final double INITIAL_MUTATION_RATE = 1d, FINAL_MUTATION_RATE = 0.5;
-    public static final int N_MUTATIONS = 100;
+    public static final int N_MUTATIONS = 200;
     public static int successfulMutations = 0;
 
     public static double map(double value, double min1, double max1, double min2, double max2) {
@@ -33,7 +32,7 @@ public record Mutator() implements IReportable {
         return mutated;
     }
 
-    public void mutateIndividual(IState initialState, Individual individual, double mutationRate) throws GameOverException {
+    public Individual mutateIndividual(IState initialState, Individual individual, double mutationRate) throws GameOverException {
 
         IState mutationState = initialState.clone();
         boolean atLeastOneMutated = false;
@@ -52,8 +51,7 @@ public record Mutator() implements IReportable {
             newGenome = mutateGene(mutationState, individual, mutationIndex);
         }
 
-        arraycopy(newGenome, 0, individual.genome(), 0, individual.genome().length);
-
+        return new Individual(newGenome);
     }
 
     private MacroAction[] mutateGene(IState individualMutationState, Individual individual, int mutationIndex) throws GameOverException {
