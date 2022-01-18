@@ -1,27 +1,19 @@
 package org.um.nine.headless.agents.rhea.state;
 
 import org.um.nine.headless.game.contracts.repositories.IAnalyticsRepository;
-import org.um.nine.headless.game.repositories.*;
+import org.um.nine.headless.game.repositories.AnalyticsRepository;
 
 public class GameStateFactory {
     private static IState initialState;
-    private static IAnalyticsRepository analyticsRepository = new AnalyticsRepository();
+    private static final IAnalyticsRepository analyticsRepository = new AnalyticsRepository();
 
     private GameStateFactory() {
 
     }
     public static IState createInitialState() {
-        initialState = new State(
-                new DiseaseRepository(),
-                new PlayerRepository(),
-                new CardRepository(),
-                new CityRepository(),
-                new EpidemicRepository(),
-                new BoardRepository()
-        );
+        initialState = new State();
         initialState.reset();
         initialState.start();
-
         return initialState;
     }
     public static IState getInitialState() {

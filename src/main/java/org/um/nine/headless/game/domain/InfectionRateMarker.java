@@ -10,20 +10,19 @@ public class InfectionRateMarker extends Marker {
 
         InfectionRateMarker that = (InfectionRateMarker) o;
         return count == that.count &&
-                Arrays.equals(draws, that.draws);
+                Arrays.equals(draws, draws);
     }
 
     @Override
     public InfectionRateMarker clone() {
         InfectionRateMarker clone = (InfectionRateMarker) super.clone();
         clone.count = this.count;
-        clone.draws = this.draws;
         return clone;
     }
 
     private static int INCREMENT = 0;
     private int count;
-    private int[] draws = {2, 2, 2, 3, 3, 4, 4};
+    public static int[] draws = {2, 2, 2, 3, 3, 4, 4};
 
     public InfectionRateMarker(int count) {
         super(INCREMENT);
@@ -52,7 +51,7 @@ public class InfectionRateMarker extends Marker {
     }
 
     public void setDraws(int[] draws) {
-        this.draws = draws;
+        draws = draws;
     }
 
     @Override

@@ -14,12 +14,25 @@ import static org.um.nine.headless.game.Settings.*;
 public record Mutator() implements IReportable {
     //public static final int N_EVALUATION_SIMULATIONS = 5;
     public static final double INITIAL_MUTATION_RATE = 1d, FINAL_MUTATION_RATE = 0.5;
-    public static final int N_MUTATIONS = 200;
+    public static final int N_MUTATIONS = 100;
     public static int successfulMutations = 0;
 
     public static double map(double value, double min1, double max1, double min2, double max2) {
         return (value - min1) / (max1 - min1) * (max2 - min2) + min2;
     }
+
+    public Individual mutateIndividual2(IState initialState, Individual individual, double mutationRate) {
+        IState mutationState = initialState.clone();
+        Individual mutated = individual.clone();
+        for (int i = 0; i < ROLLING_HORIZON; i++) {
+            double mutationChance = RANDOM_PROVIDER.nextDouble();
+            if (mutationChance < mutationRate) {
+                mutated = mutateGene2(mutationState, individual, i);
+            }
+        }
+        return mutated;
+    }
+
     public void mutateIndividual(IState initialState, Individual individual, double mutationRate) throws GameOverException {
 
         IState mutationState = initialState.clone();
@@ -47,9 +60,7 @@ public record Mutator() implements IReportable {
         IState mutationState = individualMutationState.clone();
         Player p = mutationState.getPlayerRepository().getCurrentPlayer();
 
-        MacroAction[] newGene = new MacroAction[individual.genome().length];
-
-
+        MacroAction[] newGene = new MacroAction[ROLLING_HORIZON];
         for (int i = 0; i < ROLLING_HORIZON; i++) {
             MacroAction macroIndex = individual.genome()[i].executableNow(mutationState);  // copy the existing macro
             mutationState.getPlayerRepository().setCurrentPlayer(p);
@@ -73,6 +84,29 @@ public record Mutator() implements IReportable {
         }
         return newGene;
 
+    }
+
+    private Individual mutateGene2(IState geneMutation, Individual individual, int mutationIndex) {
+        IState mutationState = geneMutation.clone();
+        Player p = mutationState.getPlayerRepository().getCurrentPlayer();
+        MacroAction[] newGene = new MacroAction[ROLLING_HORIZON];
+        for (int i = 0; i < ROLLING_HORIZON; i++) {
+            MacroAction macroIndex;
+            mutationState.getPlayerRepository().setCurrentPlayer(p);
+            if (i < mutationIndex) macroIndex = individual.genome()[i];
+            else if (i == mutationIndex)
+                macroIndex = RPAMacroActionsFactory.init(mutationState, p.getCity(), p).getNextMacroAction();
+            else macroIndex = HPAMacroActionsFactory.init(mutationState, p.getCity(), p).getNextMacroAction();
+            try {
+                DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(mutationState, macroIndex, true);
+            } catch (GameOverException ignored) {
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            newGene[i] = macroIndex;
+        }
+        return new Individual(newGene);
     }
 
 }

@@ -23,25 +23,29 @@ public interface IEpidemicRepository extends Cloneable {
     }
 
     default void infect(IState state) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
-        for (int i = 0; i < 3; i++) {
-            InfectionCard infectionCard = state.getCardRepository().getInfectionDeck().pop();
-            state.getCardRepository().getInfectionDiscardPile().push(infectionCard);
 
-            int amountCubes = infectionCard.getCity().getCubes().size();
+        InfectionCard infectionCard = state.getCardRepository().getInfectionDeck().get(state.getCardRepository().getInfectionDeck().size() - 1);
+        state.getCardRepository().getInfectionDeck().remove(infectionCard);
+        state.getCardRepository().getInfectionDiscardPile().push(infectionCard);
 
-            switch (amountCubes) {
-                case 2 -> {
-                    state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
-                    state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
-                }
-                case 3 -> state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
-                default -> {
-                    state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
-                    state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
-                    state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
-                }
-            }
+        if (state.getDiseaseRepository().getCures().get(infectionCard.getCity().getColor()).isDiscovered()) return;
+
+        int diseasesInCity = (int) infectionCard.getCity().getCubes().stream().filter(disease -> disease.getColor().equals(infectionCard.getCity().getColor())).count();
+
+        if (diseasesInCity == 0) {
+            //just place 3 cubes
+            for (int i = 0; i < 3; i++)
+                state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity(), state);
+        } else {
+            //place as many cubes as needed to get to 3
+            int amountCubes = 3 - diseasesInCity;
+            for (int i = 0; i < amountCubes; i++)
+                state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity(), state);
+            //init an outbreak
+            state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity(), state);
         }
+
+
     }
 
     default void intensify(IState state) {

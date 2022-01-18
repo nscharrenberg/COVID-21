@@ -24,10 +24,8 @@ Karachi
 Sri Lanka
 Madrid
 Bangkok
-Atlanta
 Tolyatti
 Bogota
-Mexico City
 Comodoro Rivadavia
 Jakarta
 Manila
@@ -42,3 +40,6 @@ Montreal
 Kiev
 Manaus
 Hong Kong
+Mexico City
+Atlanta
+

@@ -1,7 +1,10 @@
 package org.um.nine.headless.agents.rhea.state;
 
 import org.um.nine.headless.game.contracts.repositories.*;
-import org.um.nine.headless.game.domain.*;
+import org.um.nine.headless.game.domain.City;
+import org.um.nine.headless.game.domain.Disease;
+import org.um.nine.headless.game.domain.Player;
+import org.um.nine.headless.game.repositories.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,27 +13,8 @@ import java.util.stream.Collectors;
 
 public class State implements IState {
 
-    public static void main(String[] args) {
-        IState original = (GameStateFactory.createInitialState());
-        IState cloned = original.clone();
+    private boolean originalGameState;  // not cloneable
 
-        System.out.println(original.equals(cloned));
-
-
-        original.getPlayerRepository().setCurrentRoundState(RoundState.DRAW);
-        try {
-            original.getPlayerRepository().playerAction(null, original);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        System.out.println(original.equals(cloned));
-        System.out.println(cloned.equals(cloned.clone()));
-        debugState(original);
-        System.out.println("=========================================================================================================================");
-        debugState(cloned);
-
-    }
 
     public static void debugState(IState state) {
 
@@ -50,15 +34,23 @@ public class State implements IState {
     private ICardRepository iCardRepository;
     private IBoardRepository iBoardRepository;
 
-    public State() {
+    protected State() {
+        this(new DiseaseRepository(),
+                new PlayerRepository(),
+                new CardRepository(),
+                new CityRepository(),
+                new EpidemicRepository(),
+                new BoardRepository()
+        );
+        originalGameState = true;
     }
 
     public State(IDiseaseRepository iDiseaseRepository,
-                  IPlayerRepository iPlayerRepository,
-                  ICardRepository iCardRepository,
-                  ICityRepository iCityRepository,
-                  IEpidemicRepository iEpidemicRepository,
-                  IBoardRepository iBoardRepository
+                 IPlayerRepository iPlayerRepository,
+                 ICardRepository iCardRepository,
+                 ICityRepository iCityRepository,
+                 IEpidemicRepository iEpidemicRepository,
+                 IBoardRepository iBoardRepository
     ) {
         this.setDiseaseRepository(iDiseaseRepository);
         this.setPlayerRepository(iPlayerRepository);
@@ -82,14 +74,22 @@ public class State implements IState {
     public void setPlayerRepository(IPlayerRepository iPlayerRepository) {
         this.iPlayerRepository = iPlayerRepository;
     }
+
     @Override
     public IPlayerRepository getPlayerRepository() {
         return this.iPlayerRepository;
     }
+
+    @Override
+    public boolean isOriginalGameState() {
+        return this.originalGameState;
+    }
+
     @Override
     public void setBoardRepository(IBoardRepository iBoardRepository) {
         this.iBoardRepository = iBoardRepository;
     }
+
     @Override
     public IBoardRepository getBoardRepository() {
         return this.iBoardRepository;
@@ -129,6 +129,7 @@ public class State implements IState {
     public State clone() {
         try {
             State clone = (State) super.clone();
+            clone.originalGameState = this.originalGameState;
             clone.setPlayerRepository(this.getPlayerRepository().clone());
             clone.setBoardRepository(this.getBoardRepository().clone());
             clone.setCardRepository(this.getCardRepository().clone());
@@ -138,9 +139,9 @@ public class State implements IState {
 
 
             clone.getCityRepository().getCities().forEach(
-                    (s, city) -> {
+                    (s, thatCity) -> {
                         City thisCity = this.getCityRepository().getCities().get(s);
-                        city.setPawns(thisCity.getPawns().stream().map(player -> clone.getPlayerRepository().getPlayers().get(player.getName())).collect(Collectors.toCollection(ArrayList::new)));
+                        thatCity.setPawns(thisCity.getPawns().stream().map(player -> clone.getPlayerRepository().getPlayers().get(player.getName())).collect(Collectors.toCollection(ArrayList::new)));
 
                         List<Disease> diseases = thisCity.
                                 getCubes().
@@ -149,32 +150,44 @@ public class State implements IState {
                                 map(allCubesSameColor -> allCubesSameColor.
                                         stream().
                                         filter(thisDisease -> thisDisease.getCity() != null && thisDisease.getCity().equals(thisCity)).
-                                        peek(thatDisease -> thatDisease.setCity(city)).
+                                        peek(thatDisease -> thatDisease.setCity(thatCity)).
                                         collect(Collectors.toList())).
                                 findFirst().
                                 orElse(new ArrayList<>());
 
-                        city.setCubes(diseases);
+                        thatCity.setCubes(diseases);
 
 
                         List<Player> pawns = thisCity.
                                 getPawns().
                                 stream().
                                 map(player -> clone.getPlayerRepository().getPlayers().get(player.getName())).
-                                peek(player -> player.setCityField(city)).
+                                peek(player -> player.setCityField(thatCity)).
                                 collect(Collectors.toList());
 
-                        city.setPawns(pawns);
+                        thatCity.setPawns(pawns);
 
                         List<City> neighbours = thisCity.
                                 getNeighbors().
                                 stream().
                                 map(city1 -> clone.getCityRepository().getCities().get(city1.getName())).
                                 collect(Collectors.toList());
-                        city.setNeighbors(neighbours);
+                        thatCity.setNeighbors(neighbours);
 
-                        ResearchStation researchStation = this.getCityRepository().getResearchStations().stream().filter(Objects::nonNull).filter(rs -> rs.getCity().equals(city)).findFirst().orElse(null);
-
+                        this.getCityRepository().
+                                getResearchStations().
+                                stream().
+                                filter(Objects::nonNull).
+                                filter(rs -> rs.getCity().equals(thatCity)).
+                                findFirst().
+                                ifPresentOrElse(
+                                        rs -> {
+                                            thatCity.setResearchStation(rs);
+                                            rs.setCity(thatCity);
+                                        },
+                                        () -> {
+                                        }
+                                );
 
                     }
             );
@@ -183,6 +196,7 @@ public class State implements IState {
             if (!clone.equals(this)) {
                 throw new IllegalStateException("Error when cloning state");
             }
+            clone.originalGameState = false;
 
             return clone;
         } catch (CloneNotSupportedException e) {
@@ -196,7 +210,8 @@ public class State implements IState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         State state = (State) o;
-        return Objects.equals(iDiseaseRepository, state.iDiseaseRepository) &&
+        return this.originalGameState == state.originalGameState &&
+                Objects.equals(iDiseaseRepository, state.iDiseaseRepository) &&
                 Objects.equals(iPlayerRepository, state.iPlayerRepository) &&
                 Objects.equals(iEpidemicRepository, state.iEpidemicRepository) &&
                 Objects.equals(iCityRepository, state.iCityRepository) &&

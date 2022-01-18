@@ -1,31 +1,25 @@
 package org.um.nine.headless.agents.hybrid;
 
-import org.um.nine.headless.agents.mcts.MCTS;
 import org.um.nine.headless.agents.mcts.MacroMCTS;
 import org.um.nine.headless.agents.mcts.Node;
-import org.um.nine.headless.agents.rhea.core.IAgent;
 import org.um.nine.headless.agents.rhea.core.Individual;
-import org.um.nine.headless.agents.rhea.experiments.MacroNode;
 import org.um.nine.headless.agents.rhea.macro.HPAMacroActionsFactory;
 import org.um.nine.headless.agents.rhea.macro.MacroAction;
 import org.um.nine.headless.agents.rhea.macro.MacroActionsExecutor;
 import org.um.nine.headless.agents.rhea.state.IState;
 
-import java.util.stream.IntStream;
-
-import static org.um.nine.headless.game.Settings.DEFAULT_MACRO_ACTIONS_EXECUTOR;
-import static org.um.nine.headless.game.Settings.DEFAULT_PLAYERS;
+import static org.um.nine.headless.game.Settings.ROLLING_HORIZON;
 
 public class hybrid {
 
-    private int ITERATIONS = 10;
+    private final int ITERATIONS = 10;
 
     public MacroAction run(IState state) {
         MacroMCTS mcts = new MacroMCTS(state, ITERATIONS);
         MacroAction MCTSAction = mcts.run(state);
 
         //RHEA
-        Individual agent = new Individual(new MacroAction[5]);
+        Individual agent = new Individual(new MacroAction[ROLLING_HORIZON]);
         agent = agent.initGenome(state);
         MacroAction RHEAAction = HPAMacroActionsFactory.init(state, state.getPlayerRepository().getCurrentPlayer().getCity(), state.getPlayerRepository().getCurrentPlayer()).getNextMacroAction();
 

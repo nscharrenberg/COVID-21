@@ -2,11 +2,9 @@ package org.um.nine.experiments.mcts;
 
 import org.apache.commons.io.FileUtils;
 import org.um.nine.experiments.rhea.graph.StatGraph;
-import org.um.nine.headless.agents.mcts.MCTS;
 import org.um.nine.headless.agents.mcts.MacroMCTS;
 import org.um.nine.headless.agents.rhea.core.IAgent;
 import org.um.nine.headless.agents.rhea.core.Individual;
-import org.um.nine.headless.agents.rhea.core.Mutator;
 import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
 import org.um.nine.headless.agents.rhea.experiments.MacroNode;
 import org.um.nine.headless.agents.rhea.macro.MacroAction;
@@ -70,7 +68,7 @@ public class ExperimentRunnerMacroMCTS {
             GameStateFactory.getAnalyticsRepository().start(gameState);
 
             IAgent[] agents = new IAgent[4];
-            IntStream.range(0, DEFAULT_PLAYERS.size()).forEach(k -> agents[k] = new Individual(new MacroAction[5]));
+            IntStream.range(0, DEFAULT_PLAYERS.size()).forEach(k -> agents[k] = new Individual(new MacroAction[ROLLING_HORIZON]));
 
             gameRunning:
             while (DEFAULT_RUNNING_GAME.onGoing()) {

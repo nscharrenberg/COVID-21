@@ -2,6 +2,7 @@ package org.um.nine.headless.game.repositories;
 
 import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
+import org.um.nine.headless.agents.rhea.state.StateEvaluation;
 import org.um.nine.headless.agents.utils.Logger;
 import org.um.nine.headless.game.Settings;
 import org.um.nine.headless.game.contracts.repositories.IBoardRepository;
@@ -417,10 +418,11 @@ public class PlayerRepository implements IPlayerRepository {
         if (this.getCurrentRoundState() == null) this.nextTurn(state);
         if (currentRoundState.equals(RoundState.ACTION)) {
 //            if(currentPlayer.isBot() && !ignored){
+//                IState mcts = state.clone();
 //                if(currentPlayer.getAgent() == null){
-//                    currentPlayer.setAgent(new MCTS(state, mctsIterations));
+//                    currentPlayer.setAgent(new MCTS(mcts, mctsIterations));
 //                }
-//                currentPlayer.getAgent().agentDecision(state);
+//                currentPlayer.getAgent().agentDecision(mcts);
 //            }
             if (type == null) type = ActionType.NO_ACTION;
             if (state.getBoardRepository().getSelectedRoleAction() == null)
@@ -535,7 +537,7 @@ public class PlayerRepository implements IPlayerRepository {
         } else if (state.getPlayerRepository().getCurrentRoundState().equals(RoundState.DRAW)) {
             state.getCardRepository().drawPlayerCard(state,
                     getCurrentPlayer().getHand().size() >= HAND_LIMIT ?
-                            state.getDiscardingCard() : new PlayerCard[]{}
+                            new PlayerCard[]{StateEvaluation.getDiscardingCard(state.getPlayerRepository().getCurrentPlayer())} : new PlayerCard[]{}
             );
             this.nextTurn(state);
             if (state.getPlayerRepository().getDrawLeft() >= 0) {

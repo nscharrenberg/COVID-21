@@ -7,13 +7,14 @@ import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.roles.Medic;
+import org.um.nine.headless.game.domain.roles.Researcher;
 
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static org.um.nine.headless.agents.rhea.macro.MacroAction.combine;
-import static org.um.nine.headless.agents.rhea.macro.MacroAction.macro;
+import static org.um.nine.headless.agents.rhea.macro.MacroAction.*;
 import static org.um.nine.headless.game.Settings.RESEARCH_STATION_THRESHOLD;
 
 public abstract class MacroActionFactory2 implements IReportable {
@@ -42,6 +43,8 @@ public abstract class MacroActionFactory2 implements IReportable {
         List<MacroAction> actions = new ArrayList<>();
         actions.addAll(buildDiscoverCureMacroActions());
         actions.addAll(buildTreatDiseaseMacroActions(3));
+        actions.addAll(buildTakeKnowledgeMacroActions());
+        actions.addAll(buildGiveKnowledgeMacroActions());
         actions.addAll(buildBuildRSMacroActions());
         actions.addAll(buildTreatDiseaseMacroActions(2));
         actions.addAll(buildTreatDiseaseMacroActions(1));
@@ -278,6 +281,137 @@ public abstract class MacroActionFactory2 implements IReportable {
         }
 
         return buildingActions;
+    }
+
+    protected List<MacroAction> buildGiveKnowledgeMacroActions() {
+        List<MacroAction> giveActions = new ArrayList<>();
+        Player currentPlayer = state.getPlayerRepository().getCurrentPlayer();
+        if (currentPlayer.getRole() instanceof Researcher) {
+            return buildGiveKnowledgeMacroActionsResearcher();
+        } else {
+            currentPlayer.getHand().     // for all cards
+                    stream().
+                    map(pc -> (CityCard) pc).
+                    map(CityCard::getCity).
+
+                    forEach(cityInHand -> {   // see if the city is reachable
+                        List<ActionType.MovingAction> path = pathFinder.lightestPath(cityInHand);
+                        boolean exchangeNow = cityInHand.equals(currentPlayer.getCity()) || (path.size() > 0 && path.size() < 4);
+                        //immediate give checks where players are
+                        if (exchangeNow) {
+                            //loop through all players and see if they are in that city, and exchange the card with them
+                            state.getPlayerRepository().
+                                    getPlayers().
+                                    values().
+                                    stream().
+                                    filter(player -> !player.equals(currentPlayer)).
+                                    filter(player -> player.getCity().equals(cityInHand)).
+                                    map(player -> {
+                                        List<ActionType.StandingAction> give = new ArrayList<>();
+                                        give.add(new ActionType.StandingAction(ActionType.SHARE_KNOWLEDGE, player.getCity()));
+                                        return macro(pathFinder.getPath(cityInHand, true), give);
+                                    }).
+                                    forEach(giveActions::add);
+                        } else {
+                            // give later finds just reachable and exchangeable cards
+                            // add anyway the macro to wait for the other players
+                            if (path.size() == 4)
+                                giveActions.add(macro(path, new ArrayList<ActionType.StandingAction>()));
+                        }
+                    });
+
+        }
+        return giveActions;
+    }
+
+
+    protected List<MacroAction> buildTakeKnowledgeMacroActions() {
+        List<MacroAction> takeActions = new ArrayList<>();
+        Player currentPlayer = state.getPlayerRepository().getCurrentPlayer();
+
+        state.getPlayerRepository().
+                getPlayers().
+                values().
+                stream().
+                filter(player -> !player.equals(currentPlayer)).
+                forEach(player -> {
+                    if (player.getRole() instanceof Researcher) {
+                        if (player.getCity().equals(currentPlayer.getCity())) {    // we wait here because the researcher could give us any card if we are in the same city
+                            takeActions.add(skipMacroAction(4, currentPlayer.getCity()));
+                        } else {
+                            // we find the path to reach her and wait
+                            List<ActionType.MovingAction> path = pathFinder.lightestPath(player.getCity());
+                            if (path.size() > 0 && path.size() <= 4) {
+                                List<ActionType.StandingAction> skip = new ArrayList<>();
+                                IntStream.range(path.size(), 4).forEach(i -> skip.add(new ActionType.StandingAction(ActionType.SKIP_ACTION, player.getCity())));
+                                //takeActions.add(macro(path,skip));
+                            }
+                        }
+                    } else {
+                        player.getHand().     // for all cards in the other player hand
+                                stream().
+                                map(pc -> (CityCard) pc).
+                                map(CityCard::getCity).
+                                forEach(cityInHand -> {   // see if the city is reachable
+                                    List<ActionType.MovingAction> path = pathFinder.lightestPath(cityInHand);
+                                    boolean reachable = cityInHand.equals(currentPlayer.getCity()) || (path.size() > 0 && path.size() <= 4);
+                                    if (reachable) {
+                                        List<ActionType.StandingAction> skip =
+                                                IntStream.range(path.size(), 4).
+                                                        mapToObj(i -> new ActionType.StandingAction(ActionType.SKIP_ACTION, cityInHand)).
+                                                        collect(Collectors.toList());
+                                        takeActions.add(macro(path, skip));
+                                    }
+                                });
+                    }
+                });
+
+        return takeActions;
+    }
+
+    protected List<MacroAction> buildGiveKnowledgeMacroActionsResearcher() {
+        List<MacroAction> giveActions = new ArrayList<>();
+        Player currentPlayer = state.getPlayerRepository().getCurrentPlayer();
+
+
+        state.getCityRepository().
+                getCities().
+                values().
+                forEach(city -> {
+                    List<ActionType.MovingAction> path = pathFinder.lightestPath(city);
+                    boolean reachableNow = city.equals(currentPlayer.getCity()) || (path.size() > 0 && path.size() < 4);
+                    // if we can give now
+                    if (reachableNow) {
+                        // see if there's a player in that city
+                        List<Player> otherPlayersInCity = city.getPawns().
+                                stream().
+                                filter(player -> !player.equals(currentPlayer)).
+                                collect(Collectors.toList());
+
+                        if (otherPlayersInCity.isEmpty()) {
+                            List<ActionType.StandingAction> skip =
+                                    IntStream.range(path.size(), 4).
+                                            mapToObj(i -> new ActionType.StandingAction(ActionType.SKIP_ACTION, city)).
+                                            collect(Collectors.toList());
+
+                            //giveActions.add(macro(path,skip));
+                        } else {
+                            otherPlayersInCity.
+                                    stream().
+                                    map(player -> {
+                                        List<ActionType.StandingAction> give = new ArrayList<>();
+                                        give.add(new ActionType.StandingAction(ActionType.SHARE_KNOWLEDGE, player.getCity()));  //give best card
+                                        return macro(path, give);
+                                    }).forEach(giveActions::add);
+                        }
+
+
+                    } else {
+                        if (path.size() == 4) giveActions.add(macro(path, new ArrayList<>()));
+                    }
+                });
+
+        return giveActions;
     }
 
     protected List<MacroAction> buildWalkAwayMacroActions(int n) {

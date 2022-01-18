@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class Node {
     private int visits;
     private double value;
-    private LinkedList<Node> children;
+    private final LinkedList<Node> children;
     private Node parent;
     private final int depth;
     private boolean isRoot;
@@ -89,12 +89,9 @@ public class Node {
             value += 2 * blue.get();
             value += 2 * yellow.get();
         });
-        double[] numberOfOutbreaks = new double[1];
-        state.getDiseaseRepository().getOutbreakMarkers().forEach(outbreakMarker -> {
-            if (outbreakMarker.isCurrent())
-                numberOfOutbreaks[0] = outbreakMarker.getId();
-            value -= 3 * numberOfOutbreaks[0];
-        });
+
+        value -= 3 * state.getDiseaseRepository().getOutbreaksCount();
+
 
         state.getPlayerRepository().getPlayers().values().forEach(s -> {
             var sameColorCard = s.getHand().stream().filter(c -> c instanceof CityCard)

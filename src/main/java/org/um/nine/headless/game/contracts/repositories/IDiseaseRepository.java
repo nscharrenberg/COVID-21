@@ -1,5 +1,6 @@
 package org.um.nine.headless.game.contracts.repositories;
 
+import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.exceptions.*;
 import org.um.nine.jme.utils.JmeFactory;
@@ -49,18 +50,22 @@ public interface IDiseaseRepository extends Cloneable {
         }
     }
 
-    void nextOutbreak() throws GameOverException;
+    void nextOutbreak(IState state) throws GameOverException;
 
     void nextInfectionMarker();
+
     boolean isGameOver();
 
-    void infect(Color color, City city) throws NoDiseaseOrOutbreakPossibleDueToEvent, NoCubesLeftException, GameOverException;
+    void infect(Color color, City city, IState state) throws NoDiseaseOrOutbreakPossibleDueToEvent, NoCubesLeftException, GameOverException;
 
-    default void initOutbreak(City city, Disease disease) throws GameOverException {
-        nextOutbreak();
+    default void initOutbreak(City city, Disease disease, IState state) throws GameOverException {
+        nextOutbreak(state);
+        if (state.isOriginalGameState())
+            System.out.println("!!  Outbreak occurred in " + city.getName() + " [" + disease.getColor().getName() + "] : " +
+                    "count " + getOutbreaksCount() + "   !!");
+
         List<City> previousOutbreaks = new ArrayList<>();
         List<City> neighbors = city.getNeighbors();
-
         previousOutbreaks.add(city);
 
         for (City c : neighbors) {
@@ -69,6 +74,7 @@ public interface IDiseaseRepository extends Cloneable {
     }
 
     default void spreadOutbreak(City city, Disease disease, List<City> previousOutbreaks) {
+        if (previousOutbreaks.contains(city)) return;
         if (city.addCube(disease)) {
             return;
         }
@@ -115,6 +121,8 @@ public interface IDiseaseRepository extends Cloneable {
 
     List<OutbreakMarker> getOutbreakMarkers();
 
+    int getOutbreaksCount();
+
     void setOutbreakMarkers(List<OutbreakMarker> outbreakMarkers);
 
     HashMap<Color, Cure> getCures();
@@ -130,6 +138,8 @@ public interface IDiseaseRepository extends Cloneable {
     OutbreakMarker getLastOutbreakMarker();
 
     InfectionRateMarker getCurrentInfectionRate();
+
+    int getInfectionRate();
 
     InfectionRateMarker getLastInfectionRate();
 

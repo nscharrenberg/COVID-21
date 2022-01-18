@@ -3,13 +3,11 @@ package org.um.nine.experiments.mcts;
 import org.apache.commons.io.FileUtils;
 import org.um.nine.experiments.rhea.graph.StatGraph;
 import org.um.nine.headless.agents.mcts.MCTS;
-import org.um.nine.headless.agents.mcts.MacroMCTS;
 import org.um.nine.headless.agents.rhea.core.IAgent;
 import org.um.nine.headless.agents.rhea.core.Individual;
 import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
 import org.um.nine.headless.agents.rhea.experiments.MacroNode;
 import org.um.nine.headless.agents.rhea.macro.MacroAction;
-import org.um.nine.headless.agents.rhea.macro.MacroActionsExecutor;
 import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.utils.IReportable;
@@ -75,7 +73,7 @@ public class ExperimentRunnerMCTS {
             GameStateFactory.getAnalyticsRepository().start(gameState);
 
             IAgent[] agents = new IAgent[4];
-            IntStream.range(0, DEFAULT_PLAYERS.size()).forEach(k -> agents[k] = new Individual(new MacroAction[5]));
+            IntStream.range(0, DEFAULT_PLAYERS.size()).forEach(k -> agents[k] = new Individual(new MacroAction[ROLLING_HORIZON]));
 
             gameRunning:
             while (DEFAULT_RUNNING_GAME.onGoing()) {
@@ -103,7 +101,7 @@ public class ExperimentRunnerMCTS {
                         for(int j = 0; j < Objects.requireNonNull(gameState.getDiseaseRepository().getInfectionRates().stream().filter(Marker::isCurrent).findFirst().orElse(null)).getCount(); j++){
                             InfectionCard ic = gameState.getCardRepository().getInfectionDeck().pop();
                             try {
-                                gameState.getDiseaseRepository().infect(ic.getCity().getColor(), ic.getCity());
+                                gameState.getDiseaseRepository().infect(ic.getCity().getColor(), ic.getCity(), gameState);
                             } catch (NoCubesLeftException | NoDiseaseOrOutbreakPossibleDueToEvent | GameOverException e) {
                                 e.printStackTrace();
                             }

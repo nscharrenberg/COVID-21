@@ -2,23 +2,21 @@ package org.um.nine.headless.agents.mcts;
 
 import org.nd4j.common.primitives.Atomic;
 import org.nd4j.common.primitives.AtomicDouble;
-import org.um.nine.headless.agents.Agent;
 import org.um.nine.headless.agents.rhea.macro.HPAMacroActionsFactory;
 import org.um.nine.headless.agents.rhea.macro.MacroAction;
 import org.um.nine.headless.agents.rhea.macro.MacroActionsExecutor;
-import org.um.nine.headless.agents.rhea.state.GameStateFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.utils.Logger;
-import org.um.nine.headless.game.domain.*;
+import org.um.nine.headless.game.domain.Cure;
+import org.um.nine.headless.game.domain.Marker;
 import org.um.nine.headless.game.domain.cards.CityCard;
-import org.um.nine.headless.game.domain.cards.InfectionCard;
-import org.um.nine.headless.game.domain.cards.PlayerCard;
-import org.um.nine.headless.game.domain.roles.Medic;
-import org.um.nine.headless.game.domain.roles.RoleAction;
-import org.um.nine.headless.game.exceptions.*;
+import org.um.nine.headless.game.exceptions.MoveNotPossibleException;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -31,7 +29,7 @@ public class MacroMCTS {
     //important for the selection step. higher C = higher exploration
     private final double C = 0.5;
 
-    private Logger log = new Logger();
+    private final Logger log = new Logger();
 
     //all possible actions
     private final Actions[] moves = {Actions.DRIVE,Actions.CHARTER_FLIGHT,Actions.SHUTTLE,Actions.BUILD_RESEARCH_STATION,Actions.TREAT_DISEASE,Actions.SHARE_KNOWLEDGE,Actions.DISCOVER_CURE,Actions.ROLE_ACTION};
@@ -197,7 +195,7 @@ public class MacroMCTS {
     private class MacroNode implements Serializable {
         private int visits;
         private double value;
-        private LinkedList<MacroNode> children;
+        private final LinkedList<MacroNode> children;
         private MacroNode parent;
         private final int depth;
         private boolean isRoot;
@@ -272,12 +270,8 @@ public class MacroMCTS {
                 value += 2 * blue.get();
                 value += 2 * yellow.get();
             });
-            double[] numberOfOutbreaks = new double[1];
-            state.getDiseaseRepository().getOutbreakMarkers().forEach(outbreakMarker -> {
-                if (outbreakMarker.isCurrent())
-                    numberOfOutbreaks[0] = outbreakMarker.getId();
-                value -= 3 * numberOfOutbreaks[0];
-            });
+            value -= 3 * state.getDiseaseRepository().getOutbreaksCount();
+
 
             state.getPlayerRepository().getPlayers().values().forEach(s -> {
                 var sameColorCard = s.getHand().stream().filter(c -> c instanceof CityCard)

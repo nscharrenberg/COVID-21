@@ -65,19 +65,36 @@ public class CardRepository implements ICardRepository {
     @Override
     public void drawPlayerCard(IState state, PlayerCard... toDiscard) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         PlayerCard drawn;
+        Player currentPlayer = state.getPlayerRepository().getCurrentPlayer();
+
         try {
             drawn = this.playerDeck.pop();
         } catch (EmptyStackException e) {
+            if (state.isOriginalGameState()) System.out.println("Empty player cards deck .. game over");
             throw new GameOverException();
         }
 
 
         if (drawn instanceof EpidemicCard) {
-            state.getEpidemicRepository().action(state);
+            if (state.isOriginalGameState())
+                System.out.println("Player " + state.getPlayerRepository().getCurrentPlayer() + " draws epidemic card ");
+            var prevOutbreaks = state.getDiseaseRepository().getOutbreaksCount();
+            try {
+                state.getEpidemicRepository().action(state);
+            } catch (Exception e) {
+                if (state.isOriginalGameState()) {
+                    System.out.println(e.getMessage());
+                }
+            }
+            var currentOutbreaks = state.getDiseaseRepository().getOutbreaksCount();
+            if (state.isOriginalGameState()) {
+                if (prevOutbreaks != currentOutbreaks)
+                    System.out.println("\nOutbreaks count : " + currentOutbreaks + "\n");
+            }
             return;
         }
-
-        Player currentPlayer = state.getPlayerRepository().getCurrentPlayer();
+        if (state.isOriginalGameState())
+            System.out.println("Player " + currentPlayer.getName() + " draws player card : " + drawn.getName());
 
         if (currentPlayer.getHand().size() >= Settings.HAND_LIMIT) {
             if (toDiscard.length <= 0) {
@@ -104,7 +121,19 @@ public class CardRepository implements ICardRepository {
     @Override
     public void drawInfectionCard(IState state) throws NoCubesLeftException, NoDiseaseOrOutbreakPossibleDueToEvent, GameOverException {
         InfectionCard infectionCard = this.infectionDeck.pop();
-        state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity());
+        if (state.isOriginalGameState())
+            System.out.println("Player " + state.getPlayerRepository().getCurrentPlayer() + " draws infection card : " + infectionCard.getName());
+        var prevOutbreaks = state.getDiseaseRepository().getOutbreaksCount();
+        var currentInfectionRate = state.getDiseaseRepository().getInfectionRate();
+
+        for (int i = 0; i < currentInfectionRate; i++)
+            state.getDiseaseRepository().infect(infectionCard.getCity().getColor(), infectionCard.getCity(), state);
+
+
+        if (state.isOriginalGameState()) {
+            var currentOutbreaks = state.getDiseaseRepository().getOutbreaksCount();
+            if (prevOutbreaks != currentOutbreaks) System.err.println("Outbreaks count : " + currentOutbreaks);
+        }
         this.infectionDiscardPile.push(infectionCard);
     }
 
@@ -138,7 +167,7 @@ public class CardRepository implements ICardRepository {
                 Disease d = new Disease(c.getCity().getColor());
                 for (int k = i; k > 0; k--) {
                     try {
-                        state.getDiseaseRepository().infect(d.getColor(), c.getCity());
+                        state.getDiseaseRepository().infect(d.getColor(), c.getCity(), state);
                     } catch (NoCubesLeftException | GameOverException noDiseaseOrOutbreakPossibleDueToEvent) {
                         noDiseaseOrOutbreakPossibleDueToEvent.printStackTrace();
                     } catch (NoDiseaseOrOutbreakPossibleDueToEvent noDiseaseOrOutbreakPossibleDueToEvent) {

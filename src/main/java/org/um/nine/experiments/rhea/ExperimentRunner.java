@@ -15,7 +15,6 @@ import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.game.exceptions.GameOverException;
 import org.um.nine.headless.game.exceptions.GameWonException;
 import org.um.nine.headless.game.repositories.PlayerRepository;
-import org.um.nine.headless.game.repositories.AnalyticsRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +27,6 @@ public class ExperimentRunner {
         StatGraph actionTypeGraph = new StatGraph("Actions Stats");
         actionTypeGraph.pack();
         actionTypeGraph.setVisible(true);
-
         runExperiments();
     }
 
@@ -72,7 +70,7 @@ public class ExperimentRunner {
             GameStateFactory.getAnalyticsRepository().start(gameState);
 
             IAgent[] agents = new IAgent[4];
-            IntStream.range(0, DEFAULT_PLAYERS.size()).forEach(k -> agents[k] = new Individual(new MacroAction[5]));
+            IntStream.range(0, DEFAULT_PLAYERS.size()).forEach(k -> agents[k] = new Individual(new MacroAction[ROLLING_HORIZON]));
 
             gameRunning:
             while (DEFAULT_RUNNING_GAME.onGoing()) {

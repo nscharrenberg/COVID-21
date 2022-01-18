@@ -27,7 +27,7 @@ public class Settings {
     public static final int OUTBREAK_THRESHOLD = 3;
     public static final int MAX_OUTBREAKS = 8;
     public static final int HAND_LIMIT = 7;
-    public static final int ROLLING_HORIZON = 3;
+    public static final int ROLLING_HORIZON = 4;
     public static final List<String> RS = List.of("Atlanta");
     public static final String START_CITY = RS.get(0);
     public static final boolean HEADLESS = true;
@@ -51,7 +51,8 @@ public class Settings {
     );
 
     public static final Difficulty DEFAULT_DIFFICULTY = Difficulty.EASY;
-    public static final Random RANDOM_PROVIDER = new Random(1 << 7 << 1999);
+    //public static final Random RANDOM_PROVIDER = new Random(1 << 7 << 1999);
+    public static final Random RANDOM_PROVIDER = new Random();
     public static final Cloner DEFAULT_CLONER = new Cloner();
 
     static {

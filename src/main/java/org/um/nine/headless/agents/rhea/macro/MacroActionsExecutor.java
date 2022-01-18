@@ -3,6 +3,7 @@ package org.um.nine.headless.agents.rhea.macro;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
+import org.um.nine.headless.game.domain.roles.Researcher;
 import org.um.nine.headless.game.exceptions.NoDiseaseOrOutbreakPossibleDueToEvent;
 
 import java.util.Comparator;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 import static org.um.nine.headless.agents.rhea.state.StateEvaluation.Cd;
+import static org.um.nine.headless.agents.rhea.state.StateEvaluation.findMostValuableCityCardForPlayer;
 
 public record MacroActionsExecutor() {
 
@@ -37,6 +39,8 @@ public record MacroActionsExecutor() {
             } catch (NoDiseaseOrOutbreakPossibleDueToEvent ignored) {
             }
         }
+
+        state.getPlayerRepository().resetRound();
     }
 
     public void executeMovingAction(IState state, ActionType.MovingAction action) throws Exception {
@@ -50,6 +54,8 @@ public record MacroActionsExecutor() {
         state.getBoardRepository().setSelectedCity(state.getCityRepository().getCities().get(action.applyTo().getName()));
         Object[] obj = null;
         ActionType executedAction = action.action();
+        Player currentPlayer = state.getPlayerRepository().getCurrentPlayer();
+
         switch (action.action()) {
             case TREAT_DISEASE -> {
                 Map<Color, List<Disease>> grouped = state.getPlayerRepository().getCurrentPlayer().getCity().getCubes().stream().collect(Collectors.groupingBy(Disease::getColor));
@@ -63,19 +69,47 @@ public record MacroActionsExecutor() {
 
             }
             case SHARE_KNOWLEDGE -> {
-                Player sharingWith = state.getPlayerRepository().getPlayers().values().stream().filter(player -> player.getCity().equals(action.applyTo()) && !player.equals(state.getPlayerRepository().getCurrentPlayer())).findFirst().orElseThrow();
-                CityCard toShare = state.getPlayerRepository().getCurrentPlayer().getHand().stream().map(pc -> (CityCard) pc).filter(cc -> cc.getCity().equals(action.applyTo()) && cc.getCity().equals(state.getPlayerRepository().getCurrentPlayer().getCity())).findFirst().orElseThrow();
+                //this has to be the same when applying share knowledge: can only give card if in the same city
+                Player sharingWith = action.applyTo().
+                        getPawns().
+                        stream().
+                        filter(player -> !player.equals(currentPlayer)).
+                        findFirst().
+                        orElseThrow();
+
+                CityCard toShare;
+
+                if (currentPlayer.getRole() instanceof Researcher) {
+                    toShare = findMostValuableCityCardForPlayer(sharingWith, currentPlayer);
+                } else if (sharingWith.getRole() instanceof Researcher) {
+                    toShare = findMostValuableCityCardForPlayer(currentPlayer, sharingWith);
+                } else {
+                    //then if not current player can only share the city card with the city where it's in
+                    toShare = currentPlayer.
+                            getHand().
+                            stream().
+                            map(pc -> (CityCard) pc).
+                            filter(cc -> cc.getCity().equals(action.applyTo()) &&
+                                    cc.getCity().equals(currentPlayer.getCity()) &&
+                                    cc.getCity().equals(sharingWith.getCity())).
+                            findFirst().
+                            orElseThrow();
+                }
+
 
                 obj = new Object[]{sharingWith, toShare};
             }
 
             case DISCOVER_CURE -> {
-                Player p = state.getPlayerRepository().getCurrentPlayer();
-                var cards = p.getHand().stream().collect(Collectors.groupingBy(c -> ((CityCard) c).getCity().getColor()));
+                var cards = currentPlayer.getHand().stream().collect(Collectors.groupingBy(c -> ((CityCard) c).getCity().getColor()));
                 for (Color c : cards.keySet()) {   //check on the player cards the color to set as a parameter
-                    if (cards.get(c).size() >= Cd(p)) obj = new Object[]{
-                            state.getDiseaseRepository().getCures().get(c)
-                    };
+                    if (cards.get(c).size() >= Cd(currentPlayer)) {
+                        obj = new Object[]{
+                                state.getDiseaseRepository().getCures().get(c)
+                        };
+                        break;
+                    }
+
                 }
             }
         }

@@ -152,12 +152,14 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
             );
 
             // copy the genome for the mutation
-            Individual child = ancestor.clone();
 
             try {
 
                 // mutate the individual starting from the initial state
-                DEFAULT_MUTATOR.mutateIndividual(initialGameState, child, mutationRate);
+                Individual child = ancestor.clone();
+                DEFAULT_MUTATOR.mutateIndividual(initialGameState, ancestor, mutationRate);
+                //Individual child = DEFAULT_MUTATOR.mutateIndividual2(initialGameState,ancestor,mutationRate);
+
                 // use heuristic to evaluate the (#ROLLING HORIZON) states produced by all macros being applied
                 if (child.betterThan(ancestor, initialGameState, EvaluationType.ONE_BETTER)) {  //all macro actions are better
                     successfulMutations++;

@@ -3,7 +3,10 @@ package org.um.nine.headless.agents.utils;
 import org.um.nine.headless.agents.rhea.experiments.ExperimentalGame;
 import org.um.nine.headless.agents.rhea.macro.MacroAction;
 import org.um.nine.headless.agents.rhea.state.IState;
-import org.um.nine.headless.game.domain.*;
+import org.um.nine.headless.game.domain.Card;
+import org.um.nine.headless.game.domain.City;
+import org.um.nine.headless.game.domain.Disease;
+import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.InfectionCard;
 
@@ -96,16 +99,16 @@ public interface IReportable {
 
     default List<String> logDiseasesByCityAndColor(IState state) {
         List<String> s = new ArrayList<>();
-        s.add("Diseases : ");
+        s.add("Diseases :");
         state.getDiseaseRepository().getCubes().forEach((key, value) -> {
             if (value.isEmpty()) return;
+            s.add("\nColor " + key.getName() + " -> " + value.stream().filter(disease -> disease.getCity() != null).count());
             Map<City, List<Disease>> grouped = value.stream().filter(disease -> disease.getCity() != null).collect(Collectors.groupingBy(Disease::getCity));
             if (!grouped.isEmpty()) {
-                s.addAll(
-                        grouped.entrySet().
-                                stream().
-                                map(kv -> kv.getKey().getName() + " (" + kv.getValue().size() + " " + key + ")").
-                                collect(Collectors.toList())
+                s.addAll(grouped.entrySet().
+                        stream().
+                        map(kv -> kv.getKey().getName() + " (" + kv.getValue().size() + " " + key + ")").
+                        collect(Collectors.toList())
                 );
             }
         });
@@ -119,6 +122,10 @@ public interface IReportable {
                     card instanceof InfectionCard ic ? ic.getCity().getName() + " " + ic.getCity().getColor() :
                             card.getName();
         };
+        s.add("Player cards deck size -> " + state.getCardRepository().getPlayerDeck().size());
+        s.add("Infection cards deck size -> " + state.getCardRepository().getInfectionDeck().size());
+        s.add("Infection cards discard pile size -> " + state.getCardRepository().getInfectionDiscardPile().size());
+        s.add("\n\n");
         s.add("Player cards deck : " + state.getCardRepository().getPlayerDeck().stream().map(toString).collect(Collectors.toList()));
         s.add("Infection cards deck : " + state.getCardRepository().getInfectionDeck().stream().map(toString).collect(Collectors.toList()));
         s.add("Infection cards discard pile : " + state.getCardRepository().getInfectionDiscardPile().stream().map(toString).collect(Collectors.toList()));
@@ -130,8 +137,8 @@ public interface IReportable {
         log.add("Player order : " + DEFAULT_PLAYERS);
         log.addAll(this.logPlayers(state));
         log.add(this.logDiseasesByCityAndColor(state).toString());
-        var outbreaks = state.getDiseaseRepository().getOutbreakMarkers().stream().filter(Marker::isCurrent).findAny().orElse(null);
-        log.add("Outbreaks count : " + (outbreaks == null ? "NULL" : outbreaks.getId()));
+        var outbreaks = state.getDiseaseRepository().getOutbreaksCount();
+        log.add("Outbreaks count : " + outbreaks);
         log.addAll(this.logDecks(state));
         return log;
     }

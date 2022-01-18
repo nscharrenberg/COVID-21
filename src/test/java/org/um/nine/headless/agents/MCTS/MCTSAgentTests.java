@@ -13,11 +13,11 @@ import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Player;
 import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
-import org.um.nine.headless.game.exceptions.*;
+import org.um.nine.headless.game.exceptions.GameOverException;
+import org.um.nine.headless.game.exceptions.InvalidMoveException;
+import org.um.nine.headless.game.exceptions.MoveNotPossibleException;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 
 public class MCTSAgentTests {
 
@@ -94,7 +94,7 @@ public class MCTSAgentTests {
 
             int size = city.getCubes().size();
             if(size < 1){
-                state.getDiseaseRepository().infect(city.getColor(),city);
+                state.getDiseaseRepository().infect(city.getColor(), city, state);
                 size = 1;
             }
             IState newState = mcts.simulate(Actions.TREAT_DISEASE,state);

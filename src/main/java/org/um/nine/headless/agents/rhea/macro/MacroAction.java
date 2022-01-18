@@ -61,7 +61,7 @@ public interface MacroAction extends Cloneable {
     }
 
     default boolean isSkipAction() {
-        return standingActions().isEmpty() && movingActions().stream().allMatch(ma -> ma.action().equals(ActionType.SKIP_ACTION));
+        return movingActions().isEmpty() && standingActions().stream().allMatch(sa -> sa.action().equals(ActionType.SKIP_ACTION));
     }
 
     default MacroAction executableNow(IState currentState) {

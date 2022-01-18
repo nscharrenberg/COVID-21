@@ -23,7 +23,7 @@ public class DiseaseRepository {
      * @throws GameOverException - Thrown when its trying to exceed the last marker.
      */
     public void nextOutbreak() throws GameOverException {
-        GameStateFactory.getInitialState().getDiseaseRepository().nextOutbreak();
+        GameStateFactory.getInitialState().getDiseaseRepository().nextOutbreak(GameStateFactory.getInitialState());
         visualRepository.renderOutbreakMarker(GameStateFactory.getInitialState().getDiseaseRepository().getLastOutbreakMarker());
         visualRepository.renderOutbreakMarker(GameStateFactory.getInitialState().getDiseaseRepository().getCurrentOutbreakMarker());
     }
@@ -61,7 +61,7 @@ public class DiseaseRepository {
      */
     public void infect(Color color, City city)
             throws NoDiseaseOrOutbreakPossibleDueToEvent, NoCubesLeftException, GameOverException {
-        GameStateFactory.getInitialState().getDiseaseRepository().infect(color, city);
+        GameStateFactory.getInitialState().getDiseaseRepository().infect(color, city, GameStateFactory.getInitialState());
     }
 
     /**

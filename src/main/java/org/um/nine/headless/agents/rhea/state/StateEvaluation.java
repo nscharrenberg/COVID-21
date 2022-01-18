@@ -7,6 +7,7 @@ import org.um.nine.headless.game.domain.cards.CityCard;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.domain.roles.Scientist;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static com.google.common.primitives.Doubles.min;
@@ -24,6 +25,14 @@ public class StateEvaluation {
         double cd = Cd(p);
         if (hpt >= cd) return 1;
         return hpt / cd;
+    }
+
+    public static CityCard findMostValuableCityCardForPlayer(Player givingPlayer, Player takingPlayer) {
+        return givingPlayer.getHand().
+                stream().
+                map(pc -> (CityCard) pc).
+                max(Comparator.comparingDouble(cc -> StateEvaluation.abilityCure(cc.getCity().getColor(), takingPlayer))).
+                orElseGet(() -> ((CityCard) givingPlayer.getHand().get(0)));
     }
 
 
@@ -133,21 +142,16 @@ public class StateEvaluation {
 
 
     /**
-     *  Evaluate the state based on the number of outbreaks occured
+     * Evaluate the state based on the number of outbreaks occured
      */
-    public static StateHeuristic Fb = state -> {
-        final double[] b = new double[]{0};
-        state.getDiseaseRepository().getOutbreakMarkers().forEach(outbreakMarker -> {
-            if (outbreakMarker.isCurrent())
-                b[0] = outbreakMarker.getId();
-        });
-        return (1 - (b[0] / 8d));
-    };
+    public static StateHeuristic Fb = state -> (1 - (state.getDiseaseRepository().getOutbreaksCount() / 8.));
 
 
-
-
-
-
-
+    public static PlayerCard getDiscardingCard(Player currentPlayer) {
+        return currentPlayer.getHand().
+                stream().
+                min(Comparator.comparingDouble(cc ->
+                        StateEvaluation.abilityCure(((CityCard) cc).getCity().getColor(), currentPlayer))).
+                orElseGet(() -> (currentPlayer.getHand().get(0)));
+    }
 }

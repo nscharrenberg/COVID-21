@@ -1,5 +1,6 @@
 package org.um.nine.headless.game.repositories;
 
+import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.contracts.repositories.IDiseaseRepository;
 import org.um.nine.headless.game.domain.*;
 import org.um.nine.headless.game.domain.cards.CityCard;
@@ -27,6 +28,9 @@ public class DiseaseRepository implements IDiseaseRepository {
     private InfectionRateMarker currentInfectionRate;
     private InfectionRateMarker lastInfectionRate;
     private Disease diseaseCube;
+    private int outbreaksCount;
+    private int infectionRate, infectionRateCount;
+
     public DiseaseRepository() {
     }
 
@@ -34,8 +38,11 @@ public class DiseaseRepository implements IDiseaseRepository {
     public DiseaseRepository clone() {
         try {
             DiseaseRepository clone = (DiseaseRepository) super.clone();
-            clone.setInfectionRates(this.getInfectionRates().stream().map(InfectionRateMarker::clone).collect(Collectors.toList()));
-            clone.setOutbreakMarkers(this.getOutbreakMarkers().stream().map(OutbreakMarker::clone).collect(Collectors.toList()));
+            clone.outbreaksCount = this.outbreaksCount;
+            clone.infectionRate = this.infectionRate;
+            clone.infectionRateCount = this.infectionRateCount;
+            //clone.setInfectionRates(this.getInfectionRates().stream().map(InfectionRateMarker::clone).collect(Collectors.toList()));
+            //clone.setOutbreakMarkers(this.getOutbreakMarkers().stream().map(OutbreakMarker::clone).collect(Collectors.toList()));
             clone.setCubes(new HashMap<>());
             this.getCubes().forEach((color, diseases) -> clone.getCubes().put(color, diseases.stream().map(Disease::clone).collect(Collectors.toList())));
             clone.setCures(new HashMap<>());
@@ -50,27 +57,31 @@ public class DiseaseRepository implements IDiseaseRepository {
     /**
      * "Move" the outbreak marker to the next position.
      *
+     * @param state
      * @throws GameOverException - Thrown when its trying to exceed the last marker.
      */
     @Override
-    public void nextOutbreak() throws GameOverException {
-        OutbreakMarker marker = this.outbreakMarkers.stream().filter(Marker::isCurrent).findFirst().orElse(null);
-        lastOutbreakMarker = marker;
-        if (marker == null) {
-            this.outbreakMarkers.get(0).setCurrent(true);
-            return;
-        }
-
-        marker.setCurrent(false);
-        OutbreakMarker nextMarker = this.outbreakMarkers.stream().filter(v -> v.getId() == marker.getId() + 1).findFirst().orElse(null);
-
-        if (nextMarker == null) {
+    public void nextOutbreak(IState state) throws GameOverException {
+        outbreaksCount++;
+        if (outbreaksCount >= 8) {
             this.gameOver = true;
             throw new GameOverException();
         }
 
-        nextMarker.setCurrent(true);
-        currentOutbreakMarker = nextMarker;
+//        OutbreakMarker marker = this.outbreakMarkers.stream().filter(Marker::isCurrent).findFirst().orElse(null);
+//        lastOutbreakMarker = marker;
+//        if (marker == null) {
+//            this.outbreakMarkers.get(0).setCurrent(true);
+//            return;
+//        }
+//        marker.setCurrent(false);
+//        OutbreakMarker nextMarker = this.outbreakMarkers.stream().filter(v -> v.getId() == marker.getId() + 1).findFirst().orElse(null);
+//        if (nextMarker == null) {
+//            this.gameOver = true;
+//            throw new GameOverException();
+//        }
+//        nextMarker.setCurrent(true);
+//        currentOutbreakMarker = nextMarker;
     }
 
     /**
@@ -79,23 +90,27 @@ public class DiseaseRepository implements IDiseaseRepository {
      */
     @Override
     public void nextInfectionMarker() {
-        InfectionRateMarker marker = this.infectionRates.stream().filter(Marker::isCurrent).findFirst().orElse(null);
-        lastInfectionRate = marker;
-        if (marker == null) {
-            this.infectionRates.get(0).setCurrent(true);
-            return;
-        }
+        infectionRateCount++;
+        if (infectionRateCount == 7) infectionRateCount = 6;
+        this.infectionRate = InfectionRateMarker.draws[this.infectionRateCount];
 
-        marker.setCurrent(false);
-        InfectionRateMarker nextMarker = this.infectionRates.stream().filter(v -> v.getId() == marker.getId() + 1).findFirst().orElse(null);
-
-        // Just incase something went wrong and we are exceeding our markers
-        if (nextMarker == null) {
-            return;
-        }
-
-        currentInfectionRate = nextMarker;
-        nextMarker.setCurrent(true);
+//        InfectionRateMarker marker = this.infectionRates.stream().filter(Marker::isCurrent).findFirst().orElse(null);
+//        lastInfectionRate = marker;
+//        if (marker == null) {
+//            this.infectionRates.get(0).setCurrent(true);
+//            return;
+//        }
+//
+//        marker.setCurrent(false);
+//        InfectionRateMarker nextMarker = this.infectionRates.stream().filter(v -> v.getId() == marker.getId() + 1).findFirst().orElse(null);
+//
+//        // Just incase something went wrong and we are exceeding our markers
+//        if (nextMarker == null) {
+//            return;
+//        }
+//
+//        currentInfectionRate = nextMarker;
+//        nextMarker.setCurrent(true);
     }
 
     @Override
@@ -107,23 +122,25 @@ public class DiseaseRepository implements IDiseaseRepository {
      * Try to infect a city
      * Note 1: It wont infect when a player has the PREVENT_DISEASE_OR_OUTBREAK role permission
      * Note 2: It will cause an outbreak when the 4th block is being added
+     *
      * @param color - the color of the disease to remove
-     * @param city - the city to remove a disease from
+     * @param city  - the city to remove a disease from
+     * @param state
      * @throws NoDiseaseOrOutbreakPossibleDueToEvent - Thrown when a cube can't be place due to an event
-     * @throws NoCubesLeftException - Thrown when no cubes of the correlating infection card are left.
-     * @throws GameOverException - Thrown when the player lost the game
+     * @throws NoCubesLeftException                  - Thrown when no cubes of the correlating infection card are left.
+     * @throws GameOverException                     - Thrown when the player lost the game
      */
     @Override
-    public void infect(Color color, City city) throws NoDiseaseOrOutbreakPossibleDueToEvent, NoCubesLeftException, GameOverException {
+    public void infect(Color color, City city, IState state) throws NoDiseaseOrOutbreakPossibleDueToEvent, NoCubesLeftException, GameOverException {
         if (cures.get(color).isDiscovered()
                 && (cubes.get(color).stream().filter(c -> (c.getCity() != null)).findFirst().orElse(null) == null)) {
             return;
         }
 
         // Prevents both outbreaks and the placement of disease cubes in the city she is in
-        for (Player player : city.getPawns() ) {
-            if(player.getRole().events(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK)) {
-                throw new NoDiseaseOrOutbreakPossibleDueToEvent(city);
+        for (Player player : city.getPawns()) {
+            if (player.getRole().events(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK)) {
+                throw new NoDiseaseOrOutbreakPossibleDueToEvent(player, city);
             }
         }
 
@@ -131,7 +148,7 @@ public class DiseaseRepository implements IDiseaseRepository {
         for (City neighbor : city.getNeighbors()) {
             for (Player player : neighbor.getPawns() ) {
                 if(player.getRole().events(RoleEvent.PREVENT_DISEASE_OR_OUTBREAK)) {
-                    throw new NoDiseaseOrOutbreakPossibleDueToEvent(neighbor);
+                    throw new NoDiseaseOrOutbreakPossibleDueToEvent(player,neighbor);
                 }
             }
         }
@@ -144,8 +161,8 @@ public class DiseaseRepository implements IDiseaseRepository {
         }
 
         found.setCity(city);
-        if(!city.addCube(found)) {
-            initOutbreak(city, found);
+        if (!city.addCube(found)) {
+            initOutbreak(city, found, state);
         }
 
         if(Info.visualize){
@@ -237,6 +254,9 @@ public class DiseaseRepository implements IDiseaseRepository {
         this.cubes.put(Color.BLUE, new ArrayList<>());
         this.cubes.put(Color.BLACK, new ArrayList<>());
         this.gameOver = false;
+        this.outbreaksCount = 0;
+        this.infectionRateCount = 0;
+        this.infectionRate = InfectionRateMarker.draws[this.infectionRateCount];
 
         this.initCubes();
         this.initCures();
@@ -256,6 +276,11 @@ public class DiseaseRepository implements IDiseaseRepository {
     @Override
     public List<OutbreakMarker> getOutbreakMarkers() {
         return outbreakMarkers;
+    }
+
+    @Override
+    public int getOutbreaksCount() {
+        return this.outbreaksCount;
     }
 
     @Override
@@ -289,8 +314,9 @@ public class DiseaseRepository implements IDiseaseRepository {
         if (o == null || getClass() != o.getClass()) return false;
         DiseaseRepository that = (DiseaseRepository) o;
         return gameOver == that.gameOver &&
-                Objects.equals(infectionRates, that.infectionRates) &&
-                Objects.equals(outbreakMarkers, that.outbreakMarkers) &&
+                infectionRateCount == that.infectionRateCount &&
+                outbreaksCount == that.outbreaksCount &&
+                infectionRate == that.infectionRate &&
                 Objects.equals(cures, that.cures) &&
                 Objects.equals(cubes, that.cubes);
     }
@@ -309,6 +335,11 @@ public class DiseaseRepository implements IDiseaseRepository {
     @Override
     public InfectionRateMarker getCurrentInfectionRate() {
         return currentInfectionRate;
+    }
+
+    @Override
+    public int getInfectionRate() {
+        return 0;
     }
 
     @Override

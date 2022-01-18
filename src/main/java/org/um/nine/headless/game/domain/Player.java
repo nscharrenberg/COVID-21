@@ -1,7 +1,6 @@
 package org.um.nine.headless.game.domain;
 
 import org.um.nine.headless.agents.Agent;
-import org.um.nine.headless.agents.mcts.MCTS;
 import org.um.nine.headless.game.domain.cards.PlayerCard;
 
 import java.util.ArrayList;
@@ -110,8 +109,8 @@ public class Player implements Cloneable {
 
         Player player = (Player) o;
 
-        return id == player.id &&
-                isBot == player.isBot &&
+        return isBot == player.isBot &&
+                id == player.id &&
                 Objects.equals(name, player.name) &&
                 Objects.equals(role, player.role) &&
                 Objects.equals(city, player.city) &&
