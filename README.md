@@ -74,6 +74,26 @@ git clone git@github.com:nscharrenberg/COVID-21.git
 
 4. run `maven exec:java` to run the game.
 
+### Run Experiments
+The instructions on running the experiments are done through Intellij.
+
+1. clone or download:
+``` 
+git clone git@github.com:nscharrenberg/COVID-21.git
+```
+
+2. Open the directory you cloned in Intellij
+3. Let Intellij build the maven dependencies.
+3.1 If Intellij isn't picking this up automatically open pom.xml, click on "Maven" on the right and press the "cycle" icon on the sidebar that has popped up after pressing "Maven".
+4. Go to `src/main/java/org/um/nine/experiments/`
+5.1. RHEA: Go to `rhea/ExperimentRunner.java`
+5.2. MCTS: Go to `mcts/ExperimentRunnerMacroMCTS.java`
+5.3. Hybrid: Go to `hybrid/ExperimentRunnerHybrid.java`
+6. press the "Play" button that appear on the left side of the `main` function.   
+
+The experiment will now start and a GUI with a bunch of graphs will appear.
+You'll see the game analytics of the games that were played here.
+
 ## Usage
 
 Take a look at the "Show Rules" button when you started the game. (after you configured the game and press the "Start Game" button.
