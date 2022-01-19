@@ -22,47 +22,48 @@ public class StatGraph extends ApplicationFrame {
     private int lastKnownGameId = 0;
     // Actions
     private JFreeChart actionChart;
-    private DefaultCategoryDataset actionDataset = new DefaultCategoryDataset();
+    private final DefaultCategoryDataset actionDataset = new DefaultCategoryDataset();
     private ChartPanel actionChartPanel;
 
     // Macro Actions
     private JFreeChart macroActionChart;
-    private DefaultCategoryDataset macroActionDataset = new DefaultCategoryDataset();
+    private final DefaultCategoryDataset macroActionDataset = new DefaultCategoryDataset();
     private ChartPanel macroActionChartPanel;
 
     // Win Loss Ratio
     private JFreeChart winLossChart;
-    private DefaultCategoryDataset winLossDataset = new DefaultCategoryDataset();
+    private final DefaultCategoryDataset winLossDataset = new DefaultCategoryDataset();
     private ChartPanel winLossChartPanel;
 
     // Treat Diseases
     private JFreeChart treatDiseaseChart;
-    private DefaultCategoryDataset treatDiseaseDataset = new DefaultCategoryDataset();
+    private final DefaultCategoryDataset treatDiseaseDataset = new DefaultCategoryDataset();
     private ChartPanel treatDiseaseChartPanel;
 
     // Cure Diseases
     private JFreeChart cureDiseaseChart;
-    private DefaultCategoryDataset cureDiseaseDataset = new DefaultCategoryDataset();
+    private final DefaultCategoryDataset cureDiseaseDataset = new DefaultCategoryDataset();
     private ChartPanel cureDiseaseChartPanel;
 
     // Research Station
     private JFreeChart buildResearchStationChart;
-    private DefaultCategoryDataset buildResearchStationDataset = new DefaultCategoryDataset();
+    private final DefaultCategoryDataset buildResearchStationDataset = new DefaultCategoryDataset();
     private ChartPanel buildResearchStationChartPanel;
 
     // Visited Cities
     private JFreeChart cityVisitedChart;
-    private DefaultCategoryDataset cityVisitedDataset = new DefaultCategoryDataset();
+    private final DefaultCategoryDataset cityVisitedDataset = new DefaultCategoryDataset();
     private ChartPanel cityVisitedChartPanel;
 
-    private Timer timer = new Timer();
-    private JPanel panel;
+    private final Timer timer = new Timer();
+    private final JPanel panel;
     private JComboBox<Integer> gameComboBox;
 
     private JTextArea gameInfo;
 
     public StatGraph(String title) {
         super(title);
+        super.setLocationRelativeTo(null);
         panel = new JPanel();
         JScrollPane scrollPane = new JScrollPane(panel);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);

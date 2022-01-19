@@ -6,9 +6,8 @@ public class Card implements Cloneable {
     private String name;
 
     public Card clone() {
-        Card other = null;
         try {
-            other = (Card) super.clone();
+            Card other = (Card) super.clone();
             other.name = this.name;
             other.id = this.id;
             return other;

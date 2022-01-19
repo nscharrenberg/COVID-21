@@ -3,6 +3,7 @@ package org.um.nine.headless.agents.rhea.macro;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.game.domain.ActionType;
 import org.um.nine.headless.game.domain.City;
+import org.um.nine.headless.game.domain.RoundState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,17 +69,14 @@ public interface MacroAction extends Cloneable {
 
         if (currentState.isGameLost())
             return skipMacroAction(4, currentState.getPlayerRepository().getCurrentPlayer().getCity());
-
-
         IState forwardState = currentState.clone();
         //start from the current city (there shouldn't be any error staying here)
         City currentCity = forwardState.getPlayerRepository().getCurrentPlayer().getCity();
         MacroAction executable = macro(new ArrayList<>(), new ArrayList<>()); //empty macro
-
         int actionsExecuted;
         int m, s = m = 0;
-        forwardState.getPlayerRepository().setCurrentRoundState(null);
-
+        RoundState prev = forwardState.getPlayerRepository().getCurrentRoundState();
+        forwardState.getPlayerRepository().setCurrentRoundState(RoundState.ACTION);
         for (char c : index().toCharArray()) {
             try {                    //try executing the macro
                 if (c == 'm') {
@@ -102,7 +100,7 @@ public interface MacroAction extends Cloneable {
         actionsExecuted = s + m;
         for (int i = actionsExecuted; i < 4; i++)
             executable.add(new ActionType.StandingAction(ActionType.SKIP_ACTION, currentCity));
-
+        forwardState.getPlayerRepository().setCurrentRoundState(prev);
         return executable;
     }
 

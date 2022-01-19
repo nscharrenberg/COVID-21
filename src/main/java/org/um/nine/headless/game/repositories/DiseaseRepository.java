@@ -214,30 +214,26 @@ public class DiseaseRepository implements IDiseaseRepository {
             if (c instanceof CityCard cc) {
                 return cc.getCity().getColor().equals(cure.getColor());
             }
-
             return false;
         }).collect(Collectors.toCollection(ArrayList::new));
 
         int count = pc.size();
 
+
         if (pawn.getRole().events(RoleEvent.DISCOVER_CURE_FOUR_CARDS)) {
-            if (count >= 4) {
-                pawn.getHand().removeAll(pc);
-                cure.setDiscovered(true);
-                checkIfAllCured();
-                return;
-            }
+            if (count == 4) pawn.getHand().removeAll(pc);
+            else if (count > 4) for (int i = 0; i < 4; i++) pawn.getHand().remove(pc.get(i));
+            else throw new UnableToDiscoverCureException(cure);
+
+        } else {
+            if (count == 5) pawn.getHand().removeAll(pc);
+            else if (count > 5) for (int i = 0; i < 5; i++) pawn.getHand().remove(pc.get(i));
+            else throw new UnableToDiscoverCureException(cure);
         }
 
-        if (count >= 5) {
-            pawn.getHand().removeAll(pc);
-            cure.setDiscovered(true);
-            checkIfAllCured();
 
-            return;
-        }
-
-        throw new UnableToDiscoverCureException(cure);
+        cure.setDiscovered(true);
+        checkIfAllCured();
     }
 
     /**

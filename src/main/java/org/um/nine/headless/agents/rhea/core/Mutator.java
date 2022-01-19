@@ -6,7 +6,11 @@ import org.um.nine.headless.agents.rhea.macro.RPAMacroActionsFactory;
 import org.um.nine.headless.agents.rhea.state.IState;
 import org.um.nine.headless.agents.utils.IReportable;
 import org.um.nine.headless.game.domain.Player;
+import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.exceptions.GameOverException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.um.nine.headless.game.Settings.*;
 
@@ -20,17 +24,6 @@ public record Mutator() implements IReportable {
         return (value - min1) / (max1 - min1) * (max2 - min2) + min2;
     }
 
-    public Individual mutateIndividual2(IState initialState, Individual individual, double mutationRate) {
-        IState mutationState = initialState.clone();
-        Individual mutated = individual.clone();
-        for (int i = 0; i < ROLLING_HORIZON; i++) {
-            double mutationChance = RANDOM_PROVIDER.nextDouble();
-            if (mutationChance < mutationRate) {
-                mutated = mutateGene2(mutationState, individual, i);
-            }
-        }
-        return mutated;
-    }
 
     public Individual mutateIndividual(IState initialState, Individual individual, double mutationRate) throws GameOverException {
 
@@ -42,19 +35,20 @@ public record Mutator() implements IReportable {
             double mutationChance = RANDOM_PROVIDER.nextDouble();
             if (mutationChance < mutationRate) {
                 atLeastOneMutated = true;
-                newGenome = mutateGene(mutationState, individual, i);
+                newGenome = mutateGene2(mutationState, individual, i);
             }
         }
 
         if (!atLeastOneMutated) {
             int mutationIndex = RANDOM_PROVIDER.nextInt(ROLLING_HORIZON);
-            newGenome = mutateGene(mutationState, individual, mutationIndex);
+            newGenome = mutateGene2(mutationState, individual, mutationIndex);
         }
 
         return new Individual(newGenome);
     }
 
     private MacroAction[] mutateGene(IState individualMutationState, Individual individual, int mutationIndex) throws GameOverException {
+        List<PlayerCard> hand = new ArrayList<>(individualMutationState.getPlayerRepository().getCurrentPlayer().getHand());
         IState mutationState = individualMutationState.clone();
         Player p = mutationState.getPlayerRepository().getCurrentPlayer();
 
@@ -63,11 +57,10 @@ public record Mutator() implements IReportable {
             MacroAction macroIndex = individual.genome()[i].executableNow(mutationState);  // copy the existing macro
             mutationState.getPlayerRepository().setCurrentPlayer(p);
 
-            if (i == mutationIndex || macroIndex == null || macroIndex.isSkipAction())
+            if (i == mutationIndex)
                 macroIndex = HPAMacroActionsFactory.init(mutationState, p.getCity(), p).getNextMacroAction();
             else if (i > mutationIndex)
                 macroIndex = RPAMacroActionsFactory.init(mutationState, p.getCity(), p).getNextMacroAction();
-
 
             try {
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(mutationState, macroIndex, true);
@@ -80,11 +73,15 @@ public record Mutator() implements IReportable {
                 newGene[i] = macroIndex;
             }
         }
+
+        if (!individualMutationState.getPlayerRepository().getCurrentPlayer().getHand().equals(hand)) {
+            throw new IllegalStateException();
+        }
         return newGene;
 
     }
 
-    private Individual mutateGene2(IState geneMutation, Individual individual, int mutationIndex) {
+    private MacroAction[] mutateGene2(IState geneMutation, Individual individual, int mutationIndex) {
         IState mutationState = geneMutation.clone();
         Player p = mutationState.getPlayerRepository().getCurrentPlayer();
         MacroAction[] newGene = new MacroAction[ROLLING_HORIZON];
@@ -96,6 +93,7 @@ public record Mutator() implements IReportable {
                 macroIndex = RPAMacroActionsFactory.init(mutationState, p.getCity(), p).getNextMacroAction();
             else macroIndex = HPAMacroActionsFactory.init(mutationState, p.getCity(), p).getNextMacroAction();
             try {
+                macroIndex = macroIndex.executableNow(mutationState);
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(mutationState, macroIndex, true);
             } catch (GameOverException ignored) {
 
@@ -104,7 +102,7 @@ public record Mutator() implements IReportable {
             }
             newGene[i] = macroIndex;
         }
-        return new Individual(newGene);
+        return newGene;
     }
 
 }

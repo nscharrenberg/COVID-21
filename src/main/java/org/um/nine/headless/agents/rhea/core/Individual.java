@@ -28,11 +28,9 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         double[] eval = new double[genome.length];
         IState evaluationState = state.clone();
         Player player = evaluationState.getPlayerRepository().getCurrentPlayer();
-
         for (int i = 0; i < genome().length; i++) {
             evaluationState.getPlayerRepository().setCurrentPlayer(player);
-            if (genome[i] == null) genome()[i] = skipMacroAction(4, player.getCity());
-            MacroAction executable = genome()[i].executableNow(evaluationState);
+            MacroAction executable = genome()[i];
             try {
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(evaluationState, executable, true);
             } catch (GameOverException ignored) {
@@ -40,7 +38,6 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
                 e.printStackTrace();
             } finally {
                 eval[i] = BEST_HEURISTIC.evaluateState(evaluationState);
-
             }
         }
         return eval;
@@ -51,7 +48,6 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         double[] thisEvaluation = this.evaluateIndividual(evaluationState);
         double[] thatEvaluation = other.evaluateIndividual(evaluationState);
         // all better or false
-
         BooleanSupplier evaluator = null;
         switch (evaluationType) {
             case ALL_BETTER -> evaluator = () -> {
@@ -75,7 +71,6 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
                 return avgThis > avgThat;
             };
         }
-
         return evaluator.getAsBoolean();
     }
 
@@ -89,38 +84,31 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
     public Individual initGenome(IState state) {
         IState initState = state.clone();
         Player player = initState.getPlayerRepository().getCurrentPlayer();
-        String playerPath = this.getPath();
         for (int i = 0; i < this.genome().length; i++) {
             City currentCity = player.getCity();
             MacroAction nextMacro = HPAMacroActionsFactory.init(initState, currentCity, player).getNextMacroAction();
             this.genome()[i] = nextMacro = nextMacro.executableNow(initState);
-
             try {
                 DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(initState, nextMacro, true);
             } catch (GameOverException gameOver) {
                 //System.err.println(gameOver.getMessage() + " : " + IReportable.getDescription());
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
             initState.getPlayerRepository().setCurrentPlayer(player); //trick the game logic here to allow fault turn
         }
-
-        this.setPath(playerPath);
         this.logGenome(this.genome(), "/genome-init.txt");
         return this;
     }
 
     public Individual initSkipActionGenome(IState initState) {
         Player player = initState.getPlayerRepository().getCurrentPlayer();
-        String playerPath = this.getPath();
         MacroAction[] skipMacros =
                 IntStream.range(0, ROLLING_HORIZON).
                         mapToObj(i -> skipMacroAction(4, player.getCity()
                         )).
                         toArray(MacroAction[]::new);
 
-        this.setPath(playerPath);
         Individual allSkip = new Individual(skipMacros);
         this.logGenome(allSkip.genome(), "/genome-init.txt");
         return allSkip;
@@ -132,12 +120,14 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         // this will be a set of (#ROLLING_HORIZON) macro actions to be applied in a row
 
 
+        // todo : when initialising and mutating the individual change player turn after each macro
+
+
         //init genome until rolling horizon
         Individual ancestor = this.initGenome(initialGameState);
         //Individual ancestor = this.initSkipActionGenome(initialGameState);
 
         successfulMutations = 0;
-        String playerPath = getPath();
 
         // for a fixed amount of iterations
         for (int i = 0; i < N_MUTATIONS; i++) {
@@ -156,7 +146,7 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
 
                 // mutate the individual starting from the initial state
                 //Individual child = DEFAULT_MUTATOR.mutateIndividual(initialGameState, ancestor, mutationRate);
-                Individual child = DEFAULT_MUTATOR.mutateIndividual2(initialGameState, ancestor, mutationRate);
+                Individual child = DEFAULT_MUTATOR.mutateIndividual(initialGameState, ancestor, mutationRate);
 
                 // use heuristic to evaluate the (#ROLLING HORIZON) states produced by all macros being applied
                 if (child.betterThan(ancestor, initialGameState, EvaluationType.ONE_BETTER)) {  //all macro actions are better
@@ -173,7 +163,6 @@ public final record Individual(MacroAction[] genome) implements IAgent, IReporta
         }
 
         System.out.println("Successful mutations : " + successfulMutations);
-        setPath(playerPath);
         return ancestor.genome()[0];
     }
 

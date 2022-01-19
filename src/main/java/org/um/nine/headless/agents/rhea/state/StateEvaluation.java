@@ -29,6 +29,7 @@ public class StateEvaluation {
 
     public static CityCard findMostValuableCityCardForPlayer(Player givingPlayer, Player takingPlayer) {
         final CityCard c = (CityCard) givingPlayer.getHand().get(0);
+
         return givingPlayer.getHand().
                 stream().
                 map(pc -> (CityCard) pc).

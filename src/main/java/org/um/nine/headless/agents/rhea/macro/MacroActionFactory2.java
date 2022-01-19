@@ -43,7 +43,7 @@ public abstract class MacroActionFactory2 implements IReportable {
         List<MacroAction> actions = new ArrayList<>();
         actions.addAll(buildDiscoverCureMacroActions());
         actions.addAll(buildTreatDiseaseMacroActions(3));
-        actions.addAll(buildTakeKnowledgeMacroActions());
+        //actions.addAll(buildTakeKnowledgeMacroActions());
         actions.addAll(buildGiveKnowledgeMacroActions());
         actions.addAll(buildBuildRSMacroActions());
         actions.addAll(buildTreatDiseaseMacroActions(2));
@@ -293,7 +293,6 @@ public abstract class MacroActionFactory2 implements IReportable {
                     stream().
                     map(pc -> (CityCard) pc).
                     map(CityCard::getCity).
-
                     forEach(cityInHand -> {   // see if the city is reachable
                         List<ActionType.MovingAction> path = pathFinder.lightestPath(cityInHand);
                         boolean exchangeNow = cityInHand.equals(currentPlayer.getCity()) || (path.size() > 0 && path.size() < 4);
@@ -344,7 +343,7 @@ public abstract class MacroActionFactory2 implements IReportable {
                             if (path.size() > 0 && path.size() <= 4) {
                                 List<ActionType.StandingAction> skip = new ArrayList<>();
                                 IntStream.range(path.size(), 4).forEach(i -> skip.add(new ActionType.StandingAction(ActionType.SKIP_ACTION, player.getCity())));
-                                //takeActions.add(macro(path,skip));
+                                takeActions.add(macro(path, skip));
                             }
                         }
                     } else {
@@ -372,7 +371,7 @@ public abstract class MacroActionFactory2 implements IReportable {
     protected List<MacroAction> buildGiveKnowledgeMacroActionsResearcher() {
         List<MacroAction> giveActions = new ArrayList<>();
         Player currentPlayer = state.getPlayerRepository().getCurrentPlayer();
-
+        if (currentPlayer.getHand().isEmpty()) return giveActions;
 
         state.getCityRepository().
                 getCities().
@@ -393,8 +392,7 @@ public abstract class MacroActionFactory2 implements IReportable {
                                     IntStream.range(path.size(), 4).
                                             mapToObj(i -> new ActionType.StandingAction(ActionType.SKIP_ACTION, city)).
                                             collect(Collectors.toList());
-
-                            //giveActions.add(macro(path,skip));
+                            giveActions.add(macro(path, skip));
                         } else {
                             otherPlayersInCity.
                                     stream().
@@ -438,20 +436,18 @@ public abstract class MacroActionFactory2 implements IReportable {
             lastReachedCity = lastReached.toCity();
         }
         if (lastReachedCity == null) throw new IllegalStateException("Error");
+
         try {
 
             IState forward = this.state.clone();
-            currentPlayer = forward.getPlayerRepository().getPlayers().get(currentPlayer.getName());
-
-            new MacroActionsExecutor().executeIndexedMacro(forward, toFill, false);
-
-            var next =
-                    initialise(forward, lastReachedCity, currentPlayer).
-                            getActions().
-                            stream().
-                            filter(macro -> macro.size() == remaining).
-                            findFirst().
-                            orElse(MacroAction.skipMacroAction(remaining, currentPlayer.getCity()));
+            Player currentPlayer = forward.getPlayerRepository().getPlayers().get(this.getCurrentPlayer().getName());
+            new MacroActionsExecutor().forwardMacro(forward, toFill);
+            var next = initialise(forward, lastReachedCity, currentPlayer).
+                    getActions().
+                    stream().
+                    filter(macro -> macro.size() == remaining).
+                    findFirst().
+                    orElse(MacroAction.skipMacroAction(remaining, currentPlayer.getCity()));
 
             filledMacro = combine(toFill, next);
 

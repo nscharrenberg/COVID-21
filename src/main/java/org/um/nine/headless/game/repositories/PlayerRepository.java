@@ -44,6 +44,7 @@ public class PlayerRepository implements IPlayerRepository {
             PlayerRepository other = (PlayerRepository) super.clone();
             other.players = new HashMap<>();
             this.players.forEach((k, v) -> other.players.put(k, v.clone()));
+
             if (this.availableRoles != null) {
                 other.availableRoles = (Stack<Role>) this.availableRoles.clone();
             }
@@ -374,7 +375,7 @@ public class PlayerRepository implements IPlayerRepository {
         player.addHand(card);
 
         log.addStep(" shared " + city.getName() + " with " + target.getName(), city, player);
-        nextTurn(this.currentRoundState, state);
+        //nextTurn(this.currentRoundState, state);
     }
 
     @Override
@@ -416,7 +417,7 @@ public class PlayerRepository implements IPlayerRepository {
     @Override
     public void playerAction(ActionType type, IState state, Object... args) throws Exception {
         if (this.getCurrentRoundState() == null) this.nextTurn(state);
-        if (currentRoundState.equals(RoundState.ACTION)) {
+        if (this.getCurrentRoundState().equals(RoundState.ACTION)) {
 //            if(currentPlayer.isBot() && !ignored){
 //                IState mcts = state.clone();
 //                if(currentPlayer.getAgent() == null){

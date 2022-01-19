@@ -57,7 +57,7 @@ public class ExperimentalGameRunner {
         DEFAULT_MUTATOR = new Mutator();
 
 
-        int numGames = 3;
+        int numGames = 1;
         int gamesWon = 0;
         gamesLoop:
         for (int i = 0; i < numGames; i++) {
@@ -81,14 +81,13 @@ public class ExperimentalGameRunner {
             ROUND_INDEX = 0;
             gameRunningLoop:
             while (DEFAULT_RUNNING_GAME.onGoing()) {
-
-                DEFAULT_REPORTER.setPath(gamePath);
                 MacroNode[] allPlayersMacro = new MacroNode[DEFAULT_PLAYERS.size()];
                 System.out.println("\nRound " + ROUND_INDEX);
+                String roundPath = gamePath + "/round-" + ROUND_INDEX;
                 // for each player
                 for (int k = 0; k < DEFAULT_PLAYERS.size(); k++) {
-
                     Player currentPlayer = DEFAULT_PLAYERS.get(k);
+                    DEFAULT_REPORTER.setPath(roundPath + "/" + currentPlayer.getName() + "-" + currentPlayer.getRole().getName());
                     System.out.println("\nCurrent player : " + currentPlayer + " - city : " + currentPlayer.getCity().getName());
                     System.out.println("Cards in hand : " + currentPlayer.getHand().stream().map(cc -> ((CityCard) cc).getCity().getName()).collect(Collectors.toList()));
                     gameState.getPlayerRepository().setCurrentPlayer(currentPlayer);
@@ -100,7 +99,7 @@ public class ExperimentalGameRunner {
                         System.out.println("Executing actions :" + nextMacro + " ...");
                         DEFAULT_MACRO_ACTIONS_EXECUTOR.executeIndexedMacro(gameState, nextMacro, true);
                         // if no exceptions arise then we can keep the macro
-                        macroNode = new MacroNode(DEFAULT_PLAYERS.get(k), nextMacro);
+                        macroNode = new MacroNode(currentPlayer, nextMacro);
                     } catch (GameOverException e) {
                         //System.err.println(e.getMessage() + " :: " + IReportable.getDescription());
                         // if neither the mutation was successful just break the game and start a new one
@@ -135,10 +134,11 @@ public class ExperimentalGameRunner {
                         DEFAULT_REPORTER.logState(state).forEach(DEFAULT_REPORTER::append);
                         DEFAULT_REPORTER.append("\n\n");
                         DEFAULT_REPORTER.append("Round " + stateIndex[0]);
+                        System.out.println("\n\nRound " + stateIndex[0]);
 
                         for (MacroNode macroNode : macroNodes) {
-                            DEFAULT_REPORTER.append("Player " + macroNode.player());
-                            DEFAULT_REPORTER.append("Macro " + macroNode.macroAction());
+                            DEFAULT_REPORTER.append(macroNode.toString());
+                            System.out.println("Player " + macroNode);
                         }
                         DEFAULT_REPORTER.report();
                         DEFAULT_REPORTER.clear();
@@ -151,7 +151,6 @@ public class ExperimentalGameRunner {
         }
 
         System.out.println("Games won : " + gamesWon);
-
 
     }
 

@@ -171,8 +171,6 @@ public class City implements Cloneable {
 
     public void setResearchStation(ResearchStation researchStation) {
         this.researchStation = researchStation;
-
-        this.researchStation.setCity(this);
     }
 
     public void addPawn(Player player) {

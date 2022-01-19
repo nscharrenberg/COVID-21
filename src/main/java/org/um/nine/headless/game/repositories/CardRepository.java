@@ -94,7 +94,7 @@ public class CardRepository implements ICardRepository {
             return;
         }
         if (state.isOriginalGameState())
-            System.out.println("Player " + currentPlayer.getName() + " draws player card : " + drawn.getName());
+            System.out.println("Player " + currentPlayer.getName() + "-" + currentPlayer.getRole().getName() + " draws player card : " + drawn.getName());
 
         if (currentPlayer.getHand().size() >= Settings.HAND_LIMIT) {
             if (toDiscard.length <= 0) {

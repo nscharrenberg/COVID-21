@@ -4,6 +4,7 @@ import org.um.nine.headless.game.contracts.repositories.*;
 import org.um.nine.headless.game.domain.City;
 import org.um.nine.headless.game.domain.Disease;
 import org.um.nine.headless.game.domain.Player;
+import org.um.nine.headless.game.domain.cards.PlayerCard;
 import org.um.nine.headless.game.repositories.*;
 
 import java.util.ArrayList;
@@ -137,11 +138,16 @@ public class State implements IState {
             clone.setEpidemicRepository(this.getEpidemicRepository().clone());
             clone.setDiseaseRepository(this.getDiseaseRepository().clone());
 
-
             clone.getCityRepository().getCities().forEach(
                     (s, thatCity) -> {
                         City thisCity = this.getCityRepository().getCities().get(s);
-                        thatCity.setPawns(thisCity.getPawns().stream().map(player -> clone.getPlayerRepository().getPlayers().get(player.getName())).collect(Collectors.toCollection(ArrayList::new)));
+
+                        thatCity.setPawns(thisCity.getPawns().
+                                stream().
+                                map(player -> clone.getPlayerRepository().
+                                        getPlayers().
+                                        get(player.getName())).
+                                collect(Collectors.toCollection(ArrayList::new)));
 
                         List<Disease> diseases = thisCity.
                                 getCubes().
@@ -174,14 +180,14 @@ public class State implements IState {
                                 collect(Collectors.toList());
                         thatCity.setNeighbors(neighbours);
 
+                        thatCity.setResearchStation(null);
                         this.getCityRepository().
                                 getResearchStations().
                                 stream().
                                 filter(Objects::nonNull).
                                 filter(rs -> rs.getCity().equals(thatCity)).
                                 findFirst().
-                                ifPresentOrElse(
-                                        rs -> {
+                                ifPresentOrElse(rs -> {
                                             thatCity.setResearchStation(rs);
                                             rs.setCity(thatCity);
                                         },
@@ -192,6 +198,15 @@ public class State implements IState {
                     }
             );
 
+            clone.getCardRepository().getPlayerDeck().forEach(thatCard -> {
+                PlayerCard thisCard = this.getCardRepository().getPlayerDeck().get(
+                        this.getCardRepository().getPlayerDeck().indexOf(thatCard)
+                );
+                if (thisCard.getPlayer() == null) return;
+                Player thatPlayer = clone.getPlayerRepository().getPlayers().get(thisCard.getPlayer().getName());
+                thatCard.setPlayer(thatPlayer);
+                thatPlayer.getHand().set(thatPlayer.getHand().indexOf(thatCard), thatCard);
+            });
 
             if (!clone.equals(this)) {
                 throw new IllegalStateException("Error when cloning state");

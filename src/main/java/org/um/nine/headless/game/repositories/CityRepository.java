@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static org.um.nine.headless.game.Settings.RESEARCH_STATION_THRESHOLD;
-
 public class CityRepository implements ICityRepository {
     private HashMap<String, City> cities;
     private List<ResearchStation> researchStations;
@@ -60,7 +58,9 @@ public class CityRepository implements ICityRepository {
 
     @Override
     public void addResearchStation(City city) throws Exception {
-        city.setResearchStation(new ResearchStation());
+        ResearchStation rs = new ResearchStation();
+        rs.setCity(city);
+        city.setResearchStation(rs);
         this.getResearchStations().add(city.getResearchStation());
     }
 
@@ -96,7 +96,8 @@ public class CityRepository implements ICityRepository {
             }
         }
 
-        city.setResearchStation(new ResearchStation());
+        ResearchStation rs = new ResearchStation();
+        city.setResearchStation(rs);
         this.getResearchStations().add(city.getResearchStation());
 
     }

@@ -33,7 +33,6 @@ public class PlayerCard extends Card {
         if (o == null || getClass() != o.getClass()) return false;
 
         PlayerCard that = (PlayerCard) o;
-
         return Objects.equals(player, that.player);
     }
 
